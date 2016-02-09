@@ -1,0 +1,5 @@
+module Zabaat.Controller
+ZClient 			1.0 Client.qml
+ZController 		1.0 ZController.qml
+ZListModel			1.0 ZListModel.qml
+ZTextBox_Bindable 	1.0 ZTextBox_Bindable.qml

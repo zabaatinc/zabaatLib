@@ -1,0 +1,2 @@
+module Zabaat.Utility.FileIO
+plugin zfileio

@@ -1,0 +1,4 @@
+module Zabaat.Misc.FileDownloader
+plugin ZFileDownloader
+typeinfo plugins.qmltypes
+ZFileDownloadModel 1.0 ZFileDownloadModel.qml

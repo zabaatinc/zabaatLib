@@ -1,0 +1,18 @@
+module Zabaat.Material
+singleton MaterialSettings 	1.0 MaterialSettings.qml
+singleton FA 	    		1.0 ./fonts/FontAwesome.qml
+singleton Fonts     		1.0 ./fonts/Fonts.qml
+singleton Colors			1.0 ./components/Colors.qml
+singleton Units				1.0 ./components/Units.qml
+singleton ZStateHandler		1.0 ./components/ZStateHandler.qml
+ZObject						1.0 ./components/ZObject.qml
+ZEdit						1.0 ./components/ZEdit.qml
+ZSkin						1.0 ./components/ZSkin.qml
+ZInk 						1.0 ./components/ZInk.qml
+ZInkArea 					1.0 ./components/ZInkArea.qml
+ZButton 					1.0 ./components/logic/buttons/ZButton.qml
+ZHoldButton 				1.0 ./components/logic/buttons/ZHoldButton.qml
+ZSwitch 					1.0 ./components/logic/buttons/ZSwitch.qml
+ZSlider						1.0 ./components/logic/sliders/ZSlider.qml
+ZSpinner					1.0 ./components/logic/lists/ZSpinner.qml
+ZTextBox					1.0 ./components/logic/textboxes/ZTextBox.qml

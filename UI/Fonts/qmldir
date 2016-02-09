@@ -1,0 +1,2 @@
+Module Zabaat.UI.Fonts
+singleton FontAwesome 1.0 FontAwesome.qml

@@ -1,0 +1,3 @@
+module Zabaat.UI.HUD.Chat
+ZChatView 1.0 ZChatView.qml
+ZChat 1.0 ZChat.qml

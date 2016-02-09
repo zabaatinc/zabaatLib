@@ -1,0 +1,6 @@
+module Zabaat.Navigation
+ZLoader     	 		1.0 	ZLoader.qml
+AppLoader     	 		1.0 	AppLoader.qml
+RecentsView				1.0		RecentsView.qml
+ObjectModel				1.0		ObjectModel.qml
+NavBar					1.0		NavBar.qml

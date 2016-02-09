@@ -1,0 +1,9 @@
+module Zabaat.Shaders
+Blur   		  	1.0 Blur.qml
+Contrast		1.0 Contrast.qml
+Effect 		    1.0 Effect.qml
+EffectChain		1.0 EffectChain.qml	
+HSV			    1.0 HSV.qml
+PencilDrawing 	1.0 PencilDrawing.qml
+SobelEdgeDetect 1.0 SobelEdgeDetect.qml
+WolfEdgeDetect  1.0 WolfEdgeDetect.qml

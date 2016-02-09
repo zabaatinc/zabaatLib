@@ -1,0 +1,11 @@
+module Zabaat.UI.Wolf.Extended
+FancyBtn 	 1.0 FancyBtn.qml
+FancyBtnGrid 1.0 FancyBtnGrid.qml
+ZFlippable 	 1.0 ZFlippable.qml
+GenericHeader 1.0 ./GenericHeader/GenericHeader.qml
+GenericHeader_AdvancedProperties 1.0 ./GenericHeader/GenericHeader_AdvancedProperties.qml
+LineEditor 		1.0 ./GenericHeader/LineEditor.qml
+ListWithHeader 	1.0 ./GenericHeader/ListWithHeader.qml
+WarningMessage  1.0 WarningMessage.qml
+ImageGallery	1.0	ImageGallery.qml
+UIBlocker		1.0 UIBlocker.qml

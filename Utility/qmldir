@@ -1,0 +1,7 @@
+module Zabaat.Utility
+UIBlocker 1.0 UIBlocker.qml
+WarningMessage 1.0 WarningMessage.qml
+ZTracer	 1.0 ZTracer.qml
+ZGestureArea 1.0 ZGestureArea.qml
+singleton Functions 1.0 Functions.qml
+ZController 1.0 ./ZController/ZController.qml

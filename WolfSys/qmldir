@@ -1,0 +1,3 @@
+module Zabaat.WolfSys
+plugin wolfsysplugin
+typeinfo plugins.qmltypes

@@ -1,0 +1,2 @@
+module Zabaat.Controls.StateMachine
+StateMachineEditor	1.0 ./StateMachineEditor/StateMachineEditor.qml

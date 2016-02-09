@@ -1,0 +1,3 @@
+module Zabaat.Misc.Util.Clipboard
+plugin zclipboard
+typeinfo plugins.qmltypes
