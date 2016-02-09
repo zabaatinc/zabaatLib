@@ -16,3 +16,4 @@ ZSwitch 					1.0 ./components/logic/buttons/ZSwitch.qml
 ZSlider						1.0 ./components/logic/sliders/ZSlider.qml
 ZSpinner					1.0 ./components/logic/lists/ZSpinner.qml
 ZTextBox					1.0 ./components/logic/textboxes/ZTextBox.qml
+ZRadialView					1.0 ./components/logic/lists/ZRadialView.qml
