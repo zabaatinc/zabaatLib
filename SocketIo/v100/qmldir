@@ -1,0 +1,2 @@
+module Zabaat.SocketIO.v100
+plugin qmlsocketIO
