@@ -134,6 +134,9 @@ Item
    //This can occur if we have a callback that wanted customers/4 (using ZTextBox_Bindable) or a query of customers/4
    function addModel(name, model, cb)
    {
+       if(name === null || typeof name === 'undefined')
+           return console.error("no name provided to ZController.addModel", name)
+
 //       console.log('addModel called', name, model)
 //       if(!isArray(model) && model.data){
 //            model = [model.data]

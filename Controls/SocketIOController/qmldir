@@ -1,0 +1,3 @@
+module Zabaat.Controls
+SocketIOController  0.9 ./v09/Client.qml
+SocketIOController  1.0 ./v10/SocketIOController.qml
