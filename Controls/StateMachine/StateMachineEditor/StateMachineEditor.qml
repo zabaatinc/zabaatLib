@@ -6,24 +6,18 @@ import QtQuick.Dialogs 1.2
 
 Item {
     id : rootObject
-
-//    contentWidth : width
-//    contentHeight: height
-//    interactive             : true
     signal loaded(string url)
     signal saved(string url)
 
-
     property int cellHeight : 40
     property alias logic    : logic
+    property alias name     : stateMachineNameBox.text
 
     transform: Scale {
         id : scaley
-        xScale : logic.loadedWidth === -1 ?  1 :  width / logic.loadedWidth
+        xScale : logic.loadedWidth === -1 ?  1 :  width  / logic.loadedWidth
         yScale : logic.loadedHeight === -1 ? 1 :  height / logic.loadedHeight
     }
-
-    property alias name : stateMachineNameBox.text
 
     UIBlocker{
         id: uiBlocker
@@ -31,20 +25,19 @@ Item {
         color       : "black"
         text        : ""
         visible     : logic.mode !== 0
-        focus : false
+        focus       : false
 
         Text {
-            width : parent.width
-            height : 64
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment  : Text.AlignVCenter
+            width                   : parent.width
+            height                  : 64
+            horizontalAlignment     : Text.AlignHCenter
+            verticalAlignment       : Text.AlignVCenter
             anchors.horizontalCenter: parent.horizontalCenter
-            font.pixelSize: 48
-            color : "white"
-            text : logic.mode === 1 ? "Click a box to finish creating transition" : ""
-            focus : false
+            font.pixelSize          : 48
+            color                   : "white"
+            text                    : logic.mode === 1 ? "Click a box to finish creating transition" : ""
+            focus                   : false
         }
-
     }
     MouseArea {
         id : rightClickDetector
@@ -70,9 +63,9 @@ Item {
 
 
     Item {  //contains all the stateboxes
-        id : stateContainer
+        id          : stateContainer
         anchors.fill: parent
-        enabled : !areBlocker.visible && !aleBlocker.visible
+        enabled     : !areBlocker.visible && !aleBlocker.visible
 
         function getJSON(){
             var arr = []
@@ -106,7 +99,6 @@ Item {
         width : parent.width * 0.1
         height : cellHeight
         enabled : stateContainer.enabled
-        visible:  enabled
 
         ZButton {
             text : "save"
@@ -249,7 +241,6 @@ Item {
                 modeItem         = item;
                 modeItem.enabled = false;
                 mode             = 1;       //transition mode
-
             }
         }
         function showContextMenu(model,x,y, src) {

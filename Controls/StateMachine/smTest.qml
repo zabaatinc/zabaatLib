@@ -1,11 +1,12 @@
 import QtQuick 2.4
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
-import "StateMachineEditor"
+import "StateMachineEditor"   as V1
+import "StateMachineEditorv2" as V2
 import "StateMachineViewer"
 import Zabaat.Material 1.0
 
-ApplicationWindow {
+Window {
     id : mainWindow
     width : Screen.width
     height : Screen.height - 300
@@ -15,8 +16,9 @@ ApplicationWindow {
     Connections {
         target: MaterialSettings
         onLoadedChanged : if(MaterialSettings.loaded) {
-//                              loader.sourceComponent = editor
-                              loader.sourceComponent = smc
+                              loader.sourceComponent = editor
+//                              loader.sourceComponent = smc
+//                              loader.source = "StateMachineEditorv2/StateMachineEditor"
                           }
     }
 
@@ -24,7 +26,7 @@ ApplicationWindow {
     Loader {
         id : loader
         anchors.fill: parent
-
+//        onLoaded : if(item) item.logic.model = lm.get(0)
     }
 
     Component {
@@ -32,40 +34,86 @@ ApplicationWindow {
 
         Item {
 
-            StateMachine {
-                id : sm
+            Column {
                 width  : parent.width
                 height : parent.height
-                qmlDirectory: Qt.resolvedUrl("qml")
-                onCurrentStateChanged: sme.logic.setActiveState(currentState)
-            }
 
-
-            Window {
-
-                width : parent.width
-                height : parent.height
-                visible : true
-
-                StateMachineEditor {
-                    id : sme
-                    anchors.fill: parent
-                    enabled : false
-                    onLoaded : sm.stateMachinePath = "file:///" + url;
+                StateMachine {
+                    id : sm
+                    width  : parent.width
+                    height : parent.height/2
+                    qmlDirectory: Qt.resolvedUrl("qml")
+                    onCurrentStateChanged: sme.logic.setActiveState(currentState)
                 }
-            }
 
+                V2.StateMachineEditor {
+                    id : sme
+                    width : parent.width
+                    height : parent.height/2
+                    enabled : false
+//                    onLoaded : sm.stateMachinePath = "file:///" + url;
+                }
+
+            }
             Component.onCompleted: sme.logic.openFileDialog("load")
         }
     }
     Component {
         id : editor
-        StateMachineEditor {
+
+        V2.StateMachineEditor {
             id : sme
-//                width : parent.width
-//                height : parent.height
+            model : lm.get(0)
+            anchors.fill: parent
+
+    //                width : parent.width
+    //                height : parent.height
+
         }
+
     }
+
+
+    //this is to simluate a controller environment
+
+    ListModel {
+        id : lm
+        dynamicRoles: true
+        Component.onCompleted: lm.append(stateMachineObject)
+    }
+
+
+    property var stateMachineObject : ({
+                                id   : "someMongoId" ,
+                                name : "nameless"    ,
+                                functions  : [ {
+                                                  id:"0",
+                                                  name : "stateChange",
+                                                  readOnly : false,
+                                                  rules    : [{ name : "id", type :"string", required:true, choices:"" } ,
+                                                               { name : "dest", type:"string",required:true, choices:"" } ]
+                                                } ,
+                                                {
+                                                   id       :"1",
+                                                   name     : "update",
+                                                   readOnly : true,
+                                                   rules    : [{ name : "model", type :"object", required:true, choices:"" }]
+                                                 }
+                                              ] ,
+                                states     : [ { id : "0",
+                                                  name : "red",
+                                                  transitions  : [] ,   //implicit usage
+                                                  functions    : []  ,
+                                                  x : 100,
+                                                  y : 100,
+                                                  w : 192,
+                                                  h : 64,
+                                                  isDefault:true,
+                                                }
+                                             ]
+                             })
+
+
 
 
 
