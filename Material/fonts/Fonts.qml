@@ -79,12 +79,14 @@ QtObject {
             }
 
             function clear() {
-                fonts = []
-                for(var i = 0; i < children.length; i++) {
-                    children[i].parent = null
-                    children[i].destroy()
-                }
-                children = []
+                //dont clear, i think this destroys some things really hard! just dont import FA
+                //to your projects?
+//                fonts = []
+//                for(var i = 0; i < children.length; i++) {
+//                    children[i].parent = null
+//                    children[i].destroy()
+//                }
+//                children = []
             }
         }
 
