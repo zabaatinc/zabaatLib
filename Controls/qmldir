@@ -1,4 +1,5 @@
 module Zabaat.Controls
-StateMachineEditor  1.0 ./StateMachine/StateMachineEditor/StateMachineEditor.qml
 SocketIOController  0.9 ./SocketIOController09/ZController.qml
 SocketIOController  1.0 ./SocketIOController10/SocketIOController.qml
+StateMachineEditor  1.0 ./StateMachine/Editor/StateMachineEditor.qml
+StateMachineViewer  1.0 ./StateMachine/Viewer/StateMachineViewer.qml

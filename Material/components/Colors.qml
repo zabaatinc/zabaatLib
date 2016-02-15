@@ -78,7 +78,32 @@ QtObject {
         var b = (color2.b * val) + (color1.b  * dVal)
         return  Qt.rgba(r,g,b)
     }
+    function colorhashFunc(name){
+        function hashFunc(str){
+            var hash = 0, i, chr, len;
+              if (str.length === 0)
+                  return hash;
+              for (i = 0; i < str.length; i++) {
+                chr   = str.charCodeAt(i);
+                hash  = ((hash << 5) - hash) + chr;
+//                    hash |= 0; // Convert to 32bit integer
+              }
+              return hash;
+        }
+        var h = Math.abs(hashFunc(name)).toString()
+        if(h.length > 9){
+            h = h.slice(0,-1)
+        }
+        else while(h.length < 9){
+            h += "0"
+        }
 
+        //now subdivide the string in 3 sections
+        var r = (+h.substr(0,3))/1000
+        var g = (+h.substr(3,3))/1000
+        var b = (+h.substr(6,3))/1000
+        return Qt.rgba(r,g,b,1)
+    }
 
     //For ease of use. So we don't have to remember the color names and call functions. happy times!!!!/////
     property color accent   : get("accent" )
@@ -269,9 +294,6 @@ QtObject {
             }
         }
     }
-
-
-
 
 
 

@@ -1,10 +1,14 @@
 import QtQuick 2.4
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
+import QtQuick.Dialogs 1.2
+
 import "StateMachineEditor"   as V1
 import "StateMachineEditorv2" as V2
 import "StateMachineViewer"
+
 import Zabaat.Material 1.0
+import Zabaat.Utility.FileIO 1.0
 
 Window {
     id : mainWindow
@@ -21,8 +25,6 @@ Window {
 //                              loader.source = "StateMachineEditorv2/StateMachineEditor"
                           }
     }
-
-
     Loader {
         id : loader
         anchors.fill: parent
@@ -61,16 +63,111 @@ Window {
     Component {
         id : editor
 
-        V2.StateMachineEditor {
-            id : sme
-            model : lm.get(0)
+        Item {
             anchors.fill: parent
 
-    //                width : parent.width
-    //                height : parent.height
+            Rectangle {
+                width : parent.width
+                height : parent.height * 0.05
+                anchors.top: parent.top
+                color      : Colors.info
 
+                Row {
+                    width : parent.height * 2 + spacing
+                    height : parent.height
+                    spacing : 5
+                    anchors.right: parent.right
+                    anchors.margins: 5
+
+                    ZButton {
+                        //load button
+                        text : "Save"
+                        width : height
+                        height : parent.height
+                        state : "ghost-f3"
+                        onClicked : zfileio.save()
+                    }
+                    ZButton {
+                        //load button
+                        text : "Load"
+                        width : height
+                        height : parent.height
+                        state : "ghost-f3"
+                        onClicked : zfileio.load()
+                    }
+                }
+            }
+            V2.StateMachineEditor {
+                id : sme
+                model : lm.get(0)
+                width : parent.width
+                height : parent.height * 0.95
+                anchors.bottom: parent.bottom
+            }
+            ZFileOperations {
+                id : zfileio
+                property int saveCounter : 0
+
+                function save(url, json){
+                    //if it is still undefined, we need the fd to show up!
+                    if(url === null || typeof url === 'undefined' || url === ""){
+                        fd.mode = "save"
+                        fd.open()
+                        return;
+                    }
+                    var arr = url.toString().split("/")
+                    var file = arr[arr.length-1]
+
+                    arr.splice(arr.length -1, 1)
+                    var folder = arr.join("/")
+
+                    folder = folder.replace("file:///", "")
+                    folder = folder.replace('qrc:///', "")
+
+                    if(json === null || typeof json === 'undefined' || json === ""){
+                        json = sme.logic.getJSON()
+                    }
+                    if(zfileio.writeFile(folder,file,json)){
+                        console.log("saves performed", ++saveCounter)
+                    }
+                }
+                function load(url){
+                    if(url === null || typeof url === 'undefined' || url === ""){
+                        fd.mode = "load"
+                        fd.open()
+                        return;
+                    }
+                    url = url.toString()
+                    url = url.replace("file://", "")
+                    url = url.replace('qrc://', "")
+                    if(url.indexOf("/") === 0)
+                        url = url.slice(1)
+
+                    var txt = zfileio.readFile(url)
+                    if(txt){
+                        try{
+                            var obj = JSON.parse(txt)
+                            lm.set(0,obj);
+                        }
+                        catch(e) {
+                            console.log("Load failed", e)
+                        }
+                    }
+                }
+            }
+            FileDialog {    //default way of saving lading
+                id : fd
+                property string mode : ""
+                selectExisting: mode === 'save' ?  false : true
+                nameFilters: [ "JSON (*.json)" ]
+                onFileUrlChanged: {
+                    if(fileUrl.toString() !== ""){
+                        if(mode === "save")    zfileio.save(fileUrl)
+                        else                   zfileio.load(fileUrl)
+                    }
+                }
+            }
         }
-
     }
 
 
@@ -112,6 +209,7 @@ Window {
                                                 }
                                              ]
                              })
+
 
 
 

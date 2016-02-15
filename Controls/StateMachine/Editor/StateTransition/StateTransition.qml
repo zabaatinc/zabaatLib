@@ -17,7 +17,7 @@ Rectangle {
     signal rightClicked(var self, int x, int y);
 
     function getJSON(){
-        return { name : name, rules : GFuncs.toArray(rules) , state: destinationName }
+        return { name : name, rules : GFuncs.toArray(rules) , dest: destinationName }
     }
 
 

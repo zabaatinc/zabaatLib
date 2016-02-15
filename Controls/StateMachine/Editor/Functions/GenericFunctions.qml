@@ -5,6 +5,19 @@ pragma Singleton
 QtObject {
     id : genericFunctions
 
+
+    function cleanPath(path){
+        if(path){
+            path = path.toString();
+            path = path.replace("file://","")
+            path = path.replace("qrc://","")
+            if(path.indexOf("/") === 0)
+                path = path.slice(1);
+            return path;
+        }
+        return ""
+    }
+
     function or(val){
         if(arguments.length > 1){
             for(var i = 1 ; i < arguments.length; ++i){
@@ -18,6 +31,9 @@ QtObject {
 
     function toArray(lm){
         var arr = []
+        if(!lm)
+            return 0;
+
         for(var i = 0; i < lm.count; ++i){
             var item = lm.get(i)
             var type = typeof item
