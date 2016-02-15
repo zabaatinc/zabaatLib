@@ -2,11 +2,7 @@ import QtQuick 2.4
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
 import QtQuick.Dialogs 1.2
-
-import "StateMachineEditor"   as V1
-import "StateMachineEditorv2" as V2
-import "StateMachineViewer"
-
+import Zabaat.Controls.StateMachine 1.0
 import Zabaat.Material 1.0
 import Zabaat.Utility.FileIO 1.0
 
@@ -40,7 +36,7 @@ Window {
                 width  : parent.width
                 height : parent.height
 
-                StateMachine {
+                StateMachineViewer {
                     id : sm
                     width  : parent.width
                     height : parent.height/2
@@ -48,7 +44,7 @@ Window {
                     onCurrentStateChanged: sme.logic.setActiveState(currentState)
                 }
 
-                V2.StateMachineEditor {
+                StateMachineEditor {
                     id : sme
                     width : parent.width
                     height : parent.height/2
@@ -97,7 +93,7 @@ Window {
                     }
                 }
             }
-            V2.StateMachineEditor {
+            StateMachineEditor {
                 id : sme
                 model : lm.get(0)
                 width : parent.width
