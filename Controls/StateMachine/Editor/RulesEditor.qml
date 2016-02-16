@@ -49,7 +49,7 @@ FocusScope {
                     choices : child.choices,
                     required : child.required,
                     name       : child.name,
-                    type       : child.type
+                    type       : child.type,
                 }
                 //"choices": "a",
                 //"required": false,

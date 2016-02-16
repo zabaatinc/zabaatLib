@@ -10,7 +10,10 @@ Window {
     id : mainWindow
     width : Screen.width
     height : Screen.height - 300
-    Component.onCompleted: MaterialSettings.init()
+    Component.onCompleted: {
+        MaterialSettings.font.font1 = "FontAwesome"
+        MaterialSettings.init()
+    }
 
 
     Connections {
@@ -40,8 +43,6 @@ Window {
                     id : sm
                     width  : parent.width
                     height : parent.height/2
-                    qmlDirectory: Qt.resolvedUrl("qml")
-                    onCurrentStateChanged: sme.logic.setActiveState(currentState)
                 }
 
                 StateMachineEditor {
@@ -178,7 +179,7 @@ Window {
 
     property var stateMachineObject : ({
                                 id   : "someMongoId" ,
-                                name : "nameless"    ,
+                                name : "nameless" + FA.amazon,
                                 functions  : [ {
                                                   id:"0",
                                                   name : "stateChange",

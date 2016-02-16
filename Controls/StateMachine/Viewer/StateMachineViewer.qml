@@ -1,163 +1,163 @@
 import QtQuick 2.4
-import QtQuick.Controls 1.4
-import Zabaat.Material 1.0
+import "Functions"
 Item {
     id : rootObject
-    property string qmlDirectory       : ""
-    property string stateMachinePath   : ""
-    readonly property var currentState : logic.currentState && logic.currentState.name ? logic.currentState.name : ""
-    property int cellHeight            : 40
 
-    property var logicController : null //the object that is in charge of handling transitions and actions
-    property var funcName        : ""
+    //this is the rootdirectory of state machine qmls. each statemachine should have it's own qml dir.
+    property string qmlDirectory : Qt.resolvedUrl('example')
+    property var stateMachine    : null  //this is the statemachine
+    property var    modelObject  : null  //the object that obeys or lives inside the statemachine
+    property alias logic : logic
 
-    function begin(id) {
-        logic.uid = id  ? id : "";
-        loader.setSource(qmlDirectory + "/" + logic.getFirstState().name + ".qml")
-    }
+    readonly property alias currentState : logic.currentState
+    property var transitionFunc : logic.defTransitionFunc //provide this function. inputs(string id, string dest). Should make modelObject change states
+    property var methodCallFunc : null  //provide this function. inputs(string id, var params).Should change modeObject in someway
+                                                                                               //(should rarely change state!)
+    property var navController  : defaultNavigation
+
+//    onStateMachineChanged: console.log("stateMachine",JSON.stringify(stateMachine,null,2))
+//    onModelObjectChanged: console.log("modelObject",JSON.stringify(modelObject,null,2))
+
     QtObject {
         id : logic
+        readonly property string stateMachineName : stateMachine ? stateMachine.name : ""
+        property string          uid              : stateMachine ? stateMachine.id   : ""  //id of currentState
+        property string          currentState     : modelObject  ? modelObject.state : ""  //currentState
+//        onCurrentStateChanged : console.log(rootObject,"currentState",currentState)
+        property var             functions        : stateMachine ? stateMachine.functions : null
+        property var             states           : stateMachine ? stateMachine.states    : null
 
-        property var currentState     : null
-        property var model            : null
-        property string uid           : ""
-        property string name          : ""
-        property var actions          : currentState ? currentState.actions     : null
-        property var transitions      : currentState ? currentState.transitions : null
+        property var             allowedFunctions   : getAllowedFunctions(currentState)      //allowed functions in the currentState
+        property var             allowedTransitions : getAllowedTransitions(currentState)   //allowed transitions from currentState
+        property var             alwaysAllowedFunctions : [ {
+                id:"0",
+                name : "stateChange",
+                readOnly : true,
+                rules    : [{ name : "id", type :"string", required:true, choices:"" } ,
+                             { name : "dest", type:"string",required:true, choices:"" } ]
+              } ,
+              {
+                 id       :"1",
+                 name     : "update",
+                 readOnly : true,
+                 rules    : [{ name : "model", type :"object", required:true, choices:"" }]
+               }
+            ]
+
+        function defTransitionFunc(id,state){  modelObject.state = state }
 
 
-        function load(obj){
-            name    = obj.name
+        function callFunction(fnName, params){
+            if(!methodCallFunc)
+                return console.error("StateMachine has not been provided with a methodCall function")
 
-//            for(var i = 0; i < obj.states; i++){
-//                var state = obj.states[i]
-//                fixTransitions(state)
-//                fixActions(state)
-//            }
+            if(!canCall(fnName))
+                return console.error(currentState,"cannot call",fnName)
 
-
-            model        = obj.states
-            currentState = getFirstState()
-            begin()
-        }
-
-        function performTransition(name){
-            var stateName = ""
-            for(var t = 0; t < transitions.length; t++){
-                var tr = transitions[t]
-                if(name === tr.name){
-
-                    loader.setSource(qmlDirectory + "/"  + tr.state + ".qml")
-                    return currentState = getState(tr.state)
-                }
+            var s = validate(fnName,params)
+            if(s === null){
+                methodCallFunc(fnName,params)
             }
+            else
+                return console.error("rule validation fail:",s)
+        }
+        function performTransition(toState){
+            if(!transitionFunc)
+                return console.error("Statemachine has not been provided with a transition function")
+
+            if(!canTransition(toState))
+                return console.error(currentState,"cannot transition to",toState)
+
+
+            transitionFunc(uid, toState);
         }
 
-        function fixTransitions(obj){
-            for(var i = 0; i < obj.transitions.length; i++){
-                var t = obj.transitions[i]
-                t.text = t.name;
-            }
+
+        function canCall(fnName){
+            return logic.allowedFunctions ? GFuncs.getFromArray(allowedFunctions,fnName,"name",true) !== -1 : false
         }
-        function fixActions(obj){
-            for(var i = 0; i < obj.transitions.length; i++){
-                var a = obj.actions[i]
-                a.text = a.name;
-            }
+        function canTransition(toState){
+//            console.log(JSON.stringify(GFuncs.toArray(logic.allowedTransitions,null,2)))
+            return logic.allowedTransitions ? GFuncs.getFromList(allowedTransitions,toState,"dest",true) !== -1 : false
+        }
+        function validate(fnName,params){
+
+
+            return null;
         }
 
-        function readFile(source, callback) {
-            var xhr = new XMLHttpRequest;
-            xhr.open("GET", source);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === XMLHttpRequest.DONE && callback)
-                    callback(xhr.responseText)
-            }
-            xhr.send();
-        }
-        function readJSONFile(source, callback) {
-            readFile(source, function(jsData) {
-                var a = JSON.parse(jsData);
-                if(callback)
-                    callback(a)
-            })
-        }
 
-        function getState(name){
-            for(var i = 0; i < model.length; i++){
-                var state = model[i]
-                if(state.name === name)
-                    return state;
+        function getAllowedTransitions(stateName){
+            if(stateMachine && currentState !== ""){
+                var stateObj = GFuncs.getFromList(logic.states,stateName,"name")
+                if(stateObj)
+                    return stateObj.transitions
             }
             return null;
         }
-        function getFirstState(){
-            var def = model[0]
-            for(var i = 0; i < model.length; i++){
-                var state = model[i]
-                if(state.isDefault)
-                    return state;
+        function getAllowedFunctions(stateName){
+            var fArr = _.clone(alwaysAllowedFunctions)
+            if(stateMachine && currentState !== "") {
+                var stateObj = GFuncs.getFromList(logic.states,stateName,"name")
+                var funcs    = stateObj ? stateObj.functions : null
+
+                if(funcs) {
+                    //iterate thru the funcs
+                    for(var f = 0; f < funcs.count; ++f){
+                        var fItem = funcs.get(f);
+                        var rules = getRules(fItem.name, fItem.rules);
+                        fArr.push({name : fItem.name, rules : rules})
+                    }
+                }
             }
-            return def;
+            return fArr;
         }
 
-
+        //get overrided rules or default rules!
+        function getRules(name, localRules){
+             if(localRules && localRules.count > 0) {
+                return GFuncs.toArray(localRules);
+             }
+             else {
+                var    f = GFuncs.getFromList(logic.functions,name,"name")
+                return f ? GFuncs.toArray(f.rules) : []
+             }
+        }
 
     }
 
 
-
-    onStateMachinePathChanged        : logic.readJSONFile(stateMachinePath, logic.load);
     Loader {
-        id : loader
-        width : parent.width
-        height : parent.height - menu.height
-        onLoaded : if(item.hasOwnProperty("uid")) item.uid = logic.uid
+        id          : loader
+        anchors.top : parent.top
+        width       : parent.width
+        height      : parent.height - defaultNavigation.height
+        onLoaded    : item.model = modelObject
 
-    }
-    Rectangle {
-        id: menu
-        width         : parent.width
-        height        : parent.height * 0.2
-        anchors.bottom: parent.bottom
-        border.width: 1
+        source                     : !logic.stateMachineName || curState === "" ? "" : rootObject.qmlDirectory + "/" + logic.stateMachineName + "/" +  curState + ".qml"
+        property alias curState    : logic.currentState
+        property alias modelObject : rootObject.modelObject
 
-
-        ListView {
-            id : lv
-            anchors.right: parent.right
-            height : parent.height
-            width  : parent.width * 0.4
-
-            property alias transitionSrc : logic.transitions
-            onTransitionSrcChanged: {
-//                if(transitionSrc){
-//                    lv.model.clear()
-//                    for(var t = 0; t < transitionSrc.length; t++){
-//                        var item = transitionSrc[t]
-//                        console.log(JSON.stringify(item))
-//                        lv.model.append(item)
-//                    }
-//                }
-//                else {
-
-//                }
-            }
-
-            model  : transitionSrc// ListModel { dynamicRoles : true }
-            delegate : Button {
-                text : lv.model && lv.model.length > index ? lv.model[index].name : null
-                width  : lv.width
-                height : cellHeight
-                onClicked: logic.performTransition(text)
-            }
+        Text {
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            font.pixelSize: parent.height * 1/20
+            text : currentState
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 5
         }
 
     }
 
-
-
-
+    DefaultNavigation {
+        id            : defaultNavigation
+        anchors.bottom: parent.bottom
+        width         : parent.width
+        height        : parent.height * 0.1
+        model         : logic.allowedTransitions
+        onRequestTransition : logic.performTransition(name)
+    }
 
 
 }

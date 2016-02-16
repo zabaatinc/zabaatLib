@@ -11,6 +11,8 @@ Item {
     property alias         transitionsView  : transitionsView
     property alias         colorAnim        : colorAnim
 
+    property var           allTransitions   : null
+
     signal accepted(string id, string name);
     signal rightClicked(var self, int x, int y);
     signal leftClicked(var self , int x, int y);
@@ -40,7 +42,8 @@ Item {
                   x : x,
                   y : y,
                   w : width,
-                  h : height
+                  h : height,
+                  isDefault   : logic.isDefault
                }
     }
 
@@ -146,14 +149,88 @@ Item {
                     }
                 }
             }
-
-
-
         }
+
+
+//        property vector4d outTrans: {
+//            var r =0, l = 0, t = 0, b = 0;
+//            //out is ez. lets look at our outward transitions!
+//            function location(pos){
+//                var center = Qt.point(width/2, height/2)
+//                if     (pos.y < center.y)      return "t"
+//                else if(pos.y > center.y) return "b"
+//                else if(pos.x > center.x) return "r"
+//                else if(pos.x < center.x) return "l"
+
+//                return "na"
+//            }
+
+//            if(logic && logic.transitions){
+//                for(var i = 0; i < logic.transitions.count; ++i){
+//                    var item = transitionsView.itemAt(i);
+//                    if(item){
+//                        var itemCoords = Qt.point(item.x,item.y)
+//                        var loc = location(itemCoords);
+//                        if(loc === "r")      r++;
+//                        else if(loc === "l") l++
+//                        else if(loc === "t") t++
+//                        else if(loc === "b") b++
+//                    }
+//                }
+//            }
+
+//            return Qt.vector4d(r,l,t,b)
+//        }
+//        property vector4d inTrans: {
+//            var v = Qt.vector4d(0,0,0,0)
+//            return v;
+//        }
+
+//        Item {
+//            id : debug
+//            anchors.fill: parent
+//            Text { // R
+//                verticalAlignment : Text.AlignVCenter
+//                horizontalAlignment : Text.AlignHCenter
+//                anchors.left: parent.right
+//                anchors.verticalCenter: parent.verticalCenter
+//                text : gui.outTrans.x + " / " + gui.inTrans.x
+//            }
+//            Text { // L
+//                verticalAlignment : Text.AlignVCenter
+//                horizontalAlignment : Text.AlignHCenter
+//                anchors.right: parent.left
+//                anchors.verticalCenter: parent.verticalCenter
+//                text : gui.outTrans.y + " / " + gui.inTrans.y
+//            }
+//            Text { // T
+//                verticalAlignment : Text.AlignVCenter
+//                horizontalAlignment : Text.AlignHCenter
+//                anchors.bottom: parent.top
+//                anchors.horizontalCenter: parent.horizontalCenter
+//                text : gui.outTrans.z + " / " + gui.inTrans.z
+//            }
+//            Text { // B
+//                verticalAlignment : Text.AlignVCenter
+//                horizontalAlignment : Text.AlignHCenter
+//                anchors.top: parent.bottom
+//                anchors.horizontalCenter: parent.horizontalCenter
+//                text : gui.outTrans.w + " / " + gui.inTrans.w
+//            }
+
+//        }
+
+
+
+
+
+
         Repeater {
             id          : transitionsView
             anchors.fill: parent
             model       : logic.transitions ? logic.transitions : null
+
+
 
 
             function getJSON(){

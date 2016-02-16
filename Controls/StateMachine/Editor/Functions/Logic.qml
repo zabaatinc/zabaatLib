@@ -14,7 +14,7 @@ QtObject {
     property string localName      : ""
     property var    stateContainer : null
 
-    property var defaultStateObject : ({ id : "", name : "", functions:[], transitions:[], isDefault : false })
+    property var defaultStateObject : ({ id : "", name : "", functions:[], transitions:[], isDefault: false })
     property var defaultTransObject : ({name: "", dest : "", rules:[]                                        })
 
     property int width             : 0
@@ -127,8 +127,11 @@ QtObject {
     }
     function deleteTransition(originName, destinationName, friendlyName){
         //find origin state
+//        console.log(originName, destinationName, friendlyName)
         var sModel = getState(originName)
         var tIndex = getTransition(originName, destinationName, friendlyName, true)
+//        console.log(sModel,tIndex)
+
         if(tIndex !== -1){
             sModel.transitions.remove(tIndex);
             emitChange();
@@ -153,7 +156,7 @@ QtObject {
         var idx = getFunction(name,true)
         if(idx === -1){  //does not exist!
             var mId = (maxId(logic.functions) + 1).toString()
-            var fObj ={id : mId ,name : name, rules : rules }
+            var fObj ={id : mId ,name : name, rules : rules , readOnly : false }
             logic.functions.append(fObj)
             emitChange();
         }

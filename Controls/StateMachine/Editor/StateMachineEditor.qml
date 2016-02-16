@@ -60,7 +60,7 @@ Rectangle {
             property real yScl : height / parent.height
             scale : Math.min(xScl,yScl)
 
-
+            readonly property var setActiveState : guilogic.setActiveState
             property color normalStateColor : Colors.info
             property color activeStateColor : Colors.warning
             property alias cellHeight : rootObject.cellHeight
@@ -136,15 +136,15 @@ Rectangle {
                     }
                 }
                 function beginDeletingTransition(args,x,y){
-                    deleteTransition(args.originName, args.destinationName, args.name)
+                    deleteTransition(args.origin, args.dest, args.name)
                 }
-                function setActiveState(id){  //should only be used for when not editing :)
+                function setActiveState(idOrName){  //should only be used for when not editing :)
                     if(!stateContainer || !stateContainer.model)
                         return;
 
                     for(var i = 0; i < stateContainer.model.count; ++i) {
                         var item = stateContainer.itemAt(i);
-                        if(item.modelId === id){
+                        if(item.modelId === idOrName || item.name === idOrName){
                             item.color = Colors.warning
                             item.colorAnim.start()
                         }
@@ -206,8 +206,6 @@ Rectangle {
                 visible                : !functionsDefBlocker.visible
             }
 
-            //Repeaters are cooler than listview here because it doesn't try to do fancy stuff in the background!!
-            //for us to display the model! They will all have user defined x and y positions!
             TrashIcon {
                 width  : height / 1.5
                 height : 70
@@ -216,7 +214,8 @@ Rectangle {
                 anchors.margins: 20
             }
 
-
+            //Repeaters are cooler than listview here because it doesn't try to do fancy stuff in the background!!
+            //for us to display the model! They will all have user defined x and y positions!
             Repeater {
                 id : stateContainer
                 anchors.fill: parent
@@ -255,6 +254,7 @@ Rectangle {
                                                   modelLogic.emitChange()
                     onModelRectChanged      : if(ready) syncPosition()
                     getStateItemFunc        : stateContainer.getStateItem
+                    allTransitions          : logic.transitions
                     onMakeDefaultClicked    : modelLogic.makeDefault(id,name)
                     onRemoveFunction        : rootObject.state_deleteFunction(id,functionName)
 
@@ -315,55 +315,6 @@ Rectangle {
             }
 
 
-            UIBlocker {
-                id : functionsDefBlocker
-                anchors.fill: parent
-                visible : functionsDefiner.target !== null && functionsDefiner.show
-                color : 'black'
-                ActionsListEditor{
-                    property bool show : false
-                    id : functionsDefiner
-                    anchors.right: parent.right
-                    height : parent.height
-                    width  : parent.width - rootObject.cellHeight
-                    target         : modelLogic.functions
-                    onTargetChanged: if(target)
-                                         forceActiveFocus()
-                    vFunc : rootObject.logic.funcNameValidation
-                    cellHeight: rootObject.cellHeight
-    //                onFinished: functionsDefiner.target= null;
-
-                    onAddFunction   : rootObject.createFunction(name,rules)
-                    onEditFunction  : rootObject.editFunction(id,rules,name)
-                    onDeleteFunction: rootObject.deleteFunction(id,name)
-                }
-            }
-            UIBlocker {
-                id : transitionNamerBlocker
-                anchors.fill: parent
-                solidBackGround: false
-                color : 'black'
-                visible : false
-
-                ZTextBox {
-                    id : transitionNamer
-                    property var target : null
-                    anchors.centerIn: parent
-                    width : parent.width * 0.3
-                    height : cellHeight
-                    label : "Enter Friendly Name for transition"
-                    text  : target && target.name ? target.name : ""
-                    state : "f2-t2"
-                    onAccepted: {
-                        editTransition(target.origin,target.dest,target.name, text, GFuncs.toArray(target.rules))
-                        transitionNamer.target = null;
-                        transitionNamerBlocker.visible = false;
-                    }
-                }
-
-                Keys.onEscapePressed: { transitionNamer.target = null; transitionNamerBlocker.visible = false; }
-
-            }
             ListView {
                 id : functionDropper
                 width  : cellHeight * 2
@@ -420,6 +371,58 @@ Rectangle {
 
             }
 
+
+
+            UIBlocker {
+                id : functionsDefBlocker
+                anchors.fill: parent
+                visible : functionsDefiner.target !== null && functionsDefiner.show
+                color : 'black'
+                ActionsListEditor{
+                    property bool show : false
+                    id : functionsDefiner
+                    anchors.right: parent.right
+                    height : parent.height
+                    width  : parent.width - rootObject.cellHeight
+                    target         : modelLogic.functions
+                    onTargetChanged: if(target)
+                                         forceActiveFocus()
+                    vFunc : rootObject.logic.funcNameValidation
+                    cellHeight: rootObject.cellHeight
+    //                onFinished: functionsDefiner.target= null;
+
+                    onAddFunction   : rootObject.createFunction(name,rules)
+                    onEditFunction  : rootObject.editFunction(id,rules,name)
+                    onDeleteFunction: rootObject.deleteFunction(id,name)
+                }
+            }
+
+            UIBlocker {
+                id : transitionNamerBlocker
+                anchors.fill: parent
+                solidBackGround: false
+                color : 'black'
+                visible : false
+
+                ZTextBox {
+                    id : transitionNamer
+                    property var target : null
+                    anchors.centerIn: parent
+                    width : parent.width * 0.3
+                    height : cellHeight
+                    label : "Enter Friendly Name for transition"
+                    text  : target && target.name ? target.name : ""
+                    state : "f2-t2"
+                    onAccepted: {
+                        editTransition(target.origin,target.dest,target.name, text, GFuncs.toArray(target.rules))
+                        transitionNamer.target = null;
+                        transitionNamerBlocker.visible = false;
+                    }
+                }
+
+                Keys.onEscapePressed: { transitionNamer.target = null; transitionNamerBlocker.visible = false; }
+
+            }
 
 
 

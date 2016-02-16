@@ -22,7 +22,8 @@ Rectangle {
 
 
 
-    height         : 4
+    height         : 3
+    opacity        : 0.7
     transformOrigin: Item.Left
     color          : Colors.text1
 
@@ -186,15 +187,51 @@ Rectangle {
         onEntered : rootObject.color = Colors.warning
         onExited  : rootObject.color = Colors.text1
     }
-    Text {
-        anchors.fill: parent
-        horizontalAlignment: Text.AlignHCenter
-        font.family: Fonts.font1
-        font.pixelSize: parent.height * 5
-        anchors.bottom: parent.top
-        text : parent.name
-//        rotation : -parent.rotation
+    Item { //text container
+//        border.width: 1
+//        color       : "transparent"
+        width       : text.paintedWidth
+        height      : text.paintedHeight
+        anchors.horizontalCenter: parent.horizontalCenter
+
+
+        Text {
+            id : text
+            horizontalAlignment: Text.AlignHCenter
+//            font.family: Fonts.font1
+            font.pixelSize: rootObject.height * 4
+//            opacity : 0.7
+            anchors.bottom: parent.top
+            text : name //+ " " + Math.floor(rootObject.rotation) + " " + Math.floor(rotation)
+            rotation: {
+                var r = rootObject.rotation
+                if(between(r,90,180,true)){
+                    return -rootObject.rotation;
+                }
+                else if(between(r,-180,-90,true)){
+                    return -rootObject.rotation ;
+                }
+                return 0;
+            }
+
+            function between(val, lower,higher , noninclusive){
+                if(noninclusive){
+                    if(val > lower && val < higher)
+                        return true;
+                }
+                else {
+                    if(val >= lower && val <= higher)
+                        return true;
+                }
+                return false;
+            }
+
+            transformOrigin: Item.Center
+            anchors.centerIn: parent
+        }
     }
+
+
 
 
     Rectangle {

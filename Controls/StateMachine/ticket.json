@@ -1,0 +1,219 @@
+{
+  "functions": [
+    {
+      "id": "0",
+      "name": "pickItem",
+      "readOnly": false,
+      "rules": [
+        {
+          "choices": "",
+          "name": "id",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "choices": "",
+          "name": "itemId",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "choices": "",
+          "name": "quantity",
+          "required": false,
+          "type": "int"
+        }
+      ]
+    }
+  ],
+  "height": 780,
+  "id": "someMongoId",
+  "name": "ticket",
+  "states": [
+    {
+      "functions": [],
+      "h": 64,
+      "id": "0",
+      "isDefault": true,
+      "name": "unborn",
+      "transitions": [
+        {
+          "dest": "pickQueue",
+          "name": "Create",
+          "rules": []
+        }
+      ],
+      "w": 192,
+      "x": 24.36974789915965,
+      "y": 639.4957983193281
+    },
+    {
+      "functions": [],
+      "h": 60,
+      "id": "1",
+      "isDefault": false,
+      "name": "pickQueue",
+      "transitions": [
+        {
+          "dest": "pickInProgress",
+          "name": "Start Picking",
+          "rules": []
+        }
+      ],
+      "w": 180,
+      "x": 34.352941176470694,
+      "y": 322.60084033613407
+    },
+    {
+      "functions": [
+        {
+          "name": "pickItem",
+          "rules": []
+        }
+      ],
+      "h": 60,
+      "id": "2",
+      "isDefault": false,
+      "name": "pickInProgress",
+      "transitions": [
+        {
+          "dest": "inspectQueue",
+          "name": "Finish Picking",
+          "rules": []
+        },
+        {
+          "dest": "holdQueue",
+          "name": "Pause",
+          "rules": []
+        }
+      ],
+      "w": 180,
+      "x": 455.86554621848734,
+      "y": 324.6176470588233
+    },
+    {
+      "functions": [],
+      "h": 60,
+      "id": "3",
+      "isDefault": false,
+      "name": "inspectQueue",
+      "transitions": [
+        {
+          "dest": "inspecting",
+          "name": "Start Inspecting",
+          "rules": []
+        }
+      ],
+      "w": 180,
+      "x": 767.462184873949,
+      "y": 322.6008403361345
+    },
+    {
+      "functions": [],
+      "h": 60,
+      "id": "4",
+      "isDefault": false,
+      "name": "inspecting",
+      "transitions": [
+        {
+          "dest": "errorQueue",
+          "name": "Error",
+          "rules": []
+        },
+        {
+          "dest": "packageShipQueue",
+          "name": "Begin Shipping (Package)",
+          "rules": []
+        },
+        {
+          "dest": "freightShipQueue",
+          "name": "Begin Shipping (Freight)",
+          "rules": []
+        }
+      ],
+      "w": 180,
+      "x": 1407.7983193277303,
+      "y": 72.51680672268873
+    },
+    {
+      "functions": [],
+      "h": 60,
+      "id": "5",
+      "isDefault": false,
+      "name": "freightShipQueue",
+      "transitions": [
+        {
+          "dest": "shipped",
+          "name": "Finish Shipping",
+          "rules": []
+        }
+      ],
+      "w": 180,
+      "x": 1290.823529411764,
+      "y": 409.3235294117647
+    },
+    {
+      "functions": [],
+      "h": 60,
+      "id": "6",
+      "isDefault": false,
+      "name": "packageShipQueue",
+      "transitions": [
+        {
+          "dest": "shipped",
+          "name": "Finish Shipping",
+          "rules": []
+        }
+      ],
+      "w": 180,
+      "x": 1575.193277310924,
+      "y": 404.28151260504245
+    },
+    {
+      "functions": [],
+      "h": 60,
+      "id": "7",
+      "isDefault": false,
+      "name": "shipped",
+      "transitions": [],
+      "w": 180,
+      "x": 1444.1008403361343,
+      "y": 628.1470588235296
+    },
+    {
+      "functions": [],
+      "h": 60,
+      "id": "8",
+      "isDefault": false,
+      "name": "holdQueue",
+      "transitions": [
+        {
+          "dest": "pickInProgress",
+          "name": "Unpause",
+          "rules": []
+        }
+      ],
+      "w": 180,
+      "x": 421.57983193277323,
+      "y": 651.3403361344541
+    },
+    {
+      "functions": [],
+      "h": 60,
+      "id": "9",
+      "isDefault": false,
+      "name": "errorQueue",
+      "transitions": [
+        {
+          "dest": "pickInProgress",
+          "name": "Repick",
+          "rules": []
+        }
+      ],
+      "w": 180,
+      "x": 462.92436974789894,
+      "y": 73.5252100840336
+    }
+  ],
+  "width": 1920
+}

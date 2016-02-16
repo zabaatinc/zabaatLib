@@ -1,3 +1,5 @@
 module Zabaat.Controls.StateMachine
 StateMachineEditor 1.0 ./Editor/StateMachineEditor.qml
 StateMachineViewer 1.0 ./Viewer/StateMachineViewer.qml
+StateItem		   1.0 ./Viewer/StateItem.qml
+StateList		   1.0 ./Viewer/StateList.qml
