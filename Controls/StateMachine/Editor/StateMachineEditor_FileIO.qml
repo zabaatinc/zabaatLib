@@ -8,7 +8,8 @@ Item {
     property string defaultFileToLoad : ""
     onDefaultFileToLoadChanged: lm.loadModel()
     property alias folder : fd.folder
-
+    property alias editor : sme
+    property alias fileUrl : fd.fileUrl
     Rectangle {
         width : parent.width
         height : parent.height * 0.05
