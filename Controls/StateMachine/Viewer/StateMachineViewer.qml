@@ -1,5 +1,6 @@
 import QtQuick 2.4
 import "Functions"
+import "FancyLoader"
 Item {
     id : rootObject
 
@@ -7,13 +8,18 @@ Item {
     property string qmlDirectory : Qt.resolvedUrl('example')
     property var stateMachine    : null  //this is the statemachine
     property var    modelObject  : null  //the object that obeys or lives inside the statemachine
-    property alias logic : logic
+    property alias logic         : logic
+
+    property alias defaultTransitionAnimation: loader.transitionEffect
+    property alias defaultTransitionDuration : loader.transitionDuration
 
     readonly property alias currentState : logic.currentState
-    property var transitionFunc : logic.defTransitionFunc //provide this function. inputs(string id, string dest). Should make modelObject change states
+    readonly property alias allStates    : logic.states
+    property var transitionFunc : logic.defaultTransitionFunc //provide this function. inputs(string id, string dest). Should make modelObject change states
     property var methodCallFunc : null  //provide this function. inputs(string id, var params).Should change modeObject in someway
                                                                                                //(should rarely change state!)
-    property var navController  : defaultNavigation
+    property bool usesDefaultNavigation : true
+    property bool debug : true
 
 //    onStateMachineChanged: console.log("stateMachine",JSON.stringify(stateMachine,null,2))
 //    onModelObjectChanged: console.log("modelObject",JSON.stringify(modelObject,null,2))
@@ -23,6 +29,7 @@ Item {
         readonly property string stateMachineName : stateMachine ? stateMachine.name : ""
         property string          uid              : stateMachine ? stateMachine.id   : ""  //id of currentState
         property string          currentState     : modelObject  ? modelObject.state : ""  //currentState
+        onCurrentStateChanged  : stack.push(currentState)
 //        onCurrentStateChanged : console.log(rootObject,"currentState",currentState)
         property var             functions        : stateMachine ? stateMachine.functions : null
         property var             states           : stateMachine ? stateMachine.states    : null
@@ -44,9 +51,10 @@ Item {
                }
             ]
 
-        function defTransitionFunc(id,state){  modelObject.state = state }
+        property var stack : [] //this lets us go back states!
 
 
+        function defaultTransitionFunc(id,state){  modelObject.state = state }
         function callFunction(fnName, params){
             if(!methodCallFunc)
                 return console.error("StateMachine has not been provided with a methodCall function")
@@ -62,17 +70,19 @@ Item {
                 return console.error("rule validation fail:",s)
         }
         function performTransition(toState){
-            if(!transitionFunc)
-                return console.error("Statemachine has not been provided with a transition function")
+            if(!transitionFunc){
+                console.error("Statemachine has not been provided with a transition function")
+                return false;
+            }
 
-            if(!canTransition(toState))
-                return console.error(currentState,"cannot transition to",toState)
-
+            if(!canTransition(toState)){
+                console.error(currentState,"cannot transition to",toState)
+                return false;
+            }
 
             transitionFunc(uid, toState);
+            return true;
         }
-
-
         function canCall(fnName){
             return logic.allowedFunctions ? GFuncs.getFromArray(allowedFunctions,fnName,"name",true) !== -1 : false
         }
@@ -80,13 +90,11 @@ Item {
 //            console.log(JSON.stringify(GFuncs.toArray(logic.allowedTransitions,null,2)))
             return logic.allowedTransitions ? GFuncs.getFromList(allowedTransitions,toState,"dest",true) !== -1 : false
         }
-        function validate(fnName,params){
-
+        function validate(fnName,params){   //null value means no error
+            //TODO
 
             return null;
         }
-
-
         function getAllowedTransitions(stateName){
             if(stateMachine && currentState !== ""){
                 var stateObj = GFuncs.getFromList(logic.states,stateName,"name")
@@ -112,6 +120,13 @@ Item {
             }
             return fArr;
         }
+        function getDefaultState(){
+            var item = GFuncs.getFromList(logic.states, true, "isDefault")
+            if(item) {
+                return item.name
+            }
+            return ""
+        }
 
         //get overrided rules or default rules!
         function getRules(name, localRules){
@@ -123,41 +138,68 @@ Item {
                 return f ? GFuncs.toArray(f.rules) : []
              }
         }
+        function back(override){
+            if(stack.length > 1){   //will always have the first state in it!
+                var prev = stack[stack.length - 2]
+                if(override){   //essentially dont follow the rules of the state machine!
+                    stack.pop()
+                    stack.pop()
+                    transitionFunc(uid,prev);
+                }
+                else if(performTransition(prev)){
+                    stack.pop()
+                    stack.pop()
+                }
+            }
+            else
+                console.warn("cannot go back. Already at the base state")
+        }
+    }
 
+
+    FancyLoader {
+        id          : loader
+        anchors.top : parent.top
+        width       : parent.width
+        height      : parent.height - defaultNavigationLoader.height
+//        transitionEffect: "rotateLeft"
+        onLoaded    : if(item && item.model) item.model = model;
+//                      else                   console.error(item,"has no model property")
+        source                     : !logic.stateMachineName || curState === "" ? "" : rootObject.qmlDirectory + "/" + logic.stateMachineName + "/" +  curState + ".qml"
+        property alias curState    : logic.currentState
+        property alias modelObject : rootObject.modelObject
+    }
+
+    Text {
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        font.pixelSize: parent.height * 1/20
+        text : currentState
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 5
+        visible : debug
     }
 
 
     Loader {
-        id          : loader
-        anchors.top : parent.top
-        width       : parent.width
-        height      : parent.height - defaultNavigation.height
-        onLoaded    : item.model = modelObject
-
-        source                     : !logic.stateMachineName || curState === "" ? "" : rootObject.qmlDirectory + "/" + logic.stateMachineName + "/" +  curState + ".qml"
-        property alias curState    : logic.currentState
-        property alias modelObject : rootObject.modelObject
-
-        Text {
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            font.pixelSize: parent.height * 1/20
-            text : currentState
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 5
-        }
-
-    }
-
-    DefaultNavigation {
-        id            : defaultNavigation
+        id : defaultNavigationLoader
         anchors.bottom: parent.bottom
         width         : parent.width
-        height        : parent.height * 0.1
-        model         : logic.allowedTransitions
-        onRequestTransition : logic.performTransition(name)
+        height          : usesDefaultNavigation ?  parent.height * 0.05 : 0
+        sourceComponent : usesDefaultNavigation ? defaultNavComponent   : null
+
+        Component{
+            id : defaultNavComponent
+            DefaultNavigation {
+                id            : defaultNavigation
+                model         : logic.allowedTransitions
+                onRequestTransition : logic.performTransition(name)
+            }
+        }
     }
+
+
 
 
 }
