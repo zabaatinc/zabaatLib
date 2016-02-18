@@ -107,7 +107,7 @@ QtObject  {
 
                }
                else */if (typeof data ==='object'){
-                   console.log("data is an object", data);
+//                   console.log("data is an object", data);
                    var tempData = '?' //header request wants the ? before it starts processing params
                    for (var d in data){
                        var item = data[d]
@@ -121,13 +121,13 @@ QtObject  {
 
 //               console.log("XHR.", method.toUpperCase(), "(" ,source, ")")
                if (method.toLowerCase() === "post" || method.toLowerCase() === "put"){
-                   console.log("XHR", method, source)
+//                   console.log("XHR", method, source)
                    xhr.open(method.toUpperCase(), source);
                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                    xhr.send();
                }
                else {
-                   console.log("XHR", method, source)
+//                   console.log("XHR", method, source)
                    xhr.open(method.toUpperCase(), source);
                    xhr.send();
                }
