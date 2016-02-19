@@ -259,8 +259,10 @@ QtObject {
 
             function clear(){
                 for(var i = 0; i < children.length; i++) {
-                    children[i].parent = null
-                    children[i].destroy()
+                    var child = children[i]
+                    child.parent = null
+                    if(child)
+                        child.destroy()
                 }
                 children = []
             }
