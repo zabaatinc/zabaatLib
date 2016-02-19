@@ -1,2 +1,2 @@
-module Zabaat.Controls.SocketIOController.v10
+module Zabaat.Controller.SocketIOController.v10
 SocketIOController10	1.0 SocketIOController10.qml

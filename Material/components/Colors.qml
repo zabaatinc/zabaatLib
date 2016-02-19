@@ -6,6 +6,8 @@ QtObject {
     id : rootObject
 
     property alias  dir               : flm.folder
+//    onDirChanged : console.log("Colors.dir",dir)
+
     property bool loaded              : false
     property string defaultColorTheme : "default"
 
@@ -281,6 +283,8 @@ QtObject {
                     var name = path.split("/")
                     name     = name[name.length -1]
                     name     = name.replace(".qml", "")
+
+                    console.log("load colors", path)
 
                     logic.map[name] = getNewObject(path, colorContainer)
                     colorsLoaded++

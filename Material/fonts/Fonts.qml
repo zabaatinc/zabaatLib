@@ -47,25 +47,26 @@ QtObject {
 
             function decidetoLoad(){
                 if(count > 0 ){
+//                    console.log("fonts",count)
                     logic.loadFonts()
                 }
             }
 
-            property Timer myTimer : Timer {
-                running : true
-                repeat : false
-                interval : 100
-                onTriggered : {
-                    var thisDir = Qt.resolvedUrl("./")
-                    var lastChar = thisDir[thisDir.length - 1]
-                    if(lastChar === "/" || lastChar === "\\")
-                        thisDir = thisDir.slice(0,-1)
+//            property Timer myTimer : Timer {
+//                running : true
+//                repeat : false
+//                interval : 100
+//                onTriggered : {
+//                    var thisDir = Qt.resolvedUrl("./")
+//                    var lastChar = thisDir[thisDir.length - 1]
+//                    if(lastChar === "/" || lastChar === "\\")
+//                        thisDir = thisDir.slice(0,-1)
 
-                    if(fontList.folder.toString() === thisDir) {
-                        logic.loadFonts()
-                    }
-                }
-            }
+//                    if(fontList.folder.toString() === thisDir) {
+//                        logic.loadFonts()
+//                    }
+//                }
+//            }
 
         }
         Item {

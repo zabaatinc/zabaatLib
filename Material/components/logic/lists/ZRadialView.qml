@@ -6,7 +6,7 @@ import "ZSpinner"
 //Uses the 'magic' path from https://wiki.qt.io/Qt_Quick_Carousel
 Rectangle {
     id : rootObject
-    property DefaultDelegateOptions defaultDelegate : DefaultDelegateOptions{}
+    property DefaultDelegateOptions defaultDelegate : DefaultDelegateOptions{ width : cellHeight; height : cellHeight}
     property alias pv                 : pv
     property alias model              : pv.model
     property alias currentIndex       : pv.currentIndex
@@ -69,13 +69,14 @@ Rectangle {
             id : btnCmp
                 ZButton {
                 id : delItem
-                width     : cellHeight
-                height    : cellHeight //* Math.abs(Math.cos(radians))
+                width     : defaultDelegate.width
+                height    : defaultDelegate.height
                 text      : defaultDelegate.displayFunc ? defaultDelegate.displayFunc(index,model) : index
                 onClicked : pv.currentIndex = index
                 enabled   : pv.currentIndex !== index
                 disableShowsGraphically: false
                 state   : !enabled ? defaultDelegate.state_Selected : defaultDelegate.state_UnSelected
+                z : !enabled ? pv.count + 1 : 0
             }
         }
     }

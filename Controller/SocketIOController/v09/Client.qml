@@ -1,6 +1,6 @@
 import QtQuick 2.4
 import Zabaat.SocketIO 0.9
-import Zabaat.Utility.ZController 1.0
+import "../../ZController"
 
 SocketIO
 {

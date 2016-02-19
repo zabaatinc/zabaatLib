@@ -10,6 +10,18 @@ QtObject  {
     property QtObject logic : QtObject{
         id : logic
 
+        function getDataJson(data){
+            var dataJson = "";
+            if(typeof data === 'object'){
+                try {
+                    dataJson = JSON.stringify(data,null,2);
+                }catch(e) {
+                    console.log("XhrFunctions.logic.getDataJson:" , "data cannot be stringified")
+                }
+            }
+            return dataJson !== "" ? dataJson : data;
+        }
+
         function isArray(obj){
             return toString.call(obj) === '[object Array]';
         }
@@ -33,8 +45,10 @@ QtObject  {
                     catch(e){
                         callback({error : "XhrFunc.genericCall.JSON.parse error", data : null, orig : obj.body })
                     }
-                    if(parsedObj !== null && typeof parsedObj !== 'undefined' && callback)
+                    if(parsedObj !== null && typeof parsedObj !== 'undefined' && callback) {
+//                        console.log("CALLING CALLBACK PRASED OBJE", JSON.stringify(parsedObj,null,2))
                         callback(parsedObj)
+                    }
                 })
             }
         }
@@ -103,37 +117,37 @@ QtObject  {
                if(uri.path.charAt(0) === "/")
                    uri.path = uri.path.slice(1);    //if you send in a "/Globals we remove the / for you!
 
-               /*if(isArray(data)){
+//               if (typeof data ==='object'){
+////                   console.log("data is an object", data);
+//                   var tempData = '?' //header request wants the ? before it starts processing params
+//                   for (var d in data){
+//                       var item = data[d]
+//                       var str = typeof item === 'object'  ? JSON.stringify(item) : item
+//                       tempData += d+'='+str+'&'
+//                   }
+//                   data = tempData.slice(0,tempData.length-1);
+//               }
 
-               }
-               else */if (typeof data ==='object'){
-//                   console.log("data is an object", data);
-                   var tempData = '?' //header request wants the ? before it starts processing params
-                   for (var d in data){
-                       var item = data[d]
-                       var str = typeof item === 'object'  ? JSON.stringify(item) : item
-                       tempData += d+'='+str+'&'
-                   }
-                   data = tempData.slice(0,tempData.length-1);
-               }
-
-               var source = uri.protocol + '://' + uri.host +":"+uri.port+ '/' + uri.path + data;
+//               var source = uri.protocol + '://' + uri.host +":"+uri.port+ '/' + uri.path + data;
+               var source = uri.protocol + '://' + uri.host +":"+uri.port+ '/' + uri.path;
+               var dataJs = getDataJson(data);
 
 //               console.log("XHR.", method.toUpperCase(), "(" ,source, ")")
                if (method.toLowerCase() === "post" || method.toLowerCase() === "put"){
 //                   console.log("XHR", method, source)
                    xhr.open(method.toUpperCase(), source);
-                   xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                   xhr.send();
+                   xhr.setRequestHeader("Content-Type", "application/json");
+                   xhr.send(dataJs);
                }
                else {
 //                   console.log("XHR", method, source)
                    xhr.open(method.toUpperCase(), source);
-                   xhr.send();
+                   xhr.send(dataJs);
                }
 
                xhr.onreadystatechange = function() {
-                   if (xhr.readyState === XMLHttpRequest.DONE && callback) {
+                   if (xhr.readyState === 4 && xhr.status === 200 && callback) {
+//                       console.log("XHR READY", xhr.responseText);
                        callback( {status: xhr.status, header: xhr.getAllResponseHeaders(), body: xhr.responseText});
                    }
                };

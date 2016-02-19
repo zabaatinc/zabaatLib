@@ -10,7 +10,7 @@ Module {
     Component {
         name: "WolfSys"
         prototype: "QObject"
-        exports: ["Zabaat.WolfSys/WolfSys 1.0"]
+        exports: ["Zabaat.Utility.WolfSys/WolfSys 1.0"]
         exportMetaObjectRevisions: [0]
         Method {
             name: "writeFile"

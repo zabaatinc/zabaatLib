@@ -1,4 +1,4 @@
-module Zabaat.PdfTools
+module Zabaat.Utiltiy.PdfTools
 plugin pdftoolsplugin
 typeinfo plugins.qmltypes
 ZPdfBook 1.0 ./Qml/ZPdfBook.qml
