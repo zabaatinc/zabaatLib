@@ -19,5 +19,5 @@ ListModel
             return null
         }
 
-//        dynamicRoles: true
+        dynamicRoles: true
 }

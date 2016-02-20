@@ -29,7 +29,8 @@ Item {
         readonly property string stateMachineName : stateMachine ? stateMachine.name : ""
         property string          uid              : stateMachine ? stateMachine.id   : ""  //id of currentState
         property string          currentState     : modelObject  ? modelObject.state : ""  //currentState
-        onCurrentStateChanged  : stack.push(currentState)
+        onCurrentStateChanged  : if(!stack) stack = [currentState]
+                                 else       stack.push(currentState)
 //        onCurrentStateChanged : console.log(rootObject,"currentState",currentState)
         property var             functions        : stateMachine ? stateMachine.functions : null
         property var             states           : stateMachine ? stateMachine.states    : null
@@ -163,7 +164,8 @@ Item {
         width       : parent.width
         height      : parent.height - defaultNavigationLoader.height
 //        transitionEffect: "rotateLeft"
-        onLoaded    : if(item && item.model) item.model = model;
+        onLoaded    : if(item && item.model)
+                          item.model = modelObject;
 //                      else                   console.error(item,"has no model property")
         source                     : !logic.stateMachineName || curState === "" ? "" : rootObject.qmlDirectory + "/" + logic.stateMachineName + "/" +  curState + ".qml"
         property alias curState    : logic.currentState
