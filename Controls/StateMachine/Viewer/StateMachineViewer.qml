@@ -27,8 +27,28 @@ Item {
     QtObject {
         id : logic
         readonly property string stateMachineName : stateMachine ? stateMachine.name : ""
-        property string          uid              : stateMachine ? stateMachine.id   : ""  //id of currentState
         property string          currentState     : modelObject  ? modelObject.state : ""  //currentState
+        property string          uid              : {
+            if(states && currentIndex === -1){
+                var ss = states.get(currentIndex)
+                if(ss && ss.hasOwnProperty("id"))
+                    return ss.id
+            }
+            return ""
+        }
+
+        property int currentIndex : {
+            if(states && currentState !== "") {
+                for(var i = 0; i < states.count; ++i){
+                    var s = states.get(i)
+                    if(s.name === currentState)
+                        return i;
+                }
+            }
+            return -1
+        }
+//         modelObject   ? currentState.id   : ""  //id of currentState
+
         onCurrentStateChanged  : if(!stack) stack = [currentState]
                                  else       stack.push(currentState)
 //        onCurrentStateChanged : console.log(rootObject,"currentState",currentState)
@@ -164,8 +184,10 @@ Item {
         width       : parent.width
         height      : parent.height - defaultNavigationLoader.height
 //        transitionEffect: "rotateLeft"
-        onLoaded    : if(item && item.model)
-                          item.model = modelObject;
+        onLoaded    : if(item){
+                          if(item.hasOwnProperty('model'))              item.model           = modelObject;
+                          if(item.hasOwnProperty("stateMachinePtr"))    item.stateMachinePtr = rootObject;
+                      }
 //                      else                   console.error(item,"has no model property")
         source                     : !logic.stateMachineName || curState === "" ? "" : rootObject.qmlDirectory + "/" + logic.stateMachineName + "/" +  curState + ".qml"
         property alias curState    : logic.currentState

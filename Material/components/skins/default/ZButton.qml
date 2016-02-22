@@ -150,6 +150,17 @@ ZSkin {
                             "@borderColor" : [Colors,"text1"]
                        }
         },
+        "info"  : { graphical : {
+                            "@fill_Default": [Colors,"info"],
+                            "@text_Default": [Colors,"text2"],
+                            "@fill_Press"  : [Colors.darker,"info"],
+                            "@text_Press"  : [Colors,"text2"],
+                            "@fill_Focus"  : [Colors,"info"],
+                            "@text_Focus"  : [Colors,"text1"],
+                            "@inkColor"    : [Colors,"info"],
+                            "@borderColor" : [Colors,"text1"]
+                       }
+        },
        "danger"  : { graphical : {
                            "@fill_Default": [Colors,"danger"],
                            "@text_Default": [Colors,"text2"],
@@ -172,6 +183,17 @@ ZSkin {
                            "@borderColor" : [Colors,"text1"]
                      },
         },
+        "warning"  : { graphical : {
+                            "@fill_Default": [Colors,"warning"],
+                            "@text_Default": [Colors,"text2"],
+                            "@fill_Press"  : [Colors.darker,"warning"],
+                            "@text_Press"  : [Colors,"text2"],
+                            "@fill_Focus"  : [Colors,"warning"],
+                            "@text_Focus"  : [Colors,"text1"],
+                            "@inkColor"    : [Colors.contrasting,"warning"],
+                            "@borderColor" : [Colors,"text1"]
+                      },
+         },
         "ghost"  : {  rootObject : {"border.width" : 2 },
                       graphical : {
                             "fill_Default" : "transparent",
