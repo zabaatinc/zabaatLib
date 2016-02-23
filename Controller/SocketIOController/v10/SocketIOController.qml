@@ -184,23 +184,41 @@ ZController {
             //sails + type is the typeof function we are calling. sailsGet , sailsPut
             socketHandler["sails" + type](url.toString(), params, function(response) {
                 if(response){
-                    response = getJsObject(response);
-                    response[0] = priv.parseAndCheck(response[0], type + "req", url)
+                    response = priv.parseAndCheck(response,type+'req',url)
+//                    console.log(JSON.stringify(response,null,2))
+                    if(response.body)
+                        response = response.body
 
-                    if(response[0] !== false && modelToUpdate && priv.errorCheck(response[0], type + "req") )
-                       controller.addModel(modelToUpdate, response[0]);    //TODO, add one for delete
+                    if(response !== false && modelToUpdate && priv.errorCheck(response, type + 'req'))
+                        controller.addModel(modelToUpdate, response.data);
 
                     if(typeof callback === 'function') {
 
                         try {
-                            if(type === 'get')    callback(response[0]);  //TODO fix this later! :)
-                            else                  callback(response);     //they should all behave the same way
+                            callback(response);
+//                            if(type === 'get')    callback(response[0]);  //TODO fix this later! :)
+//                            else                  callback(response);     //they should all behave the same way
                         }
                         catch(e){
                             console.log("BZZT BZZT BLOOP TI DOOP", socketHandler,type, ":","Error when executing callback for", url, e)
                         }
 
                     }
+
+//                    if(response[0] !== false && modelToUpdate && priv.errorCheck(response[0], type + "req") )
+//                       controller.addModel(modelToUpdate, response[0]);    //TODO, add one for delete
+
+//                    if(typeof callback === 'function') {
+
+//                        try {
+//                            if(type === 'get')    callback(response[0]);  //TODO fix this later! :)
+//                            else                  callback(response);     //they should all behave the same way
+//                        }
+//                        catch(e){
+//                            console.log("BZZT BZZT BLOOP TI DOOP", socketHandler,type, ":","Error when executing callback for", url, e)
+//                        }
+
+//                    }
 
 
                 }
@@ -221,7 +239,7 @@ ZController {
     }
     ZSocketIO {
         id : socketHandler
-        onServerResponse: logic.handleUserModel(priv.getJsObject(value) , eventName)
+//        onServerResponse: logic.handleUserModel(priv.getJsObject(value) , eventName)
         property QtObject logic : QtObject {
             id : logic
             property var defaultEvents : ["message"]
@@ -229,7 +247,17 @@ ZController {
                 return toString.call(obj) === '[object Array]'
             }
 
-            function handleUserModel(message , modelName){
+            function handleUserModel(message , modelName, depth){
+//                console.log("hadnleUserMessageMdoel", JSON.stringify(message,null,2))
+                if(depth === null || typeof depth === 'undefined')
+                    depth = 0
+
+//                if(depth === 0 && isArray(message) && message.length > 0 && message[0].body && message[0].body.data){
+//                    var item1 = message[0]
+//                    if(item1.body && item1.body.data)
+//                        return handleUserModel(item1.body.data, null, depth + 1)
+//                }
+
                 modelName = message && message.model ? message.model : modelName
 
                 if(message === null || typeof message === 'undefined'){
@@ -246,7 +274,7 @@ ZController {
                 if(isArray(message.data)){
 //                    console.log(JSON.stringify(message,null,2))
                     for(var d = 0; d < message.data.length; d++){
-                        handleUserModel({data:message.data[d] , verb:message.verb }, modelName)
+                        handleUserModel({data:message.data[d] , verb:message.verb }, modelName, depth + 1)
                     }
                 }
                 else {

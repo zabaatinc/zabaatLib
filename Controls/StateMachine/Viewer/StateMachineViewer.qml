@@ -1,6 +1,7 @@
 import QtQuick 2.4
 import "Functions"
 import "FancyLoader"
+import Zabaat.Utility 1.0
 Item {
     id : rootObject
 
@@ -16,8 +17,13 @@ Item {
     readonly property alias currentState : logic.currentState
     readonly property alias allStates    : logic.states
     property var transitionFunc : logic.defaultTransitionFunc //provide this function. inputs(string id, string dest). Should make modelObject change states
-    property var methodCallFunc : null  //provide this function. inputs(string id, var params).Should change modeObject in someway
+    property var methodCallFunc : null  //provide this function. inputs(string fnName, var params).Should change modeObject in someway
                                                                                                //(should rarely change state!)
+
+    property var updateFunc : !methodCallFunc ? null : function(){
+        methodCallFunc("update", {id:logic.uid, data:[logic.cleanClone()] })
+    }
+
     property bool usesDefaultNavigation : true
     property bool debug : true
 
@@ -75,6 +81,9 @@ Item {
         property var stack : [] //this lets us go back states!
 
 
+        function cleanClone(){
+            return Functions.object.modelObjectToJs(modelObject)
+        }
         function defaultTransitionFunc(id,state){  modelObject.state = state }
         function callFunction(fnName, params){
             if(!methodCallFunc)

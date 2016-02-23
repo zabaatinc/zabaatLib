@@ -138,6 +138,7 @@ ZController {
                 params = controller.tokenAppend(params)
 
             var cp = cleanPath(uri,url)
+//            console.log(cp)
             if(cp === null || typeof cp === 'undefined' || cp === "")
                 return console.error("something is wrong with the path")
 

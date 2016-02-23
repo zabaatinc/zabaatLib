@@ -1,5 +1,6 @@
 import QtQuick 2.4
 Item {
+    id : rootObject
     property var    model                 : null
     property string stateName             : model ? model.state : ""
     property var    stateMachinePtr       : null
@@ -13,10 +14,29 @@ Item {
     readonly property var    allowedTransitions: stateMachinePtr ? stateMachinePtr.logic.allowedTransitions: null
 
     //de most important
-    readonly property var transitionFunc  : stateMachinePtr ? stateMachinePtr.transitionFunc          : null//id,state
-    readonly property var methodCallFunc  : stateMachinePtr ? stateMachinePtr.methodCallFunc          : null//fnname,params
-    readonly property var canTransition   : stateMachinePtr ? stateMachinePtr.logic.canTransition     : null//toSTate
-    readonly property var canCall         : stateMachinePtr ? stateMachinePtr.logic.canCall           : null//fnName
+    readonly property var transitionFunc  : stateMachinePtr ? stateMachinePtr.transitionFunc          : getNewFn("transitionFunc")//id,state
+    readonly property var methodCallFunc  : stateMachinePtr ? stateMachinePtr.methodCallFunc          : getNewFn("methodCall")//fnname,params
+    readonly property var canTransition   : stateMachinePtr ? stateMachinePtr.logic.canTransition     : getNewFn("canTransition")
+    readonly property var canCall         : stateMachinePtr ? stateMachinePtr.logic.canCall           : getNewFn("canCall")
     readonly property string defaultState : stateMachinePtr ? stateMachinePtr.logic.getDefaultState() : ""  //void
-    readonly property var validate        : stateMachinePtr ? stateMachinePtr.logic.validate          : null//fnname,params
+    readonly property var validate        : stateMachinePtr ? stateMachinePtr.logic.validate          : getNewFn("validate")
+    readonly property var updateFunc      : stateMachinePtr ? stateMachinePtr.updateFunc              : getNewFn("updateFunc")
+//    readonly property var updateFunc      : getNewFn("updateFunc")
+
+    function getNewFn(name){
+//        console.error(rootObject, "missing function:", name)
+//        var b = BlankFunc(name);
+//        return b;
+
+        return function() { console.log(rootObject, "missing function:", name) }
+    }
+
+//    function BlankFunc(name){
+//        console.log(rootObject, "missing function:", name)
+//    }
+
+//    function __blankFunc(name){
+//        console.error(name)
+
+//    }
 }
