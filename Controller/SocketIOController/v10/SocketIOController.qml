@@ -92,19 +92,21 @@ ZController {
     }
     function tokenAppend(paramsA){
         var params = paramsA
-        if(typeof params ==='undefined'|| params === null)
-        {
-            var params= {access_token:socketHandler.token }
+        if(typeof params ==='undefined'|| params === null)           params              = {access_token:socketHandler.token }
+        else                                                         params.access_token = socketHandler.token
 
-        }
-        else{
-          params['acces_token']= socketHandler.token
-        }
         return params
     }
 
     QtObject {
         id : priv
+        function correctifyUrl(url){
+            if(url.charAt(0) !== "/") {
+                return "/" + url;
+            }
+            return url;
+        }
+
         function findInHistory(obj) {
             if(externalDebugFunc)
                 externalDebugFunc('ZClient.qml - findInHistory(obj)- FIX COMPARiSON')
@@ -171,7 +173,6 @@ ZController {
             if(autoAddEventListeners)
                 priv.addEvent(url)
 
-
             if(override && priv.findInHistory(params))        return    //if found in history, then don't do it
             else                                              controller.requestHistory.push(params)
 
@@ -182,9 +183,11 @@ ZController {
 
 //            socketHandler.sailsGet(url.toString(), params, )
             //sails + type is the typeof function we are calling. sailsGet , sailsPut
+            url = correctifyUrl(url)
             socketHandler["sails" + type](url.toString(), params, function(response) {
                 if(response){
                     response = priv.parseAndCheck(response,type+'req',url)
+//                    console.log(JSON.stringify(response,null,2))
 //                    console.log(JSON.stringify(response,null,2))
                     if(response.body)
                         response = response.body
