@@ -14,8 +14,7 @@ Item
     property var modelTransformerFunctions : ({})
 
 
-    QtObject
-    {
+    QtObject {
         id : _debug
         function debugMsg()
         {
@@ -32,9 +31,7 @@ Item
             else                        console.log.apply(this,arguments)
         }
     }
-
-    QtObject
-    {
+    QtObject {
         id : priv
         property var models        : []
         property var modelCbs      : []         //These are callbacks for the entire models!
@@ -132,8 +129,7 @@ Item
 
    //Smart enough to know that if given customer/4, it will add 4 to customers model
    //This can occur if we have a callback that wanted customers/4 (using ZTextBox_Bindable) or a query of customers/4
-   function addModel(name, model, cb)
-   {
+   function addModel(name, model, cb)  {
        if(name === null || typeof name === 'undefined')
            return console.error("no name provided to ZController.addModel", name)
 

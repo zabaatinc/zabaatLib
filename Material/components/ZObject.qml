@@ -35,16 +35,21 @@ FocusScope {
     // <PROJECTDIR>/lib/Zabaat/Material/components/ui/skins/<skinName>/<objectName>.qml
     Loader {
         id       : styleLoader
+        objectName : "styleLoader"
+//        Component.onCompleted: console.log(this)
         onLoaded : item.logic = rootObject
         anchors.fill: parent
         focus       : true
         onActiveFocusChanged: if(activeFocus && item)
                                   nextItemInFocusChain()
-
+//        asynchronous: true
     }
 
     Loader {
         id       : editModeLoader
+        objectName : "editModeLoader"
+//        Component.onCompleted: console.log(this)
+
         z        : 9999999
         source   : MaterialSettings.editMode ? "ZEdit.qml" : ""
         onLoaded : {
@@ -53,6 +58,7 @@ FocusScope {
         anchors.fill: parent
         clip : false
         focus : false
+//        asynchronous: true
     }
 
     onObjectNameChanged: {  //TRY LOADING A SKIN

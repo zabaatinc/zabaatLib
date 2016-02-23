@@ -100,6 +100,7 @@ Item {
         signal finishedLoading()
         property string tempTrans;
         property bool mutex : false;
+//        Component.onCompleted: console.log(this)
     }
     Loader {
         id : l2
@@ -114,6 +115,7 @@ Item {
         signal finishedLoading()
         property string tempTrans;
         property bool mutex : false;
+//        Component.onCompleted: console.log(this)
     }
 
 

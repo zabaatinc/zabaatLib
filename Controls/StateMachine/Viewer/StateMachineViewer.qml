@@ -189,6 +189,8 @@ Item {
 
     FancyLoader {
         id          : loader
+        objectName  : "FancyLoader"
+//        Component.onCompleted: console.log(this)
         anchors.top : parent.top
         width       : parent.width
         height      : parent.height - defaultNavigationLoader.height

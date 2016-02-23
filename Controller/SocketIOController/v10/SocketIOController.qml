@@ -246,7 +246,6 @@ ZController {
             function isArray(obj) {
                 return toString.call(obj) === '[object Array]'
             }
-
             function handleUserModel(message , modelName, depth){
 //                console.log("hadnleUserMessageMdoel", JSON.stringify(message,null,2))
                 if(depth === null || typeof depth === 'undefined')
@@ -341,8 +340,6 @@ ZController {
 
                 }
             }
-
-
             function indexOf(arr,val){
                 for(var i = 0; i < arr.length; i++){
                     var e = arr[i]
@@ -351,7 +348,6 @@ ZController {
                 }
                 return -1
             }
-
         }
 
         onRegisteredEventsChanged: socketHandler.addEvents(logic.defaultEvents)
