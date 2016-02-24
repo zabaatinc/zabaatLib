@@ -254,14 +254,14 @@ ZController {
     }
     ZSocketIO {
         id : socketHandler
-//        onServerResponse: logic.handleUserModel(priv.getJsObject(value) , eventName)
+        onServerResponse: logic.handleMessage(priv.getJsObject(value) , eventName)
         property QtObject logic : QtObject {
             id : logic
             property var defaultEvents : ["message"]
             function isArray(obj) {
                 return toString.call(obj) === '[object Array]'
             }
-            function handleUserModel(message , modelName, depth){
+            function handleMessage(message , modelName, depth){
 //                console.log("hadnleUserMessageMdoel", JSON.stringify(message,null,2))
                 if(depth === null || typeof depth === 'undefined')
                     depth = 0
@@ -275,12 +275,12 @@ ZController {
                 modelName = message && message.model ? message.model : modelName
 
                 if(message === null || typeof message === 'undefined'){
-                    console.error("SocketIOController.handleUserModel: message is missing", message)
+//                    console.error("SocketIOController.handleUserModel: message is missing", message)
                     return;
                 }
 
                 if(message.data === null || typeof message.data === 'undefined'){
-                    console.error("SocketIOController.handleUserModel: message.data is missing", message.data)
+//                    console.error("SocketIOController.handleUserModel: message.data is missing", message.data)
                     return;
                 }
 
@@ -288,7 +288,7 @@ ZController {
                 if(isArray(message.data)){
 //                    console.log(JSON.stringify(message,null,2))
                     for(var d = 0; d < message.data.length; d++){
-                        handleUserModel({data:message.data[d] , verb:message.verb }, modelName, depth + 1)
+                        handleMessage({data:message.data[d] , verb:message.verb }, modelName, depth + 1)
                     }
                 }
                 else {
