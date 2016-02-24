@@ -21,7 +21,9 @@ Item {
                                                                                                //(should rarely change state!)
 
     property var updateFunc : !methodCallFunc ? null : function(){
-        methodCallFunc("update", {id:logic.uid, data:[logic.cleanClone()] })
+        var obj = {id:logic.uid, data:[logic.cleanClone()] }
+        console.log("Update", JSON.stringify(obj,null,2))
+        methodCallFunc("update", obj)
     }
 
     property bool usesDefaultNavigation : true
@@ -34,25 +36,17 @@ Item {
         id : logic
         readonly property string stateMachineName : stateMachine ? stateMachine.name : ""
         property string          currentState     : modelObject  ? modelObject.state : ""  //currentState
-        property string          uid              : {
-            if(states && currentIndex === -1){
-                var ss = states.get(currentIndex)
-                if(ss && ss.hasOwnProperty("id"))
-                    return ss.id
-            }
-            return ""
-        }
-
-        property int currentIndex : {
-            if(states && currentState !== "") {
-                for(var i = 0; i < states.count; ++i){
-                    var s = states.get(i)
-                    if(s.name === currentState)
-                        return i;
-                }
-            }
-            return -1
-        }
+        property string          uid              : modelObject && modelObject.id ? modelObject.id  : ""
+//        property int currentIndex : {
+//            if(states && currentState !== "") {
+//                for(var i = 0; i < states.count; ++i){
+//                    var s = states.get(i)
+//                    if(s.name === currentState)
+//                        return i;
+//                }
+//            }
+//            return -1
+//        }
 //         modelObject   ? currentState.id   : ""  //id of currentState
 
         onCurrentStateChanged  : if(!stack) stack = [currentState]

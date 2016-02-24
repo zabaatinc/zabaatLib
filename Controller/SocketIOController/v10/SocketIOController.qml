@@ -119,10 +119,22 @@ ZController {
             return false
         }
         function handleError(origin, response){
-            if(controller.errToJsObj && controller.errHandler && response && response[0] && (response[0].err || response[0].error) ){
-                var errObj = controller.errToJsObj(response)
-                errObj.origin = origin
-                controller.errHandler(errObj)
+            if(!response)
+                return console.warn("O__O SOCKETIO O_O @",origin, "Null response")
+
+            var e ;
+            if(isArray(response))     e = response[0].err ? response[0].err : response[0].error
+            else                      e = response.err    ? response.err    : response.error
+
+            if(e){
+                if(controller.errToJsObj && controller.errHandler){
+                    var errObj = controller.errToJsObj(response)
+                    errObj.origin = origin
+                    controller.errHandler(errObj)
+                }
+                else {
+                    console.error("X__X SocketIO X__X @", origin,JSON.stringify(e,null,2))
+                }
             }
         }
         function getObjectPropertyNames(obj){

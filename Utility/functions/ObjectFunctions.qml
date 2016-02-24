@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import "./Underscore"
 QtObject {
     //OBJECT
     function isUndef(){
@@ -124,26 +125,39 @@ QtObject {
         }
     }
     function modelObjectToJs(mo){
-        var obj =  {}
+        function or(val){
+            if(arguments.length > 1){
+                for(var i = 1 ; i < arguments.length; ++i){
+                    if(val === arguments[i])
+                        return true;
+                }
+            }
+            return false
+        }
 
+        var obj =  {}
         for(var k in mo){
-            if(k !== 'objectName' &&  k !== 'objectNameChanged' && k.indexOf("__") === -1)
-                obj[k] = mo[k]
+            if(or(k, "objectname","objectnamechanged") || k.indexOf("__") === 0 )
+                continue
+
+            var val     = mo[k]
+            var type    = typeof val
+            var typeStr = val ? val.toString().toLowerCase() : null
+//                    console.log(k, val ,type,typeStr)
+            if(or(type,"string","number","date","bool","boolean"))
+                obj[k] = val;
+            else if(typeStr === null)
+                obj[k] = null;
+            else if(typeStr.indexOf("listmodel") !== -1 || typeStr.indexOf("proxymodel") !== -1)
+                obj[k] = listmodelToArray(val)
+//                    }
+            else
+                obj[k] = _.clone(val)
         }
 
         return obj
     }
-    function listmodelToArray(lm){
-//        QQmlListModel
-        var ret = []
-        if(lm.toString().toLowerCase().indexOf("model") !== -1 && lm.count) {
-            for(var i = 0; i < lm.count; i++){
-                var modelItem = lm.get(i)
-                ret.push(modelObjectToJs(modelItem))
-            }
-        }
-        return ret;
-    }
+
     function getProperties(obj, exclude, doesNotContain){
         var propArr = []
 
@@ -182,4 +196,60 @@ QtObject {
         }
         return propArr
     }
+
+    function listmodelToArray(lm){
+
+        function or(val){
+            if(arguments.length > 1){
+                for(var i = 1 ; i < arguments.length; ++i){
+                    if(val === arguments[i])
+                        return true;
+                }
+            }
+            return false
+        }
+
+        var arr = []
+        if(!lm)
+            return 0;
+
+        for(var i = 0; i < lm.count; ++i){
+            var item = lm.get(i)
+            var type = typeof item
+            if(type === 'string' || type === 'number' || type === 'date')
+                arr.push(item)
+            else {
+                var obj = {};
+                for(var k in item){
+                    //exclude objectname
+                    var ex = k.toLowerCase()
+                    if(or(ex, "objectname","objectnamechanged") || ex.indexOf("__") === 0 )
+                        continue
+
+                    var val     = item[k]
+                    if(isUndef(val)){
+                        console.log(k, "is", val)
+                        continue
+                    }
+
+                    type        = typeof val
+                    var typeStr = val.toString().toLowerCase()
+//                    console.log(k, val ,type,typeStr)
+                    if(or(type,"string","number","date","bool","boolean"))
+                        obj[k] = val;
+                    else if(typeStr.indexOf("listmodel") !== -1 || typeStr.indexOf("proxymodel") !== -1)
+                        obj[k] = listmodelToArray(val)
+//                    }
+                    else
+                        obj[k] = _.clone(val)
+//                    }
+
+                }
+                arr.push(obj)
+            }
+        }
+        return arr;
+    }
+
+
 }
