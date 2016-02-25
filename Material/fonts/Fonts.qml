@@ -1,4 +1,4 @@
-//Loads all the fonts in this directory
+//Loads all the fonts in dir. By default, it will load fontAwesome. Happy times :D
 import QtQuick 2.4
 import Qt.labs.folderlistmodel 2.1
 //import "../"
@@ -14,7 +14,7 @@ QtObject {
     property string font1 : ""
     property string font2: ""
 
-    onLoadedChanged: if(loaded) console.log("Fonts loaded:", getCustomFonts())
+    onLoadedChanged      : if(loaded) console.log("Fonts loaded:", getCustomFonts())
     Component.onCompleted: logic.log("Singleton Fonts is born")
 
     function getCustomFonts(){
@@ -38,25 +38,23 @@ QtObject {
 
         FolderListModel {
             id : fontList
-//            folder          : "../"
+            folder          : "emptyFolder"
             showDirs        : false
             showDotAndDotDot: false
-            onFolderChanged : { logic.log("Fonts Folder =" , folder) ; decidetoLoad() }
-            onCountChanged  : decidetoLoad()
+            onFolderChanged : if(!loadTimer.running){ loadTimer.start() }
+            onCountChanged  : if(!loadTimer.running){ loadTimer.start() }
             nameFilters     : ["*.ttf", "*.otf", "*.fnt" ]
 
-            function decidetoLoad(){
-                if(count > 0 ){
-//                    console.log("fonts",count)
-                    logic.loadFonts()
-                }
-            }
 
-//            property Timer myTimer : Timer {
-//                running : true
-//                repeat : false
-//                interval : 100
-//                onTriggered : {
+            property Timer myTimer : Timer {
+                //the delay is helpful so when the count property is increased (as it will, one by one)
+                //we dont duplicate calls to loadFonts()!
+                id : loadTimer
+                running : true
+                repeat : false
+                interval : 100
+                onTriggered : {
+                      logic.loadFonts()
 //                    var thisDir = Qt.resolvedUrl("./")
 //                    var lastChar = thisDir[thisDir.length - 1]
 //                    if(lastChar === "/" || lastChar === "\\")
@@ -65,19 +63,26 @@ QtObject {
 //                    if(fontList.folder.toString() === thisDir) {
 //                        logic.loadFonts()
 //                    }
-//                }
-//            }
+                }
+            }
 
         }
         Item {
             id : fontContainer
-            property var fonts       : []
-            property int totalFonts  : -1
+            property var fonts       : [fontAwesome]
+            property int totalFonts  : 1
             property int fontsLoaded : -1
             onFontsLoadedChanged: {
                 if(fontsLoaded !== -1 && fontsLoaded === totalFonts)
                     rootObject.loaded = true
             }
+
+            FontLoader {
+                id     : fontAwesome
+                source : "fontawesome-webfont.ttf"
+            }
+
+
 
             function clear() {
                 //dont clear, i think this destroys some things really hard! just dont import FA
@@ -93,13 +98,14 @@ QtObject {
 
 
         function loadFonts() {
+            console.log("Load fonts called")
             rootObject.loaded = false
             fontContainer.clear()
-            fontContainer.totalFonts = fontList.count
+            fontContainer.totalFonts = fontList.count //+1 is for font awesome
             fontContainer.fontsLoaded = 0
 
 
-            for(var i = 0; i < fontList.count; i++) {
+            for(var i = 0; i < fontList.count; ++i) {
                 var fl        = getQmlObject(["QtQuick 2.4"], "FontLoader{}", fontContainer)
                 fl.statusChanged.connect(function() { if(fl.status === FontLoader.Ready) fontContainer.fontsLoaded++})
                 fontContainer.fonts.push(fl)
