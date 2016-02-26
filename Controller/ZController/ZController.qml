@@ -112,7 +112,10 @@ Item
     //For this model
     function getModelWhenItArrives(name, obj, prop, dontAutoRequest)
     {
-        if(priv.models[name])   return priv.models[name]
+        if(priv.models[name]){
+//            console.log("returning",name)
+            return priv.models[name]
+        }
         else
         {
             var o = { _obj : obj , _prop : prop }
