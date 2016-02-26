@@ -22,7 +22,7 @@ Item {
 
     property var updateFunc : !methodCallFunc ? null : function(){
         var obj = {id:logic.uid, data:[logic.cleanClone()] }
-        console.log("Update", JSON.stringify(obj,null,2))
+//        console.log("Update", JSON.stringify(obj,null,2))
         methodCallFunc("update", obj)
     }
 
