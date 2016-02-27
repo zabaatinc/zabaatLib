@@ -137,7 +137,7 @@ QtObject {
 
         var obj =  {}
         for(var k in mo){
-            if(or(k, "objectname","objectnamechanged") || k.indexOf("__") === 0 )
+            if(or(k.toLowerCase(), "objectname","objectnamechanged") || k.indexOf("__") === 0 )
                 continue
 
             var val     = mo[k]
@@ -194,6 +194,7 @@ QtObject {
                 }
             }
         }
+        propArr.sort()
         return propArr
     }
 
@@ -251,5 +252,27 @@ QtObject {
         return arr;
     }
 
+    function getType(obj){
+        if(obj === null)
+            return null;
+        var type = typeof obj
+        if(type === 'object'){
+            if(toString.call(obj) === '[object Array]')
+                return "array"
+            var qName = qmlName(obj)
+            return qName === "" ? "object" : qName
+        }
+        else {
+            return type;
+        }
+    }
+    function qmlName(obj){ //every qml item is going to have an objectName
+        if(obj && obj.hasOwnProperty && obj.hasOwnProperty("objectName")){
+            var name = obj.toString()
+            var idx = name.indexOf("(")
+            return idx !== -1 ? name.slice(0,idx) : name;
+        }
+        return ""
+    }
 
 }

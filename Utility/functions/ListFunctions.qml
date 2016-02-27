@@ -19,8 +19,12 @@ QtObject {
 
         for(var i = 0 ; i < arr.length; ++i){
             var item = arr[i]
-            if(item && item[prop] && item[prop] === value)
-                return giveMeIndex ? i : item;
+            if(item){
+                if((prop === null || typeof prop === 'undefined') && item === value)
+                    return giveMeIndex ? i : item;
+                else if(item[prop] && item[prop] === value)
+                    return giveMeIndex ? i : item;
+            }
         }
         return giveMeIndex ? -1 : null;
     }
