@@ -48,9 +48,22 @@ Item {
 //            return -1
 //        }
 //         modelObject   ? currentState.id   : ""  //id of currentState
+        property bool removeMutex : false
+        onCurrentStateChanged  : if(!removeMutex){
+//                                     console.log("currentState changed", currentState)
+                                     if(!stack) {
+                                          stack = [currentState]
+//                                          console.log(stack)
+                                      }
+                                      else {
+                                          stack.splice(0,0,currentState)
+//                                          console.log(stack)
+                                      }
+//                                      console.log(removeMutex, stack)
+                                 }
 
-        onCurrentStateChanged  : if(!stack) stack = [currentState]
-                                 else       stack.push(currentState)
+
+
 //        onCurrentStateChanged : console.log(rootObject,"currentState",currentState)
         property var             functions        : stateMachine ? stateMachine.functions : null
         property var             states           : stateMachine ? stateMachine.states    : null
@@ -73,12 +86,12 @@ Item {
             ]
 
         property var stack : [] //this lets us go back states!
-
+        onStackChanged: console.log(stack)
 
         function cleanClone(){
             return Functions.object.modelObjectToJs(modelObject)
         }
-        function defaultTransitionFunc(id,state){  modelObject.state = state }
+        function defaultTransitionFunc(id,state, cb){  modelObject.state = state; if(cb) cb() }
         function callFunction(fnName, params){
             if(!methodCallFunc)
                 return console.error("StateMachine has not been provided with a methodCall function")
@@ -93,7 +106,7 @@ Item {
             else
                 return console.error("rule validation fail:",s)
         }
-        function performTransition(toState){
+        function performTransition(toState, cb){
             if(!transitionFunc){
                 console.error("Statemachine has not been provided with a transition function")
                 return false;
@@ -104,7 +117,7 @@ Item {
                 return false;
             }
 
-            transitionFunc(uid, toState);
+            transitionFunc(uid, toState, cb);
             return true;
         }
         function canCall(fnName){
@@ -164,16 +177,24 @@ Item {
         }
         function back(override){
             if(stack.length > 1){   //will always have the first state in it!
-                var prev = stack[stack.length - 2]
+                var prev = stack[1]
                 if(override){   //essentially dont follow the rules of the state machine!
-                    stack.pop()
-                    stack.pop()
+                    logic.removeMutex = true;
+                    stack.splice(0,1);
+//                    stack[0]
                     transitionFunc(uid,prev);
+                    logic.removeMutex = false;
                 }
-                else if(performTransition(prev)){
-                    stack.pop()
-                    stack.pop()
+                else if(canTransition(prev)){
+//                    console.log("FALLING IN HERE", stack)
+                    logic.removeMutex = true;
+
+                    stack.splice(0,1);
+                    transitionFunc(uid,prev);
+//                    console.log("FALLING IN HERE", stack)
+                    logic.removeMutex = false;
                 }
+                console.log("back ended", stack)
             }
             else
                 console.warn("cannot go back. Already at the base state")
