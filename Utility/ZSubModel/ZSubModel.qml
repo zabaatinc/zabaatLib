@@ -8,6 +8,13 @@ ListModel {
     onQueryTermChanged  : logic.init()
 
 
+    function setRelatedIdx(index, thisIndex){
+        if(thisIndex === null || typeof thisIndex === 'undefined')
+            thisIndex = rootObject.count -1
+
+        var obj = rootObject.get(thisIndex)
+        obj.__relatedIndex = index;
+    }
 
     property QtObject logic : QtObject{
         id : logic
@@ -16,22 +23,96 @@ ListModel {
             onRowsInserted   : {
                 var start = arguments[1]
                 var end   = arguments[2]
+                var count = end - start + 1
+
+                //let's increment the other rows!!
+                for(var i = 0 ; i < rootObject.count; ++i){
+                    var item = rootObject.get(i)
+                    if(item && item.__relatedIndex >= start){
+                        item.__relatedIndex += count
+                    }
+                }
+
                 for(var i = start; i <= end; ++i){
                     var newItem = sourceModel.get(i)
                     var matchItem = logic.match(newItem)
-                    if(matchItem)
+                    if(matchItem) { //we need to make sure if this occurs, that we push the other rows!!
                         rootObject.append(newItem)
+                        setRelatedIdx(i)
+                    }
                 }
 
+//                console.log("INSERTED",start,end)
 //                for(var k in arguments) console.log(k,arguments[k])
             }
             onRowsMoved      : {
-                var start = arguments[1]
-                var end   = arguments[2]
+//                for(var i = 0; i < arguments.length; ++i){
+//                    var a = arguments[i]
+//                    if(a.toString() === "QModelIndex()"){
+//                        console.log(a.row, a.column, a.rows)
+//                    }
+//                    else
+//                        console.log(a)
+//                }
+                console.log("---------")
+                var start           = arguments[1]
+                var end             = arguments[2]
+                var count           = end - start +1
+                var destinationEnd  = arguments[4] -1 //this is where the
+                var startEnd        = destinationEnd - (end-start);
+
+                var arrOrig = helperFunctions.getArr(start,end)
+                var arrDest = helperFunctions.getArr(startEnd,destinationEnd)
+//                console.log("orig:" , arrOrig)
+//                console.log("dest:" , arrDest)
+
+                var moveConstant = startEnd - start
+                console.log(moveConstant)
+                for(var i = 0; i < rootObject.count; ++i){
+                    var item = rootObject.get(i)
+                    if(item){
+                        var r   = item.__relatedIndex
+                        if(r < start){
+                            item.__relatedIndex += count
+                        }
+                        else if(r >= start && r <= end){
+                            item.__relatedIndex += moveConstant
+                        }
+                        else if(r < destinationEnd + count){
+                            item.__relatedIndex -= count
+                        }
+                    }
+                }
+//                console.log(count,"rows moved from", start,":",end,"to",startEnd,":",destinationEnd)
             }
             onRowsRemoved    : {
                 var start = arguments[1]
                 var end   = arguments[2]
+
+                //rows removed signal always happens in an array
+
+                var count = end - start + 1 //this is the amount of things that need it's indexes updated
+
+                //first let's find the items that were deleted, and remove them from our model
+                var iteration = 0;
+                for(var s = start; s <= end; s++){
+                    for(var i = rootObject.count -1; i >=0; --i){
+//                        console.log("s",s,"i",i)
+                        var item = rootObject.get(i)
+                        if(item){
+                            if(item.__relatedIndex === s){
+//                                console.log("match!")
+                                rootObject.remove(i);
+                            }
+                            //updates the relatedIndexes
+                            else if(iteration === 0 && item.__relatedIndex > end){
+                                item.__relatedIndex -= count
+                            }
+                        }
+                    }
+                    ++iteration
+                }
+                console.log("removed",start,end,count)
             }
 //            onColumnsInserted: { console.log(arguments) }
 //            onColumnsMoved   : { console.log(arguments) }
@@ -40,7 +121,7 @@ ListModel {
             onDataChanged    : {
 //                var start = arguments[1]
 //                var end   = arguments[2]
-//                console.log(start,start.row,end)
+
 //                for(var i = 0; i < end.length; ++i)
 //                    console.log(i,end[i])
                 var idx         = arguments[1].row
@@ -52,14 +133,14 @@ ListModel {
                         rootObject.remove(i)
                         if(matchItem){
                             rootObject.insert(i,changedItem)
-                            rootObject.get(i).__relatedIndex = i
+                            setRelatedIdx(i,i)
                         }
                     }
                 }
 
 //                logic.findMatches()
             }
-//            onModelReset     : logic.findMatches()
+            onModelReset     : logic.findMatches()
         }
 
         function init(){
@@ -68,17 +149,18 @@ ListModel {
         }
         function findMatches(){
             rootObject.clear()
-            if(!sourceModel || !queryTerm){
+            if(!sourceModel || !queryTerm || sourceModel.count === 0){
                 return;
             }
+
 //            console.log("Finding matches",sourceModel.count)
             for(var i = 0 ; i < sourceModel.count; ++i){
                 var modelItem = sourceModel.get(i)
+//                console.log(i, JSON.stringify(modelItem,null,2))
                 var matchItem = match(modelItem)
                 if(matchItem){
                     rootObject.append(modelItem)
-                    var obj = rootObject.get(rootObject.count -1)
-                    obj.__relatedIndex = i;
+                    setRelatedIdx(i)
 //                    for(var k in obj){
 //                        if(k !== 'objectName' && k !== 'objectNameChanged' && k.indexOf("__") === -1 )
 //                        {
@@ -93,6 +175,9 @@ ListModel {
         function match(modelItem){  //the brains of the whole deal!
 //            console.log("match")
             var qObj = queryTerm
+            if(!qObj)
+                return
+
             var op   = qObj.op ? qObj.op : "contains"
             var count = 0;
             for(var q in queryTerm){
@@ -115,6 +200,7 @@ ListModel {
                 }
                 count++
             }
+//            console.log(count)
             return count === 0 ?  false : true;
         }
 
@@ -251,6 +337,15 @@ ListModel {
                     }
                 }
                 return false
+            }
+
+            function getArr(start,end){
+                var arr = []
+                if(isDef(start,end) && end > start){
+                    for(var i = start; i <= end; ++i)
+                        arr.push(i);
+                }
+                return arr
             }
 
             function isUndef(){

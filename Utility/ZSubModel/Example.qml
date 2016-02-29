@@ -28,6 +28,10 @@ Item {
             text : "delete"
             onClicked : logic.randomRemove()
         }
+        Button {
+            text : 'move'
+            onClicked: logic.randomMove()
+        }
     }
 
 
@@ -47,7 +51,13 @@ Item {
         }
 
         function randomRemove(){
+//            sourceModel.remove(sourceModel.count - 1)
             sourceModel.remove(getRandIdx())
+//            sourceModel.remove(2)
+        }
+
+        function randomMove(){
+            sourceModel.move(0,1,3)
         }
 
         function formQueryObject(key,op,value){
@@ -139,6 +149,9 @@ Item {
                 border.width: 1
                 property var lvPtr : parent.parent ? parent.parent : null
                 property var m : lvPtr && lvPtr.model ? lvPtr.model.get(index) : {error:"happens"}
+                property int ind : m && !_.isUndefined(m.__relatedIndex) ? m.__relatedIndex : index
+//                onMChanged: if(m) console.log(JSON.stringify(m,null,2))
+
                 clip : true
                 Flickable {
                     width : parent.width - parent.height
@@ -151,7 +164,18 @@ Item {
     //                    horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         font.pixelSize: delItem.height * 1/6
-                        text   : JSON.stringify(Functions.object.modelObjectToJs(delItem.m),null,2)
+                        text   : delItem.ind + ":" + JSON.stringify(Functions.object.modelObjectToJs(delItem.m),null,2)
+    //                    Component.onCompleted: console.log(delItem.parent.parent)
+                    }
+
+                    Text {
+                        id : textBig
+                        width : delItem.width -  parent.parent.height
+                        height : delItem.height
+                        horizontalAlignment: Text.AlignRight
+                        verticalAlignment: Text.AlignVCenter
+                        font.pixelSize: delItem.height * 1/3
+                        text   : delItem.m ? delItem.ind + ":" + delItem.m.name : ""
     //                    Component.onCompleted: console.log(delItem.parent.parent)
                     }
                 }
