@@ -7,14 +7,8 @@ ListModel {
     onSourceModelChanged: logic.init()
     onQueryTermChanged  : logic.init()
 
+    dynamicRoles: true
 
-    function setRelatedIdx(index, thisIndex){
-        if(thisIndex === null || typeof thisIndex === 'undefined')
-            thisIndex = rootObject.count -1
-
-        var obj = rootObject.get(thisIndex)
-        obj.__relatedIndex = index;
-    }
 
     property QtObject logic : QtObject{
         id : logic
@@ -38,7 +32,7 @@ ListModel {
                     var matchItem = logic.match(newItem)
                     if(matchItem) { //we need to make sure if this occurs, that we push the other rows!!
                         rootObject.append(newItem)
-                        setRelatedIdx(i)
+                        logic.setRelatedIdx(i)
                     }
                 }
 
@@ -54,7 +48,7 @@ ListModel {
 //                    else
 //                        console.log(a)
 //                }
-                console.log("---------")
+//                console.log("---------")
                 var start           = arguments[1]
                 var end             = arguments[2]
                 var count           = end - start +1
@@ -67,18 +61,21 @@ ListModel {
 //                console.log("dest:" , arrDest)
 
                 var moveConstant = startEnd - start
-                console.log(moveConstant)
+//                console.log(moveConstant, arrOrig, arrDest)
                 for(var i = 0; i < rootObject.count; ++i){
                     var item = rootObject.get(i)
                     if(item){
                         var r   = item.__relatedIndex
                         if(r < start){
+//                            console.log("r < start", item.name, r)
                             item.__relatedIndex += count
                         }
                         else if(r >= start && r <= end){
+//                            console.log("r mid", item.name, r)
                             item.__relatedIndex += moveConstant
                         }
-                        else if(r < destinationEnd + count){
+                        else if(r <= destinationEnd ){
+//                            console.log("r last", item.name, r)
                             item.__relatedIndex -= count
                         }
                     }
@@ -94,25 +91,22 @@ ListModel {
                 var count = end - start + 1 //this is the amount of things that need it's indexes updated
 
                 //first let's find the items that were deleted, and remove them from our model
-                var iteration = 0;
-                for(var s = start; s <= end; s++){
-                    for(var i = rootObject.count -1; i >=0; --i){
+//                var deletedArr = helperFunctions.getArr(start,end);
+                for(var i = rootObject.count -1; i >=0; --i){
 //                        console.log("s",s,"i",i)
-                        var item = rootObject.get(i)
-                        if(item){
-                            if(item.__relatedIndex === s){
-//                                console.log("match!")
-                                rootObject.remove(i);
-                            }
-                            //updates the relatedIndexes
-                            else if(iteration === 0 && item.__relatedIndex > end){
-                                item.__relatedIndex -= count
-                            }
+                    var item = rootObject.get(i)
+                    if(item){
+                        var r    = item.__relatedIndex
+                        if(r >= start && r <= end){
+                            rootObject.remove(i);
+                        }
+                        else if(item.__relatedIndex > end){
+                            item.__relatedIndex -= count
                         }
                     }
-                    ++iteration
                 }
-                console.log("removed",start,end,count)
+
+//                console.log("removed",start,end,count)
             }
 //            onColumnsInserted: { console.log(arguments) }
 //            onColumnsMoved   : { console.log(arguments) }
@@ -133,7 +127,7 @@ ListModel {
                         rootObject.remove(i)
                         if(matchItem){
                             rootObject.insert(i,changedItem)
-                            setRelatedIdx(i,i)
+                            logic.setRelatedIdx(i,i)
                         }
                     }
                 }
@@ -143,73 +137,117 @@ ListModel {
             onModelReset     : logic.findMatches()
         }
 
+        function setRelatedIdx(index, thisIndex){
+            if(thisIndex === null || typeof thisIndex === 'undefined')
+                thisIndex = rootObject.count -1
+
+            var obj = rootObject.get(thisIndex)
+            obj.__relatedIndex = index;
+        }
         function init(){
             rootObject.clear()
             findMatches()
         }
         function findMatches(){
             rootObject.clear()
-            if(!sourceModel || !queryTerm || sourceModel.count === 0){
+            if(!sourceModel || !queryTerm || sourceModel.count === 0)
                 return;
-            }
 
-//            console.log("Finding matches",sourceModel.count)
             for(var i = 0 ; i < sourceModel.count; ++i){
                 var modelItem = sourceModel.get(i)
-//                console.log(i, JSON.stringify(modelItem,null,2))
                 var matchItem = match(modelItem)
                 if(matchItem){
                     rootObject.append(modelItem)
-                    setRelatedIdx(i)
-//                    for(var k in obj){
-//                        if(k !== 'objectName' && k !== 'objectNameChanged' && k.indexOf("__") === -1 )
-//                        {
-//                            obj[k] = Qt.binding(function() {  var m = sourceModel ? sourceModel.get(i) : null;
-//                                                              return m ? m[k] : "HURR"
-//                                                           })
-//                        }
-//                    }
+                    logic.setRelatedIdx(i)
                 }
             }
         }
-        function match(modelItem){  //the brains of the whole deal!
-//            console.log("match")
-            var qObj = queryTerm
-            if(!qObj)
-                return
 
-            var op   = qObj.op ? qObj.op : "contains"
-            var count = 0;
-            for(var q in queryTerm){
-                if(q === "op")
-                    continue
 
-                var queryVal = queryTerm[q]
-                if(helperFunctions.getFromArray(booleanLogic.connectorTokens,q,null,true) !== -1){
-//                    console.log("OH SHIT CONNECTOR TOKENS")
+        //https://docs.mongodb.org/manual/tutorial/query-documents/ Follow this for the most part
+        function getOperator(obj){
+            if(typeof obj !== 'object')
+                return "$contains";
+
+            for(var o in obj){
+                if(o.charAt(0) === "$")
+                    return o
+            }
+            return "$contains"
+        }
+
+
+        function match(modelItem, queryObj){  //the brains of the whole deal!
+            if(!queryObj)
+                queryObj = queryTerm
+
+            for(var q in queryObj){
+                var queryVal = queryObj[q]
+                var op       = getOperator(queryVal)
+
+                if(q.charAt(0) !== "$"){    //is a variable name
+                    ////                    console.log(JSON.stringify(modelItem), JSON.stringify(mObj))
+                    var mObj   = q.indexOf(".") === -1 ? modelItem[q] : helperFunctions.deepGet(modelItem,q)
+                    return booleanLogic.operationExecute(mObj, op ,queryVal)
                 }
                 else {
-                    var mObj   = q.indexOf(".") === -1 ? modelItem[q] : helperFunctions.deepGet(modelItem,q)
-//                    console.log(JSON.stringify(modelItem), JSON.stringify(mObj))
-
-                    var result = booleanLogic.operationExecute(mObj,op,queryVal)
-//                    console.log(q , "match:" , JSON.stringify(mObj), op,JSON.stringify(queryVal), " = " , result)
-                    if(!result){
+                    var innerQTerm;
+//                    var numMatches = 0;
+                    if(q === "$or" || q === "||"){
+                        for(var i = 0; i < queryVal.length; ++i){
+                            if(match(modelItem, queryVal[i]))
+                                return true;
+                        }
                         return false;
                     }
+                    if(q === "$nor" || q === "||"){
+                        for(i = 0; i < queryVal.length; ++i){
+                            if(match(modelItem, queryVal[i]))
+                                return false;
+                        }
+                        return true;
+                    }
+                    else if(q === "$and" || q === "&&"){
+                        for(i = 0; i < queryVal.length; ++i){
+                            if(!match(modelItem, queryVal[i])){
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                    else if(q === "$nand"){     //opposite of and!
+                        for(i = 0; i < queryVal.length; ++i){
+                            if(!match(modelItem, queryVal[i])){
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                    else if(q === "$xor"){
+                        var numMatches = 0;
+                        for(i = 0; i < queryVal.length; ++i){
+                            if(match(modelItem,queryVal[i])){
+                                numMatches++
+                                if(numMatches > 1) //we can only have 1!! ITS EXCLUSIVE OR!!
+                                    return false;
+                            }
+                        }
+                        if(numMatches)
+                            return true;
+                    }
                 }
-                count++
-            }
-//            console.log(count)
-            return count === 0 ?  false : true;
-        }
 
+                //illegal token??
+                return false;
+            }
+            return false;
+        }
 
         property QtObject booleanLogic : QtObject {
             id : booleanLogic
 
-            property var connectorTokens : ["and","or","&&" ,'||']
-            property var tokens:[ "not","equals","gt","gte","lt","lte","contains"
+            property var connectorTokens : ["$and","$or", "$xor", "$nand" , "&&" ,'||']
+            property var tokens:[ "$not","$equals","$gt","$gte","$lt","$lte","$contains"
                                  ,"!=" , "=="   ,">" ,">=" ,"<" ,"<="]
 
             //determines if the op matches
@@ -310,19 +348,19 @@ ListModel {
             function stdDataTypeExpression(item1,op,item2){
 //                console.log(item1,op,item2)
                 switch(op.toLowerCase()){
-                    case "equals": return item1 === item2;
+                    case "$equals": return item1 === item2;
                     case "=="    : return item1 === item2;
-                    case "gt"    : return item1 >   item2;
+                    case "$gt"    : return item1 >   item2;
                     case ">"     : return item1 >   item2;
-                    case "gte"   : return item1 >=  item2;
+                    case "$gte"   : return item1 >=  item2;
                     case ">="    : return item1 >=  item2;
-                    case "lt"    : return item1 <   item2;
+                    case "$lt"    : return item1 <   item2;
                     case "<"     : return item1 <   item2;
-                    case "lte"   : return item1 <=  item2;
+                    case "$lte"   : return item1 <=  item2;
                     case "<="    : return item1 <=  item2;
-                    case "not"   : return item1 !== item2;
+                    case "$not"   : return item1 !== item2;
                     case "!="    : return item1 !== item2;
-                    case "contains" : return item1.toString().indexOf(item2.toString()) !== -1
+                    case "$contains" : return item1.toString().indexOf(item2.toString()) !== -1
                 }
                 return false;
             }
@@ -340,8 +378,9 @@ ListModel {
             }
 
             function getArr(start,end){
+//                console.log(start,end)
                 var arr = []
-                if(isDef(start,end) && end > start){
+                if(isDef(start,end) && end >= start){
                     for(var i = start; i <= end; ++i)
                         arr.push(i);
                 }
@@ -548,6 +587,7 @@ ListModel {
             }
 
         }
+
 
     }
 

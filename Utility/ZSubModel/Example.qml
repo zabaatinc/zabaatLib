@@ -47,7 +47,8 @@ Item {
 
         function randomAdd(){
             var idx = getRandIdx()
-            sourceModel.insert(idx,{ name : "rnd", skill:{name:"rnd"}});
+            var text = Math.floor(Math.random() * 10).toString()
+            sourceModel.insert(idx,{ name : text, skill:{name:"rnd"}});
         }
 
         function randomRemove(){
@@ -63,9 +64,17 @@ Item {
         function formQueryObject(key,op,value){
 //            console.log(key,op,value)
             if(key !== ""){
-                var obj = op === "" ? {} : {op : op}
-                obj[key] = searchBox.text
+                var obj = {}
+                if(op === ""){
+                    obj[key] = value;
+                }
+                else{
+                    obj[key] = {}
+                    obj[key][op] = value;
+                }
+
                 logic.queryTerm = obj
+                console.log(JSON.stringify(obj,null,2))
             }
             else
                 logic.queryTerm = {}
@@ -123,6 +132,9 @@ Item {
                 model : sourceModel
                 delegate : delegateCmp;
                 header : headerCmp;
+//                add    : Transition {NumberAnimation{ properties : "x,y"; duration : 333; from : -100; to : 0 } }
+//                remove : Transition {NumberAnimation{ properties : "scale"; duration : 333; from : 1; to : 0 }  }
+//                move   : Transition {NumberAnimation{ properties : "scale"; duration : 333; from : 0; to : 1 }  }
             }
 
             ListView {
@@ -135,9 +147,10 @@ Item {
                 }
                 delegate : delegateCmp;
                 header : headerCmp;
+//                add    : Transition {NumberAnimation{ properties : "x,y"; duration : 333; from : -100; to : 0 } }
+//                remove : Transition {NumberAnimation{ properties : "scale"; duration : 333; from : 1; to : 0 }  }
+//                move   : Transition {NumberAnimation{ properties : "scale"; duration : 333; from : 0; to : 1 }  }
             }
-
-
         }
 
         Component {
