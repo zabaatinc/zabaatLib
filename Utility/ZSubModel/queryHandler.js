@@ -3,62 +3,35 @@
 //    sourceModel = _sourceModel;
 //    queryTerm   = null;
 //}
-var sourceModel = null;
-var rootModel   = null;
-var queryTerm   = null;
-var operationQ  = [];
+//var sourceModel = null;
+//var rootModel   = null;
+//var queryTerm   = null;
+//var operationQ  = [];
 
 
-WorkerScript.onMessage = function(msg) { handleMessage(msg) }
-
-function handleMessage(msg){
-//    console.log("handleMsg", msg.type)
-    var d = msg.data
-    switch(msg.type) {
-        case "model"       : rootModel       = d;    if(readyCheck())    logic.findMatches();                        break;
-        case "sourceModel" : sourceModel = d;    if(readyCheck())    logic.findMatches();                            break;
-        case "queryTerm"   : queryTerm   = d;    if(readyCheck())    logic.findMatches();                            break;
-        case "rowsInserted": if(readyCheck(msg)) handleRowsInserted(d.start,d.end,d.count);                          break;
-        case "rowsRemoved" : if(readyCheck(msg)) handleRowsRemoved(d.start,d.end,d.count) ;                          break;
-        case "rowsMoved"   : if(readyCheck(msg)) handleRowsMoved(d.start,d.end,d.startEnd,d.destinationEnd,d.count); break;
-        case "dataChanged" : if(readyCheck(msg)) handleDataChanged(d.idx);                                           break;
-        case "modelReset"  : logic.findMatches();                                                                    break;
-//        case "refresh"     : rootModel = d.model;
-//                             sourceModel = d.sourceModel;
-//                             queryTerm   = d.queryTerm;
-//                             if(readyCheck())
-//                                logic.findMatches();
-//                             break;
-
-    }
-
-}
-
-
-function readyCheck(msg){
-
+WorkerScript.onMessage = function(msg) {
+    var d           = msg.data
+    var rootModel   = d.model
+    var sourceModel = d.sourceModel
+    var queryTerm   = d.queryTerm
+    console.log(rootModel,sourceModel,queryTerm)
     if(rootModel && sourceModel && queryTerm){
-//        model.sync()
-//        sourceModel.sync()
-//        console.log(msg.type)
-//        WorkerScript.sendMessage({ready:true})
-        while(operationQ.length > 0){
-            var m = operationQ.pop()
-//            console.log("running from operationQ", m.type, operationQ.length)
-            handleMessage(m)
+        switch(msg.type) {
+            case "rowsInserted": handleRowsInserted(rootModel,sourceModel,queryTerm,d.start,d.end,d.count);                         break;
+            case "rowsRemoved" : handleRowsRemoved(rootModel,sourceModel,queryTerm,d.start,d.end,d.count) ;                          break;
+            case "rowsMoved"   : handleRowsMoved(rootModel,sourceModel,queryTerm,d.start,d.end,d.startEnd,d.destinationEnd,d.count); break;
+            case "dataChanged" : handleDataChanged(rootModel,sourceModel,queryTerm,d.idx);                                           break;
+            default            : logic.findMatches(rootModel,sourceModel,queryTerm);
         }
-//        console.log("operationQ is now empty" , operationQ.length)
+    }
 
-        return true;
-    }
-    else if(msg){
-        operationQ.push(msg)
-    }
-    return false;
+    WorkerScript.sendMessage({killme:"now"})
 }
 
+function handleRowsInserted(rootModel,sourceModel,queryTerm,start,end,count,ss){
+    for(var s in ss)
+        console.log(s,ss[s])
 
-function handleRowsInserted(start,end,count){
     //let's increment the other rows!!
     for(var i = 0 ; i < rootModel.count; ++i){
         var item = rootModel.get(i)
@@ -66,19 +39,21 @@ function handleRowsInserted(start,end,count){
             item.__relatedIndex += count
         }
     }
+//    console.log(JSON.stringify(sourceModel.get(start),null,2) , sourceModel.count)
+//    console.log("-------------------------------------------------------")
 
-    for(var i = start; i <= end; ++i){
+    for(i = start; i <= end; ++i){
         var newItem = sourceModel.get(i)
         var matchItem = logic.match(newItem)
         if(matchItem) { //we need to make sure if this occurs, that we push the other rows!!
             rootModel.append(newItem)
-            logic.setRelatedIdx(i)
+            logic.setRelatedIdx(i, null, rootModel)
         }
     }
-    console.log("JS:: handleRowsInserted Finished")
+    rootModel.sync()
+//    console.log("JS:: handleRowsInserted Finished")
 }
-
-function handleRowsMoved(start,end,startEnd,destinationEnd,count){
+function handleRowsMoved(rootModel,sourceModel,queryTerm,start,end,startEnd,destinationEnd,count){
     var arrOrig = helperFunctions.getArr(start,end)
     var arrDest = helperFunctions.getArr(startEnd,destinationEnd)
 //                console.log("orig:" , arrOrig)
@@ -104,9 +79,10 @@ function handleRowsMoved(start,end,startEnd,destinationEnd,count){
             }
         }
     }
+//    console.log("move Finished")
+    rootModel.sync()
 }
-
-function handleRowsRemoved(start,end,count){
+function handleRowsRemoved(rootModel,sourceModel,queryTerm,start,end,count){
 
     for(var i = rootModel.count -1; i >=0; --i){
 //                        console.log("s",s,"i",i)
@@ -121,9 +97,9 @@ function handleRowsRemoved(start,end,count){
             }
         }
     }
+    rootModel.sync()
 }
-
-function handleDataChanged(idx){
+function handleDataChanged(rootModel,sourceModel,queryTerm,idx){
 
     var changedItem = sourceModel.get(idx)
     for(var i = 0; i < rootModel.count; ++i){
@@ -133,10 +109,11 @@ function handleDataChanged(idx){
             rootModel.remove(i)
             if(matchItem){
                 rootModel.insert(i,changedItem)
-                logic.setRelatedIdx(i,i)
+                logic.setRelatedIdx(i,i, rootModel)
             }
         }
     }
+    rootModel.sync()
 }
 
 
@@ -144,7 +121,7 @@ function handleDataChanged(idx){
 
 
 var logic = {
-    setRelatedIdx: function(index, thisIndex){
+    setRelatedIdx: function(index, thisIndex, rootModel){
 //        console.log("set related index")
         if(!rootModel)
             return;
@@ -156,8 +133,8 @@ var logic = {
         obj.__relatedIndex = index;
     },
 
-    findMatches: function(){
-//        console.log("finding matches for", JSON.stringify(queryTerm), sourceModel, model)
+    findMatches: function(rootModel,sourceModel,queryTerm){
+//        console.log("finding matches for", JSON.stringify(queryTerm), sourceModel, rootModel)
         if(!rootModel || !sourceModel || !queryTerm || sourceModel.count === 0)
             return;
 
@@ -166,19 +143,14 @@ var logic = {
 //            console.log(i)
             var modelItem = sourceModel.get(i)
 //            console.log(matchItem)
-            if(logic.match(modelItem)){
+            if(logic.match(modelItem,queryTerm)){
 //                console.log(JSON.stringify(modelItem,null,2))
-                var hurr
-                if(typeof modelItem.toJSON === 'function')
-                    rootModel.append(modelItem.toJSON())
-                else
-                    rootModel.append(modelItem)
-
-                logic.setRelatedIdx(i)
+                rootModel.append(modelItem)
+                logic.setRelatedIdx(i, rootModel)
 //                console.log("COPY", JSON.stringify(rootModel.get(i),null,2))
             }
         }
-        console.log("finished finding matches")
+//        console.log("finished finding matches")
         rootModel.sync()
     },
 
@@ -197,7 +169,7 @@ var logic = {
     match : function(modelItem, queryObj){  //the brains of the whole deal!
 //        console.log("matching")
         if(!queryObj)
-            queryObj = queryTerm
+            queryObj = {name:""}
 
         for(var q in queryObj){
             var queryVal = queryObj[q]
@@ -263,9 +235,6 @@ var logic = {
 
 
 }
-
-
-
 var booleanLogic = {
     connectorTokens : ["$and","$or", "$xor", "$nand" , "&&" ,'||'] ,
     tokens          :[ "$not","$equals","$gt","$gte","$lt","$lte","$contains","!=" , "=="   ,">" ,">=" ,"<" ,"<="] ,
@@ -388,8 +357,6 @@ var booleanLogic = {
     }
 
 }
-
-
 var helperFunctions = {
 
     or : function(val){

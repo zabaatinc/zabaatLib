@@ -1,37 +1,41 @@
 import QtQuick 2.5
 import Zabaat.Utility 1.0 as U  //replace later
-Item {
-    id: zSubModel
+import "ZSubModel.js" as QueryHandler
+
+ListModel {
+    id: rootObject
     property var  sourceModel : rootObject.sourceModel
     property var  queryTerm   : rootObject.queryTerm
-    property alias model      : rootObject
 
-    onSourceModelChanged : queryHandler.sendMessage({type:"sourceModel", data:sourceModel })
-    onQueryTermChanged   : queryHandler.sendMessage({type:"queryTerm", data:queryTerm     })
+    onSourceModelChanged : QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
+    onQueryTermChanged   : QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
 
-    ListModel {
-        id: rootObject
-        dynamicRoles: true
-    }
 
-    WorkerScript{
-        id : queryHandler
+
+    property WorkerScript queryHandler : WorkerScript{
+        id     : queryHandler
         source : "queryHandler.js"
-        Component.onCompleted: {
-            queryHandler.sendMessage({type:"model", data:rootObject  })
-            queryHandler.sendMessage({type:"sourceModel", data:sourceModel })
-            queryHandler.sendMessage({type:"queryTerm", data:queryTerm     })
-        }
+
+//        function begin(msg){
+//            source = "queryHandler.js"
+//            sendMessage(msg)
+//        }
+
+//        onMessage: source = "";
     }
 
-    Connections {
+    property Connections connections : Connections {
         target : sourceModel ? sourceModel : null
         onRowsInserted   : {
             var start = arguments[1]
             var end   = arguments[2]
             var count = end - start + 1
 
-            queryHandler.sendMessage({type:"rowsInserted", data:{start:start,end:end,count:count,sourceModel:sourceModel} })
+//            console.log("QML::",JSON.stringify(sourceModel.get(start),null,2) , sourceModel.count)
+//            console.log("-------------------------------------------------------")
+//            delayTimer.begin({type:"rowsInserted", data:{start:start,end:end,count:count,sourceModel:sourceModel} })
+            QueryHandler.sendMessage({type:"rowsInserted", data:{start:start,end:end,count:count,
+                                                           sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
         }
         onRowsMoved      : {
             var start           = arguments[1]
@@ -40,19 +44,21 @@ Item {
             var destinationEnd  = arguments[4] -1 //this is where the
             var startEnd        = destinationEnd - (end-start);
 
-            queryHandler.sendMessage({type:"rowsMoved", data:{start:start,end:end,startEnd:startEnd,destinationEnd:destinationEnd,count:count}} )
+            QueryHandler.sendMessage({type:"rowsMoved", data:{start:start,end:end,startEnd:startEnd,destinationEnd:destinationEnd,count:count,
+                                                              sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm}} )
         }
         onRowsRemoved    : {
             var start = arguments[1]
             var end   = arguments[2]
             var count = end - start + 1 //this is the amount of things that need it's indexes updated
-            queryHandler.sendMessage({type:"rowsRemoved", data:{start:start,end:end,count:count} })
+            QueryHandler.sendMessage({type:"rowsRemoved", data:{start:start,end:end,count:count,
+                                                                sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
         }
         onDataChanged    : {
             var idx         = arguments[1].row
-            queryHandler.sendMessage({type:"dataChanged", data:{idx:idx}})
+            QueryHandler.sendMessage({type:"dataChanged", data:{idx:idx, sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm}})
         }
-        onModelReset: queryHandler.sendMessage({type:"modelReset", data:{}})
+        onModelReset     : QueryHandler.sendMessage({type:"modelReset", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm}})
     }
 
 
