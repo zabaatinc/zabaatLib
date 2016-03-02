@@ -8,10 +8,10 @@ Item {
     width : Screen.width
     height : Screen.height - 300
 
-    property var testObject : [ { name : "Shahan", herp : "derp", skill:{name:"carry"} } ,
+    property var testObject : [ { name : "Shahan", herp : "derp", skill:{name:"carry"} } /*,
                                 { name : "Brett" , herp : "derp", skill:{name:"tank"} },
                                 { name : "Fox"   , herp : "derp", skill:{name:"ganker"} },
-                                { name : "Zeke"  , herp : "derp", skill:{name:"initiator"} },
+                                { name : "Zeke"  , herp : "derp", skill:{name:"initiator"} },*/
 
                               ]
 
@@ -38,7 +38,7 @@ Item {
 
     QtObject {
         id : logic
-        property ListModel sourceModel : ListModel { id : sourceModel; dynamicRoles: true; }
+        property ListModel sourceModel : ListModel { id : sourceModel;  }
         property var queryTerm : ({name:""})
 
         function getRandIdx(){
@@ -74,7 +74,7 @@ Item {
                 }
 
                 logic.queryTerm = obj
-                console.log(JSON.stringify(obj,null,2))
+//                console.log(JSON.stringify(obj,null,2))
             }
             else
                 logic.queryTerm = {}
@@ -141,7 +141,10 @@ Item {
                 id : filteredList
                 width : parent.width/2
                 height : parent.height
-                model : ZSubModel{
+                model : subModel.model
+
+                ZSubModel{
+                    id : subModel
                     sourceModel: sourceModel
                     queryTerm  : logic.queryTerm
                 }
@@ -158,7 +161,7 @@ Item {
             Rectangle {
                 id : delItem
                 width  : lvPtr ? lvPtr.width : 100
-                height : lvPtr ? lvPtr.height * 0.1 : 100
+                height : lvPtr ? lvPtr.height * 0.2 : 100
                 border.width: 1
                 property var lvPtr : parent.parent ? parent.parent : null
                 property var m : lvPtr && lvPtr.model ? lvPtr.model.get(index) : {error:"happens"}

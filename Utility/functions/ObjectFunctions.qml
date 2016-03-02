@@ -125,6 +125,7 @@ QtObject {
         }
     }
     function modelObjectToJs(mo){
+//        console.log(mo)
         function or(val){
             if(arguments.length > 1){
                 for(var i = 1 ; i < arguments.length; ++i){

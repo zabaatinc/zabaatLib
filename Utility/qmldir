@@ -5,3 +5,4 @@ ZTracer	 			1.0 ZTracer.qml
 ZGestureArea 		1.0 ZGestureArea.qml
 singleton Functions 1.0 Functions.qml
 singleton _ 		1.0 functions/Underscore/Underscore.qml
+ZSubModel			1.0 ZSubModel/ZSubModel.qml

@@ -101,7 +101,10 @@ Item {
 
             var s = validate(fnName,params)
             if(s === null){
-                methodCallFunc(fnName,params)
+                if(arguments.length > 2)
+                    methodCallFunc.apply(this,arguments)
+                else
+                    methodCallFunc(fnName,params)
             }
             else
                 return console.error("rule validation fail:",s)

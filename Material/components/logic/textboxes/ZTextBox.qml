@@ -15,6 +15,11 @@ ZObject {
     property bool   strictValidation   : false
     property var    setAcceptedTextFunc: function(val) { text = val; }
 
+    //so our text is validated upon startup!!
+    onValidationFuncChanged: if(setTextFunc) setTextFunc(text, false, true)
+    Component.onCompleted  : if(setTextFunc) setTextFunc(text, false, true)
+
+
     debug : false
 
     function getUnformattedText(rtfText){
@@ -31,8 +36,8 @@ ZObject {
         return rtfText;
     }
 
-    property var setTextFunc : function(val, accept) {
-        if(val !== text || accept) {
+    property var setTextFunc : function(val, accept, override) {
+        if(val !== text || accept || override) {
             var oldText = text;
             var err     = validationFunc ? validationFunc(val, oldText, rootObject) : null;
             error       = err ? err : "";
