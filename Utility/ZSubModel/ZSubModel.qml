@@ -6,9 +6,10 @@ ListModel {
     id: rootObject
     property var  sourceModel : rootObject.sourceModel
     property var  queryTerm   : rootObject.queryTerm
+    property bool debug       : false
 
-    onSourceModelChanged : QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
-    onQueryTermChanged   : QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
+    onSourceModelChanged : QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} }, debug)
+    onQueryTermChanged   : QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} }, debug)
 
 //    property var queryQ      : []
 //    property var execMsg     : null
@@ -51,7 +52,7 @@ ListModel {
 //            console.log("-------------------------------------------------------")
 //            delayTimer.begin({type:"rowsInserted", data:{start:start,end:end,count:count,sourceModel:sourceModel} })
             QueryHandler.sendMessage({type:"rowsInserted", data:{start:start,end:end,count:count,
-                                                           sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
+                                                           sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} }, debug)
         }
         onRowsMoved      : {
             var start           = arguments[1]
@@ -61,20 +62,20 @@ ListModel {
             var startEnd        = destinationEnd - (end-start);
 
             QueryHandler.sendMessage({type:"rowsMoved", data:{start:start,end:end,startEnd:startEnd,destinationEnd:destinationEnd,count:count,
-                                                              sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm}} )
+                                                              sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm}},debug )
         }
         onRowsRemoved    : {
             var start = arguments[1]
             var end   = arguments[2]
             var count = end - start + 1 //this is the amount of things that need it's indexes updated
             QueryHandler.sendMessage({type:"rowsRemoved", data:{start:start,end:end,count:count,
-                                                                sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
+                                                                sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} } , debug)
         }
         onDataChanged    : {
             var idx         = arguments[1].row
-            QueryHandler.sendMessage({type:"dataChanged", data:{idx:idx, sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm}})
+            QueryHandler.sendMessage({type:"dataChanged", data:{idx:idx, sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm}},debug)
         }
-        onModelReset     : QueryHandler.sendMessage({type:"modelReset", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm}})
+        onModelReset     : QueryHandler.sendMessage({type:"modelReset", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm}},debug)
     }
 
 

@@ -1,5 +1,5 @@
 import QtQuick 2.5
-import Zabaat.SocketIO 1.0
+import Zabaat.SocketIO.v100 1.0
 import "../../ZController"
 
 ZController {
@@ -182,8 +182,10 @@ ZController {
             return true
         }
         function req(type, url, params, callback, modelToUpdate, override, passToken){
-            if(autoAddEventListeners)
+            if(autoAddEventListeners){
+//                console.log("ADDING EVENT LISTENER FOR", url)
                 priv.addEvent(url)
+            }
 
             if(override && priv.findInHistory(params))        return    //if found in history, then don't do it
             else                                              controller.requestHistory.push(params)
@@ -257,12 +259,16 @@ ZController {
         onServerResponse: logic.handleMessage(priv.getJsObject(value) , eventName)
         property QtObject logic : QtObject {
             id : logic
-            property var defaultEvents : ["message"]
+            property var defaultEvents : ["message","prints"]   //todo, make prints outside
             function isArray(obj) {
                 return toString.call(obj) === '[object Array]'
             }
             function handleMessage(message , modelName, depth){
-//                console.log("hadnleUserMessageMdoel", JSON.stringify(message,null,2))
+
+//                console.log("----------------------------")
+//                console.log(JSON.stringify(message,null,2))
+//                console.log("----------------------------")
+
                 if(depth === null || typeof depth === 'undefined')
                     depth = 0
 
@@ -294,6 +300,7 @@ ZController {
                 else {
 //                    console.log("made it!!", JSON.stringify(message,null,2))
                     var verb = message.verb
+//                    console.log("this verb was received", verb, "on", modelName)
             //        debug.bypass(JSON.stringify(message.data,null,2))
                     switch (verb) {
                         case "updated":
@@ -323,6 +330,19 @@ ZController {
                                 break;
 
                         case "create":
+                                debug.debugMsg("create message received on", modelName + "." + message.id)
+                                if(!message.data.id)
+                                    message.data.id = message.id
+
+                                controller.addModel(modelName, message.data)   //If one of the sets failed, that means that we either didn't have this property
+                                                                                           //or the whole item. In any case, appendToModel should take care of it
+                                                                                           //But it does much more instructions so we only call it if we have to
+                                createReceived(modelName, message.data.id)
+
+                                debug.debugMsg("finished handling update message received on",modelName + "." + message.id)
+                                break;
+
+                        case "created":
                                 debug.debugMsg("create message received on", modelName + "." + message.id)
                                 if(!message.data.id)
                                     message.data.id = message.id

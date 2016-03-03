@@ -9,11 +9,17 @@
 //var operationQ  = [];
 .pragma library
 
-function sendMessage(msg) {
+function sendMessage(msg, debug) {
     var d           = msg.data
     var rootModel   = d.model
     var sourceModel = d.sourceModel
     var queryTerm   = d.queryTerm
+
+    var debugMsg = function(){
+        if(debug){
+            console.log.apply(this,arguments)
+        }
+    }
 
     var logic = {
         setRelatedIdx: function(index, thisIndex){
@@ -56,7 +62,7 @@ function sendMessage(msg) {
 
         getOperator : function(obj){
             if(typeof obj !== 'object')
-                return "$contains";
+                return "$equals";
 
             for(var o in obj){
                 if(o.charAt(0) === "$")
@@ -558,23 +564,26 @@ function sendMessage(msg) {
 //        rootModel.sync()
     }
     var handleDataChanged = function(idx){
+//        debugMsg("Data Changed handler",idx)
         var changedItem = sourceModel.get(idx)
-//        console.log("JS::ZSubModel::handleDataChanged@",idx, JSON.stringify(changedItem,null,2))
-//        console.log("JS::ZSubModel::handleDataChanged@",idx)
+
+        //if exists remove it cause it may not match anymore
         for(var i = 0; i < rootModel.count; ++i){
             var item = rootModel.get(i)
             if(idx === item.__relatedIndex){
-                var matchItem = logic.match(changedItem)
-//                console.log("remove @",i)
+//                debugMsg("remove @",i, JSON.stringify(changedItem,null,2))
+//                debugMsg("removed @",i)
                 rootModel.remove(i)
-                if(matchItem){
-                    rootModel.insert(i,changedItem)
-                    logic.setRelatedIdx(idx,i)
-//                    console.log("insert @",i)
-//                    console.log("@@source@@",JSON.stringify(changedItem,null,2),
-//                                "@@copy@@"  ,JSON.stringify(rootModel.get(i),null,2))
-                }
+                break;
             }
+        }
+
+        //if it matches, now add it.
+        var matchItem = logic.match(changedItem)
+        if(matchItem){
+            rootModel.insert(i,changedItem)
+            logic.setRelatedIdx(idx,i)
+//            debugMsg("insert @",i,"with relative idx", idx)
         }
 //        rootModel.sync()
     }
