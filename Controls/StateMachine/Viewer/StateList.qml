@@ -8,8 +8,17 @@ Item{   //Essentially a list of loaders
     property alias  model        : lv.model
     property int    cellHeight   : 40
     property string  defaultDelegateFilename : "ListDelegate.qml"
+    property alias lv : lv
 
     signal clicked(int index, var object);
+
+    function emulateClick(index){
+         if(lv.model && lv.model.count > index && index >= 0)
+            rootObject.clicked(index, lv.model.get(index))
+        else
+            rootObject.clicked(-1,null)
+    }
+
 
     QtObject {
         id : logic
@@ -43,24 +52,26 @@ Item{   //Essentially a list of loaders
         id : lv
         anchors.fill: parent
 //        model : rootObject.model
-        delegate : Loader {
-            id : del
+        delegate : MouseArea {
             width  : lv.width
             height : cellHeight
-            source : logic.listDelegateSource()
-            onLoaded : {
-                item.anchors.fill = del
-                if(item && item.hasOwnProperty("model")){
-//                    console.log("ADDING a thing to the list", lv.model)
-                    item.model = lv.model.get(index);
+            onClicked : rootObject.clicked(index, lv.model.get(index))
+
+            Loader {
+                id : del
+                anchors.fill: parent
+                source : logic.listDelegateSource()
+                onLoaded : {
+                    item.anchors.fill = del
+                    if(item && item.hasOwnProperty("model")){
+    //                    console.log("ADDING a thing to the list", lv.model)
+                        item.model = lv.model.get(index);
+                    }
                 }
             }
-            MouseArea {
-                anchors.fill: parent
-                propagateComposedEvents: true
-                onClicked : rootObject.clicked(index, lv.model.get(index))
-            }
         }
+
+
     }
 
 

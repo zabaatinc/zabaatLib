@@ -38,8 +38,7 @@ Item
 
         //Checks callbacks for newly received models or model pieces
         //If we got something like "customers/1" , it will check for "customers/1" as well as "customers"
-        function checkCallbacks(modelName)
-        {
+        function checkCallbacks(modelName) {
             var tabStr = arguments.length == 2 ? arguments[1] : ""
             debug.debugMsg(tabStr + "-------------------------------------------------")
             debug.debugMsg(tabStr + "ZController.checkCallbacks(",modelName,")")
@@ -110,8 +109,7 @@ Item
 
     //Get model when it arrives. This will auto fill your model when it gets here locally. If you set the last param to true, we wont autorequest the server
     //For this model
-    function getModelWhenItArrives(name, obj, prop, dontAutoRequest)
-    {
+    function getModelWhenItArrives(name, obj, prop, dontAutoRequest) {
         if(priv.models[name]){
 //            console.log("returning",name)
             return priv.models[name]
@@ -207,10 +205,8 @@ Item
        return toString.call(obj) === '[object Array]'
    }
 
-   function __appendToModel(name, data)
-   {
-       if(data === null)
-       {
+   function __appendToModel(name, data){
+       if(data === null) {
            console.log('ZController --- data is null. nothing to be done')
            return
        }
@@ -225,18 +221,15 @@ Item
        //Let's see if we have this model
        if(priv.models[name])
        {
-           if(isArray(data))  //check if array
-           {
+           if(isArray(data)){  //check if array
 //               console.log(rootObject, "__appendToModel", "isArray", name)
                 for(var i = 0; i < data.length; i++) {
                     __addData(name,data[i],i)
                 }
            }
-           else
-           {
+           else {
 //               console.log(rootObject, 'appending data object to', name , priv.models[name].count)
                 __addData(name,data,'root')
-
 //               if(name === 'otherUsersOnPage'){
 //                   var test = priv.models[name].get(0).usernames
 //                   for(var t = 0 ; t < test.count; t++) {
@@ -246,12 +239,10 @@ Item
 
            }
        }
-       else
-       {
+       else {
 //           console.log(name,"doesnt exist.gonna add it instead!")
            addModel(name, data)     //let's add this model if we don't have it!
        }
-
        debug.debugMsg(tabStr + "ZController.appendToModel(",name,")   end")
    }
 
@@ -260,8 +251,7 @@ Item
    {
        if(!tabStr) tabStr = ""
 
-       if(data.id !== null && typeof data.id !== 'undefined')  //this means that we got an object to append not an array of objects!!! hooray.
-       {
+       if(data.id !== null && typeof data.id !== 'undefined'){  //this means that we got an object to append not an array of objects!!! hooray.
            var modelPtr = priv.models[name]
            var found    = false
 //           console.log(tabStr + "\tZController.addModel -- model",name,"found. We wish to add id:",data.id,"to it...")
@@ -269,23 +259,20 @@ Item
 //           console.log(tabStr + "\tZController.addModel -- model",name,"found. We wish to add id:",data.id,"to it...")
 
            //iterate over this model's list elements and change them according to the data?? or add to them according to the data!!
-           for(var i = 0; i < priv.models[name].count; i++)
+           for(var i = 0; i < modelPtr.count; i++)
            {
-               if( priv.models[name].get(i).id !== null &&  priv.models[name].get(i).id === data.id)
-               {
-                   debug.debugMsg(tabStr + "\tZController.addModel -- id",data.id,"already exists. Modifying it...")
-                   var le = priv.models[name].get(i)
+               if( modelPtr.get(i).id !== null &&  modelPtr.get(i).id === data.id) {
+                   debug.debugMsg(tabStr + "\tZController.addModel", name, " -- id",data.id,"already exists. Modifying it...")
+                   var le = modelPtr.get(i)
 
                    for(var d in data)
                    {
-                       if(d !== 'id')
-                       {
+                       if(d !== 'id') {
                            if(typeof data[d] !== 'object'){
                                if(le[d] !== data[d])
                                     le[d] = data[d]
                            }
-                           else if(le[d] === null || typeof le[d] === 'undefined')
-                           {
+                           else if(le[d] === null || typeof le[d] === 'undefined'){
 //                               console.log(rootObject, 'making new listmodel at', d)
                                le[d] = Functions.getNewObject('ZListModel.qml',le)
 //                               console.log("FAT APPEND", data[d])
@@ -296,7 +283,7 @@ Item
                            }
                            else
                            {
-//                               console.log("DEEP COPY", le[d], data[d], d, d, "", le)
+                               debug.debugMsg("DEEP COPY", le[d], data[d], d, d, "", le)
                                __deepCopy(le[d],data[d],d,d , "", le)
                                debug.debugMsg("===================== deepCopy finished ========================")
                            }
@@ -308,11 +295,10 @@ Item
                }
            }
 
-           if(!found)
-           {
+           if(!found) {
                debug.debugMsg(tabStr + "\tZController.addModel -- Adding to existing list model...",name, data.id, "was not found. Adding it")
 //               console.log(tabStr + "\tZController.addModel -- Adding to existing list model...",name, data.id, "was not found. Adding it")
-               priv.models[name].append(data)
+               modelPtr.append(data)
 
 //               if(name === 'items')
 //                  console.log('HEH appending this shit', priv.models[name].get(0), JSON.stringify(priv.models[name].get(0),null,2) )
@@ -350,8 +336,8 @@ Item
 
        //if we got an update such that obj2 is now empty, we should do that. //TODO, check the else.
        if(isArray(obj2) && obj2.length === 0){
-           if(obj1.toString().toLowerCase().indexOf('qqmllistmodel') !== -1)             obj1.clear()
-           else                                                                          obj1 = obj2
+           if(obj1.toString().toLowerCase().indexOf('model') !== -1)             obj1.clear()
+           else                                                                  obj1 = obj2
        }
        else{
            for(var o in obj2) {

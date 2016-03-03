@@ -558,16 +558,21 @@ function sendMessage(msg) {
 //        rootModel.sync()
     }
     var handleDataChanged = function(idx){
-
         var changedItem = sourceModel.get(idx)
+//        console.log("JS::ZSubModel::handleDataChanged@",idx, JSON.stringify(changedItem,null,2))
+//        console.log("JS::ZSubModel::handleDataChanged@",idx)
         for(var i = 0; i < rootModel.count; ++i){
             var item = rootModel.get(i)
             if(idx === item.__relatedIndex){
                 var matchItem = logic.match(changedItem)
+//                console.log("remove @",i)
                 rootModel.remove(i)
                 if(matchItem){
                     rootModel.insert(i,changedItem)
-                    logic.setRelatedIdx(i,i)
+                    logic.setRelatedIdx(idx,i)
+//                    console.log("insert @",i)
+//                    console.log("@@source@@",JSON.stringify(changedItem,null,2),
+//                                "@@copy@@"  ,JSON.stringify(rootModel.get(i),null,2))
                 }
             }
         }
@@ -585,9 +590,9 @@ function sendMessage(msg) {
         }
     }
 
-
-
-
+//    if(rootModel)
+//        rootModel.finishedScriptTask()
+//    return true;
 //    WorkerScript.sendMessage({killme:"now"})
 }
 

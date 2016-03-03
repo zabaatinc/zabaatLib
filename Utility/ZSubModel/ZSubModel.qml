@@ -10,19 +10,35 @@ ListModel {
     onSourceModelChanged : QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
     onQueryTermChanged   : QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
 
+//    property var queryQ      : []
+//    property var execMsg     : null
+//    function sendMessage(msg){
+//        if(!queryQ)
+//            queryQ = []
 
-
-    property WorkerScript queryHandler : WorkerScript{
-        id     : queryHandler
-        source : "queryHandler.js"
-
-//        function begin(msg){
-//            source = "queryHandler.js"
-//            sendMessage(msg)
+//        if(execMsg){
+//            console.log("@@@@ Shoving cause script was busy!")
+//            return queryQ.push(msg)
 //        }
+//        else {
+//            execMsg    = msg
+//            QueryHandler.sendMessage(msg)
+//        }
+////        sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} })
+//    }
+//    function finishedScriptTask(){  //this removes from the start of the q and executes it!
+//        if(queryQ.length > 0){
+//            console.log("remaining QueryQ", queryQ.length)
+//            execMsg = queryQ[0]
+//            queryQ.splice(0,1)  //remove the first thing
+//            QueryHandler.QueryHandler.sendMessage(execMsg)
+//        }
+//        else {
+//            execMsg = null;
+//        }
+////        console.log("finished",scriptBusy)
+//    }
 
-//        onMessage: source = "";
-    }
 
     property Connections connections : Connections {
         target : sourceModel ? sourceModel : null
