@@ -48,15 +48,15 @@ ZSkin {
         clip : true
         Text {
             id : text
-            anchors.centerIn: parent
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment  : Text.AlignVCenter
+            anchors.fill       : parent
+            anchors.margins    : parent.height * 1/10
+            horizontalAlignment: graphical.text_hAlignment
+            verticalAlignment  : graphical.text_vAlignment
             font.family        : logic.font1
             font.pixelSize     : parent.height * 1/4
             text               : logic.text
             color              : Colors.text1
             textFormat         : Text.RichText
-
         }
     }
     Item {
@@ -67,9 +67,12 @@ ZSkin {
         property color text_Default: Colors.text1
         property color text_Press  : Colors.text2
         property color text_Focus  : Colors.text2
+        property int   text_hAlignment  : Text.AlignHCenter
+        property int   text_vAlignment  : Text.AlignVCenter
         property color inkColor    : Colors.getContrastingColor(rootObject.color)
         property color borderColor : Colors.text1
         property real inkOpacity   : 1
+
 
         states :[
             State {
@@ -108,7 +111,9 @@ ZSkin {
                            "@text_Focus"  : [Colors,"text2"],
                            "@inkColor"    : [Colors,"accent"],
                            "@borderColor" : [Colors,"text1"],
-                           inkOpacity : 1
+                           inkOpacity : 1,
+                           text_hAlignment : Text.AlignHCenter,
+                           text_vAlignment : Text.AlignVCenter
                     },
                     textContainer : { rotation : 0 },
         },
@@ -224,12 +229,28 @@ ZSkin {
                                         "@inkColor"    : [Colors,"accent"],
                                         "@borderColor" :[Colors,"text1"] }
         },
-        "t2"         : { graphical : { "@text_Default": [Colors,"text2"],
-                                        "@text_Press"  : [Colors,"text2"],
-                                        "@text_Focus"  : [Colors,"text1"],
-                                        "@inkColor"    : [Colors,"accent"],
-                                        "@borderColor" :[Colors,"text2"] }
+        "t1"         : { graphical : { "@text_Default": [Colors,"text1"],
+                                       "@text_Press"  : [Colors,"text1"],
+                                       "@text_Focus"  : [Colors,"text2"],
+                                       "@inkColor"    : [Colors,"accent"],
+                                       "@borderColor" : [Colors,"text1"] }
         },
+
+                  //property int   text_hAlignment  : Text.AlignHCenter
+                  //property int   text_vAlignment  : Text.AlignVCenter
+//        "tcenterh"    : { graphical : { text_hAlignment : Text.AlignHCenter }},
+//        "tright"      : { graphical : { text_hAlignment : Text.AlignRight   }},
+//        "tleft"       : { graphical : { text_hAlignment : Text.AlignLeft    }},
+//        "tcenterv"    : { graphical : { text_vAlignment : Text.AlignVCenter }},
+//        "tbottom"     : { graphical : { text_vAlignment : Text.AlignBottom  }},
+//        "ttop"        : { graphical : { text_vAlignment : Text.AlignTop     }},
+        "tcenter"      : { graphical : { text_hAlignment : Text.AlignHCenter, text_vAlignment : Text.AlignVCenter }},
+        "tcenterright" : { graphical : { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignVCenter }},
+        "tcenterleft"  : { graphical : { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignVCenter }},
+        "ttopright"    : { graphical : { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignTop     }},
+        "ttopleft"     : { graphical : { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignTop     }},
+        "tbottomright" : { graphical : { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignBottom  }},
+        "tbottomleft"  : { graphical : { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignBottom  }},
     })
 
 
