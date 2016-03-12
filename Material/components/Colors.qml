@@ -52,6 +52,9 @@ QtObject {
         }
         return arr
     }
+    function getRandomColor(){
+        return Qt.rgba(Math.random(),Math.random(),Math.random(), 1)
+    }
 
     //borrowed from https://github.com/papyros/qml-material/blob/develop/modules/Material/Theme.qml
     function isDarkColor(color) {
@@ -107,6 +110,7 @@ QtObject {
         var b = (+h.substr(6,3))/1000
         return Qt.rgba(r,g,b,1)
     }
+
 
     //For ease of use. So we don't have to remember the color names and call functions. happy times!!!!/////
     property color accent   : get("accent" )

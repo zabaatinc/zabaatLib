@@ -8,10 +8,11 @@ Item {
     property alias font          : settings_Font
     property alias style         : settings_Style
     property alias units         : settings_Units
-    readonly property bool loaded: Fonts.loaded && Colors.loaded
+    readonly property bool loaded: Fonts.loaded && Colors.loaded && Toasts.loaded
 
-    function init(){
-        if(!__privates.hasInit){
+    function init(mainWindow){
+//        console.log("MaterialSettings.init")
+        if(!__privates.hasInit && mainWindow){
 
             Fonts.font1        = font.font1
             Fonts.font2        = font.font2
@@ -20,6 +21,7 @@ Item {
             Colors.defaultColorTheme = style.defaultColors
             Units.pixelDensity = units.pixelDensity = Screen.pixelDensity
             Units.multiplier   = units.scaleMulti
+            Toasts.init(mainWindow);
 
             __privates.hasInit = true
         }

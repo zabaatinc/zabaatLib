@@ -7,6 +7,7 @@ ListModel {
     property var  sourceModel : rootObject.sourceModel
     property var  queryTerm   : rootObject.queryTerm
     property bool debug       : false
+//    dynamicRoles : true
 
     onSourceModelChanged : QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} }, debug)
     onQueryTermChanged   : QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm} }, debug)
