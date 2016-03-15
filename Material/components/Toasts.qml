@@ -101,16 +101,20 @@ Item {
         }
         function create(msg,type,args,config,w,h, contentItem){
             //make params acceptable
+            var activeThing = null
             if(!contentItem) {
                 if(!mgr.target || !mgr.target.activeWindow)
                     return
-                else
+                else {
                     contentItem = mgr.target.activeWindow.contentItem
+                    activeThing = mgr.target.activeWindow.activeFocusItem
+                }
             }
 
             var newToast           = toastBakery.createObject(contentItem);
             newToast.anchors.fill  = contentItem
             newToast.text          = msg || "undefined"
+            newToast.lastActiveThing = activeThing
 
             newToast.args          = args
             newToast.duration      = config.duration || rootObject.defaultDuration
@@ -165,6 +169,8 @@ Item {
                 Component.onDestruction: {
                     if(lastActiveThing)
                         lastActiveThing.forceActiveFocus()
+                    else
+                        console.log("no last active thing hurrr", lastActiveThing)
 
                     if(logic.map[objectName]){
                         delete logic.map[objectName]

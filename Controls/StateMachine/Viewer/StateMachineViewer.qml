@@ -20,10 +20,10 @@ Item {
     property var methodCallFunc : null  //provide this function. inputs(string fnName, var params).Should change modeObject in someway
                                                                                                //(should rarely change state!)
 
-    property var updateFunc : !methodCallFunc ? null : function(){
+    property var updateFunc : !methodCallFunc ? null : function(cb){
         var obj = {id:logic.uid, data:[logic.cleanClone()] }
 //        console.log("Update", JSON.stringify(obj,null,2))
-        methodCallFunc("update", obj)
+        methodCallFunc("update", obj, cb)
     }
 
     property bool usesDefaultNavigation : true
