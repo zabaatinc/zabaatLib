@@ -6,10 +6,13 @@ import QtQuick.Controls 1.4
 
 Window {
     id : mainWindow
+    objectName : "mainWindow"
     width : Screen.width
     height : Screen.height - 300
     Component.onCompleted:{
         MaterialSettings.init(this)
+        var w = mainWindow
+        console.log("finished init")
     }
 
     ListView {

@@ -12,6 +12,11 @@ QtObject {
         return giveMeIndex ? -1 : null;
     }
 
+    function isArray(obj){
+        return toString.call(obj) === '[object Array]';
+    }
+
+
     //ARRAY RELATED
     function getFromArray(arr,value,prop, giveMeIndex){
         if(!arr || !prop)

@@ -253,6 +253,10 @@ QtObject {
         return arr;
     }
 
+    function isArray(obj){
+        return toString.call(obj) === '[object Array]';
+    }
+
     function getType(obj){
         if(obj === null)
             return null;
