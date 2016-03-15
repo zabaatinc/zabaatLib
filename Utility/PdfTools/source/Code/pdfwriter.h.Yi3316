@@ -1,0 +1,905 @@
+#ifndef PDFWRITER
+#define PDFWRITER
+
+#include <QPdfWriter>
+#include <QPainter>
+#include <QQuickItem>
+#include <QColor>
+#include <QFontDatabase>
+#include <iostream>
+#include <QPageSize>
+#include <QHash>
+#include <QtQuick/QQuickPaintedItem>
+#include <QList>
+#include <QDebug>
+
+using namespace std;
+
+class pdfWriter : public QQuickPaintedItem
+{
+
+    enum PAINT_TYPE {  None, Text, TextML, Arc, Chord, Ellipse, Line, Pie, Point, Rect, Cell, NewPage   };
+    struct paintInfo
+    {
+        PAINT_TYPE type;
+        QString text;
+        int x ,y, w, h, flags, lineWidth, startAngle, aLen;
+        QColor color, fillColor;
+
+        paintInfo()
+        {
+            type = None;
+            text = "";
+            x = y = w = h = flags = lineWidth = startAngle = aLen = 0;
+            color = fillColor = Qt::transparent;
+        }
+
+        paintInfo(PAINT_TYPE pType, int X, int Y, int W, int H, int Flags = 0, int LW = 1, QColor clr = Qt::black, QColor fillClr = Qt::transparent, QString Text = "", int SA = 0, int AL = 0)
+        {
+            type = pType;
+            x = X;
+            y = Y;
+            w = W;
+            h = H;
+            flags = Flags;
+            lineWidth = LW;
+            color = clr;
+            fillColor = fillClr;
+            text = Text;
+            startAngle = SA;
+            aLen = AL;
+        }
+
+        paintInfo(const paintInfo &rhs)
+        {
+            type = rhs.type;
+            x = rhs.x;
+            y = rhs.y;
+            w = rhs.w;
+            h = rhs.h;
+            flags = rhs.flags;
+            lineWidth = rhs.lineWidth;
+            color = rhs.color;
+            fillColor = rhs.fillColor;
+            text = rhs.text;
+            startAngle = rhs.startAngle;
+            aLen = rhs.aLen;
+        }
+
+        paintInfo& operator=(const paintInfo &rhs)
+        {
+            type = rhs.type;
+            x = rhs.x;
+            y = rhs.y;
+            w = rhs.w;
+            h = rhs.h;
+            flags = rhs.flags;
+            lineWidth = rhs.lineWidth;
+            color = rhs.color;
+            fillColor = rhs.fillColor;
+            text = rhs.text;
+            startAngle = rhs.startAngle;
+            aLen = rhs.aLen;
+            return *this;
+        }
+
+
+    };
+
+
+    Q_OBJECT
+//    Q_DISABLE_COPY(pdfWriter)
+    Q_PROPERTY (QString   fileName       READ getFileName      WRITE setFileName         NOTIFY fileNameChanged)
+    Q_PROPERTY (QString   title          READ getTitle         WRITE setTitle            NOTIFY titleChanged)
+
+    Q_PROPERTY (QString   font           READ getFontName      WRITE setFont             NOTIFY fontChanged    )
+    Q_PROPERTY (FontStyle fontStyle      READ getFontStyle     WRITE setFontStyle        NOTIFY fontChanged    )
+    Q_PROPERTY (int       fontSize       READ getFontPointSize WRITE setFontPointSize    NOTIFY fontChanged    )
+    Q_PROPERTY (int       dpi            READ getDPI           WRITE setDPI              NOTIFY dpiChanged     )
+    Q_PROPERTY (int       numPages       READ getNumPages                                NOTIFY numPagesChanged)
+    Q_PROPERTY (double    l_Margin       READ getLeftMargin    WRITE setLeftMargin       NOTIFY marginsChanged)
+    Q_PROPERTY (double    t_Margin       READ getTopMargin     WRITE setTopMargin        NOTIFY marginsChanged)
+    Q_PROPERTY (double    r_Margin       READ getRightMargin   WRITE setRightMargin      NOTIFY marginsChanged)
+    Q_PROPERTY (double    b_Margin       READ getBottomMargin  WRITE setBottomMargin     NOTIFY marginsChanged)
+    Q_PROPERTY (QString   pgOrientation  READ getPgOrientation WRITE setPgOrientation    NOTIFY pageOrientationChanged)
+    Q_PROPERTY (QString   pageSize       READ getPgSize        WRITE setPageSize         NOTIFY pageSizeChanged)
+
+    Q_PROPERTY (int       maxCanvasWidth  READ getMaxCanvasWidth  WRITE setMaxCanvasWidth   NOTIFY maxCanvasWidthChanged)
+    Q_PROPERTY (int       maxCanvasHeight READ getMaxCanvasHeight WRITE setMaxCanvasHeight  NOTIFY maxCanvasHeightChanged)
+
+    Q_ENUMS    (FontStyle)
+//    Q_ENUMS    (QPageSize::PageSizeId)
+
+    signals:
+        void fileNameChanged(QString fileName);
+        void fontChanged    (QString fontName, QString style, int pointSize);
+        void dpiChanged     (int dpi);
+        void numPagesChanged(int numPages);
+        void marginsChanged (double leftMargin, double topMargin, double rightMargin, double bottomMargin);
+        void pageOrientationChanged(QString mode);
+        void pageSizeChanged(QString size);
+        void titleChanged(QString title);
+        void maxCanvasWidthChanged(int width);
+        void maxCanvasHeightChanged(int height);
+
+    public:
+        enum FontStyle       { Bold, Bold_Italic, Italic, Normal  };
+
+        //ctor
+        pdfWriter(QQuickItem *parent = 0) : QQuickPaintedItem(parent) { refreshSizeMaps();  reset();   setFlag(QQuickItem::ItemHasContents); }
+
+        //Property functions
+
+        ////fileName
+        QString getFileName() const { return _fileName; }
+        void    setFileName(const QString &newFileName)
+        {
+            if(newFileName != _fileName && newFileName != "")
+            {
+                _fileName = newFileName;
+                emit fileNameChanged(_fileName);
+            }
+        }
+
+        ////title
+        QString getTitle() const { return _title; }
+        void setTitle(const QString &newTitle)
+        {
+            if(newTitle != _title && newTitle != "")
+            {
+                _title = newTitle;
+                emit titleChanged(_title);
+//                if(writer != NULL)              writer->setTitle(_title);
+            }
+        }
+
+        ////font
+        QString getFontName() const { return _fontName; }
+        void    setFont(const QString &newFontName)
+        {
+            if(newFontName != _fontName)// && setFont(newFontName, _fontStyle, _fontPointSize))
+                emit fontChanged(_fontName, fontStrFromEnum(_fontStyle), _fontPointSize);
+        }
+
+        ////fontStyle
+        FontStyle getFontStyle() const { return _fontStyle; }
+        void      setFontStyle(FontStyle newStyle)
+        {
+            if(newStyle != _fontStyle)// && setFont(_fontName, newStyle, _fontPointSize))
+                emit fontChanged(_fontName, fontStrFromEnum(_fontStyle), _fontPointSize);
+        }
+
+        ////font pointSize
+        int  getFontPointSize() const { return _fontPointSize; }
+        void setFontPointSize(int newPointSize)
+        {
+            if(newPointSize != _fontPointSize) // && setFont(_fontName, _fontStyle, newPointSize))
+                emit fontChanged(_fontName, fontStrFromEnum(_fontStyle), _fontPointSize);
+        }
+
+        ////DPI
+        int  getDPI() const  {  return _dpi;  }
+        void setDPI(const int &newDpi)
+        {
+            if(_dpi != newDpi)
+            {
+                _dpi = newDpi;
+                maintainAspectRatio();
+                emit dpiChanged(newDpi);
+            }
+        }
+
+        ////Margins
+        int getLeftMargin()     const { return _margins.left();     }
+        int getTopMargin()      const { return _margins.top();      }
+        int getRightMargin()    const { return _margins.right();    }
+        int getBottomMargin()   const { return _margins.bottom();   }
+
+        void setLeftMargin(const double &left)
+        {
+            if(left != _margins.left())
+            {
+                setMargins(left, _margins.top(), _margins.right(), _margins.bottom());
+                emit marginsChanged(_margins.left(), _margins.top(), _margins.right(), _margins.bottom());
+            }
+        }
+        void setTopMargin(const double &top)
+        {
+            if(top != _margins.top())
+            {
+                setMargins(_margins.left(), top, _margins.right(), _margins.bottom());
+                emit marginsChanged(_margins.left(), _margins.top(), _margins.right(), _margins.bottom());
+            }
+        }
+        void setRightMargin(const double &right)
+        {
+            if(right != _margins.right())
+            {
+                setMargins(_margins.left(), _margins.top(), right, _margins.bottom());
+                emit marginsChanged(_margins.left(), _margins.top(), _margins.right(), _margins.bottom());
+            }
+        }
+        void setBottomMargin(const double &bottom)
+        {
+            if(bottom != _margins.bottom())
+            {
+                setMargins(_margins.left(), _margins.top(), _margins.right(), bottom);
+                emit marginsChanged(_margins.left(), _margins.top(), _margins.right(), _margins.bottom());
+            }
+        }
+
+        ////Num Pages (READONLY)
+        int getNumPages() const { return _numPages; }
+
+        ////Page orientation
+        QString getPgOrientation() const
+        {
+            if(_pageOrientation == QPageLayout::Landscape)  return "LandScape";
+            else                                            return "Portrait";
+        }
+        void setPgOrientation(const QString &newPgOrientation)
+        {
+            QString val = newPgOrientation.toLower();
+            if     (val == "landscape" && _pageOrientation != QPageLayout::Landscape)
+            {
+                _pageOrientation = QPageLayout::Landscape;
+                maintainAspectRatio();
+                emit pageOrientationChanged("Landscape");
+            }
+            else if(val == "portrait" &&  _pageOrientation != QPageLayout::Portrait)
+            {
+                _pageOrientation = QPageLayout::Portrait;
+                maintainAspectRatio();
+                emit pageOrientationChanged("Portrait");
+            }
+        }
+
+        ////Set PageSize (accepts arguments seperated by commas)
+        QString getPgSize() const
+        {
+            QSizeF  size = _pageSize.size(QPageSize::Inch);
+            return  QString::number(size.width(),'g',2) + " in. x " + QString::number(size.height(),'g',2) + " in.";
+        }
+        void setPageSize(const QString &pageSize)
+        {
+            //If we got a string like this  '12.3,20.2'
+            QStringList numbers = pageSize.split(",");
+            if(numbers.length() > 1)
+            {
+                bool widthOK, heightOK;
+                double width  = numbers[0].toDouble(&widthOK );
+                double height = numbers[1].toDouble(&heightOK);
+
+                if(widthOK && heightOK)
+                {
+                    _pageSize = QPageSize(QSizeF(width,height),QPageSize::Inch);
+                    maintainAspectRatio();
+                    emit pageSizeChanged("Custom:"   + QString::number(width,'g',2)  +
+                                         + " in. x " + QString::number(height,'f',2) + " in. ");
+
+//                    if(writer != NULL)  writer->setPageSize(_pageSize);
+                }
+            }
+            else    //we got a string for a QPageSize::PageSizeId (a4, letter, etc)
+            {
+                QString pgSizeLowerCase = pageSize.toLower();
+                if(_sizeMap.contains(pgSizeLowerCase))
+                {
+                    _pageSize = QPageSize(_sizeMap[pgSizeLowerCase]);
+
+                    double width  = _pageSize.size(QPageSize::Inch).width ();
+                    double height = _pageSize.size(QPageSize::Inch).height();
+                    maintainAspectRatio();
+                    emit pageSizeChanged(pgSizeLowerCase + ":" + width + " in. x " + height + " in.");
+
+//                    if(writer != NULL)  writer->setPageSize(_pageSize);
+                }
+            }
+        }
+
+        ////Canvas width
+        int getMaxCanvasWidth() const  { return _maxW; }
+        void setMaxCanvasWidth(const int &w)
+        {
+            if(w != _maxW)
+            {
+                _maxW = w;
+                maintainAspectRatio();
+                emit maxCanvasWidthChanged(_maxW);
+            }
+        }
+
+        ////Canvas height
+        int getMaxCanvasHeight() const { return _maxH; }
+        void setMaxCanvasHeight(const int &h)
+        {
+            if(h != _maxH)
+            {
+                _maxH = h;
+                maintainAspectRatio();
+                emit maxCanvasWidthChanged(_maxH);
+            }
+        }
+
+
+        //Funcions
+        Q_INVOKABLE  void finalize()     //Saves the contents of the painter into the pdf!!
+        {
+            QPdfWriter writer(_fileName);
+            writer.setPageSize(_pageSize);
+            writer.setPageMargins(_margins, QPageLayout::Inch);
+            writer.setPageOrientation(_pageOrientation);
+            writer.setResolution(_dpi);
+            writer.setTitle(_title);
+
+            QPainter painter(&writer);
+            setFont(_fontName, _fontStyle, _fontPointSize, painter);
+
+            for(int i = 0; i < _paintList.length(); i++)
+            {
+                paintInfo p =  convertToPdfRatio(_paintList[i]);
+                switch(p.type)
+                {
+                    case Text   : drawText         (p.text, p.x, p.y,                                 p.color, p.fillColor, p.lineWidth, &painter);    break;
+                    case TextML : drawMultiLineText(p.text, p.x, p.y, p.w, p.h, p.flags,              p.color, p.fillColor, p.lineWidth, &painter);    break;
+                    case Arc    : drawArc          (        p.x, p.y, p.w, p.h, p.startAngle, p.aLen, p.color, p.fillColor, p.lineWidth, &painter);    break;
+                    case Chord  : drawChord        (        p.x, p.y, p.w, p.h, p.startAngle, p.aLen, p.color, p.fillColor, p.lineWidth, &painter);    break;
+                    case Ellipse: drawEllipse      (        p.x, p.y, p.w, p.h,                       p.color, p.fillColor, p.lineWidth, &painter);    break;
+                    case Line   : drawLine         (        p.x, p.y, p.w, p.h,                       p.color, p.fillColor, p.lineWidth, &painter);    break;
+                    case Pie    : drawPie          (        p.x, p.y, p.w, p.h, p.startAngle, p.aLen, p.color, p.fillColor, p.lineWidth, &painter);    break;
+                    case Point  : drawPoint        (        p.x, p.y,                                 p.color, p.fillColor, p.lineWidth, &painter);    break;
+                    case Rect   : drawRect         (        p.x, p.y, p.w, p.h,                       p.color, p.fillColor, p.lineWidth, &painter);    break;
+                    case Cell   : drawCell         (p.text, p.x, p.y, p.w, p.h, p.flags,              p.color, p.fillColor, p.lineWidth, &painter);    break;
+                }
+            }
+
+            painter.end();
+        }
+
+        Q_INVOKABLE  void newPage()
+        {
+            _paintList.append(paintInfo(NewPage,0,0,0,0,0,0));
+            _numPages++;
+            emit numPagesChanged(_numPages);
+
+//            if(writer != NULL)
+//            {
+//                writer->setPageMargins(_margins, QPageLayout::Inch);
+//                writer->setPageOrientation(_pageOrientation);
+//                writer->setPageSize(_pageSize);
+//                writer->newPage();
+
+//                _numPages++;
+//                emit numPagesChanged(_numPages);
+//            }
+        }
+
+        //Base drawing methods
+        Q_INVOKABLE  void drawText(const QString &text, int x, int y, QColor color = Qt::black, QColor fillColor = Qt::transparent, int lineWidth = 1, QPainter *painter = NULL)
+        {
+            if(painter != NULL)
+            {
+                painter->save();
+
+                QBrush myBrush(fillColor);
+                QPen   myPen  (QBrush(color), lineWidth);
+                painter->setPen(myPen);
+                painter->setBrush(myBrush);
+
+                painter->drawText(x,y,text);
+
+                painter->restore();
+            }
+            else
+            {
+                _paintList.append(paintInfo(Text,x,y,0,0,0,lineWidth,color,fillColor,text));
+                update();   //should call paint!!!(NULL);
+            }
+        }
+        Q_INVOKABLE  void drawMultiLineText(const QString &text, int x, int y, int w, int h, int flags, QColor color = Qt::black, QColor fillColor = Qt::transparent, int lineWidth = 1, QPainter *painter = NULL)
+        {
+            if(painter != NULL)
+            {
+                painter->save();
+
+                QBrush myBrush(fillColor);
+                QPen   myPen  (QBrush(color), lineWidth);
+                painter->setPen(myPen);
+                painter->setBrush(myBrush);
+
+                painter->drawText(QRect(x,y,w,h), flags,text);
+
+                painter->restore();
+            }
+            else
+            {
+                _paintList.append(paintInfo(TextML,x,y,w,h,flags,lineWidth,color,fillColor,text));
+                update();   //should call paint!!!(NULL);
+            }
+        }
+        Q_INVOKABLE  void drawArc    (int x, int y , int w, int h, int startAngle, int arcLen, QColor color = Qt::black, QColor fillColor = Qt::transparent, int lineWidth = 1, QPainter *painter = NULL)
+        {
+            if(painter != NULL)
+            {
+                painter->save();
+
+                QBrush myBrush(fillColor);
+                QPen   myPen  (QBrush(color), lineWidth);
+                painter->setPen(myPen);
+                painter->setBrush(myBrush);
+
+                painter->drawArc(x,y,w,h,startAngle,arcLen);
+
+                painter->restore();
+            }
+            else
+            {
+                _paintList.append(paintInfo(Arc,x,y,w,h,0,lineWidth,color,fillColor,"",startAngle,arcLen));
+                update();   //should call paint!!!(NULL);
+            }
+
+        }
+        Q_INVOKABLE  void drawChord  (int x, int y, int w, int h, int startAngle, int arcLen, QColor color = Qt::black, QColor fillColor = Qt::transparent, int lineWidth = 1, QPainter *painter = NULL)
+        {
+            if(painter != NULL)
+            {
+                painter->save();
+
+                QBrush myBrush(fillColor);
+                QPen   myPen  (QBrush(color), lineWidth);
+                painter->setPen(myPen);
+                painter->setBrush(myBrush);
+
+                painter->drawChord(x,y,w,h,startAngle,arcLen);
+
+                painter->restore();
+            }
+            else
+            {
+                _paintList.append(paintInfo(Chord,x,y,w,h,0,lineWidth,color,fillColor,"",startAngle,arcLen));
+                update();   //should call paint!!!(NULL);
+            }
+        }
+        Q_INVOKABLE  void drawEllipse(int x, int y, int w, int h, QColor color = Qt::black, QColor fillColor = Qt::transparent, int lineWidth = 1, QPainter *painter = NULL)
+        {
+            if(painter != NULL)
+            {
+                painter->save();
+
+                QBrush myBrush(fillColor);
+                QPen   myPen  (QBrush(color), lineWidth);
+                painter->setPen(myPen);
+                painter->setBrush(myBrush);
+
+                painter->drawEllipse(x,y,w,h);
+
+                painter->restore();
+            }
+            else
+            {
+                _paintList.append(paintInfo(Ellipse,x,y,w,h,0,lineWidth,color,fillColor,"",0,0));
+                update();   //should call paint!!!
+            }
+        }
+        Q_INVOKABLE  void drawLine   (int x1, int y1, int x2, int y2, QColor color = Qt::black, QColor fillColor = Qt::transparent, int lineWidth = 1, QPainter *painter = NULL)
+        {
+            if(painter != NULL)
+            {
+                painter->save();
+
+                QBrush myBrush(fillColor);
+                QPen   myPen  (QBrush(color), lineWidth);
+                painter->setPen(myPen);
+                painter->setBrush(myBrush);
+
+                painter->drawLine(x1,y1,x2,y2);
+
+                painter->restore();
+            }
+            else
+            {
+                _paintList.append(paintInfo(Arc,x1,y1,x2,y2,0,lineWidth,color,fillColor,"",0,0));
+                update();   //should call paint!!!
+            }
+        }
+        Q_INVOKABLE  void drawPie    (int x, int y, int w, int h, int startAngle, int spanAngle, QColor color = Qt::black, QColor fillColor = Qt::transparent, int lineWidth = 1, QPainter *painter = NULL)
+        {
+            if(painter != NULL)
+            {
+                painter->save();
+
+                QBrush myBrush(fillColor);
+                QPen   myPen  (QBrush(color), lineWidth);
+                painter->setPen(myPen);
+                painter->setBrush(myBrush);
+
+                painter->drawPie(x,y,w,h,startAngle,spanAngle);
+
+                painter->restore();
+            }
+            else
+            {
+                _paintList.append(paintInfo(Arc,x,y,w,h,0,lineWidth,color,fillColor,"",startAngle,spanAngle));
+                update();   //should call paint!!!
+            }
+        }
+        Q_INVOKABLE  void drawPoint  (int x, int y, QColor color = Qt::black, QColor fillColor = Qt::transparent, int lineWidth = 1, QPainter *painter = NULL)
+        {
+            if(painter != NULL)
+            {
+                painter->save();
+
+                QBrush myBrush(fillColor);
+                QPen   myPen  (QBrush(color), lineWidth);
+                painter->setPen(myPen);
+                painter->setBrush(myBrush);
+
+                painter->drawPoint(x,y);
+
+                painter->restore();
+            }
+            else
+            {
+                _paintList.append(paintInfo(Point,x,y,0,0,0,lineWidth,color,fillColor,"",0,0));
+                update();   //should call paint!!!
+            }
+        }
+        Q_INVOKABLE  void drawRect   (int x, int y , int w , int h, QColor color = Qt::black, QColor fillColor = Qt::transparent, int lineWidth = 1, QPainter *painter = NULL)
+        {
+            if(painter != NULL)
+            {
+                painter->save();
+
+                QBrush myBrush(fillColor);
+                QPen   myPen  (QBrush(color), lineWidth);
+                painter->setPen(myPen);
+                painter->setBrush(myBrush);
+
+                painter->drawRect(x,y,w,h);
+
+                painter->restore();
+            }
+            else
+            {
+                _paintList.append(paintInfo(Rect,x,y,w,h,0,lineWidth,color,fillColor,"",0,0));
+                update();   //should call paint!!!
+            }
+        }
+
+        //Draw cell
+        Q_INVOKABLE void drawCell(const QString &text, int x, int y, int w, int h, int flags, QColor color = Qt::black, QColor fillColor = Qt::transparent, int lineWidth = 1, QPainter *painter = NULL)
+        {
+            drawRect(x,y,w,h,color,fillColor,lineWidth,painter);
+            drawMultiLineText(text,x,y,w,h,flags,color,fillColor,lineWidth,painter);
+        }
+
+
+        Q_INVOKABLE void maintainAspectRatio()
+        {
+            //always try to get as close to maxW and maxH
+            qDebug("maintain aspect ratio called");
+            QPoint p = pixelSize();
+            int w = p.x();
+            int h = p.y();
+
+            int divider = 2;
+            while(w > _maxW || h > _maxH)
+            {
+                w /= divider;
+                h /= divider;
+
+                divider++;
+            }
+
+            //we update all our paints cause we so cool!
+            double xMulti = w / this->width();
+            double yMulti = h / this->height();
+            for(int i = 0; i < _paintList.length(); i++)
+            {
+                 _paintList[i].x *= xMulti;
+                 _paintList[i].y *= yMulti;
+                 _paintList[i].w *= xMulti;
+                 _paintList[i].h *= yMulti;
+            }
+
+            this->setWidth(w);
+            this->setHeight(h);
+//            update();
+        }
+
+
+    //enum PAINT_TYPE {  None, Text, TextML, Arc, Chord, Ellipse, Line, Pie, Point, Rect, Cell   };
+    protected :
+        void paint(QPainter *painter)
+        {
+            qDebug("c++ paint()");
+
+            for(int i = 0; i < _paintList.length(); i++)
+            {
+                paintInfo p = _paintList[i];
+
+                switch(p.type)
+                {
+                    case Text   : drawText         (p.text, p.x, p.y,                                 p.color, p.fillColor, p.lineWidth, painter);    break;
+                    case TextML : drawMultiLineText(p.text, p.x, p.y, p.w, p.h, p.flags,              p.color, p.fillColor, p.lineWidth, painter);    break;
+                    case Arc    : drawArc          (        p.x, p.y, p.w, p.h, p.startAngle, p.aLen, p.color, p.fillColor, p.lineWidth, painter);    break;
+                    case Chord  : drawChord        (        p.x, p.y, p.w, p.h, p.startAngle, p.aLen, p.color, p.fillColor, p.lineWidth, painter);    break;
+                    case Ellipse: drawEllipse      (        p.x, p.y, p.w, p.h,                       p.color, p.fillColor, p.lineWidth, painter);    break;
+                    case Line   : drawLine         (        p.x, p.y, p.w, p.h,                       p.color, p.fillColor, p.lineWidth, painter);    break;
+                    case Pie    : drawPie          (        p.x, p.y, p.w, p.h, p.startAngle, p.aLen, p.color, p.fillColor, p.lineWidth, painter);    break;
+                    case Point  : drawPoint        (        p.x, p.y,                                 p.color, p.fillColor, p.lineWidth, painter);    break;
+                    case Rect   : drawRect         (        p.x, p.y, p.w, p.h,                       p.color, p.fillColor, p.lineWidth, painter);    break;
+                    case Cell   : drawCell         (p.text, p.x, p.y, p.w, p.h, p.flags,              p.color, p.fillColor, p.lineWidth, painter);    break;
+                }
+            }
+        }
+
+    private:
+        int                      _fontPointSize, _dpi, _numPages, _maxW, _maxH;       //The originals! these should only change if the user explicitly wants these to change!!
+        QString                  _fileName, _title, _fontName;
+        FontStyle                _fontStyle;    //our own happy little fontStyle
+        QPageLayout::Orientation _pageOrientation;
+        QMarginsF                _margins;
+        QPageSize                _pageSize;
+
+        QList<paintInfo> _paintList;
+        QHash<QString,QPageSize::PageSizeId> _sizeMap;   //will make our lookups way faster!!
+
+
+
+
+        bool setMargins(double left, double top, double right, double bottom)
+        {
+            _margins.setLeft(left);
+            _margins.setTop(top);
+            _margins.setRight(right);
+            _margins.setBottom(bottom);
+            return true;
+        }
+        bool setFont(const QString &newFontName, FontStyle style, const int &fontPointSize, QPainter &painter)
+        {
+            QFontDatabase fontDb;
+            foreach(const QString &family, fontDb.families())
+            {
+                if(family == newFontName)       //if family is found
+                {
+                    bool match = false;
+                    foreach(const QString &availableStyle, fontDb.styles(family))
+                    {
+                        if(availableStyle == fontStrFromEnum(style))
+                        {
+                            match = true;
+                            break;
+                        }
+                    }
+
+                    if(!match)
+                        style = Normal;
+
+                    _fontName      = newFontName;
+                    _fontStyle     = style;
+                    _fontPointSize = fontPointSize;
+
+                    painter.setFont(fontDb.font(_fontName, fontStrFromEnum(_fontStyle), _fontPointSize));
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+
+
+        //This is to tell the painter how large it is by using _dpi and _pageSize (returns size based on landscape or portrait)
+        QPoint pixelSize()
+        {
+            if(_pageOrientation == QPageLayout::Portrait)
+                return QPoint(_pageSize.sizePixels(_dpi).width(), _pageSize.sizePixels(_dpi).height());
+            return QPoint(_pageSize.sizePixels(_dpi).height(), _pageSize.sizePixels(_dpi).width());
+        }
+
+        paintInfo convertToPdfRatio(paintInfo pi)
+        {
+            QPoint p = pixelSize();
+
+            //we have width and height of this qquickitem, we have to use that to find the actual size
+            double xMulti = p.x() / this->width();
+            double yMulti = p.y() / this->height();
+
+
+            QString xStr = QString::number(xMulti);
+            QString yStr = QString::number(yMulti);
+            qDebug() << QString("c++ convertToPdfRatio(pi) -- %1 / %2 = %3 , \t %4 / %5 = %6 ").arg(p.x()).arg(this->width()).arg(xMulti).arg(p.y()).arg(this->height()).arg(yMulti);
+
+            pi.x *= xMulti;
+            pi.y *= yMulti;
+            pi.w *= xMulti;
+            pi.h *= yMulti;
+
+            return pi;
+        }
+
+
+        void reset()
+        {
+            _fileName        = "";
+            _fontName        = "MS Shell Dlg 2";
+            _fontStyle       = Normal;
+            _fontPointSize   = 12;
+            _numPages        = 0;
+            _pageOrientation = QPageLayout::Portrait;
+
+            setPageSize("AnsiA");
+            _dpi             = 300;
+            _title           = "untitled";
+            setMargins(0,0,0,0);
+            maintainAspectRatio();
+        }
+
+        void refreshSizeMaps()
+        {
+            _sizeMap["a0"]                     = QPageSize::A0               ;
+            _sizeMap["cicero"]                 = QPageSize::A0               ;
+            _sizeMap["a1"]                     = QPageSize::A1               ;
+            _sizeMap["a2"]                     = QPageSize::A2               ;
+            _sizeMap["a3"]                     = QPageSize::A3               ;
+            _sizeMap["a3extra"]                = QPageSize::A3Extra          ;
+            _sizeMap["a4"]                     = QPageSize::A4               ;
+            _sizeMap["a4extra"]                = QPageSize::A4Extra          ;
+            _sizeMap["a4plus"]                 = QPageSize::A4Plus           ;
+            _sizeMap["a4small"]                = QPageSize::A4Small          ;
+            _sizeMap["a5"]                     = QPageSize::A5               ;
+            _sizeMap["a5extra"]                = QPageSize::A5Extra          ;
+            _sizeMap["a6"]                     = QPageSize::A6               ;
+            _sizeMap["a7"]                     = QPageSize::A7               ;
+            _sizeMap["a8"]                     = QPageSize::A8               ;
+            _sizeMap["a9"]                     = QPageSize::A9               ;
+
+            _sizeMap["ansia"]                  = QPageSize::AnsiA            ;
+            _sizeMap["letter"]                 = QPageSize::AnsiA            ;
+            _sizeMap["ansib"]                  = QPageSize::AnsiB            ;
+            _sizeMap["ledger"]                 = QPageSize::AnsiB            ;
+            _sizeMap["ansic"]                  = QPageSize::AnsiC            ;
+            _sizeMap["ansid"]                  = QPageSize::AnsiD            ;
+            _sizeMap["ansie"]                  = QPageSize::AnsiE            ;
+
+            _sizeMap["archa"]                  = QPageSize::ArchA            ;
+            _sizeMap["archb"]                  = QPageSize::ArchB            ;
+            _sizeMap["archc"]                  = QPageSize::ArchC            ;
+            _sizeMap["archd"]                  = QPageSize::ArchD            ;
+            _sizeMap["arche"]                  = QPageSize::ArchE            ;
+
+            _sizeMap["b0"]                     = QPageSize::B0               ;
+            _sizeMap["b1"]                     = QPageSize::B1               ;
+            _sizeMap["b2"]                     = QPageSize::B2               ;
+            _sizeMap["b3"]                     = QPageSize::B3               ;
+            _sizeMap["b4"]                     = QPageSize::B4               ;
+            _sizeMap["b5"]                     = QPageSize::B5               ;
+            _sizeMap["b5extra"]                = QPageSize::B5Extra          ;
+            _sizeMap["b6"]                     = QPageSize::B6               ;
+            _sizeMap["b7"]                     = QPageSize::B7               ;
+            _sizeMap["b8"]                     = QPageSize::B8               ;
+            _sizeMap["b9"]                     = QPageSize::B9               ;
+            _sizeMap["b10"]                    = QPageSize::B10              ;
+
+            _sizeMap["doublepostcard"]         = QPageSize::DoublePostcard   ;
+
+            _sizeMap["envelope9"]              = QPageSize::Envelope9        ;
+            _sizeMap["envelope10"]             = QPageSize::Envelope10       ;
+            _sizeMap["comm10e"]                = QPageSize::Comm10E         ;
+
+            _sizeMap["envelope11"]             = QPageSize::Envelope11       ;
+            _sizeMap["envelope12"]             = QPageSize::Envelope12       ;
+            _sizeMap["envelope14"]             = QPageSize::Envelope14       ;
+            _sizeMap["envelopeb4"]             = QPageSize::EnvelopeB4       ;
+            _sizeMap["envelopeb5"]             = QPageSize::EnvelopeB5       ;
+            _sizeMap["envelopeb6"]             = QPageSize::EnvelopeB6       ;
+            _sizeMap["envelopec0"]             = QPageSize::EnvelopeC0       ;
+            _sizeMap["envelopec1"]             = QPageSize::EnvelopeC1       ;
+            _sizeMap["envelopec2"]             = QPageSize::EnvelopeC2       ;
+            _sizeMap["envelopec3"]             = QPageSize::EnvelopeC3       ;
+            _sizeMap["envelopec4"]             = QPageSize::EnvelopeC4       ;
+
+            _sizeMap["envelopec5"]             = QPageSize::EnvelopeC5       ;
+            _sizeMap["c5e"]                    = QPageSize::C5E            ;
+
+            _sizeMap["envelopec6"]             = QPageSize::EnvelopeC6       ;
+            _sizeMap["envelopec7"]             = QPageSize::EnvelopeC7       ;
+            _sizeMap["envelopec65"]            = QPageSize::EnvelopeC65      ;
+            _sizeMap["envelopechou3"]          = QPageSize::EnvelopeChou3    ;
+            _sizeMap["envelopechou4"]          = QPageSize::EnvelopeChou4    ;
+
+            _sizeMap["envelopedl"]             = QPageSize::EnvelopeDL       ;
+            _sizeMap["dle"]                    = QPageSize::DLE            ;
+
+            _sizeMap["envelopeinvite"]         = QPageSize::EnvelopeInvite   ;
+            _sizeMap["envelopeitalian"]        = QPageSize::EnvelopeItalian  ;
+            _sizeMap["envelopekaku2"]          = QPageSize::EnvelopeKaku2    ;
+            _sizeMap["envelopekaku3"]          = QPageSize::EnvelopeKaku3    ;
+            _sizeMap["envelopemonarch"]        = QPageSize::EnvelopeMonarch  ;
+            _sizeMap["envelopepersonal"]       = QPageSize::EnvelopePersonal ;
+            _sizeMap["envelopeprc1"]           = QPageSize::EnvelopePrc1     ;
+            _sizeMap["envelopeprc2"]           = QPageSize::EnvelopePrc2     ;
+            _sizeMap["envelopeprc3"]           = QPageSize::EnvelopePrc3     ;
+            _sizeMap["envelopeprc4"]           = QPageSize::EnvelopePrc4     ;
+            _sizeMap["envelopeprc5"]           = QPageSize::EnvelopePrc5     ;
+            _sizeMap["envelopeprc6"]           = QPageSize::EnvelopePrc6     ;
+            _sizeMap["envelopeprc7"]           = QPageSize::EnvelopePrc7     ;
+            _sizeMap["envelopeprc8"]           = QPageSize::EnvelopePrc8     ;
+            _sizeMap["envelopeprc9"]           = QPageSize::EnvelopePrc9     ;
+            _sizeMap["envelopeprc10"]          = QPageSize::EnvelopePrc10    ;
+            _sizeMap["envelopeyou4"]           = QPageSize::EnvelopeYou4     ;
+
+            _sizeMap["executive"]              = QPageSize::Executive        ;
+            _sizeMap["executivestandard"]      = QPageSize::ExecutiveStandard;
+
+            _sizeMap["fanfoldgerman"]          = QPageSize::FanFoldGerman    ;
+            _sizeMap["fanfoldgermanlegal"]     = QPageSize::FanFoldGermanLegal;
+            _sizeMap["fanfoldus"]              = QPageSize::FanFoldUS        ;
+            _sizeMap["folio"]                  = QPageSize::Folio            ;
+
+            _sizeMap["imperial7x9"]            = QPageSize::Imperial7x9      ;
+            _sizeMap["imperial8x10"]           = QPageSize::Imperial8x10     ;
+            _sizeMap["imperial9x11"]           = QPageSize::Imperial9x11     ;
+            _sizeMap["imperial9x12"]           = QPageSize::Imperial9x12     ;
+            _sizeMap["imperial10x11"]          = QPageSize::Imperial10x11    ;
+            _sizeMap["imperial10x13"]          = QPageSize::Imperial10x13    ;
+            _sizeMap["imperial10x14"]          = QPageSize::Imperial10x14    ;
+            _sizeMap["imperial12x11"]          = QPageSize::Imperial12x11    ;
+            _sizeMap["imperial15x11"]          = QPageSize::Imperial15x11    ;
+
+            _sizeMap["jisb0"]                  = QPageSize::JisB0            ;
+            _sizeMap["jisb1"]                  = QPageSize::JisB1            ;
+            _sizeMap["jisb2"]                  = QPageSize::JisB2            ;
+            _sizeMap["jisb3"]                  = QPageSize::JisB3            ;
+            _sizeMap["jisb4"]                  = QPageSize::JisB4            ;
+            _sizeMap["jisb5"]                  = QPageSize::JisB5            ;
+            _sizeMap["jisb6"]                  = QPageSize::JisB6            ;
+            _sizeMap["jisb7"]                  = QPageSize::JisB7            ;
+            _sizeMap["jisb8"]                  = QPageSize::JisB8            ;
+            _sizeMap["jisb9"]                  = QPageSize::JisB9            ;
+            _sizeMap["jisb10"]                 = QPageSize::JisB10           ;
+
+            _sizeMap["ledger / ansib"]         = QPageSize::Ledger           ;
+            _sizeMap["legal"]                  = QPageSize::Legal            ;
+            _sizeMap["legalextra"]             = QPageSize::LegalExtra       ;
+
+            _sizeMap["letterextra"]            = QPageSize::LetterExtra      ;
+            _sizeMap["letterplus"]             = QPageSize::LetterPlus       ;
+            _sizeMap["lettersmall"]            = QPageSize::LetterSmall      ;
+
+            _sizeMap["note"]                   = QPageSize::Note             ;
+
+            _sizeMap["postcard"]               = QPageSize::Postcard         ;
+            _sizeMap["prc16k"]                 = QPageSize::Prc16K           ;
+            _sizeMap["prc32k"]                 = QPageSize::Prc32K           ;
+            _sizeMap["prc32kbig"]              = QPageSize::Prc32KBig        ;
+
+            _sizeMap["quarto"]                 = QPageSize::Quarto           ;
+
+            _sizeMap["statement"]              = QPageSize::Statement        ;
+            _sizeMap["supera"]                 = QPageSize::SuperA           ;
+            _sizeMap["superb"]                 = QPageSize::SuperB           ;
+
+            _sizeMap["tabloid"]                = QPageSize::Tabloid          ;
+            _sizeMap["tabloidextra"]           = QPageSize::TabloidExtra     ;
+        }
+        QString fontStrFromEnum(FontStyle style)
+        {
+            switch(style)
+            {
+                case Bold           : return "Bold";
+                case Bold_Italic    : return "Bold_Italic";
+                case Italic         : return "Italic";
+                default             : return "Normal";      //handles the normal case!!
+            }
+        }
+
+
+
+
+};
+
+
+#endif // PDFWRITER
+

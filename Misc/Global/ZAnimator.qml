@@ -7,9 +7,9 @@ Item{
         if(privates.isUndef(target) || privates.isUndef(properties) || privates.isUndef(colors)  || !privates.isArray(colors) || colors.length < 2 )  return
         if(privates.isUndef(interval))                                                              interval  = 250
         if(privates.isUndef(loops))                                                                 loops     = 4
-        if(privates.isUndef(overwriteOldIfExists))                                                  overwriteOldIfExists = false
-        if(privates.isUndef(killOnEnd))                                                             killOnEnd = true
-        if(privates.colorAnimAlreadyRunning(target))                                                return
+        if(privates.isUndef(overwriteOldIfExists))                                              overwriteOldIfExists = false
+        if(privates.isUndef(killOnEnd))                                                            killOnEnd = true
+        if(privates.colorAnimAlreadyRunning(target))                                     return
 
         if(typeof properties === 'string')
             properties = [properties]

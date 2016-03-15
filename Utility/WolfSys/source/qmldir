@@ -1,0 +1,3 @@
+module WolfMan
+plugin wolfsysplugin
+typeinfo plugins.qmltypes

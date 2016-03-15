@@ -1,0 +1,3 @@
+[submodule "SocketIO/source"]
+	path = SocketIO/source
+	url = https://github.com/Imagination-International-Inc/qmlsocketIO.git

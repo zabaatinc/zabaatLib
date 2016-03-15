@@ -1,3 +1,0 @@
-module Zabaat.Utility.SortFilterProxyModel
-plugin sortfilterproxymodel
-typeinfo plugins.qmltypes
