@@ -14,6 +14,8 @@ ZObject{
     property alias  duration         : destructionTimer.interval        //-1 is permanent
     property string closeButtonState : "danger-f2-t2"
 
+    property var    autoCloseFunc    : null
+
     debug                  : false
     onPressed              : log(self, "pressed")
     onClicked              : log(self, "clicked"      , x,  y,  button)
@@ -30,10 +32,27 @@ ZObject{
     }
 
     Timer {
+        id : autoCloseTimer
+        running : rootObject.autoCloseFunc ? true : false
+        interval : 100
+        repeat : true
+        onTriggered : {
+            if(rootObject.autoCloseFunc && rootObject.autoCloseFunc(rootObject.text, rootObject)){
+                stop()
+                rootObject.attemptDestruction()
+            }
+        }
+
+    }
+
+    Timer {
         id: destructionTimer
         running : duration > 0
         interval : Toasts.defaultDuration
-        onTriggered : rootObject.attemptDestruction()
+        onTriggered : {
+            stop()
+            rootObject.attemptDestruction()
+        }
     }
 
 }

@@ -229,11 +229,11 @@ ZSkin {
                                         "@inkColor"    : [Colors,"accent"],
                                         "@borderColor" :[Colors,"text1"] }
         },
-        "t1"         : { graphical : { "@text_Default": [Colors,"text1"],
-                                       "@text_Press"  : [Colors,"text1"],
-                                       "@text_Focus"  : [Colors,"text2"],
+        "t2"         : { graphical : { "@text_Default": [Colors,"text2"],
+                                       "@text_Press"  : [Colors,"text2"],
+                                       "@text_Focus"  : [Colors,"text1"],
                                        "@inkColor"    : [Colors,"accent"],
-                                       "@borderColor" : [Colors,"text1"] }
+                                       "@borderColor" : [Colors,"text2"] }
         },
 
                   //property int   text_hAlignment  : Text.AlignHCenter

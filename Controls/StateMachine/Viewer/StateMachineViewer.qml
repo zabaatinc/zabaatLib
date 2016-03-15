@@ -205,7 +205,7 @@ Item {
     }
 
 
-    FancyLoader {
+    FancyLoader {   //This loads the STateITems!
         id          : loader
         objectName  : "FancyLoader"
 //        Component.onCompleted: console.log(this)

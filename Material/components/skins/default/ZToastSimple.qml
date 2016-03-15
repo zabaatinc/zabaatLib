@@ -54,7 +54,7 @@ ZSkin {
                 font.underline:           rootObject.font.underline
                 font.weight  :            rootObject.font.weight
                 font.wordSpacing:         rootObject.font.wordSpacing
-                font.pixelSize: height * 1/3
+                font.pixelSize: text.pixelSize * 0.8
                 color              : Colors.text1
                 textFormat         : Text.RichText
                 text               : logic.title ? logic.title : ""
@@ -72,7 +72,7 @@ ZSkin {
                 horizontalAlignment: graphical.text_hAlignment
                 verticalAlignment  : graphical.text_vAlignment
                 font.family        : logic.font1
-                font.pixelSize     : parent.height * 1/4
+                font.pixelSize     : height * 1/3
                 text               : logic.text
                 color              : Colors.text1
                 textFormat         : Text.RichText
@@ -103,7 +103,7 @@ ZSkin {
                 font.underline:           rootObject.font.underline
                 font.weight  :            rootObject.font.weight
                 font.wordSpacing:         rootObject.font.wordSpacing
-                font.pixelSize: height * 1/4
+                font.pixelSize:  text.pixelSize * 0.8
                 color              : Colors.text1
                 textFormat         : Text.RichText
                 text               :formatSeconds(runningDuration)
