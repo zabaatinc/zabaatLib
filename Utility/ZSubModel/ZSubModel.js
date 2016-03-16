@@ -15,6 +15,11 @@ function sendMessage(msg, debug) {
     var sourceModel = d.sourceModel
     var queryTerm   = d.queryTerm
 
+    var s            = msg.sort
+    var sortRoles    = s.roles
+    var sortFunction = s.fn
+
+
     var debugMsg = function(){
         if(debug){
             console.log.apply(this,arguments)
@@ -46,7 +51,6 @@ function sendMessage(msg, debug) {
     //            console.log(matchItem)
                 if(logic.match(modelItem)){
     //                console.log(JSON.stringify(modelItem,null,2))
-                    var hurr
                     if(typeof modelItem.toJSON === 'function')
                         rootModel.append(modelItem.toJSON())
                     else
@@ -62,13 +66,23 @@ function sendMessage(msg, debug) {
 
         getOperator : function(obj){
             if(typeof obj !== 'object')
-                return "$equals";
+                return "$contains";
 
             for(var o in obj){
                 if(o.charAt(0) === "$")
                     return o
             }
             return "$contains"
+        },
+
+        getQueryRhs : function(obj) {
+            if(typeof obj !== 'object')
+                return obj
+
+            for(var o in obj){
+                return obj[o]
+            }
+            return obj
         },
 
 
@@ -81,9 +95,10 @@ function sendMessage(msg, debug) {
                 var queryVal = queryObj[q]
                 var op       = logic.getOperator(queryVal)
 
+
                 if(q.charAt(0) !== "$"){    //is a variable name
                     var mObj   = q.indexOf(".") === -1 ? modelItem[q] : helperFunctions.deepGet(modelItem,q)
-                    return  booleanLogic.operationExecute(mObj, op ,queryVal)
+                    return  booleanLogic.operationExecute(mObj, op , logic.getQueryRhs(queryVal))
                 }
                 else {
                     var innerQTerm;
@@ -95,7 +110,7 @@ function sendMessage(msg, debug) {
                         }
                         return false;
                     }
-                    if(q === "$nor" || q === "||"){
+                    else if(q === "$nor" || q === "!||"){
                         for(i = 0; i < queryVal.length; ++i){
                             if(logic.match(modelItem, queryVal[i]))
                                 return false;
@@ -110,7 +125,7 @@ function sendMessage(msg, debug) {
                         }
                         return true;
                     }
-                    else if(q === "$nand"){     //opposite of and!
+                    else if(q === "$nand"|| q === "!&&"){     //opposite of and!
                         for(i = 0; i < queryVal.length; ++i){
                             if(!logic.match(modelItem, queryVal[i])){
                                 return true;
@@ -152,6 +167,8 @@ function sendMessage(msg, debug) {
             var t1 = helperFunctions.getType(item1)
             var t2 = helperFunctions.getType(item2)
             var validOperator = helperFunctions.getFromArray(booleanLogic.tokens,op,null,true) !== -1
+
+//            console.log("operationExecute",item1,op,JSON.stringify(item2))
 
             if(!validOperator){
     //                    console.error("not a valid operator",op)
@@ -587,17 +604,115 @@ function sendMessage(msg, debug) {
         }
 //        rootModel.sync()
     }
+    var quicksort = function(begin,end){
+
+        function defaultSortFunction(aVal,bVal,roles){
+            if(helperFunctions.isUndef(roles) ){
+//                console.log("roiles are undefined")
+                if(aVal < bVal)
+                    return -1
+                else if(aVal > bVal)
+                    return 1
+                return 0
+            }
+
+//            console.log(roles)
+            for(var r = 0; r < roles.length; ++r){
+
+                var role = roles[r]
+                var v1 = role.indexOf(".") !== -1 ? helperFunctions.deepGet(aVal,role) : aVal[role]
+                var v2 = role.indexOf(".") !== -1 ? helperFunctions.deepGet(bVal,role) : bVal[role]
+
+//                console.log("____ ITERATING OVER ____" , role)
+                if(helperFunctions.isDef(v1) && helperFunctions.isDef(v2)){
+                    if(v1 === v2 ) {
+//                        console.log(v1,"is eqto", v2)
+                        continue
+                    }
+                    else if(v1 < v2) {
+//                        console.log(v1,"is lt", v2)
+                        return -1
+                    }
+                    else {
+//                        console.log(v1,"is gt", v2)
+                        return 1
+                    }
+                }
+            }
+            return 0
+        }
+
+        function sortFnResult(a,b) {
+            var sfunc = sortFunction ? sortFunction : defaultSortFunction
+            var aVal  = rootModel.get(a)
+            var bVal  = rootModel.get(b)
+
+            return sfunc(aVal,bVal, sortRoles)
+        }
+
+        function swap(a,b){
+            if (a<b) {
+                rootModel.move(a,b,1);
+                rootModel.move(b-1,a,1);
+            }
+            else if (a>b) {
+                rootModel.move(b,a,1);
+                rootModel.move(a-1,b,1);
+            }
+        }
+
+        function partition(begin,end,pivot){
+            swap(pivot, end-1); //pass indices
+            var store = begin;
+
+            for(var ix = begin; ix < end-1;++ix){
+                if(sortFnResult(ix, pivot) < 0) {   //if this element is smaller than the pivot
+                    swap(store,ix);
+                    ++store;
+                }
+            }
+            swap(end-1,store);
+
+            return store;
+        }
+
+        if(end - 1 > begin){
+            console.log("QS",begin,end)
+            var pivot = begin + Math.floor(Math.random() * (end-begin));
+//            var pivot = begin + Math.floor((end-begin)/2);
+
+
+            pivot = partition(begin,end,pivot);
+            console.log("partition res", pivot)
+
+            quicksort(begin,pivot)
+            quicksort(pivot +1 , end);
+        }
+
+    }
 
 //    console.log(rootModel,sourceModel,queryTerm)
     if(rootModel && sourceModel && queryTerm){
         switch(msg.type) {
-            case "rowsInserted": handleRowsInserted(d.start,d.end,d.count);                         break;
+            case "rowsInserted": handleRowsInserted(d.start,d.end,d.count);                          break;
             case "rowsRemoved" : handleRowsRemoved(d.start,d.end,d.count) ;                          break;
             case "rowsMoved"   : handleRowsMoved(d.start,d.end,d.startEnd,d.destinationEnd,d.count); break;
             case "dataChanged" : handleDataChanged(d.idx);                                           break;
+            case "sort"        : quicksort(0,rootModel.count);                                       break;
             default            : logic.findMatches();
         }
     }
+
+    if(rootModel.count > 0) {
+        console.log("DO QUICK SORT", 0, rootModel.count, sortRoles)
+        quicksort(0,rootModel.count);
+    }
+
+
+
+
+//    console.log("QUICK SORTING FROM", 0, "TO", rootModel.count)
+
 
 //    if(rootModel)
 //        rootModel.finishedScriptTask()

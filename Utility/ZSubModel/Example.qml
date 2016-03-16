@@ -9,6 +9,7 @@ Item {
     height : Screen.height - 300
 
     property var testObject : [ { name : "Shahan", herp : "derp", skill:{name:"carry"} } ,
+                                { name : "Shahan", herp : "derp", skill:{name:"zerging"} } ,
                                 { name : "Brett" , herp : "derp", skill:{name:"tank"} },
                                 { name : "Fox"   , herp : "derp", skill:{name:"ganker"} },
                                 { name : "Zeke"  , herp : "derp", skill:{name:"initiator"} },
@@ -78,6 +79,8 @@ Item {
             }
             else
                 logic.queryTerm = {}
+
+//            console.log("queryTerm = " , JSON.stringify(queryTerm))
         }
     }
 
@@ -147,6 +150,7 @@ Item {
                     id : subModel
                     sourceModel: sourceModel
                     queryTerm  : logic.queryTerm
+                    sortRoles  : ["name"]
                 }
                 delegate : delegateCmp;
                 header : headerCmp;
