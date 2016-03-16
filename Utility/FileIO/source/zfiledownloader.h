@@ -31,6 +31,7 @@ public:
     fileDownloader(QObject * parent =  0):QObject(parent)   //ctor
     {
         connect(&manager, SIGNAL(finished(QNetworkReply*)) , SLOT(downloadFinished(QNetworkReply*)));
+//        connect(&manager, SIGNAL(error(QNetworkReply*)) , SLOT(downloadFailed(QNetworkReply*)));
     }
     ~fileDownloader(){
 
@@ -134,7 +135,7 @@ public:
         emit uploadStarted(fileName,url);
 
         //apparently this is a lambda expression, teehee
-        connect(reply, &QNetworkReply::finished, [=]
+        QObject::connect(reply, &QNetworkReply::finished, [=]
                                                   {
                                                     if(!reply->error())
                                                     {
@@ -150,9 +151,28 @@ public:
                                                     multiPart->deleteLater();
                                                   });
 
+//        QObject::connect(reply, &QNetworkReply::error, this, &fileDownloader::emitError);
+
+//        connect(reply, SIGNAL(error(QNetworkReply*)) , SLOT(uploadFailed(QNetworkReply*))   );
+//        connect(reply, SIGNAL(error(QNetworkReply*)) , [=]{}  );
+
+        connect(reply, static_cast<void(QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+            [=](QNetworkReply::NetworkError code){
+
+//            std::cout << "ZFileDownloader::Some error happened:" << code.errorString().toStdString().c_str();
+            std::cout << "ZFileDownloader::Some error happened:" ;
+            reply->abort();
+            reply->deleteLater();
+            multiPart->deleteLater();
+
+        });
 
         //CLEANUP
 //        multiPart->deleteLater();   //we can delete this right after the post and close the file
+
+    }
+
+    void emitError(QNetworkReply::NetworkError e){
 
     }
 
