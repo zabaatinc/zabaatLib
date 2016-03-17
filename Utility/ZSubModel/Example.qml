@@ -38,8 +38,11 @@ Item {
 
         //prime exapmle of awesome sauce
 //        property var queryTerm : ({first:""})
-        property var queryTerm : ({"$or":[{first:"Hector"},{last:"Hector"}] })
-//        property var queryTerm : ({"$and":[{first:"Hector"},{last:"Flippen"}] })
+//        property var queryTerm : ({"$or":[{first:"Hector"},{last:"Hector"}] })
+        property var queryTerm : ({"$or":[ {first:"Hector"},
+                                            {"$and":[{first:"Mector"},{last:"Hector"}]}
+                                          ]
+                                  })
 //        property var queryTerm : ({"$or":[{first:"Hector"},{last:"Hector"}] })
 
            //{first:"Coletta" 	,last:"Jasik" },
@@ -153,10 +156,10 @@ Item {
                     sourceModel: sourceModel
                     queryTerm  : logic.queryTerm
                     sortRoles  : ["first","last"]
-                    compareFunction: function(a,b) {
-//                        console.log("CUSTOM CMP FUNCT") . reverts order!
-                        return a.first < b.first
-                    }
+//                    compareFunction: function(a,b) {
+////                        console.log("CUSTOM CMP FUNCT") . reverts order!
+//                        return a.first < b.first
+//                    }
 
                 }
                 delegate : delegateCmp;
