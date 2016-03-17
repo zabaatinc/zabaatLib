@@ -37,6 +37,7 @@ Item {
         property ListModel sourceModel : ListModel { id : sourceModel;  }
 
         //prime exapmle of awesome sauce
+//        property var queryTerm : ({first:""})
         property var queryTerm : ({"$or":[{first:"Hector"},{last:"Hector"}] })
 //        property var queryTerm : ({"$and":[{first:"Hector"},{last:"Flippen"}] })
 //        property var queryTerm : ({"$or":[{first:"Hector"},{last:"Hector"}] })
@@ -152,6 +153,11 @@ Item {
                     sourceModel: sourceModel
                     queryTerm  : logic.queryTerm
                     sortRoles  : ["first","last"]
+                    compareFunction: function(a,b) {
+//                        console.log("CUSTOM CMP FUNCT") . reverts order!
+                        return a.first < b.first
+                    }
+
                 }
                 delegate : delegateCmp;
                 header : headerCmp;
