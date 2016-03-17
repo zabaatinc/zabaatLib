@@ -8,15 +8,15 @@ ListModel {
     property var  queryTerm   : rootObject.queryTerm
     property bool debug       : false
 
-    property var sortFunction : null
-    property var sortRoles    : []
+    property var compareFunction : null
+    property var sortRoles    : ["name"]
 
 //    dynamicRoles : true
 
-    onSourceModelChanged : { QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:sortFunction} }, debug)
+    onSourceModelChanged : { QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
 //        sortTimer.start()
     }
-    onQueryTermChanged   : { QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:sortFunction} }, debug)
+    onQueryTermChanged   : { QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
 //        sortTimer.start()
     }
 
@@ -25,7 +25,7 @@ ListModel {
         interval : 100
         repeat : false
         running : false
-        onTriggered : QueryHandler.sendMessage({type:"sort" , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:sortFunction} }, debug)
+        onTriggered : QueryHandler.sendMessage({type:"sort" , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
     }
 
 
@@ -42,7 +42,7 @@ ListModel {
 //            delayTimer.begin({type:"rowsInserted", data:{start:start,end:end,count:count,sourceModel:sourceModel} })
             QueryHandler.sendMessage({type:"rowsInserted", data:{start:start,end:end,count:count,
                                                            sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
-                                                           sort:{roles:sortRoles,fn:sortFunction} }, debug)
+                                                           sort:{roles:sortRoles,fn:compareFunction} }, debug)
 //            sortTimer.start()
         }
         onRowsMoved      : {
@@ -54,7 +54,7 @@ ListModel {
 
             QueryHandler.sendMessage({type:"rowsMoved", data:{start:start,end:end,startEnd:startEnd,destinationEnd:destinationEnd,count:count,
                                                               sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
-                                                              sort:{roles:sortRoles,fn:sortFunction}},debug )
+                                                              sort:{roles:sortRoles,fn:compareFunction}},debug )
 //            sortTimer.start()
         }
         onRowsRemoved    : {
@@ -63,18 +63,18 @@ ListModel {
             var count = end - start + 1 //this is the amount of things that need it's indexes updated
             QueryHandler.sendMessage({type:"rowsRemoved", data:{start:start,end:end,count:count,
                                                                 sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
-                                                                sort:{roles:sortRoles,fn:sortFunction} } , debug)
+                                                                sort:{roles:sortRoles,fn:compareFunction} } , debug)
 //            sortTimer.start()
         }
         onDataChanged    : {
             var idx         = arguments[1].row
             QueryHandler.sendMessage({type:"dataChanged", data:{idx:idx, sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
-                                                          sort:{roles:sortRoles,fn:sortFunction} },debug)
+                                                          sort:{roles:sortRoles,fn:compareFunction} },debug)
 //            sortTimer.start()
         }
         onModelReset     :  {
             QueryHandler.sendMessage({type:"modelReset", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
-                                                         sort:{roles:sortRoles,fn:sortFunction}},debug)
+                                                         sort:{roles:sortRoles,fn:compareFunction}},debug)
 
 
 //            sortTimer.start()

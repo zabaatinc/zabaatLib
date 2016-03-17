@@ -17,7 +17,7 @@ function sendMessage(msg, debug) {
 
     var s            = msg.sort
     var sortRoles    = s.roles
-    var sortFunction = s.fn
+    var userCmpFunc  = s.fn
 
 
     var debugMsg = function(){
@@ -604,52 +604,60 @@ function sendMessage(msg, debug) {
         }
 //        rootModel.sync()
     }
-    var quicksort = function(begin,end){
 
-        function defaultSortFunction(aVal,bVal,roles){
-            if(helperFunctions.isUndef(roles) ){
-//                console.log("roiles are undefined")
-                if(aVal < bVal)
-                    return -1
-                else if(aVal > bVal)
-                    return 1
+
+
+    /* A[] --> Array to be sorted, http://www.geeksforgeeks.org/iterative-quick-sort/
+       l  --> Starting index,
+       h  --> Ending index */
+    var quickSortIterative = function (l, h){
+
+        function cmpFunc(a,b) {
+
+            function defaultCmpFunc(aVal,bVal,roles){
+                if(roles === null || typeof roles === 'undefined' ){
+    //                console.log("roiles are undefined")
+                    if(aVal < bVal)
+                        return -1
+                    else if(aVal > bVal)
+                        return 1
+                    return 0
+                }
+
+    //            console.log(roles)
+                for(var r = 0; r < roles.length; ++r){
+
+                    var role = roles[r]
+    //                console.log("on Role", role)
+                    var v1 = role.indexOf(".") !== -1 ? helperFunctions.deepGet(aVal,role) : aVal[role]
+                    var v2 = role.indexOf(".") !== -1 ? helperFunctions.deepGet(bVal,role) : bVal[role]
+
+    //                console.log("____ ITERATING OVER ____" , role)
+
+                        if(v1 === v2 ) {
+    //                        console.log(v1,"is eqto", v2)
+                            continue
+                        }
+                        else if(v1 < v2) {
+    //                        console.log(v1,"is lt", v2)
+                            return -1
+                        }
+                        else {
+    //                        console.log(v1,"is gt", v2)
+                            return 1
+                        }
+
+                }
                 return 0
             }
 
-//            console.log(roles)
-            for(var r = 0; r < roles.length; ++r){
 
-                var role = roles[r]
-                var v1 = role.indexOf(".") !== -1 ? helperFunctions.deepGet(aVal,role) : aVal[role]
-                var v2 = role.indexOf(".") !== -1 ? helperFunctions.deepGet(bVal,role) : bVal[role]
-
-//                console.log("____ ITERATING OVER ____" , role)
-                if(helperFunctions.isDef(v1) && helperFunctions.isDef(v2)){
-                    if(v1 === v2 ) {
-//                        console.log(v1,"is eqto", v2)
-                        continue
-                    }
-                    else if(v1 < v2) {
-//                        console.log(v1,"is lt", v2)
-                        return -1
-                    }
-                    else {
-//                        console.log(v1,"is gt", v2)
-                        return 1
-                    }
-                }
-            }
-            return 0
-        }
-
-        function sortFnResult(a,b) {
-            var sfunc = sortFunction ? sortFunction : defaultSortFunction
+            var sfunc = userCmpFunc ? userCmpFunc : defaultCmpFunc
             var aVal  = rootModel.get(a)
             var bVal  = rootModel.get(b)
 
             return sfunc(aVal,bVal, sortRoles)
         }
-
         function swap(a,b){
             if (a<b) {
                 rootModel.move(a,b,1);
@@ -660,36 +668,71 @@ function sendMessage(msg, debug) {
                 rootModel.move(a-1,b,1);
             }
         }
+        function partition (l, h) { //l = startIndex, h = endIndex
+            var arr = rootModel
 
-        function partition(begin,end,pivot){
-            swap(pivot, end-1); //pass indices
-            var store = begin;
+//            var x = arr.get(h);
+            var i = l - 1;
 
-            for(var ix = begin; ix < end-1;++ix){
-                if(sortFnResult(ix, pivot) < 0) {   //if this element is smaller than the pivot
-                    swap(store,ix);
-                    ++store;
+            for (var j = l; j <= h- 1; j++)
+            {
+                if (cmpFunc(j,h) <= 0)
+                {
+                    i++;
+                    swap (i, j);
                 }
             }
-            swap(end-1,store);
-
-            return store;
+            swap (i + 1, h);
+            return (i + 1);
         }
 
-        if(end - 1 > begin){
-            console.log("QS",begin,end)
-            var pivot = begin + Math.floor(Math.random() * (end-begin));
-//            var pivot = begin + Math.floor((end-begin)/2);
+        // Create an auxiliary stack
+        var stack = [] //[ h - l + 1 ];
 
+        // initialize top of stack
+        var top = -1;
 
-            pivot = partition(begin,end,pivot);
-            console.log("partition res", pivot)
+        // push initial values of l and h to stack
+        stack[ ++top ] = l;
+        stack[ ++top ] = h;
 
-            quicksort(begin,pivot)
-            quicksort(pivot +1 , end);
+        // Keep popping from stack while is not empty
+        while ( top >= 0 )
+        {
+            // Pop h and l
+            h = stack[ top-- ];
+            l = stack[ top-- ];
+
+            // Set pivot element at its correct position
+            // in sorted array
+            var p = partition( l, h );
+
+            // If there are elements on left side of pivot,
+            // then push left side to stack
+            if ( p-1 > l )
+            {
+                stack[ ++top ] = l;
+                stack[ ++top ] = p - 1;
+            }
+
+            // If there are elements on right side of pivot,
+            // then push right side to stack
+            if ( p+1 < h )
+            {
+                stack[ ++top ] = p + 1;
+                stack[ ++top ] = h;
+            }
         }
-
     }
+
+
+
+
+
+
+
+
+
 
 //    console.log(rootModel,sourceModel,queryTerm)
     if(rootModel && sourceModel && queryTerm){
@@ -704,8 +747,9 @@ function sendMessage(msg, debug) {
     }
 
     if(rootModel.count > 0) {
-        console.log("DO QUICK SORT", 0, rootModel.count, sortRoles)
-        quicksort(0,rootModel.count);
+//        console.time("quicksort")
+        quickSortIterative(0,rootModel.count - 1);
+//        console.timeEnd("quicksort")
     }
 
 
