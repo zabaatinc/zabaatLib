@@ -9,7 +9,7 @@ ListModel {
     property bool debug       : false
 
     property var compareFunction : null
-    property var sortRoles    : ["name"]
+    property var sortRoles    : []
 
 //    dynamicRoles : true
 
