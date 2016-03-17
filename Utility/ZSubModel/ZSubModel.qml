@@ -14,21 +14,11 @@ ListModel {
 //    dynamicRoles : true
 
     onSourceModelChanged : { QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
-//        sortTimer.start()
+//
     }
     onQueryTermChanged   : { QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
-//        sortTimer.start()
+//
     }
-
-    property Timer sortTimer : Timer{
-        id : sortTimer
-        interval : 100
-        repeat : false
-        running : false
-        onTriggered : QueryHandler.sendMessage({type:"sort" , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
-    }
-
-
 
     property Connections connections : Connections {
         target : sourceModel ? sourceModel : null
@@ -43,7 +33,7 @@ ListModel {
             QueryHandler.sendMessage({type:"rowsInserted", data:{start:start,end:end,count:count,
                                                            sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
                                                            sort:{roles:sortRoles,fn:compareFunction} }, debug)
-//            sortTimer.start()
+//
         }
         onRowsMoved      : {
             var start           = arguments[1]
@@ -55,7 +45,7 @@ ListModel {
             QueryHandler.sendMessage({type:"rowsMoved", data:{start:start,end:end,startEnd:startEnd,destinationEnd:destinationEnd,count:count,
                                                               sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
                                                               sort:{roles:sortRoles,fn:compareFunction}},debug )
-//            sortTimer.start()
+//
         }
         onRowsRemoved    : {
             var start = arguments[1]
@@ -64,20 +54,20 @@ ListModel {
             QueryHandler.sendMessage({type:"rowsRemoved", data:{start:start,end:end,count:count,
                                                                 sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
                                                                 sort:{roles:sortRoles,fn:compareFunction} } , debug)
-//            sortTimer.start()
+//
         }
         onDataChanged    : {
             var idx         = arguments[1].row
             QueryHandler.sendMessage({type:"dataChanged", data:{idx:idx, sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
                                                           sort:{roles:sortRoles,fn:compareFunction} },debug)
-//            sortTimer.start()
+//
         }
         onModelReset     :  {
             QueryHandler.sendMessage({type:"modelReset", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
                                                          sort:{roles:sortRoles,fn:compareFunction}},debug)
 
 
-//            sortTimer.start()
+//
         }
     }
 

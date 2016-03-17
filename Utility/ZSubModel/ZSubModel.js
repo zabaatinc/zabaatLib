@@ -737,16 +737,18 @@ function sendMessage(msg, debug) {
 //    console.log(rootModel,sourceModel,queryTerm)
     if(rootModel && sourceModel && queryTerm){
         switch(msg.type) {
-            case "rowsInserted": handleRowsInserted(d.start,d.end,d.count);                          break;
-            case "rowsRemoved" : handleRowsRemoved(d.start,d.end,d.count) ;                          break;
-            case "rowsMoved"   : handleRowsMoved(d.start,d.end,d.startEnd,d.destinationEnd,d.count); break;
-            case "dataChanged" : handleDataChanged(d.idx);                                           break;
-            case "sort"        : quicksort(0,rootModel.count);                                       break;
+            case "rowsInserted": handleRowsInserted(d.start,d.end,d.count);                             break;
+            case "rowsRemoved" : handleRowsRemoved(d.start,d.end,d.count) ;                             break;
+            case "rowsMoved"   : handleRowsMoved(d.start,d.end,d.startEnd,d.destinationEnd,d.count);  break;
+            case "dataChanged" : handleDataChanged(d.idx);                                                break;
+            case "sort"        : if(rootModel.count > 0 && (sortRoles || userCmpFunc))
+                                    quickSortIterative(0,rootModel.count);
+                                  break;
             default            : logic.findMatches();
         }
     }
 
-    if(rootModel.count > 0) {
+    if(rootModel.count > 0 && (sortRoles || userCmpFunc)) {
 //        console.time("quicksort")
         quickSortIterative(0,rootModel.count - 1);
 //        console.timeEnd("quicksort")
