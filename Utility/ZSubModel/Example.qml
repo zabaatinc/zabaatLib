@@ -35,7 +35,13 @@ Item {
     QtObject {
         id : logic
         property ListModel sourceModel : ListModel { id : sourceModel;  }
-        property var queryTerm : ({first:""})
+
+        //prime exapmle of awesome sauce
+        property var queryTerm : ({"$or":[{first:"Hector"},{last:"Hector"}] })
+//        property var queryTerm : ({"$and":[{first:"Hector"},{last:"Flippen"}] })
+//        property var queryTerm : ({"$or":[{first:"Hector"},{last:"Hector"}] })
+
+           //{first:"Coletta" 	,last:"Jasik" },
 
         function getRandIdx(){
             return Math.floor(Math.random() * sourceModel.count)
@@ -235,6 +241,7 @@ Item {
     //http://listofrandomnames.com/index.cfm?textarea
     property var testObject : [
         {first:"Hector" 	,last:"Flippen" },
+        {first:"Mector" 	,last:"Hector" },
         {first:"Norene" 	,last:"Shunk" },
         {first:"Tillie" 	,last:"Screen" },
         {first:"Nanette" 	,last:"Mcguigan" },
