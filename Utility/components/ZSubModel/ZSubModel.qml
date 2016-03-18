@@ -5,7 +5,7 @@ import "ZSubModel.js" as QueryHandler
 ListModel {
     id: rootObject
     property var  sourceModel : rootObject.sourceModel
-    property var  queryTerm   : rootObject.queryTerm
+    property var  queryTerm   : null
     property bool debug       : false
 
     property var compareFunction : null

@@ -40,26 +40,42 @@ function sendMessage(msg, debug) {
         },
 
         findMatches: function(){
-    //        console.log("finding matches for", JSON.stringify(queryTerm), sourceModel, model)
-            if(!rootModel || !sourceModel || !queryTerm || sourceModel.count === 0)
+            console.log("finding matches for", JSON.stringify(queryTerm), sourceModel, rootModel)
+            if(!rootModel || !sourceModel || sourceModel.count === 0)
                 return;
 
             rootModel.clear()
-            for(var i = 0 ; i < sourceModel.count; i++){
-    //            console.log(i)
-                var modelItem = sourceModel.get(i)
-    //            console.log(matchItem)
-                if(logic.match(modelItem)){
-    //                console.log(JSON.stringify(modelItem,null,2))
+            if(!queryTerm){
+                for(var i = 0 ; i < sourceModel.count; i++){
+        //            console.log(i)
+                    var modelItem = sourceModel.get(i)
                     if(typeof modelItem.toJSON === 'function')
                         rootModel.append(modelItem.toJSON())
                     else
                         rootModel.append(modelItem)
 
                     logic.setRelatedIdx(i)
-    //                console.log("COPY", JSON.stringify(rootModel.get(i),null,2))
                 }
             }
+            else {
+                for(var i = 0 ; i < sourceModel.count; i++){
+        //            console.log(i)
+                    var modelItem = sourceModel.get(i)
+        //            console.log(matchItem)
+                    if(logic.match(modelItem)){
+        //                console.log(JSON.stringify(modelItem,null,2))
+                        if(typeof modelItem.toJSON === 'function')
+                            rootModel.append(modelItem.toJSON())
+                        else
+                            rootModel.append(modelItem)
+
+                        logic.setRelatedIdx(i)
+        //                console.log("COPY", JSON.stringify(rootModel.get(i),null,2))
+                    }
+                }
+            }
+
+
     //        console.log("finished finding matches")
 //            rootModel.sync()
         },
@@ -514,6 +530,7 @@ function sendMessage(msg, debug) {
 
     var handleRowsInserted = function(start,end,count){
         //let's increment the other rows!!
+//        console.log("HANDLE ROWS INSERTED")
         for(var i = 0 ; i < rootModel.count; ++i){
             var item = rootModel.get(i)
             if(item && item.__relatedIndex >= start){
@@ -735,7 +752,7 @@ function sendMessage(msg, debug) {
 
 
 //    console.log(rootModel,sourceModel,queryTerm)
-    if(rootModel && sourceModel && queryTerm){
+    if(rootModel && sourceModel ){
         switch(msg.type) {
             case "rowsInserted": handleRowsInserted(d.start,d.end,d.count);                             break;
             case "rowsRemoved" : handleRowsRemoved(d.start,d.end,d.count) ;                             break;
