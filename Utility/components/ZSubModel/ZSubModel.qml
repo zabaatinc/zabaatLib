@@ -20,6 +20,10 @@ ListModel {
 //
     }
 
+    Component.onCompleted: {
+        QueryHandler.sendMessage({type:"begin"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+    }
+
     property Connections connections : Connections {
         target : sourceModel ? sourceModel : null
         onRowsInserted   : {
@@ -36,11 +40,29 @@ ListModel {
 //
         }
         onRowsMoved      : {
+//            console.log("onRowsMoved::arguments", arguments[1], arguments[2],  arguments[4])
+
+            var arg4 = arguments[4] //this is weird behavior in qt. it apparently adds
+                                    //the count if stuff is being moved down.
+
             var start           = arguments[1]
             var end             = arguments[2]
             var count           = end - start +1
-            var destinationEnd  = arguments[4] -1 //this is where the
-            var startEnd        = destinationEnd - (end-start);
+
+            var startEnd, destinationEnd
+            if(arg4 < start){
+                startEnd        = arg4
+            }
+            else if(arg4 > end){
+                startEnd = arg4 - count
+            }
+
+            destinationEnd  = startEnd + count - 1
+
+
+
+//            var destinationEnd  = arguments[4] -1 //this is where the
+  //          var startEnd        = destinationEnd - (end-start);
 
             QueryHandler.sendMessage({type:"rowsMoved", data:{start:start,end:end,startEnd:startEnd,destinationEnd:destinationEnd,count:count,
                                                               sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},

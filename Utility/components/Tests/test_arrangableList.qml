@@ -3,8 +3,8 @@ import QtQuick 2.5
 
 Row {
     id : rootObject
-    width : parent.width * 3/4
-    height : parent.height * 3/4
+    width : parent ? parent.width * 3/4 : 0
+    height : parent ? parent.height * 3/4 : 0
 
     property ListModel sourceModel : ListModel{
         ListElement{ name : "A" }
@@ -43,6 +43,7 @@ Row {
         width : parent.width/2
         height : parent.height
         model : rootObject.sourceModel
+        queryTerm: ({"$and":[{name: { "$gt":"A" } }  , {name: { "$lt":"E" } } , {name: { "!=":"C" } }  ]  })
     }
 
 

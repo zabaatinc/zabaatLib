@@ -85,8 +85,7 @@ function sendMessage(msg, debug) {
                 return "$contains";
 
             for(var o in obj){
-                if(o.charAt(0) === "$")
-                    return o
+                return o
             }
             return "$contains"
         },
@@ -277,6 +276,7 @@ function sendMessage(msg, debug) {
         },
         stdDataTypeExpression : function(item1,op,item2){
     //                console.log(item1,op,item2)
+            console.log(item1,op,item2)
             switch(op.toLowerCase()){
                 case "$equals": return item1 === item2;
                 case "=="    : return item1 === item2;
@@ -551,34 +551,62 @@ function sendMessage(msg, debug) {
 //        rootModel.sync()
     //    console.log("JS:: handleRowsInserted Finished")
     }
-    var handleRowsMoved = function(start,end,startEnd,destinationEnd,count){
-        var arrOrig = helperFunctions.getArr(start,end)
-        var arrDest = helperFunctions.getArr(startEnd,destinationEnd)
-    //                console.log("orig:" , arrOrig)
-    //                console.log("dest:" , arrDest)
+    var handleRowsMoved = function(fromStart,fromEnd,toStart,toEnd,count){
+//        var arrOrig = helperFunctions.getArr(start,end)
+//        var arrDest = helperFunctions.getArr(startEnd,destinationEnd)
+//        console.log("HANDLE ROWS MOVED" ,fromStart,fromEnd, "-->", toStart,toEnd, "\t\t", count)
+        var moveConstant = toStart - fromStart
+//        console.log(moveConstant, arrOrig, arrDest)
 
-        var moveConstant = startEnd - start
-    //                console.log(moveConstant, arrOrig, arrDest)
-        for(var i = 0; i < rootModel.count; ++i){
-            var item = rootModel.get(i)
-            if(item){
-                var r   = item.__relatedIndex
-                if(r < start){
-    //                            console.log("r < start", item.name, r)
-                    item.__relatedIndex += count
-                }
-                else if(r >= start && r <= end){
-    //                            console.log("r mid", item.name, r)
-                    item.__relatedIndex += moveConstant
-                }
-                else if(r <= destinationEnd ){
-    //                            console.log("r last", item.name, r)
-                    item.__relatedIndex -= count
+
+        var i, item, r, dist
+        if(fromStart > toStart){    //original elements moved up!
+//            console.log("ELEMS MOVED UP")
+            dist = fromStart - toStart
+            for(i = 0; i < rootModel.count; ++i){
+                item = rootModel.get(i)
+                if(item){
+                    r   = item.__relatedIndex
+                    if(r >= toStart && r <= fromEnd){   //only these things will be affected!!
+
+                        if(r >= fromStart && r <= fromEnd){ //if its the stuff moving up
+                            item.__relatedIndex = r - dist
+//                            console.log("0:moved", r, "to", r-dist)
+                        }
+                        else {  //its the stuff moving down
+                            item.__relatedIndex = r + count
+//                            console.log("1:moved", r, "to", r+count)
+                        }
+
+                    }
                 }
             }
         }
-    //    console.log("move Finished")
-//        rootModel.sync()
+        else if(fromStart < toStart) {  //original elements were moved down!
+
+            dist              = toStart - fromStart
+            var elemsInMiddle = toStart - fromEnd - 1
+
+            for(i = 0; i < rootModel.count; ++i){
+                item = rootModel.get(i)
+                if(item){
+                    r   = item.__relatedIndex
+                    if(r >= fromStart && r <= toEnd){
+
+                        if(r >= fromStart && r <= fromEnd){ //is in from
+                            item.__relatedIndex = r + dist
+                        }
+                        else if(r >= toStart && r <= toEnd){ //is in the to SEction
+                            item.__relatedIndex = r - dist + elemsInMiddle
+                        }
+                        else {  //is in the middle
+                            item.__relatedIndex = r - count
+                        }
+
+                    }
+                }
+            }
+        }
     }
     var handleRowsRemoved = function(start,end,count){
 
