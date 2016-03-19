@@ -13,20 +13,33 @@ ListModel {
 
 //    dynamicRoles : true
 
-    onSourceModelChanged : { QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
-//
-    }
-    onQueryTermChanged   : { QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
-//
+    property Timer initTimer : Timer {
+        id       : initTimer
+        interval : 10
+        repeat   : false
+        running  : false
+        onTriggered : {
+            QueryHandler.sendMessage({type:"begin"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+        }
     }
 
-    Component.onCompleted: {
-        QueryHandler.sendMessage({type:"begin"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+    onSourceModelChanged : {
+        if(!initTimer.running)
+            QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
     }
+    onQueryTermChanged   : {
+        if(!initTimer.running)
+            QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+    }
+
+
 
     property Connections connections : Connections {
         target : sourceModel ? sourceModel : null
         onRowsInserted   : {
+            if(initTimer.running)
+                return
+
             var start = arguments[1]
             var end   = arguments[2]
             var count = end - start + 1
@@ -34,12 +47,15 @@ ListModel {
 //            console.log("QML::",JSON.stringify(sourceModel.get(start),null,2) , sourceModel.count)
 //            console.log("-------------------------------------------------------")
 //            delayTimer.begin({type:"rowsInserted", data:{start:start,end:end,count:count,sourceModel:sourceModel} })
+
             QueryHandler.sendMessage({type:"rowsInserted", data:{start:start,end:end,count:count,
                                                            sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
                                                            sort:{roles:sortRoles,fn:compareFunction} }, debug)
 //
         }
         onRowsMoved      : {
+            if(initTimer.running)
+                return
 //            console.log("onRowsMoved::arguments", arguments[1], arguments[2],  arguments[4])
 
             var arg4 = arguments[4] //this is weird behavior in qt. it apparently adds
@@ -70,6 +86,9 @@ ListModel {
 //
         }
         onRowsRemoved    : {
+            if(initTimer.running)
+                return
+
             var start = arguments[1]
             var end   = arguments[2]
             var count = end - start + 1 //this is the amount of things that need it's indexes updated
@@ -79,17 +98,21 @@ ListModel {
 //
         }
         onDataChanged    : {
+            if(initTimer.running)
+                return
+
             var idx         = arguments[1].row
             QueryHandler.sendMessage({type:"dataChanged", data:{idx:idx, sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
                                                           sort:{roles:sortRoles,fn:compareFunction} },debug)
 //
         }
         onModelReset     :  {
+            if(initTimer.running)
+                return
+
             QueryHandler.sendMessage({type:"modelReset", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
                                                          sort:{roles:sortRoles,fn:compareFunction}},debug)
 
-
-//
         }
     }
 

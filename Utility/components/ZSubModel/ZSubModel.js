@@ -40,15 +40,17 @@ function sendMessage(msg, debug) {
         },
 
         findMatches: function(){
-            console.log("finding matches for", JSON.stringify(queryTerm), sourceModel, rootModel)
-            if(!rootModel || !sourceModel || sourceModel.count === 0)
+//            console.log("finding matches for", JSON.stringify(queryTerm), sourceModel, rootModel)
+            if(!rootModel || !sourceModel || sourceModel.count === 0 || !queryTerm)
                 return;
 
             rootModel.clear()
+            var modelItem, i
+
             if(!queryTerm){
-                for(var i = 0 ; i < sourceModel.count; i++){
+                for(i = 0 ; i < sourceModel.count; i++){
         //            console.log(i)
-                    var modelItem = sourceModel.get(i)
+                    modelItem = sourceModel.get(i)
                     if(typeof modelItem.toJSON === 'function')
                         rootModel.append(modelItem.toJSON())
                     else
@@ -58,9 +60,9 @@ function sendMessage(msg, debug) {
                 }
             }
             else {
-                for(var i = 0 ; i < sourceModel.count; i++){
+                for(i = 0 ; i < sourceModel.count; i++){
         //            console.log(i)
-                    var modelItem = sourceModel.get(i)
+                    modelItem = sourceModel.get(i)
         //            console.log(matchItem)
                     if(logic.match(modelItem)){
         //                console.log(JSON.stringify(modelItem,null,2))
@@ -276,7 +278,7 @@ function sendMessage(msg, debug) {
         },
         stdDataTypeExpression : function(item1,op,item2){
     //                console.log(item1,op,item2)
-            console.log(item1,op,item2)
+//            console.log(item1,op,item2)
             switch(op.toLowerCase()){
                 case "$equals": return item1 === item2;
                 case "=="    : return item1 === item2;
