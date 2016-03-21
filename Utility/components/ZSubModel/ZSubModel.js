@@ -789,7 +789,7 @@ function sendMessage(msg, debug) {
             case "rowsMoved"   : handleRowsMoved(d.start,d.end,d.startEnd,d.destinationEnd,d.count);  break;
             case "dataChanged" : handleDataChanged(d.idx);                                                break;
             case "sort"        : if(rootModel.count > 0 && (sortRoles || userCmpFunc))
-                                    quickSortIterative(0,rootModel.count);
+                                    quickSortIterative(0,rootModel.count - 1);
                                   break;
             default            : logic.findMatches();
         }

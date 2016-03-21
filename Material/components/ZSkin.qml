@@ -61,6 +61,7 @@ Item {
     //Automatically adds borderStates and fontStates if there is a font in the rootLevel Object!!
     //these states are - b1-b10 , f1-f10, fw1-fw10      //fw means font size is dependent on the Width instead of height of the component
     function addBorderStates(){
+        states["b0" ] =  { rootObject : { "border.width" : 0  }};
         states["b1" ] =  { rootObject : { "border.width" : 1  }};
         states["b2" ] =  { rootObject : { "border.width" : 2  }};
         states["b3" ] =  { rootObject : { "border.width" : 3  }};
