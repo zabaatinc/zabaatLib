@@ -4,7 +4,6 @@ import "helpers"
 M.ZSkin {
     id : rootObject
     color : "transparent"
-    property alias  graphical     : graphical
     property int    minHeight     : Math.max(parent.height/8 , M.Units.dp(15))
     property int    minTextHeight : M.Units.dp(25)
     property string lblDisp       : logic.labelDispFunc ? logic.labelDispFunc(logic.value) : logic.label
@@ -13,6 +12,7 @@ M.ZSkin {
     property alias  font               : valueText.font
     property alias  labelLeftContainer : labelLeftContainer
     property alias  bar                : bar
+    property alias  knob               : knob
     property alias  valueContainer     : valueContainer
 
     Connections {
@@ -58,14 +58,14 @@ M.ZSkin {
         width                 : visible ? parent.width * 0.1 : 0
         height                : width
         border.width          : 0
-        color                 : "transparent"
+        color                 : graphical.fill_Empty
         rotation : logic ? -logic.rotation : 0
         Text {
             anchors.fill        : parent
             font.pixelSize      : Math.min(height * 1/2, minTextHeight)
             font.family         : logic.font1
             text                : lblDisp
-            color               : graphical.labelColor
+            color               : graphical.text_Press
             horizontalAlignment : Text.AlignHCenter
             verticalAlignment   : Text.AlignVCenter
         }
@@ -76,7 +76,7 @@ M.ZSkin {
         anchors.verticalCenter  : parent.verticalCenter
         height                  : minHeight
         width                   : parent.width - (labelLeftContainer.width + valueContainer.width + parent.width * 0.10)
-        color                   : graphical.emptyColor
+        color                   : graphical.disabled1
         radius                  : 5
         onWidthChanged: rootObject.update()
         property alias knob : knob
@@ -98,7 +98,7 @@ M.ZSkin {
             id : bar_fill
             height      : parent.height
             anchors.left: parent.left
-            color       : graphical.fillColor
+            color       : graphical.fill_Default
             radius      : parent.radius
             function widthFunc(val) {
                 return bar.width * ((logic.value - logic.min) / (logic.max - logic.min))
@@ -112,9 +112,10 @@ M.ZSkin {
             x                     : -width/2
             minDrag               : -width/2
             maxDrag               : bar.width + minDrag//!logic.isInt ? bar.width - width/2 : bar.width + width/2
-            color                 : graphical.knobColor
-            inkColor              : graphical.fillColor
-            scale                 : graphical.knobScale
+            color                 : M.Colors.getContrastingColor(bar_fill.color,1.3)
+            inkColor              : color
+
+            property alias bubble : bubble
 
             property bool   internalChange : false
             readonly property double value : logic.value
@@ -161,8 +162,8 @@ M.ZSkin {
 
                 width  : (c * parent.width + s * parent.width)
                 height : (c * parent.height + s * parent.height)
-                visible : graphical.bubbleEnabled
-                color  : M.Colors.getContrastingColor(graphical.fillColor)
+                visible : true
+                color  : M.Colors.getContrastingColor(bar_fill.color)
                 scale  : knob.isPressed ? 1 : 0
                 Behavior on scale { NumberAnimation { duration : 200 }}
                 Text {
@@ -180,7 +181,7 @@ M.ZSkin {
 
 
                     text                : valDisp
-                    color               : graphical.bubbleTextColor
+                    color               : M.Colors.contrastingTextColor(bubble.color)
                     horizontalAlignment : Text.AlignHCenter
                     verticalAlignment   : Text.AlignVCenter
                     elide               : Text.ElideRight
@@ -199,7 +200,7 @@ M.ZSkin {
         width                 : visible ? parent.width * 0.1 : 0
         height                : width
         border.width          : 0
-        color                 : "transparent"
+        color                 : graphical.fill_Empty
         rotation : logic ? -logic.rotation : 0
         property alias valueText: valueText
         Text {
@@ -208,7 +209,7 @@ M.ZSkin {
             font.pixelSize      : Math.min(height * 1/2, minTextHeight)
             font.family         : logic.font1
             text                : valDisp
-            color               : graphical.valueColor
+            color               : graphical.text_Default
             horizontalAlignment : Text.AlignHCenter
             verticalAlignment   : Text.AlignVCenter
             elide               : Text.ElideRight
@@ -222,8 +223,8 @@ M.ZSkin {
         property var max: logic ? Math.floor(logic.max) : null
         property int numTicks : 0
 
-        property color fillColor : Qt.darker(graphical.fillColor , 1.3)
-        property color emptyColor: Qt.darker(graphical.emptyColor, 1.3)
+        property color fillColor : Qt.darker(graphical.fill_Default , 1.3)
+        property color emptyColor: Qt.darker(graphical.disabled2, 1.3)
 //        scale : knob.isPressed ? 1 : 0
 
         property bool hasInit : false
@@ -274,7 +275,7 @@ M.ZSkin {
                         }
                         return parent.empty
                     }
-                    return "black"
+                    return M.Colors.text1
                 }
                 scale : knob.isPressed ? 1 : 0
                 Behavior on scale { NumberAnimation { duration : 500 } }
@@ -320,18 +321,6 @@ M.ZSkin {
 
 
     }
-    Item {
-        id : graphical
-        property bool   valueVisible    : true
-        property color  fillColor       : M.Colors.success
-        property color  emptyColor      : "darkGray"
-        property color  labelColor      : M.Colors.getContrastingColor(M.Colors.text1)
-        property color  valueColor      : M.Colors.getContrastingColor(M.Colors.text1)
-        property color  knobColor       : M.Colors.success
-        property double knobScale       : 1
-        property color  bubbleTextColor : M.Colors.text2
-        property bool   bubbleEnabled   : true
-    }
 
     states : ({
                   "default" : { "rootObject": {   "border.width" : 0,
@@ -340,35 +329,23 @@ M.ZSkin {
                                                   "@height"      : [parent,"height"],
                                                   rotation       : 0
                                               } ,
-                                "graphical" : {   "valueVisible"     : true,
-                                                  "bubbleEnabled"    : true,
-                                                  "knobScale"        : 1,
-                                                  "@fillColor"       : [M.Colors,"accent"],
-                                                  "emptyColor"       : "darkGray",
-                                                  "@labelColor"      : [M.Colors,"text1"],
-                                                  "@valueColor"      : [M.Colors,"text1"],
-                                                  "@knobColor"       : [M.Colors,"accent"],
-                                                  "@bubbleTextColor" : [M.Colors,"text1"]
-                                               },
                                  labelLeftContainer : { "@visible" : function() { return logic && logic.label !== "" ? true : false },
                                                         "@width"   : function() { return labelLeftContainer.visible ? labelLeftContainer.parent.width * 0.1 : 0},
                                                         "@height"  : [labelLeftContainer, "width"],
                                                         "border.width" : 0,
-                                                        "color"   : "transparent"
                                                       },
                                  bar                : { "@height" : [rootObject,"minHeight"],
                                                         "@width"  : function() { return bar.parent.width - (labelLeftContainer.width + valueContainer.width + bar.parent.width * 0.10)},
                                                         radius    : 5
                                                       },
-                                 "bar.knob"         : { "@height" : [knob.parent, "height", 2],
-                                                         spillScale : 2
-                                                      } ,
                                  valueContainer     : { "@width"        : function() { return valueContainer.visible ? parent.width * 0.1 : 0 },
                                                         "@height"       : [valueContainer,"width"],
                                                         "border.width"  : 0,
-                                                        "color"         : "transparent",
-                                                        "@visible"      : [graphical,"valueVisible"]
-                                                      }
+                                                        "visible"      : "true"
+                                                      } ,
+                                  "knob.bubble" : {visible : true },
+                                 graphical : {"@fill_Default" : [M.Colors, "success"]}
+
                                },
                   "notext"    : { labelLeftContainer : {  "visible" : false,
                                                           "width"   : 0,
@@ -389,50 +366,8 @@ M.ZSkin {
                   "bar8"    : { bar : { "@height" : [rootObject,"height",0.8] } } ,
                   "bar9"    : { bar : { "@height" : [rootObject,"height",0.9] } } ,
                   "bar10"   : { bar : { "@height" : [rootObject,"height"]     } } ,
-                  "knob1"     : { "bar.knob" : { "@height" : [bar, "height", 1.25 ] } } ,
-                  "knob2"     : { "bar.knob" : { "@height" : [bar, "height", 1.5  ] } } ,
-                  "knob3"     : { "bar.knob" : { "@height" : [bar, "height", 1.75 ] } } ,
-                  "knob4"     : { "bar.knob" : { "@height" : [bar, "height", 2    ] } } ,
-                  "knob5"     : { "bar.knob" : { "@height" : [bar, "height", 2.25 ] } } ,
-                  "knob6"     : { "bar.knob" : { "@height" : [bar, "height", 2.50 ] } } ,
-                  "knob7"     : { "bar.knob" : { "@height" : [bar, "height", 2.75 ] } } ,
-                  "knob8"     : { "bar.knob" : { "@height" : [bar, "height", 3    ] } } ,
-                  "knob9"     : { "bar.knob" : { "@height" : [bar, "height", 3.25 ] } } ,
-                  "knob10"    : { "bar.knob" : { "@height" : [bar, "height", 3.5  ] } } ,
-                  "spill1"  : { "bar.knob" : { "spillScale" : 1.1 } } ,
-                  "spill2"  : { "bar.knob" : { "spillScale" : 1.2 } } ,
-                  "spill3"  : { "bar.knob" : { "spillScale" : 1.3 } } ,
-                  "spill4"  : { "bar.knob" : { "spillScale" : 1.4 } } ,
-                  "spill5"  : { "bar.knob" : { "spillScale" : 1.5 } } ,
-                  "spill6"  : { "bar.knob" : { "spillScale" : 1.6 } } ,
-                  "spill7"  : { "bar.knob" : { "spillScale" : 1.7 } } ,
-                  "spill8"  : { "bar.knob" : { "spillScale" : 1.8 } } ,
-                  "spill9"  : { "bar.knob" : { "spillScale" : 1.9 } } ,
 
-                  "alternate" : { "graphical" : { "@fillColor"       : [M.Colors,"success"],
-                                                  "emptyColor"       : "darkGray",
-                                                  "@labelColor"      : [M.Colors.contrasting,"text2"],
-                                                  "@valueColor"      : [M.Colors.contrasting,"text2"],
-                                                  "@knobColor"       : [M.Colors,"success"],
-                                                  "@bubbleTextColor" : [M.Colors,"text2"]
-                                                }
-                              },
-                  "disabled" : { "graphical" : {  "bubbleEnabled"    : false,
-                                                  "knobScale"        : 0.5,
-                                                  "fillColor"        : "darkGray",
-                                                  "emptyColor"       : "Gray",
-                                                  "labelColor"       : "darkGray",
-                                                  "valueColor"       : "darkGray",
-                                                  "knobColor"        : "darkGray",
-                                                  "@bubbleTextColor" : [M.Colors,"text2"]
-                                                }
-                              },
-                  "nobubble" : { "graphical" : {  "bubbleEnabled"    : false
-                                               }
-                              },
-                  "noknob" : { "bar.knob" : {  "visible"    : false
-                                               }
-                              },
+                  "nobubble" : { "knob.bubble" : {  "visible" : false }},
                   "dynamicvaluesize" : { "valueContainer.valueText" : { "@scale": function() {
                                                                                     if(valueText.paintedWidth > valueText.width)
                                                                                         return valueText.width / valueText.paintedWidth

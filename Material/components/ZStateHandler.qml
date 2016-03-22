@@ -1,5 +1,17 @@
 import QtQuick 2.0
-//The purpose of this class is to manage the state
+//The purpose of this class is to manage the state of all components and
+//is the controller for the css like states (separated with "-") on every component.
+
+//add aliases to the root of the component and this will be able to see it.
+
+//docs
+//"@<propertyName>" : [Colors, "success" ] , the @ tells the statehandler that this is a binding expression ,
+//                                           arr[0] is the object to look into. "@parent" is a special key. This will make it
+//                                           the current Object's parent.
+//                                           arr[1] is the name of property to bind to.
+//                                           arr[2] , if provided, is the modifier (multiplied) to that value
+
+
 pragma Singleton
 Item {
     id : rootObject
@@ -62,6 +74,10 @@ Item {
                     if(key.indexOf("@") === 0){
                         //is a binding expressioN!!
                         var k = key.slice(1);
+
+                        if(isArray(item) && item[0] === "@parent"){
+                            item[0] = obj.parent
+                        }
                         dotSet(obj,k,item,true, rootObject);
                     }
                     else {

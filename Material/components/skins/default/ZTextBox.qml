@@ -41,18 +41,7 @@ ZSkin {
                 text               : logic && logic.text ? logic.text : ""
                 anchors.fill       : parent
                 visible            : input.opacity === 0
-                color              : {
-                    if(Colors.isLightColor(rootObject.color)){
-                        if(Colors.isLightColor(graphical.text_Default))
-                            return graphical.text_Focus
-                        return graphical.text_Default
-                    }
-                    else {
-                        if(Colors.isLightColor(graphical.text_Default))
-                            return graphical.text_Default
-                        return graphical.text_Focus
-                    }
-                }
+                color              : Colors.contrastingTextColor(rootObject.color)
                 focus              : false
                 onTextChanged      : input.text = text
             }

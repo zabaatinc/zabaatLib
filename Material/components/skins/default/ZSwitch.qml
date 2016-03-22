@@ -6,7 +6,7 @@ import "helpers"
 M.ZSkin {
     id : rootObject
 //    property alias graphical : graphical
-    property alias bar       : bar
+    property alias knob : knob
 
     color         : graphical.fill_Empty
     focus         : true
@@ -55,17 +55,7 @@ M.ZSkin {
                       "graphical" : {
                           "@fill_Default" : [M.Colors, "success"]
                       }
-         } ,
-        "knob1"     : { "bar.knob" : { "@height" : [bar, "height", 1.25 ] } } ,
-        "knob2"     : { "bar.knob" : { "@height" : [bar, "height", 1.5  ] } } ,
-        "knob3"     : { "bar.knob" : { "@height" : [bar, "height", 1.75 ] } } ,
-        "knob4"     : { "bar.knob" : { "@height" : [bar, "height", 2    ] } } ,
-        "knob5"     : { "bar.knob" : { "@height" : [bar, "height", 2.25 ] } } ,
-        "knob6"     : { "bar.knob" : { "@height" : [bar, "height", 2.50 ] } } ,
-        "knob7"     : { "bar.knob" : { "@height" : [bar, "height", 2.75 ] } } ,
-        "knob8"     : { "bar.knob" : { "@height" : [bar, "height", 3    ] } } ,
-        "knob9"     : { "bar.knob" : { "@height" : [bar, "height", 3.25 ] } } ,
-        "knob10"    : { "bar.knob" : { "@height" : [bar, "height", 3.5  ] } } ,
+         }
     })
 
 

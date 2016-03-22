@@ -6,6 +6,11 @@ Item {
     property alias borderWidth : _border.width
     property alias borderColor : _border.color
 
+    onColorChanged: canvas.requestPaint()
+    onBorderWidthChanged: canvas.requestPaint()
+    onBorderColorChanged: canvas.requestPaint()
+
+
     Canvas {
         id : canvas
         width  : parent.width

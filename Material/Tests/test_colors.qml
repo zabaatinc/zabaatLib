@@ -77,6 +77,15 @@ FocusScope {
             id : zswitch
             width : w
             height: h
+            state : allState + "-knob10"
+        }
+
+        ZSlider {
+            id : zslider
+            width : w
+            height : h
+            min : 0
+            max : 100
             state : allState
         }
 
