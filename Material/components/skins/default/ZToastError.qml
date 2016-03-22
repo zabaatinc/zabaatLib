@@ -10,22 +10,9 @@ ZSkin {
     anchors.centerIn : parent
 //    border.width     : 1
 
-    property alias graphical     : graphical
     property alias font          : text.font
     QtObject {
-        id : graphical
-        property color fill_Default     : Colors.standard
-        property color fill_Press       : Colors.accent
-        property color fill_Focus       : Colors.info
-        property color text_Default     : Colors.text1
-        property color text_Press       : Colors.text2
-        property color text_Focus       : Colors.text2
-        property int   text_hAlignment  : Text.AlignHCenter
-        property int   text_vAlignment  : Text.AlignVCenter
-        property color inkColor         : Colors.getContrastingColor(rootObject.color)
-        property color borderColor      : Colors.text1
-        property real inkOpacity        : 1
-
+        id : graphicalOverride
         property TextEdit _text : TextEdit{
             id : text
             horizontalAlignment: graphical.text_hAlignment
@@ -56,7 +43,6 @@ ZSkin {
                 text.text = ""
             }
         }
-
     }
 
     ZButton {
@@ -295,23 +281,6 @@ ZSkin {
                                       "@height"      : [parent,"height"],
                                       rotation       : 0
                                      } ,
-                        "graphical" : {
-                             "@fill_Default": [Colors,"standard"],
-                             "@text_Default": [Colors,"text1"],
-                             "@fill_Press"  : [Colors,"standard"],
-                             "@text_Press"  : [Colors,"info"],
-                             "@fill_Focus"  : [Colors,"info"],
-                             "@text_Focus"  : [Colors,"text2"],
-                             "@inkColor"    : [Colors,"accent"],
-                             "@borderColor" : [Colors,"text1"],
-                             inkOpacity : 1,
-                             text_hAlignment : Text.AlignHCenter,
-                             text_vAlignment : Text.AlignVCenter
-                      },
-          },
-          "t2" : { "graphical" : {"@borderColor"   : [Colors,"text2"],
-                                  "@text_Default"   : [Colors,"text2"]
-                                 }
           }
     })
 

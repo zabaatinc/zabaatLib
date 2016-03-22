@@ -8,23 +8,27 @@ ZSkin {
     anchors.centerIn : parent
 //    border.width     : 1
 
-    property alias graphical     : graphical
+//    property alias graphical     : graphical
     property alias textContainer : textContainer
     property alias font          : text.font
-    QtObject {
-        id : graphical
-        property color fill_Default: Colors.standard
-        property color fill_Press  : Colors.accent
-        property color fill_Focus  : Colors.info
-        property color text_Default: Colors.text1
-        property color text_Press  : Colors.text2
-        property color text_Focus  : Colors.text2
-        property int   text_hAlignment  : Text.AlignHCenter
-        property int   text_vAlignment  : Text.AlignVCenter
-        property color inkColor    : Colors.getContrastingColor(rootObject.color)
-        property color borderColor : Colors.text1
-        property real inkOpacity   : 1
-    }
+    property alias timerText     : timerText
+    property alias closeButton   : closeButton
+
+
+//    QtObject {
+//        id : graphical
+//        property color fill_Default: Colors.standard
+//        property color fill_Press  : Colors.accent
+//        property color fill_Focus  : Colors.info
+//        property color text_Default: Colors.text1
+//        property color text_Press  : Colors.text2
+//        property color text_Focus  : Colors.text2
+//        property int   text_hAlignment  : Text.AlignHCenter
+//        property int   text_vAlignment  : Text.AlignVCenter
+//        property color inkColor    : Colors.getContrastingColor(rootObject.color)
+//        property color borderColor : Colors.text1
+//        property real inkOpacity   : 1
+//    }
 
 
     MouseArea {
@@ -35,12 +39,21 @@ ZSkin {
     Item {
         id : gui
         anchors.fill: parent
-        Rectangle {
+        Item {
             width : parent.width //- closeButton.anchors.rightMargin - closeButton.width
             height : closeButton.height
             clip   : true
 
+            Rectangle {
+                anchors.bottom: parent.bottom
+                width : titleText.paintedWidth * 1.05
+                height : 2
+                anchors.horizontalCenter: parent.horizontalCenter
+                color : Colors.getContrastingColor(graphical.fill_Default)
+            }
+
             Text {
+                id : titleText
                 anchors.fill       : parent
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment  : Text.AlignVCenter
@@ -54,8 +67,8 @@ ZSkin {
                 font.underline:           rootObject.font.underline
                 font.weight  :            rootObject.font.weight
                 font.wordSpacing:         rootObject.font.wordSpacing
-                font.pixelSize: text.pixelSize * 0.8
-                color              : Colors.text1
+                font.pixelSize     : parent.height * 1/3
+                color              : text.color
                 textFormat         : Text.RichText
                 text               : logic.title ? logic.title : ""
             }
@@ -74,7 +87,7 @@ ZSkin {
                 font.family        : logic.font1
                 font.pixelSize     : height * 1/3
                 text               : logic.text
-                color              : Colors.text1
+                color              : Colors.contrastingTextColor(rootObject.color)
                 textFormat         : Text.RichText
             }
         }
@@ -104,7 +117,7 @@ ZSkin {
                 font.weight  :            rootObject.font.weight
                 font.wordSpacing:         rootObject.font.wordSpacing
                 font.pixelSize:  text.pixelSize * 0.8
-                color              : Colors.text1
+                color              : text.color
                 textFormat         : Text.RichText
                 text               :formatSeconds(runningDuration)
                 property int runningDuration : 0;
@@ -127,7 +140,7 @@ ZSkin {
 
 
         Rectangle {
-            color : "transparent"
+            color : graphical.fill_Empty
             anchors.fill: parent
             border.width: rootObject.border.width
             border.color: rootObject.border.color
@@ -155,25 +168,12 @@ ZSkin {
                                       "@height"      : [parent,"height"],
                                       rotation       : 0
                                      } ,
-                        "graphical" : {
-                             "@fill_Default": [Colors,"standard"],
-                             "@text_Default": [Colors,"text1"],
-                             "@fill_Press"  : [Colors,"standard"],
-                             "@text_Press"  : [Colors,"info"],
-                             "@fill_Focus"  : [Colors,"info"],
-                             "@text_Focus"  : [Colors,"text2"],
-                             "@inkColor"    : [Colors,"accent"],
-                             "@borderColor" : [Colors,"text1"],
-                             inkOpacity : 1,
-                             text_hAlignment : Text.AlignHCenter,
-                             text_vAlignment : Text.AlignVCenter
-                      },
+                      timerText     : {visible : false } ,
+                      closeButton   : {visible : true  } ,
                       textContainer : { rotation : 0 },
-          },
-          "t2" : { "graphical" : {"@borderColor"   : [Colors,"text2"],
-                                  "@text_Default"   : [Colors,"text2"]
-                                 }
-          }
+          } ,
+         "notimer" : {"timerText" : {visible : false } } ,
+         "noclose" : {"closeButton" : {visible:false} }
     })
 
 

@@ -56,8 +56,12 @@ FocusScope {
             id : button
             width  : w
             height : h
-            text   : "Hello"
+            text   : "Toast!"
             state  : allState
+            onClicked : {
+                Toasts.create("world" , {state : allState, title : "derp" } );
+//                Toasts.error("world","error")
+            }
         }
         ZTextBox {
             id : textbox
@@ -88,6 +92,8 @@ FocusScope {
             max : 100
             state : allState
         }
+
+
 
     }
 
