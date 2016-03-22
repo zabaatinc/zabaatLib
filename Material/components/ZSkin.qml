@@ -12,7 +12,7 @@ Item {
     property alias radius         : rect.radius
     property alias graphical      : graphical
 
-    Rectangle { id: rect ; anchors.fill : parent; color: logic ? Colors.get(logic.colors , "standard") : "white" }
+    Rectangle { id: rect ; anchors.fill : parent; color: logic ? Colors.get(logic.colors , "standard") : "white"; opacity: graphical.fill_Opacity }
 
     property string state  : "default"
     property var    states : []
@@ -78,6 +78,7 @@ Item {
             property color fill_Default     : Colors.standard
             property color fill_Press       : Colors.accent
             property color fill_Focus       : Colors.info
+            property real  fill_Opacity     : 1
             property color text_Default     : Colors.text1
             property color text_Press       : Colors.text2
             property color text_Focus       : Colors.text2
@@ -128,7 +129,7 @@ Item {
         }
         function addFontStates(){
 
-            cache.injectState("default","font", { bold : false, italic : false, "@pixelSize":[parent,"height",1/4],
+            cache.injectState("default","font", { bold : false, italic : false, "@pixelSize":["@parent","height",1/4],
                                                   weight:Font.Normal, strikeout : false, underline : false })
 
             cache.injectState("w1"         , "font" , { weight : Font.Thin                    })
@@ -140,26 +141,26 @@ Item {
             cache.injectState("w7"         , "font" , { weight : Font.Bold                    })
             cache.injectState("w8"         , "font" , { weight : Font.ExtraBold               })
             cache.injectState("w9"         , "font" , { weight : Font.Black                   })
-            cache.injectState("f1"         , "font" , { "@pixelSize" : [parent,"height",1]    })
-            cache.injectState("f2"         , "font" , { "@pixelSize" : [parent,"height",1/2]  })
-            cache.injectState("f3"         , "font" , { "@pixelSize" : [parent,"height",1/3]  })
-            cache.injectState("f4"         , "font" , { "@pixelSize" : [parent,"height",1/4]  })
-            cache.injectState("f5"         , "font" , { "@pixelSize" : [parent,"height",1/5]  })
-            cache.injectState("f6"         , "font" , { "@pixelSize" : [parent,"height",1/6]  })
-            cache.injectState("f7"         , "font" , { "@pixelSize" : [parent,"height",1/7]  })
-            cache.injectState("f8"         , "font" , { "@pixelSize" : [parent,"height",1/8]  })
-            cache.injectState("f9"         , "font" , { "@pixelSize" : [parent,"height",1/9]  })
-            cache.injectState("f10"        , "font" , { "@pixelSize" : [parent,"height",1/10] })
-            cache.injectState("fw1"        , "font" , { "@pixelSize" : [parent,"width",1]     })
-            cache.injectState("fw2"        , "font" , { "@pixelSize" : [parent,"width",1/2]   })
-            cache.injectState("fw3"        , "font" , { "@pixelSize" : [parent,"width",1/3]   })
-            cache.injectState("fw4"        , "font" , { "@pixelSize" : [parent,"width",1/4]   })
-            cache.injectState("fw5"        , "font" , { "@pixelSize" : [parent,"width",1/5]   })
-            cache.injectState("fw6"        , "font" , { "@pixelSize" : [parent,"width",1/6]   })
-            cache.injectState("fw7"        , "font" , { "@pixelSize" : [parent,"width",1/7]   })
-            cache.injectState("fw8"        , "font" , { "@pixelSize" : [parent,"width",1/8]   })
-            cache.injectState("fw9"        , "font" , { "@pixelSize" : [parent,"width",1/9]   })
-            cache.injectState("fw10"       , "font" , { "@pixelSize" : [parent,"width",1/10]  })
+            cache.injectState("f1"         , "font" , { "@pixelSize" : ["@parent","height",1]    })
+            cache.injectState("f2"         , "font" , { "@pixelSize" : ["@parent","height",1/2]  })
+            cache.injectState("f3"         , "font" , { "@pixelSize" : ["@parent","height",1/3]  })
+            cache.injectState("f4"         , "font" , { "@pixelSize" : ["@parent","height",1/4]  })
+            cache.injectState("f5"         , "font" , { "@pixelSize" : ["@parent","height",1/5]  })
+            cache.injectState("f6"         , "font" , { "@pixelSize" : ["@parent","height",1/6]  })
+            cache.injectState("f7"         , "font" , { "@pixelSize" : ["@parent","height",1/7]  })
+            cache.injectState("f8"         , "font" , { "@pixelSize" : ["@parent","height",1/8]  })
+            cache.injectState("f9"         , "font" , { "@pixelSize" : ["@parent","height",1/9]  })
+            cache.injectState("f10"        , "font" , { "@pixelSize" : ["@parent","height",1/10] })
+            cache.injectState("fw1"        , "font" , { "@pixelSize" : ["@parent","width",1]     })
+            cache.injectState("fw2"        , "font" , { "@pixelSize" : ["@parent","width",1/2]   })
+            cache.injectState("fw3"        , "font" , { "@pixelSize" : ["@parent","width",1/3]   })
+            cache.injectState("fw4"        , "font" , { "@pixelSize" : ["@parent","width",1/4]   })
+            cache.injectState("fw5"        , "font" , { "@pixelSize" : ["@parent","width",1/5]   })
+            cache.injectState("fw6"        , "font" , { "@pixelSize" : ["@parent","width",1/6]   })
+            cache.injectState("fw7"        , "font" , { "@pixelSize" : ["@parent","width",1/7]   })
+            cache.injectState("fw8"        , "font" , { "@pixelSize" : ["@parent","width",1/8]   })
+            cache.injectState("fw9"        , "font" , { "@pixelSize" : ["@parent","width",1/9]   })
+            cache.injectState("fw10"       , "font" , { "@pixelSize" : ["@parent","width",1/10]  })
             cache.injectState("bold"       , "font" , { bold      : true                      })
             cache.injectState("italic"     , "font" , { italic    : true                      })
             cache.injectState("underline"  , "font" , { underline : true                      })
@@ -184,7 +185,8 @@ Item {
                "@borderColor"    : [Colors,"text1"],
                "inkOpacity"      : 1,
                "text_hAlignment" : Text.AlignHCenter,
-               "text_vAlignment" : Text.AlignVCenter
+               "text_vAlignment" : Text.AlignVCenter,
+               "fill_Opacity"    : 1
             })
 
             cache.injectState("disabled","graphical", {
@@ -277,6 +279,9 @@ Item {
                                   "@borderColor" : [Colors,"text2"],
                                   inkOpacity : 0.5
             })
+
+            cache.injectState("semitransparent", "graphical" , { "fill_Opacity" : 0.8  })
+
 
 
             cache.injectState("t1","graphical", {

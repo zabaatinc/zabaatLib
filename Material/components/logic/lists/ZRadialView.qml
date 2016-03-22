@@ -6,13 +6,17 @@ import "ZSpinner"
 //Uses the 'magic' path from https://wiki.qt.io/Qt_Quick_Carousel
 Rectangle {
     id : rootObject
-    property DefaultDelegateOptions defaultDelegate : DefaultDelegateOptions{ width : cellHeight; height : cellHeight}
+    property DefaultDelegateOptions defaultDelegate : DefaultDelegateOptions
+    {
+      width : cellHeight;
+      height : cellHeight
+    }
     property alias pv                 : pv
     property alias model              : pv.model
     property alias currentIndex       : pv.currentIndex
     property alias currentItem        : pv.currentItem
     property alias delegate           : pv.delegate
-    property int cellHeight           : Units.gu(1)
+    property int cellHeight           : rootObject.height * 0.1
     property alias path               : pv.path
     property alias interactive        : pv.interactive
     property alias highlightRangeMode : pv.highlightRangeMode

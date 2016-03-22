@@ -4,8 +4,24 @@ import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
 import Zabaat.Utility 1.0
 
-FocusScope {
+Rectangle {
     id : rootObject
+    color : 'lightblue'
+
+
+    CheckBox{
+        id : transparencyBox
+        onCheckedChanged: if(checked) {
+                              allState = allState +  "-semitransparent"
+                          }
+                          else {
+                              allState = allState.replace("-semitransparent","")
+                          }
+
+        text : "Transparency"
+        anchors.right: parent.right
+        z : 999
+    }
 
     ListView {
         id : lv
@@ -36,7 +52,7 @@ FocusScope {
             width : lv.width * 0.05
             height : lv.height
             text : name
-            onClicked : rootObject.allState = name
+            onClicked : rootObject.allState = name + transparency
         }
 
 
@@ -46,7 +62,8 @@ FocusScope {
 
     property int w : 128
     property int h : 64
-    property string allState : "default"
+    property string allState : "default" + transparency
+    property string transparency : transparencyBox.checked ? "-semitransparent" : ""
 
     Grid {
         anchors.bottom: parent.bottom
@@ -83,7 +100,6 @@ FocusScope {
             height: h
             state : allState + "-knob10"
         }
-
         ZSlider {
             id : zslider
             width : w
@@ -92,9 +108,25 @@ FocusScope {
             max : 100
             state : allState
         }
+    }
 
+    ZRadialView {
+        width : w * 2
+        height : h * 4
+        model : 10
+        defaultDelegate.state_Selected: allState + "-f1"
+        anchors.bottom: parent.bottom
+        anchors.margins: 10
+    }
 
-
+    ZSpinner {
+        width : w* 2
+        height : h * 4
+        model : 10
+        defaultDelegate.state_Selected: allState + "-f1"
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.margins: 10
     }
 
 

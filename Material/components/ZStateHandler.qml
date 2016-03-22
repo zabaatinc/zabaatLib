@@ -75,8 +75,14 @@ Item {
                         //is a binding expressioN!!
                         var k = key.slice(1);
 
-                        if(isArray(item) && item[0] === "@parent"){
-                            item[0] = obj.parent
+                        if(isArray(item) && item[0] === "@parent" ){
+                            if(obj.parent) {
+                                item[0] = obj.parent
+                            }
+                            else
+                                item[0] = rootObject
+
+
                         }
                         dotSet(obj,k,item,true, rootObject);
                     }
