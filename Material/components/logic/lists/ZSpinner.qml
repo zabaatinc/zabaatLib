@@ -11,7 +11,7 @@ Item {
     property alias currentIndex        : lv.currentIndex
     property alias currentItem         : lv.currentItem
     property alias delegate            : lv.delegate
-    property int   cellHeight          : Units.gu(1)
+    property int   cellHeight          : height * 0.1
     property bool  shrink    : false
     property DefaultDelegateOptions defaultDelegate : DefaultDelegateOptions{}
 

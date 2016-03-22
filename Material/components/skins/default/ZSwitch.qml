@@ -6,6 +6,7 @@ import "helpers"
 M.ZSkin {
     id : rootObject
     property alias graphical : graphical
+    property alias bar       : bar
 
     color         : "transparent"
     focus         : true
@@ -27,6 +28,8 @@ M.ZSkin {
         color : logic && logic.isOn ? graphical.fill_onColor : graphical.fill_offColor
         radius: height/2
         anchors.centerIn: parent
+
+        property alias knob : knob
 
         Knob {
             id : knob
@@ -82,7 +85,17 @@ M.ZSkin {
         "disabled" : {  graphical :  {  "@fill_onColor"  : [M.Colors,"success"] ,
                                         "@fill_offColor" : "darkGray"
                                      }
-        }
+        },
+        "knob1"     : { "bar.knob" : { "@height" : [bar, "height", 1.25 ] } } ,
+        "knob2"     : { "bar.knob" : { "@height" : [bar, "height", 1.5  ] } } ,
+        "knob3"     : { "bar.knob" : { "@height" : [bar, "height", 1.75 ] } } ,
+        "knob4"     : { "bar.knob" : { "@height" : [bar, "height", 2    ] } } ,
+        "knob5"     : { "bar.knob" : { "@height" : [bar, "height", 2.25 ] } } ,
+        "knob6"     : { "bar.knob" : { "@height" : [bar, "height", 2.50 ] } } ,
+        "knob7"     : { "bar.knob" : { "@height" : [bar, "height", 2.75 ] } } ,
+        "knob8"     : { "bar.knob" : { "@height" : [bar, "height", 3    ] } } ,
+        "knob9"     : { "bar.knob" : { "@height" : [bar, "height", 3.25 ] } } ,
+        "knob10"    : { "bar.knob" : { "@height" : [bar, "height", 3.5  ] } } ,
     })
 
 

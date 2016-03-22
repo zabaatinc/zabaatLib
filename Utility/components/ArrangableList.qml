@@ -11,7 +11,7 @@ Item {
     property alias queryTerm       : zsub.queryTerm
     property alias model           : zsub.sourceModel
     property alias delegate        : guiVars.delegate
-
+    property alias lv : lv
 
     QtObject {
         id : logic
@@ -244,7 +244,7 @@ Item {
 
             property var  m            : lv.model && lv.model.count > index ?  lv.model.get(index) : null
 //            onMChanged: if(m) console.log(JSON.stringify(m,null,2))
-            property int  relatedIndex : m ? m.__relatedIndex : -1
+            property int  relatedIndex : m && m.__relatedIndex !== null && typeof m.__relatedIndex !== 'undefined' ? m.__relatedIndex : -1
             property int _index        : index
             property bool imADelegate  : true
             property bool selected     : false
@@ -287,7 +287,8 @@ Item {
                 sourceComponent : guiVars.delegate
                 scale : dMsArea.isDragging ?  0.8 : 1
 
-                property int  relatedIndex   : lv.model && lv.model.get(index) ? lv.model.get(index).__relatedIndex : -1
+                property var  m              : lv.model && lv.model.count > index ? lv.model.get(index) : null
+                property int  relatedIndex   : m && m.__relatedIndex !== null && typeof m.__relatedIndex !== "undefined" ? m.__relatedIndex : -1
                 property var   originalParent : del
                 property var dTar: Drag.target
 //                onDTarChanged: console.log(dLoader," hovers over " , dTar)
