@@ -2,25 +2,18 @@ import QtQuick 2.4
 import Zabaat.Material 1.0
 ZSkin {
     id : rootObject
-    color            : graphical.fillColor
+    color            : graphical.fill_Empty
     border.color     : graphical.borderColor
     anchors.centerIn : parent
 //    border.width     : 1
-    property alias graphical : graphical
+    property alias graphicalOverride : graphicalOverride
     property alias font : text.font
     property alias gui  : gui
     readonly property alias isFocused : input.activeFocus
 
     QtObject {
-        id : graphical
-        property color borderColor   : Colors.text1
-        property color fillColor     : "transparent"
-        property color labelColor    : Colors.contrasting.standard
-        property color textColor     : Colors.text1
-        property color errorColor    : Colors.danger
-        property color selectedColor : Colors.info
+        id : graphicalOverride
         property real  barHeight     : 4
-        property int   textAlignment : Text.AlignLeft
     }
 
     Item {
@@ -43,20 +36,31 @@ ZSkin {
             property alias input : input
             Text {
                 id : text
-                horizontalAlignment: graphical.textAlignment
+                horizontalAlignment: graphical.text_hAlignment
                 verticalAlignment  : Text.AlignVCenter
                 text               : logic && logic.text ? logic.text : ""
                 anchors.fill       : parent
                 visible            : input.opacity === 0
-                color              : graphical.textColor
+                color              : {
+                    if(Colors.isLightColor(rootObject.color)){
+                        if(Colors.isLightColor(graphical.text_Default))
+                            return graphical.text_Focus
+                        return graphical.text_Default
+                    }
+                    else {
+                        if(Colors.isLightColor(graphical.text_Default))
+                            return graphical.text_Default
+                        return graphical.text_Focus
+                    }
+                }
                 focus              : false
                 onTextChanged      : input.text = text
             }
             Text {
                 id : label
                 verticalAlignment  : Text.AlignVCenter
-                horizontalAlignment: graphical.textAlignment
-                color              : graphical.labelColor
+                horizontalAlignment: graphical.text_hAlignment
+                color              : graphical.text_Press
                 text               : logic && logic.label ? logic.label : ""
                 font {
                     family : text.font.family
@@ -106,12 +110,12 @@ ZSkin {
                 onTextChanged      : if(logic && logic.setTextFunc && insync && gui.inputState)
                                          logic.setTextFunc(input.text);
 
-                horizontalAlignment: graphical.textAlignment
+                horizontalAlignment: graphical.text_hAlignment
                 verticalAlignment  : Text.AlignVCenter
                 focus              : true
                 opacity            : gui.inputState ? 1 : 0
                 font               : text.font
-                color              : graphical.textColor
+                color              : graphical.text_Default
                 activeFocusOnTab   : true
                 text : logic ? logic.text : ""
                 property bool insync : false
@@ -122,7 +126,7 @@ ZSkin {
         Rectangle {
             id : botBar
             width         : parent.width
-            height        : graphical.barHeight
+            height        : graphicalOverride.barHeight
             anchors.bottom: parent.bottom
             color         : Colors.getContrastingColor(thickerBar.color,1.2)
             focus : false
@@ -132,7 +136,7 @@ ZSkin {
                 width : parent.width
                 height : parent.height + 3      //the plus should be an odd number :)
                 anchors.verticalCenter: parent.verticalCenter
-                color : error.text === "" ?  graphical.selectedColor : graphical.errorColor
+                color : error.text === "" ?  graphical.fill_Focus : Colors.danger
                 transform: Scale {
                     yScale : 1
                     xScale : !gui.inputState ? 0  : 1
@@ -144,8 +148,8 @@ ZSkin {
             Text {
                 id : error
                 verticalAlignment  : Text.AlignTop
-                horizontalAlignment: graphical.textAlignment
-                color              : graphical.errorColor
+                horizontalAlignment: graphical.text_hAlignment
+                color              : Colors.danger
                 text               : logic && logic.error ? logic.error : ""
                 font               : label.font
                 width              : parent.width
@@ -165,22 +169,8 @@ ZSkin {
                                       "@width"         : [parent,"width"],
                                       "@height"        : [parent,"height"],
                                        rotation        : 0
-                                     } ,
-                        "graphical" : {
-                             "fillColor"      : "transparent",
-                              "@borderColor"   : [Colors,"text1"]              ,
-                              "fillColor"     : "transparent"              ,
-                              "@labelColor"    : [Colors.contrasting,"standard"],
-                              "@textColor"     : [Colors,"text1"]               ,
-                              "@selectedColor" : [Colors,"info"]                ,
-                              "barHeight"     : 4                          ,
-                              "textAlignment" : Text.AlignLeft
-
-                      },
-          },
-          "t2" : { "graphical" : {"@borderColor"   : [Colors,"text2"],
-                                  "@textColor"     : [Colors,"text2"]
-                                 }
+                                      } ,
+                        "graphicalOverride" : { "barHeight" : 4  },
           },
          "nolabel" : { "gui.textArea.label" : { visible : false }
 

@@ -5,20 +5,18 @@ import QtQuick 2.4
 ZSkin {
     id : rootObject
     focus : true
-    property alias graphical : graphical
     property alias font      : text.font
-    color : graphical.fill_Default
+    color : graphical["fill_" + graphicalState]
+
+    property string graphicalState : "Default" //Press, Focus
     onLogicChanged: if(logic) {
                         logic.containsMouse = Qt.binding(function() { return inkArea.containsMouse })
                     }
-    onStateChanged : {
-        graphical.state = "reload"
-        graphical.state = ""
-    }
+
     onActiveFocusChanged: {
 //        console.log(activeFocus)
-        if(activeFocus && graphical.state !== "press")  graphical.state = "focus"
-        else if(graphical.state === "focus")            graphical.state = ""
+        if(activeFocus && graphicalState !== "Press")  graphicalState = "Focus"
+        else if(graphicalState === "Focus")            graphicalState = "Default"
     }
 
     MouseArea {
@@ -39,13 +37,13 @@ ZSkin {
         clip : false
         Text {
             id : text
-            anchors.centerIn: parent
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment  : Text.AlignVCenter
+            anchors.fill: parent
+            horizontalAlignment: graphical.text_hAlignment
+            verticalAlignment  : graphical.text_vAlignment
             font.family        : logic.font1
             font.pixelSize     : parent.height * 1/4
             text               : logic.text
-            color              : Colors.text1
+            color              : graphical["text_" + graphicalState]
         }
     }
 
@@ -57,7 +55,7 @@ ZSkin {
         height: width
 
         property real percentage : happyAnimation.running? 1 : timer.holdDuration / timer.targetDuration
-        property color color     : Colors.mix(graphical.arcStartColor, graphical.arcEndColor, percentage)
+        property color color     : Colors.mix(graphical.fill_Press, graphical.fill_Focus, percentage)
 
         onPercentageChanged: requestPaint()
         onPaint : {
@@ -80,8 +78,8 @@ ZSkin {
         id : happyAnimation
         loops : 3
         property int duration : timer.targetDuration/3
-        onStarted : rootObject.color = graphical.arcEndColor
-        onStopped : rootObject.color = graphical.fill_Default
+        onStarted : graphicalState = "Focus"
+        onStopped : graphicalState = "Default"
 
 
         NumberAnimation {
@@ -118,41 +116,7 @@ ZSkin {
                 holdDuration = 0;
         }
     }
-    Item  {
-        id : graphical
-        property color fill_Default: Colors.standard
-        property color fill_Press  : Colors.accent
-        property color fill_Focus  : Colors.info
-        property color text_Default: Colors.text1
-        property color text_Press  : Colors.text2
-        property color text_Focus  : Colors.text2
 
-        property color arcStartColor : Colors.danger
-        property color arcEndColor  : Colors.success
-
-        property color inkColor    : Colors.getContrastingColor(rootObject.color)
-        property color borderColor : Colors.text1
-
-        states: [
-            State {
-                name : ""
-                PropertyChanges { target: rootObject; color: graphical.fill_Default }
-                PropertyChanges { target: text      ; color: graphical.text_Default }
-            },
-            State {
-                name : "focus"
-                PropertyChanges { target: rootObject; color: graphical.fill_Focus   }
-                PropertyChanges { target: text      ; color: graphical.text_Focus   }
-            },
-            State {
-                name : "press"
-                PropertyChanges { target: rootObject; color: graphical.fill_Press  }
-                PropertyChanges { target: text      ; color: graphical.text_Press  }
-            } ,
-            State { name : "reload" }
-        ]
-
-    }
 
 
     states : ({
@@ -162,56 +126,7 @@ ZSkin {
                                     "@width"         : [rootObject,"height"],
                                     rotation         : 0
                                    } ,
-                      "graphical" : {
-                           "@fill_Default": [Colors,"standard"],
-                           "@text_Default": [Colors,"text1"],
-                           "@fill_Press"  : [Colors,"standard"],
-                           "@text_Press"  : [Colors,"info"],
-                           "@fill_Focus"  : [Colors,"info"],
-                           "@text_Focus"  : [Colors,"text2"],
-                           "@inkColor"    : [Colors,"accent"],
-                           "@borderColor" : [Colors,"text1"],
-                           "@arcStartColor" : [Colors,"danger"],
-                           "@arcEndColor"   : [Colors,"success"],
-                    },
-        },
-
-       "disabled" : { graphical : {
-                           fill_Default: "gray",
-                           text_Default: "darkGray",
-                           fill_Press  : "gray",
-                           text_Press  : "darkGray",
-                           fill_Focus  : "gray",
-                           text_Focus  : "darkGray",
-                           inkColor    : "gray",
-                           borderColor : "darkGray"
-                       }
-       },
-       "danger"  : { graphical : {
-                           "@fill_Default": [Colors,"danger"],
-                           "@text_Default": [Colors,"text2"],
-                           "@fill_Press"  : [Colors.darker,"danger"],
-                           "@text_Press"  : [Colors,"text2"],
-                           "@fill_Focus"  : [Colors,"danger"],
-                           "@text_Focus"  : [Colors,"text1"],
-                           "@inkColor"    : [Colors.contrasting,"danger"],
-                           "@borderColor" : [Colors,"text1"],
-                           "@arcStartColor" : [Colors,"info"],
-                           "@arcEndColor"   : [Colors,"danger"],
-                      }
-       },
-       "success"  : { graphical : {
-                           "@fill_Default": [Colors,"success"],
-                           "@text_Default": [Colors,"text2"],
-                           "@fill_Press"  : [Colors.darker,"success"],
-                           "@text_Press"  : [Colors,"text2"],
-                           "@fill_Focus"  : [Colors,"success"],
-                           "@text_Focus"  : [Colors,"text1"],
-                           "@inkColor"    : [Colors.contrasting,"success"],
-                           "@borderColor" : [Colors,"text1"],
-                           "@arcStartColor" : [Colors,"info"],
-                           "@arcEndColor"   : [Colors,"success"],
-                      }
+                      graphical : { text_hAlignment : Text.AlignHCenter }
         }
     })
 
