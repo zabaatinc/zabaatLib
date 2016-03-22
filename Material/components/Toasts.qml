@@ -119,10 +119,11 @@ Item {
             newToast.args          = args
             newToast.duration      = config.duration || rootObject.defaultDuration
             newToast.blocking      = config.blocking || false
-//            newToast.state     = state || "default"
+            newToast.state     = "f8"
 
             newToast.w         = w || 0.5
             newToast.h         = h || 0.5
+            newToast.z         = 999999
 
             //now load the inner loader!
             type  = type || "ZToastSimple.qml"
