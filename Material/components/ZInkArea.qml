@@ -21,6 +21,8 @@ Item {
         if(target){
             if(target.inkColor)
                 return target.inkColor
+            else if(target.graphical && target.graphical.inkColor)
+                return target.graphical.inkColor
             else if(target.color) {
                 return Colors.getContrastingColor(target.color)
             }

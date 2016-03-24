@@ -196,7 +196,7 @@ M.ZSkin {
         id : valueContainer
         anchors.right         : parent.right
         anchors.verticalCenter: parent.verticalCenter
-        visible               : graphical.valueVisible
+//        visible               : graphical.valueVisible
         width                 : visible ? parent.width * 0.1 : 0
         height                : width
         border.width          : 0

@@ -108,6 +108,13 @@ Rectangle {
             max : 100
             state : allState
         }
+        ZCheckbox {
+            id : zcheckbox
+            width : w
+            height : h
+            state : allState
+        }
+
     }
 
     ZRadialView {
