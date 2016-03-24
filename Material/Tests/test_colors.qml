@@ -114,6 +114,24 @@ Rectangle {
             height : h
             state : allState
         }
+        ZText {
+            id : ztext
+            width : w
+            height : h
+            state : allState
+            text : "ZText"
+        }
+        ZTextBoxLabel {
+            width  : w * 1.5
+            height : h
+            state : 'left'
+            state_Label: allState
+            state_TextBox: allState
+            description : "go nuts"
+            text : "herp"
+            label : FA.user
+        }
+
 
     }
 
