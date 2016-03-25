@@ -13,7 +13,7 @@ ZController {
 
 
     property var    errHandler            : null          //works on postReqs
-    property var    errToJsObj            : null
+    property var    errToJsObj            : priv.getSailsErr
     property var    requestHistory        : []
     property string uri                   : ""
     property string token                 : ""
@@ -100,6 +100,38 @@ ZController {
 
     QtObject {
         id : priv
+        function getSailsErr(msg){
+            var err  = msg[0] && msg[0].err ? msg[0].err : msg[0]
+            if(msg[0] && msg[0].err){
+                if(typeof err === 'string') {
+                    return  { type:"legacy", code:"LEG", message : err  }
+                }
+                else
+                {
+                    err.type    = err.type ? err.type : "MISSING"
+                    err.code    = err.code ? err.code : "MISSING"
+                    err.message = err.msg  ? err.msg  : "MISSING"
+
+                    return  err
+                }
+            }
+            else if(err && err.raw) {
+                var ret         = {}
+                for(var r in err.raw)
+                    ret[r] = err.raw[r]
+
+                ret.code        = err.status
+                ret.message     = err.summary ? err.summary : err.error
+                ret.type        = err.error
+
+                return ret
+            }
+
+            return  { type:'unknown', code:'8125', message : 'shenanigans', originPtr: 'no pointer' }
+        }
+
+
+
         function correctifyUrl(url){
             if(url.charAt(0) !== "/") {
                 return "/" + url;
@@ -218,6 +250,9 @@ ZController {
                         }
                         catch(e){
                             console.log("BZZT BZZT BLOOP TI DOOP", socketHandler,type, ":","Error when executing callback for", url, e)
+                            if(errHandler){
+                                errHandler({msg: "Error when executing callback", "for" : uri});
+                            }
                         }
 
                     }
@@ -264,6 +299,7 @@ ZController {
                 return toString.call(obj) === '[object Array]'
             }
             function handleMessage(message , modelName, depth){
+
 
 //                console.log("----------------------------")
 //                console.log(JSON.stringify(message,null,2))

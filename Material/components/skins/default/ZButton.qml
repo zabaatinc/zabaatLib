@@ -50,6 +50,7 @@ ZSkin {
             text               : logic.text
             color              : graphical["text_" + graphicalState]
             textFormat         : Text.RichText
+            scale              : paintedWidth > width ? width / paintedWidth : 1
         }
     }
 

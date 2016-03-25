@@ -168,7 +168,7 @@ Item {
                 property real h : 0.5
 
                 Component.onDestruction: {
-                    if(lastActiveThing)
+                    if(lastActiveThing && lastActiveThing.forceActiveFocus)
                         lastActiveThing.forceActiveFocus()
                     else
                         console.log("no last active thing hurrr", lastActiveThing)

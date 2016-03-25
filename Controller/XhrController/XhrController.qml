@@ -13,7 +13,7 @@ ZController {
 
 
     property var    errHandler            : null   //works on postReqs
-    property var    errToJsObj            : null
+    property var    errToJsObj            : priv.getSailsError
     property var    requestHistory        : []
     property string uri                   : ""
     property string token                 : ""
@@ -57,6 +57,36 @@ ZController {
 
     QtObject {
         id : priv
+        function getSailsErr(msg){
+            var err  = msg[0] && msg[0].err ? msg[0].err : msg[0]
+            if(msg[0] && msg[0].err){
+                if(typeof err === 'string') {
+                    return  { type:"legacy", code:"LEG", message : err  }
+                }
+                else
+                {
+                    err.type    = err.type ? err.type : "MISSING"
+                    err.code    = err.code ? err.code : "MISSING"
+                    err.message = err.msg  ? err.msg  : "MISSING"
+
+                    return  err
+                }
+            }
+            else if(err && err.raw) {
+                var ret         = {}
+                for(var r in err.raw)
+                    ret[r] = err.raw[r]
+
+                ret.code        = err.status
+                ret.message     = err.summary ? err.summary : err.error
+                ret.type        = err.error
+
+                return ret
+            }
+
+            return  { type:'unknown', code:'8125', message : 'shenanigans', originPtr: 'no pointer' }
+        }
+
         function cleanPath(uri,funcName){
             if(uri && funcName){
                 if(uri.charAt(uri.length - 1) === "/")
