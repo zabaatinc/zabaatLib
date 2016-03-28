@@ -85,10 +85,11 @@ ZSkin {
                 horizontalAlignment: graphical.text_hAlignment
                 verticalAlignment  : graphical.text_vAlignment
                 font.family        : logic.font1
-                font.pixelSize     : height * 1/3
+                font.pixelSize     : height * 1/4
                 text               : logic.text
                 color              : Colors.contrastingTextColor(rootObject.color)
                 textFormat         : Text.RichText
+                scale  : paintedWidth > width ? width/paintedWidth : 1
             }
         }
 

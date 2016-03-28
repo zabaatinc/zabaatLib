@@ -113,10 +113,17 @@ Item {
     }
 
     function init(mainWindow){
+        console.log("Material.MainWindow.Init(", mainWindow, ")")
         if(mainWindow && mainWindow.contentItem) {
             rootObject.activeItem =  mainWindow.activeFocusItem
+            rootObject.activeWindow = mainWindow
 
             mainWindow.activeChanged.connect(function() {
+                if(Qt.platform.os === "android" || Qt.platform.os === "winphone" || Qt.platform.ios === "ios") {
+                    //there's only one window on mobile. So let's not kid ourselves
+                    return rootObject.activeWindow = mainWindow
+                }
+
                 rootObject.activeWindow = mainWindow.active ? mainWindow : null
             })
             mainWindow.activeFocusItemChanged.connect(function() {

@@ -35,6 +35,7 @@ Item {
         logic.create(message,type,args,{duration:-1},wPerc,hPerc)
     }
     function createPermanentBlocking(message,args,type,wPerc,hPerc){
+//        console.log("Toasts create Permanent blocking", message, args, type, wPerc, hPerc);
         logic.create(message,type,args,{blocking:true,duration:-1},wPerc,hPerc)
     }
 
@@ -95,6 +96,7 @@ Item {
             count = arr.length
         }
         function init(winMgr){
+            log(winMgr, typeof winMgr,winMgr.toString() )
             if(winMgr && typeof winMgr !== 'undefined' && winMgr.toString().indexOf("WindowManager") === 0 ) {
                 mgr.target = winMgr
             }
@@ -102,6 +104,7 @@ Item {
         function create(msg,type,args,config,w,h, contentItem){
             //make params acceptable
             var activeThing = null
+//            console.log(mgr, mgr.target, mgr.target.activeWindow )
             if(!contentItem) {
                 if(!mgr.target || !mgr.target.activeWindow)
                     return
@@ -110,6 +113,8 @@ Item {
                     activeThing = mgr.target.activeWindow.activeFocusItem
                 }
             }
+
+
 
             var newToast           = toastBakery.createObject(contentItem);
             newToast.anchors.fill  = contentItem
@@ -135,6 +140,8 @@ Item {
             newToast.objectName = id
             logic.map[id] = newToast
             logic.updateCount()
+
+//            console.log("new toast in " , newToast, newToast.parent, mainWindowPtr)
             return newToast
         }
         function clearAll(){
