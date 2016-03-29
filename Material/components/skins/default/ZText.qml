@@ -15,7 +15,7 @@ ZSkin {
         verticalAlignment: graphical.text_vAlignment
         font.family: Fonts.font1
         font.pixelSize: height * 1/4
-        color : Colors.contrastingTextColor(parent.color)
+        color : graphical.text_Default
         text : logic ? logic.text : ""
         textFormat: Text.RichText
     }
@@ -24,7 +24,7 @@ ZSkin {
                                                 "@color" : [graphical,"fill_Empty"]
                                               }
                               },
-                'text' : {"@color" : function() { return Colors.contrastingTextColor(rootObject.color) } }
+                'graphical' : {"@text_Default" : function() { return Colors.contrastingTextColor(rootObject.color) } }
 
               })
 

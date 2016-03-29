@@ -31,8 +31,12 @@ ZController {
 
         socketHandler.connect(uri,jsQuery)
     }
-    readonly property var   disconnect      : socketHandler.disconnect
-    readonly property alias isConnected     : socketHandler.isConnected
+    readonly property var   disconnect          : socketHandler.disconnect
+    readonly property alias isConnected         : socketHandler.isConnected
+    readonly property alias reconnecting        : socketHandler.reconnecting
+    readonly property alias reconnectLimit      : socketHandler.reconnectLimit
+    readonly property alias attemptedReconnects : socketHandler.attemptedReconnects
+
     readonly property alias sessionId       : socketHandler.sessionId
     property alias          registeredEvents: socketHandler.registeredEvents
 //    readonly property var   addEvents       : socketHandler.addEvents
