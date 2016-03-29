@@ -130,7 +130,10 @@ Item {
         function addFontStates(){
 
             cache.injectState("default","font", { bold : false, italic : false, "@pixelSize":["@parent","height",1/4],
-                                                  weight:Font.Normal, strikeout : false, underline : false })
+                                                  weight:Font.Normal, strikeout : false, underline : false ,
+                                                 "@family" : [Fonts,"font1"]
+
+                                                  })
 
             cache.injectState("w1"         , "font" , { weight : Font.Thin                    })
             cache.injectState("w2"         , "font" , { weight : Font.Light                   })
@@ -141,6 +144,12 @@ Item {
             cache.injectState("w7"         , "font" , { weight : Font.Bold                    })
             cache.injectState("w8"         , "font" , { weight : Font.ExtraBold               })
             cache.injectState("w9"         , "font" , { weight : Font.Black                   })
+
+            cache.injectState("font1"      , "font" , {"@family" : [Fonts,"font1"]}    )
+            cache.injectState("font2"      , "font" , {"@family" : [Fonts,"font2"]}    )
+            cache.injectState("fontfa"     , "font" , {"family": "FontAwesome"     }   )
+
+
             cache.injectState("f1"         , "font" , { "@pixelSize" : ["@parent","height",1]    })
             cache.injectState("f2"         , "font" , { "@pixelSize" : ["@parent","height",1/2]  })
             cache.injectState("f3"         , "font" , { "@pixelSize" : ["@parent","height",1/3]  })
