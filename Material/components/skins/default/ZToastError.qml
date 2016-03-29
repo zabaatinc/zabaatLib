@@ -162,6 +162,7 @@ ZSkin {
                         height : parent.height
                         width  : parent.width * 0.25
                         text   : parent.m.key
+                        clip : true
                     }
                     ZTextBox {
                         enabled : false
@@ -169,6 +170,7 @@ ZSkin {
                         height : parent.height
                         width  : parent.width * 0.75
                         text   : parent.m.data
+                        clip : true
                     }
                 }
             }
@@ -190,6 +192,7 @@ ZSkin {
                         height : parent.height
                         width  : parent.width * 0.25
                         text   : fn
+                        clip : true
                     }
                     ZTextBox {
                         enabled : false
@@ -197,6 +200,7 @@ ZSkin {
                         height : parent.height
                         width  : parent.width * 0.25
                         text   : line
+                        clip : true
                     }
                     ZTextBox {
                         enabled : false
@@ -204,6 +208,7 @@ ZSkin {
                         height : parent.height
                         width  : parent.width * 0.5
                         text   : file
+                        clip : true
                     }
                 }
             }
@@ -226,6 +231,7 @@ ZSkin {
                         height : parent.height
                         width  : parent.width * 0.25
                         text   : parent.m.key
+                        clip : true
                     }
                     ZTextBox {
                         enabled : false
@@ -233,6 +239,7 @@ ZSkin {
                         height : parent.height
                         width  : parent.width * 0.75
                         text   : parent.m.data
+                        clip : true
                     }
                 }
             }

@@ -658,7 +658,6 @@ function sendMessage(msg, debug) {
        l  --> Starting index,
        h  --> Ending index */
     var quickSortIterative = function (l, h){
-
         function cmpFunc(a,b) {
 
             function defaultCmpFunc(aVal,bVal,roles){
