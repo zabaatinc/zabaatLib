@@ -22,9 +22,13 @@ ZSkin {
 
     states : ({ "default" :  { rootObject : { "border.width" : 0 ,
                                                 "@color" : [graphical,"fill_Empty"]
-                                              }
-                              },
-                'graphical' : {"@text_Default" : function() { return Colors.contrastingTextColor(rootObject.color) } }
+                                              },
+                               graphical : {"@text_Default" : function() { return Colors.contrastingTextColor(rootObject.color) } }
+                  },
+                 "fit" : {text : { "@scale" : function() { return text.paintedWidth > text.width ? (text.width - 5) / text.paintedWidth : 1}  }
+
+                  }
+
 
               })
 
