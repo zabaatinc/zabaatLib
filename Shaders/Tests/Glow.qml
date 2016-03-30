@@ -10,21 +10,30 @@ Rectangle {
         height : parent.height * 0.1
         min : 0
         max : 4
+        value : 2
         label : "Value"
     }
 
-    Rectangle {
+    Image {
+        id : sample
+        width  : height
+        height : parent.height * 0.4
+        anchors.left: parent.left
+        anchors.leftMargin: width/2
+        anchors.verticalCenter: parent.verticalCenter
+        source : "frog.jpg"
+    }
+
+    Image {
         id : sourceRect
-        color : "red"
         width : height
-        height : parent.height * 0.2
+        height : parent.height * 0.4
         anchors.centerIn: parent
-        border.width: 1
     }
 
     Fx.Glow {
         source : sourceRect
-        value  : slider.value
+//        value  : slider.value
     }
 
 }

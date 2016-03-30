@@ -213,7 +213,7 @@ Item {
                             '\t\topacity : rootObject.opacity; \n' +
                             meshStr +
                             getValueStr() + '\n' +
-                            '\t\tproperty real    dividerValue : 1;\n'+
+                            '\t\tproperty real    dividerValue : rootObject.dividerValue;\n'+
                             '\t\tfragmentShader : "' + fragSh  + '"\n' +
                             '\t\tvertexShader   : "' + vertSh  + '"\n' +
                         '\t}\n' +
