@@ -39,6 +39,7 @@ uniform sampler2D source;
 uniform lowp float qt_Opacity;
 varying vec2 qt_TexCoord0;
 
+
 vec3 rgb2hsv(vec3 c)
 {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -68,7 +69,7 @@ void main()
 
     if (uv.x < dividerValue) {
 //        float h = vHSV.x / 360.0;
-        fragHSV.xyz *= vHSV.xyz;
+        fragHSV.xyz += vHSV.xyz;
 //        fragHSV.x = mod(fragHSV.x, 1.0);
 //        fragHSV.y = mod(fragHSV.y, 1.0);
 //        fragHSV.z = mod(fragHSV.z, 1.0);
