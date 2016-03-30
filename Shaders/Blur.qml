@@ -1,41 +1,29 @@
 import QtQuick 2.0
 Item {
     id : rootObject
-    property alias source       : sourceEffect.sourceItem
-    property alias chainPtr     : horizontalShader
-    property alias dividerValue : verticalShader.dividerValue
-    property real  value        : 0
-    property alias __source     : horizontalShaderSource
+    property var source   : null
+    property real value   : 0
+    readonly property var chainPtr : horizontalShader.chainPtr
+    property real dividerValue : 1
+    anchors.fill: source
 
-    width  : source === null || typeof source === 'undefined' ? 0 : source.paintedWidth ? source.paintedWidth  : source.width
-    height : source === null || typeof source === 'undefined' ? 0 : source.paintedWidth ? source.paintedHeight : source.height
 
     Effect {
         id: verticalShader
-        anchors.fill:  parent
-        value: 4.0 * rootObject.value / height
+        property real value: 4.0 * rootObject.value / height
         fragmentShaderName: "gaussianblur_v.fsh"
-        source : ShaderEffectSource {
-            id : sourceEffect
-            hideSource: true
-            smooth : true
-            recursive : true
-        }
+        anchors.fill: parent
+        source : rootObject.source
+        dividerValue: rootObject.dividerValue
     }
 
     Effect {
         id: horizontalShader
         anchors.fill: parent
-        value: 4.0 * rootObject.value / width
+        property real value: 4.0 * rootObject.value / width
         fragmentShaderName: "gaussianblur_h.fsh"
-        dividerValue: verticalShader.dividerValue
-        source: ShaderEffectSource {
-            id: horizontalShaderSource
-            sourceItem: verticalShader
-            smooth: true
-            hideSource: true
-            anchors.fill: parent
-        }
+        dividerValue: rootObject.dividerValue
+        source: verticalShader.chainPtr
     }
 }
 

@@ -42,9 +42,8 @@ void main()
 {
     vec2 uv = qt_TexCoord0.xy;
     vec4 color = texture2D(source, qt_TexCoord0.st);
-//    if (uv.x < dividerValue) {
-
-    color.r = color.b ;
-//    }
+    if (uv.x < dividerValue) {
+		color.rgb = ((color.rgb - 0.5f) * max(value,0)) + 0.5f ;
+    }
     gl_FragColor = color;
 }

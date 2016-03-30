@@ -1,16 +1,10 @@
 import QtQuick 2.4
 Effect {
     id : rootObject
-//    property var   value        : ({h : 0, s : 1, v : 1})
-//    property alias dividerValue : effect.dividerValue
-    property var   chainPtr     : effectObj ? effectObj : this
-//    property alias source       : sourceEffect.sourceItem
+    property real h : 0
+    property real s : 1
+    property real v : 1
     fragmentShaderName  : "hsv.fsh"
-
-//    width  : source === null || typeof source === 'undefined' ? 0 : source.paintedWidth ? source.paintedWidth  : source.width
-//    height : source === null || typeof source === 'undefined' ? 0 : source.paintedWidth ? source.paintedHeight : source.height
-
-
 }
 
 

@@ -31,8 +31,6 @@
 **
 ****************************************************************************/
 
-// Based on "Graphics Shaders: Theory and Practice" (http://cgeducation.org/ShadersBook/)
-
 uniform float dividerValue;
 uniform float mixLevel;
 uniform float resS;

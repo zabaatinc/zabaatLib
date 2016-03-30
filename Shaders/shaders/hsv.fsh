@@ -68,17 +68,11 @@ void main()
     vec3 fragHSV = rgb2hsv(fragRGB);
 
     if (uv.x < dividerValue) {
-//        float h = vHSV.x / 360.0;
-        fragHSV.xyz += vHSV.xyz;
-//        fragHSV.x = mod(fragHSV.x, 1.0);
-//        fragHSV.y = mod(fragHSV.y, 1.0);
-//        fragHSV.z = mod(fragHSV.z, 1.0);
+        fragHSV.x += vHSV.x;
+		fragHSV.y = vHSV.y;
+		fragHSV.z = vHSV.z;
     }
     fragRGB   = hsv2rgb(fragHSV);
     vec4 retVal = vec4(hsv2rgb(fragHSV), textureColor.w);
     gl_FragColor = qt_Opacity * retVal;
 }
-
-
-
-

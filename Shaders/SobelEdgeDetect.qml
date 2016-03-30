@@ -30,36 +30,13 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-import QtQuick 2.0
-Item {
-    property alias value        : effect.value
-    property alias dividerValue : effect.dividerValue
-    property alias chainPtr     : effect
-    property alias source       : sourceEffect.sourceItem
-
-    width  : source === null || typeof source === 'undefined' ? 0 : source.paintedWidth ? source.paintedWidth  : source.width
-    height : source === null || typeof source === 'undefined' ? 0 : source.paintedWidth ? source.paintedHeight : source.height
-
-    ShaderEffectSource {
-        id : sourceEffect
-        hideSource : true
-        smooth     : true
-        anchors.fill: parent
-    }
-
-    Effect {
-        id : effect
-        // Transform slider values, and bind result to shader uniforms
-        source : sourceEffect
-        anchors.fill: parent
-        property real mixLevel  : value
-        property real targetSize: 250 - (200 * mixLevel) // TODO: fix ...
-        property real resS      : targetSize
-        property real resT      : targetSize
-        fragmentShaderName: "sobeledgedetection1.fsh"
-    }
-
-
+import QtQuick 2.5
+Effect {
+    property real mixLevel  : 0
+    property real targetSize: 250 - (200 * mixLevel) // TODO: fix ...
+    property real resS      : targetSize
+    property real resT      : targetSize
+    fragmentShaderName: "sobeledgedetection1.fsh"
 }
 
 
