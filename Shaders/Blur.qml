@@ -5,6 +5,8 @@ Item {
     property real value   : 0
     readonly property var chainPtr : horizontalShader.chainPtr
     property real dividerValue : 1
+    property alias hideSource  : verticalShader.hideSource
+
     anchors.fill: source
 
 

@@ -45,5 +45,5 @@ void main()
     if (uv.x < dividerValue) {
 		color.rgb = ((color.rgb - 0.5f) * max(value,0)) + 0.5f ;
     }
-    gl_FragColor = color;
+    gl_FragColor = color * qt_Opacity;
 }

@@ -9,6 +9,8 @@ Item {
     property alias   vertexShaderName   : logic.vertexShaderName
     property string  shaderDir          : "./shaders/"
     property var     chainPtr           : logic.effectObj
+    property bool    hideSource         : true
+    property size   mesh               : Qt.size(10,10)
 
     QtObject {
         id : logic
@@ -70,6 +72,7 @@ Item {
             "parent",
             "data",
             "resources",
+            "hideSource",
             "children",
             "x",
             "y",
@@ -159,6 +162,7 @@ Item {
             "fragmentShaderNameChanged",
             "vertexShaderNameChanged",
             "effectObjChanged",
+            "mesh",
             "chainPtrChanged"]
 
             function indexOf(k){
@@ -190,11 +194,13 @@ Item {
         }
 
         function load(){
+            var meshStr = vertSh !== "" ? "\t\tmesh : rootObject.mesh;\n" : ""
+
             var creationStr =
                 'Item {\n' +
                         'anchors.fill : container;\n' +
                         '\tproperty ShaderEffectSource effectSource : ShaderEffectSource {\n' +
-                            '\t\thideSource: true;\n' +
+                            '\t\thideSource: rootObject.hideSource;\n' +
                             '\t\tsmooth : true;\n' +
                             '\t\trecursive: true;\n' +
                             '\t\tsourceItem : rootObject.source;\n' +
@@ -205,6 +211,7 @@ Item {
                             '\t\tproperty variant source : effectSource;\n' +
                             '\t\tanchors.fill : parent;\n' +
                             '\t\topacity : rootObject.opacity; \n' +
+                            meshStr +
                             getValueStr() + '\n' +
                             '\t\tproperty real    dividerValue : 1;\n'+
                             '\t\tfragmentShader : "' + fragSh  + '"\n' +
@@ -213,7 +220,7 @@ Item {
                 '}'
 
 
-
+//            console.log(creationStr)
             effectObj = getQmlObject("QtQuick 2.5", creationStr, rootObject)
 
             //test

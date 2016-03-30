@@ -13,6 +13,7 @@ Item {
     property real contrast : 1
     property var chainPtr : contrast.chainPtr
     property real dividerValue : 1
+    property alias hideSource: blur.hideSource
 
     Blur {
         id : blur
