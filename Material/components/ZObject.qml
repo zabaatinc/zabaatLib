@@ -1,55 +1,101 @@
 import QtQuick 2.5
 import Zabaat.Material 1.0
+
+/*!
+   \brief this is the base component of Zabaat.Material. Inside it, is a Loader that loads the
+    associated ZSkin ('based on objectName'). The whole concept of this library is to separate the logic from the gui
+    of the a component. This is the logic part and has all the relevant data that the outside
+    world will ever need to interact with!
+   \inqmlmodule Zabaat.Material 1.0
+    \code
+     import Zabaat.Material 1.0
+     ZObject {
+         id : rootObject
+         objectName: "ZText"
+         property string text : ""
+     }
+    \endcode
+*/
 FocusScope {
     id: rootObject
+
+    /*! This is <b>VERY IMPORTANT<b>. This skin will be loaded!!  */
     objectName : ""
     signal imDying(var self);
     Component.onDestruction: imDying(rootObject);
 
-    property var uniqueProperties : []      // ["msgbxoId" , "message"]
-    property var uniqueSignals    : ({})    // ({ okClicked : ["text","id"], cancelClicked:[] })
-    property var dataSection      : ({})	//## use this for stroing globally available javascript objects and functions
-    property var propArr          : []      //## zEdit will use this to store and load information as readable format for us! Cause we might have assigned a value to
-    property var eventArr         : []      //## zEdit will use this to store and load information as readable format for us! Cause we might have assigned a value to
 
+    /*! This is important for ZEdit; should we ever bring that back.  */
+    property var uniqueProperties : []      // ["msgbxoId" , "message"]
+
+    /*! This is important for ZEdit; should we ever bring that back.  */
+    property var uniqueSignals    : ({})    // ({ okClicked : ["text","id"], cancelClicked:[] })
+
+    /*! This is important for ZEdit; should we ever bring that back.  */
+    property var dataSection      : ({})	//## use this for stroing globally available javascript objects and functions
+
+    /*! ZEdit will use this to store and load information as readable format for us! Cause we might have assigned a value to */
+    property var propArr          : []
+
+    /*! ZEdit will use this to store and load information as readable format for us! Cause we might have assigned a value to */
+    property var eventArr         : []
+
+    /*! The default skin folder.  This will make it go look for <objectName>.qml in the <skin> folder in
+        MaterialSettings.style.skinsPath.
+        \b default: MaterialSettings.style.defaultSkin
+    */
     property string skin          : MaterialSettings.style.defaultSkin
+
+    /*! The default color theme. This will make it go look for <colors>.qml in MaterialSettings.style.colorsPath.
+        \b default: MaterialSettings.style.defaultColors
+    */
     property string colors        : MaterialSettings.style.defaultColors
+
+    /*! The name of font1.
+        \b default: MaterialSettings.font.font1
+    */
     property string font1         : MaterialSettings.font.font1
+
+    /*! The name of font2.
+        \b default: MaterialSettings.font.font2
+    */
     property string font2         : MaterialSettings.font.font2
+
+    /*! The respective ZSkin, if it has loaded successfully. */
     property var style   : styleLoader && styleLoader.item ? styleLoader.item : null
+
+    /*! Determines whether or not to append the "-disabled" to this ZObject if it is not enabled */
     property bool   disableShowsGraphically : true
 
     focus : false
+
+    /*! Determines whether to print log messages to the console! */
     property bool debug           : false
+
+    /*! Same as console.log but prints only when this component is in debug mode */
     function log(){
         if(debug)
             console.log.apply(this,arguments)
     }
 
-//    onActiveFocusChanged: if(activeFocus && style)
-//                                style.forceActiveFocus()
 
 
-
-    //This loads the SKIN or the way the component will look. By default they should be in the folder :
-    // <PROJECTDIR>/lib/Zabaat/Material/components/ui/skins/<skinName>/<objectName>.qml
+    /*! This loads the SKIN or the way the component will look. By default they should be in the folder :
+        \b default: <PROJECTDIR>/lib/Zabaat/Material/components/ui/skins/<skinName>/<objectName>.qml
+    */
     Loader {
         id       : styleLoader
         objectName : "styleLoader"
-//        Component.onCompleted: console.log(this)
         onLoaded : item.logic = rootObject
         anchors.fill: parent
         focus       : true
         onActiveFocusChanged: if(activeFocus && item)
                                   nextItemInFocusChain()
-//        asynchronous: true
     }
 
     Loader {
         id       : editModeLoader
         objectName : "editModeLoader"
-//        Component.onCompleted: console.log(this)
-
         z        : 9999999
         source   : MaterialSettings.editMode ? "ZEdit.qml" : ""
         onLoaded : {
