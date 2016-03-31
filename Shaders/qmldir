@@ -7,3 +7,4 @@ PencilDrawing 	1.0 PencilDrawing.qml
 SobelEdgeDetect 1.0 SobelEdgeDetect.qml
 Glow			1.0 Glow.qml
 RadialBlur		1.0 RadialBlur.qml
+Bloom			1.0 Bloom.qml

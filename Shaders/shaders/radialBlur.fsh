@@ -42,6 +42,6 @@ void main(void)
 		gl_FragColor = mix( color, sum, t ) * qt_Opacity;
 	}
 	else {
-		gl_FragColor = color;
+		gl_FragColor = color  * qt_Opacity;
 	}
 }
