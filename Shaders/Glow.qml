@@ -51,10 +51,10 @@ Item {
         id : animTime
         loops : Animation.Infinite;
         from : 0 ;
-        to :Math.PI * 2;
+        to :Math.PI ;
         duration : rootObject.loopDuration;
 
-        property real multiplier : Math.abs(Math.sin(time))
+        property real multiplier : Math.sin(time)
     }
 
 
