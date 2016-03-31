@@ -1,7 +1,7 @@
 import QtQuick 2.5
 import Zabaat.Material 1.0
 
-/*!
+/*! \div {id="pageType" }
    \brief this is the base component of Zabaat.Material. Inside it, is a Loader that loads the
     associated ZSkin ('based on objectName'). The whole concept of this library is to separate the logic from the gui
     of the a component. This is the logic part and has all the relevant data that the outside
@@ -47,7 +47,7 @@ FocusScope {
     property string skin          : MaterialSettings.style.defaultSkin
 
     /*! The default color theme. This will make it go look for <colors>.qml in MaterialSettings.style.colorsPath.
-        \b default: MaterialSettings.style.defaultColors
+        \b default: MaterialSettings.style.defaultColors \hr
     */
     property string colors        : MaterialSettings.style.defaultColors
 
