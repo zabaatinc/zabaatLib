@@ -2,15 +2,30 @@ import QtQuick 2.0
 import "Functions.js" as Functions
 //Contains dynamically generated list models at runtime !!
 
+/*!
+   \brief Class that handles models quite well. Is used in XhrController and SocketIOController.
+   \inqmlmodule Zabaat.Controller 1.0 \hr
+*/
 Item
 {
     id : rootObject
+
+    /*! request to get model <modelName> . Both XhrController and SocketIOController act to this request  \hr */
     signal sendGetModelRequest(string modelName)
 
+    /*! A function to log debug messages. Can be null. We have an internal one by default.  \hr */
     property var externalDebugFunc         : null
+
+    /*! Determines whether or not to print debug messages \hr */
     property bool debugMode                : true
+
+    /*! Alias to object with internal debug message printer function \hr */
     property alias debug                   : _debug
+
+    /*! The models we currently have \hr */
     property alias models                  : priv.models
+
+    /*! Functions to transform specific models && model objects as they arrive. Determined by key. \hr */
     property var modelTransformerFunctions : ({})
 
 
@@ -98,6 +113,7 @@ Item
     }
 
 
+    /*! fn : Returns the names of all the models we have so far \hr */
     function getAllModelNames(){
         var temp = []
         for(var m in priv.models)
@@ -105,11 +121,12 @@ Item
         return temp
     }
 
-    //Flat get model request. Use this if you're happy with a null return forever!
+    /*! fn: Flat get model request. Use this if you're happy with a null return forever! \hr */
     function getModel(name)  {  if(priv.models[name])  return priv.models[name];  return null  }
 
-    //Get model when it arrives. This will auto fill your model when it gets here locally. If you set the last param to true, we wont autorequest the server
-    //For this model
+
+    /*! fn : Get model when it arrives. This will auto fill your model when it gets here locally. If you set the last param to true, we wont autorequest the server
+    For this model \hr */
     function getModelWhenItArrives(name, obj, prop, dontAutoRequest) {
         if(priv.models[name]){
 //            console.log("returning",name)
@@ -129,8 +146,7 @@ Item
     }
 
 
-   //Smart enough to know that if given customer/4, it will add 4 to customers model
-   //This can occur if we have a callback that wanted customers/4 (using ZTextBox_Bindable) or a query of customers/4
+   /*! fn: Adds model with <name> and data <model> . Will add new model if it doesn't exist. Otherwise, will insert/update an existing model \hr */
    function addModel(name, model, cb)  {
        if(name === null || typeof name === 'undefined')
            return console.error("no name provided to ZController.addModel", name)
@@ -202,10 +218,12 @@ Item
 //           console.log(rootObject, 'addModel has no cb')
    }
 
+   /*! fn: Returns whether the passed in param is an array \hr */
    function isArray(obj) {
        return toString.call(obj) === '[object Array]'
    }
 
+   /*! fn: SHOULD be moved to private. do not USE! \hr */
    function __appendToModel(name, data){
        if(data === null) {
            console.log('ZController --- data is null. nothing to be done')
@@ -247,7 +265,7 @@ Item
        debug.debugMsg(tabStr + "ZController.appendToModel(",name,")   end")
    }
 
-
+    /*! fn: SHOULD be moved to private. do not USE! \hr */
    function __addData(name, data, it, tabStr)
    {
        if(!tabStr) tabStr = ""
@@ -441,16 +459,17 @@ Item
    }
 
 
+   /*! fn: get item by <id> if it exists in model <lm>. lm can be a string name or a model. \hr */
    function getById(lm, id)
    {
        return getByProperty(lm, 'id', id)
    }
 
-   //if prop is an array, we will deal with it differently! We will recurse thru to find the item!
-   //valid examples of using this function are: __addData. BE WARNED THAT THIS MAY NOT HAVE THE BEST PERFORMANCE FOR HUGE LISTS.
-   //                                                      IN THE WORST CASE IT WILL DO, n * prop.length comparisons, where n is the number of items in the model!
-   // (1)   getByProperty('workOrders','jobNumber',26400)
-   // (2)   getByProperty('vehicles',['details','stockNumber'],UC-770)
+   /*! fn: if prop is an array, we will deal with it differently! We will recurse thru to find the item!
+   valid examples of using this function are: __addData. BE WARNED THAT THIS MAY NOT HAVE THE BEST PERFORMANCE FOR HUGE LISTS.
+                                                         IN THE WORST CASE IT WILL DO, n * prop.length comparisons, where n is the number of items in the model!
+    (1)   getByProperty('workOrders','jobNumber',26400)
+    (2)   getByProperty('vehicles',['details','stockNumber'],UC-770) \hr */
    function getByProperty(lm, prop, value, changeFunc){
        if(typeof lm === 'string')
             lm = getModel(lm)
@@ -517,6 +536,7 @@ Item
    }
 
 
+   /*! fn: Clears model with <modelName> \hr */
    function clearModel(modelName){
        var model = getModel(modelName)
        if(model)
@@ -524,6 +544,7 @@ Item
    }
 
 
+   /*! fn: Recursively prints an object with tabs, tabStr \hr */
    function __printObject(obj, tabStr){
         if(tabStr === null || typeof tabStr === 'undefined'){
             tabStr = ""

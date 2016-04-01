@@ -2,22 +2,43 @@ import QtQuick 2.5
 import "../ZController"
 import Zabaat.Utility 1.0
 
+/*!
+   \brief an extension of the ZController that uses Xhr requests to communicate.
+   \inqmlmodule Zabaat.Controller 1.0 \hr
+*/
 ZController {
     id                          : controller
     debugMode                   : false
 //    externalDebugFunc           : socketHandler.externalDebugFunc
 //    modelTransformerFunctions   : ({ books : priv.transformBooks })
+
+    /*! apparently never gets called \hr*/
     signal statusUpdate  (string status, int reconnectTimer)
+
+    /*! Update message was recevied (verb was update or updated) \hr*/
     signal updateReceived(string updatedModel, string updatedId)
+
+    /*! Create message was received (verb was create or created) \hr*/
     signal createReceived(string createdModel, string createdId)
 
 
+    /*! A function that can display errors if XhrController encounters any. \b default : null \hr */
     property var    errHandler            : null   //works on postReqs
+
+    /*! Function that turns err to a Js Object. Is internally assigned. Shouldn't need to override this unless
+    something specific is needed. \hr */
     property var    errToJsObj            : priv.getSailsError
+
+    /*! Req history \hr */
     property var    requestHistory        : []
+
+    /*! The path to which this XhrController talks to. \b default : "" \hr */
     property string uri                   : ""
+
+    /*! The token that a server might send back for auth purposes. User shouldn't have to change this. \b default : "" \hr */
     property string token                 : ""
 
+    /*! Connect to uri using jsQuery \hr */
     function connect(uri, jsQuery){  //do make sure we have same APi as socketIOController. This sets the uri to this.
         if(uri === null || typeof uri === 'undefined')
             return console.log(controller,"cannot store", uri, "uri")
@@ -32,25 +53,56 @@ ZController {
     //Convenience functions
     //params must be {}
     //override:true pass all requests through the history filter
+
+    /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
+        params   : the jsObject to send out
+        callback : the function to run when we get a response from the server
+        override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
+        passToken : this is automatically token from rootObject
+    */
     function postReq(url, params, callback,modelToUpdate,override,passToken){
         //decipher the mdoelname!!
         priv.req('post', url, params, callback, modelToUpdate, override, passToken)
     }
+
+    /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
+        params   : the jsObject to send out
+        callback : the function to run when we get a response from the server
+        override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
+        passToken : this is automatically token from rootObject
+    */
     function putReq(url, params, callback,modelToUpdate,override,passToken) {
         priv.req('put', url, params, callback, modelToUpdate, override, passToken)
     }
+
+    /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
+        params   : the jsObject to send out
+        callback : the function to run when we get a response from the server
+        override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
+        passToken : this is automatically token from rootObject
+    */
     function getReq(url, params, callback, modelToUpdate,override,passToken){
         priv.req('get', url, params, callback, modelToUpdate, override, passToken)
     }
+
+    /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
+        params   : the jsObject to send out
+        callback : the function to run when we get a response from the server
+        override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
+        passToken : this is automatically token from rootObject
+    */
     function deleteReq(url, params, callback, modelToUpdate, override, passToken){
         priv.req('delete', url, params, callback, modelToUpdate, override, passToken)
     }
+
+
+    /*! Returns an object with {access_token:<token> } \hr */
     function tokenAppend(paramsA){
         var params = paramsA
         if(params === null || typeof params ==='undefined')
-            params = {access_token:socketHandler.token }
+            params = {access_token:token }
         else
-          params.access_token = socketHandler.token
+          params.access_token = token
 
         return params
     }

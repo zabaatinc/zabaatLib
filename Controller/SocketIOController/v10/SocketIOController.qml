@@ -2,26 +2,50 @@ import QtQuick 2.5
 import Zabaat.SocketIO.v100 1.0
 import "../../ZController"
 
+/*!
+   \brief an extension of the ZController that uses SocketIO to communicate
+   \inqmlmodule Zabaat.Controller 1.0 \hr
+   \depends Zabaat.SocketIO.v100 1.0 \hr
+*/
 ZController {
     id                          : controller
     debugMode                   : false
 //    externalDebugFunc           : socketHandler.externalDebugFunc
 //    modelTransformerFunctions   : ({ books : priv.transformBooks })
+    /*! apparently never gets called \hr*/
     signal statusUpdate  (string status, int reconnectTimer)
+
+    /*! Update message was recevied (verb was update or updated) \hr*/
     signal updateReceived(string updatedModel, string updatedId)
+
+    /*! Create message was received (verb was create or created) \hr*/
     signal createReceived(string createdModel, string createdId)
 
 
-    property var    errHandler            : null          //works on postReqs
-    property var    errToJsObj            : priv.getSailsErr
+    /*! A function that can display errors if XhrController encounters any. \b default : null \hr */
+    property var    errHandler            : null   //works on postReqs
+
+    /*! Function that turns err to a Js Object. Is internally assigned. Shouldn't need to override this unless
+    something specific is needed. \hr */
+    property var    errToJsObj            : priv.getSailsError
+
+    /*! Req history \hr */
     property var    requestHistory        : []
+
+    /*! The path to which this XhrController talks to. \b default : "" \hr */
     property string uri                   : ""
+
+    /*! The token that a server might send back for auth purposes. User shouldn't have to change this. \b default : "" \hr */
     property string token                 : ""
+
+    /*! Automatically add listeners for every req you make ? \b default : true \hr */
     property bool   autoAddEventListeners : true
 
-    //SOCKETIO related
+    /*! Alias to socketHandler (QML interface of the C++ plugin)  \hr */
     property alias socketio : socketHandler
 
+    /*! Connect to server at <uri> using <jsQuery> . jsQuery can be blank but can be used to specify sails version ,etc.
+        In fact, it defaults to {__sails_io_sdk_version : "1.2.0" }  \hr */
     function connect(uri, jsQuery){
         if(uri === null || typeof uri === 'undefined')
             uri = controller.uri
@@ -31,18 +55,35 @@ ZController {
 
         socketHandler.connect(uri,jsQuery)
     }
+
+    /*! fn : disconnects any active connections and any attempts to reconnect  \hr */
     readonly property var   disconnect          : socketHandler.disconnect
+
+    /*! reflects whether the controller is connected to the uri or not  \hr */
     readonly property alias isConnected         : socketHandler.isConnected
+
+    /*! reflects whether the controller is trying to re-establish a connection  \hr */
     readonly property alias reconnecting        : socketHandler.reconnecting
+
+    /*! reflects the amount of attemps the controller will make to reconnect before giving up  \hr */
     readonly property alias reconnectLimit      : socketHandler.reconnectLimit
+
+    /*! the current number of attempted reconnects since last time an attempt was made to connect  \hr */
     readonly property alias attemptedReconnects : socketHandler.attemptedReconnects
 
+    /*! the sid is given to us by the server. Acts as our identifier \hr */
     readonly property alias sessionId       : socketHandler.sessionId
+
+    /*! the events that we are listening on. \b default : ["message"]  \hr */
     property alias          registeredEvents: socketHandler.registeredEvents
 //    readonly property var   addEvents       : socketHandler.addEvents
+
+    /*! fn : Add event that we should listen to  \hr */
     readonly property var   addEvent        : socketHandler.addEvent
+
+    /*! fn : Remove event that we are listening to   \hr */
     readonly property var   removeEvent     : socketHandler.removeEvent
-//    readonly property var   removeEvents    : socketHandler.removeEvents
+
 
 
 
@@ -81,19 +122,49 @@ ZController {
     //Convenience functions
     //params must be {}
     //override:true pass all requests through the history filter
+
+    /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
+        params   : the jsObject to send out
+        callback : the function to run when we get a response from the server
+        override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
+        passToken : this is automatically token from rootObject
+    */
     function postReq(url, params, callback,modelToUpdate,override,passToken){
         //decipher the mdoelname!!
         priv.req('Post', url, params, callback, modelToUpdate, override, passToken)
     }
+
+    /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
+        params   : the jsObject to send out
+        callback : the function to run when we get a response from the server
+        override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
+        passToken : this is automatically token from rootObject
+    */
     function putReq(url, params, callback,modelToUpdate,override,passToken) {
         priv.req('Put', url, params, callback, modelToUpdate, override, passToken)
     }
+
+    /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
+        params   : the jsObject to send out
+        callback : the function to run when we get a response from the server
+        override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
+        passToken : this is automatically token from rootObject
+    */
     function getReq(url, params, callback, modelToUpdate,override,passToken){
         priv.req('Get', url, params, callback, modelToUpdate, override, passToken)
     }
+
+    /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
+        params   : the jsObject to send out
+        callback : the function to run when we get a response from the server
+        override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
+        passToken : this is automatically token from rootObject
+    */
     function deleteReq(url, params, callback, modelToUpdate, override, passToken){
         priv.req('Delete', url, params, callback, modelToUpdate, override, passToken)
     }
+
+    /*! Returns an object with {access_token:<token> } \hr */
     function tokenAppend(paramsA){
         var params = paramsA
         if(typeof params ==='undefined'|| params === null)           params              = {access_token:socketHandler.token }
