@@ -1,19 +1,98 @@
 import Zabaat.Material 1.0
 import QtQuick 2.4
+
+/*!
+   \brief this is the way a ZObject looks. This is the face of the component and is decoupled from anything outside!
+   Outside World talks to this by changing the state.
+
+All ZSkins come with these states : \hr
+
+default, disabled, accent, info , warning, danger, ghost, transparent, semitransparent
+b1 to b10 , border width
+tcenter, tcenterright, tcenterleft, ttopright, ttopleft, tbottomright, tbottomleft : Text alignment
+t1 : Colors.text1
+t2 : Colors.text2
+
+\hr
+If a ZSkin has a property called 'font' in its root, then the following states will be automatically available to it: \hr
+
+default
+w1 to w9 : Font.weight (light to black)
+font1    : MaterialSettings.font.font1
+font2    : MaterialSettings.font.font2
+fontfa   : font awesome
+
+f1 to f10 : Ratio to height. f1 being 1:1 and f10 being 1:10
+fw1 to fw10 : Ratio to weight : fw1 being 1:1 and fw10 being 1:10
+
+bold
+italic
+underline
+strikeout
+caps
+lowercase
+smallcaps
+capitalize
+
+\hr
+
+If a ZSkin has a property called 'knob' in its root, then the following states will be automatically available to it: \hr
+
+noknob : no knob
+knob1 - knob10  : scale of the knob (low to high)
+spill1 - spill9 : spill of the ink from the knob (low to high)
+
+\hr
+
+*/
 Item {
     id : rootObject
+
+    /*! The ZObject that has loaded this ZSkin as its skin \hr */
     property var    logic        : null         //the pointer to the parent logic itme
+
+    /*! The name of the color theme. \b default: "default" \hr */
     property string colorTheme   : logic ? logic.colors : "default"
+
+    /*! The position of the ZObject parent \hr */
     readonly property point  pos : logic ? Qt.point(logic.x,logic.y) : Qt.point(0,0)
+
+    /*! Determines whether the log function will print messages \hr */
     property bool debug          : false
 //    focus                        : false
+
+    /*! The background color. \b default : logic.colors.standard \hr */
     property alias color          : rect.color
+
+    /*! Alias to border \hr */
     property alias border         : rect.border
+
+    /*! The position of the ZObject parent \hr */
     property alias radius         : rect.radius
+
+    /*! The container for colors that all ZObjects should use. The colors are the following:  \hr
+        fill_Empty       : \b default : "transparent"
+        fill_Default     : \b default : Colors.standard
+        fill_Press       : \b default : Colors.accent
+        fill_Focus       : \b default : Colors.info
+        fill_Opacity     : \b default : 1
+        text_Default     : \b default : Colors.text1
+        text_Press       : \b default : Colors.text2
+        text_Focus       : \b default : Colors.text2
+        text_hAlignment  : \b default : Text.AlignHCenter
+        text_vAlignment  : \b default : Text.AlignVCenter
+        inkColor         : \b default : Colors.getContrastingColor(fill_Default
+        borderColor      : \b default : Colors.text1
+        inkOpacity       : \b default : 1
+        disabled1        : \b default : "Gray"
+        disabled2        : \b default : "DarkGray"
+      \hr
+    */
     property alias graphical      : graphical
 
     Rectangle { id: rect ; anchors.fill : parent; color: logic ? Colors.get(logic.colors , "standard") : "white"; opacity: graphical.fill_Opacity }
 
+    /*! The money maker of ZSkin objects. Works sort of like css. Example: state : "warning-t2 \b default : "default" \hr */
     property string state  : "default"
     property var    states : []
 

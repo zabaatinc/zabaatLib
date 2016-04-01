@@ -1,7 +1,7 @@
 import QtQuick 2.5
 import Zabaat.Material 1.0
 
-/*! \div {id="pageType" }
+/*!
    \brief this is the base component of Zabaat.Material. Inside it, is a Loader that loads the
     associated ZSkin ('based on objectName'). The whole concept of this library is to separate the logic from the gui
     of the a component. This is the logic part and has all the relevant data that the outside
@@ -25,24 +25,25 @@ FocusScope {
     Component.onDestruction: imDying(rootObject);
 
 
-    /*! This is important for ZEdit; should we ever bring that back.  */
+    /*! This is important for ZEdit; should we ever bring that back \hr  */
     property var uniqueProperties : []      // ["msgbxoId" , "message"]
 
-    /*! This is important for ZEdit; should we ever bring that back.  */
+    /*! This is important for ZEdit; should we ever bring that back \hr  */
     property var uniqueSignals    : ({})    // ({ okClicked : ["text","id"], cancelClicked:[] })
 
-    /*! This is important for ZEdit; should we ever bring that back.  */
+    /*! This is important for ZEdit; should we ever bring that back \hr  */
     property var dataSection      : ({})	//## use this for stroing globally available javascript objects and functions
 
-    /*! ZEdit will use this to store and load information as readable format for us! Cause we might have assigned a value to */
+    /*! ZEdit will use this to store and load information as readable format for us! Cause we might have assigned a value to \hr */
     property var propArr          : []
 
-    /*! ZEdit will use this to store and load information as readable format for us! Cause we might have assigned a value to */
+    /*! ZEdit will use this to store and load information as readable format for us! Cause we might have assigned a value to \hr */
     property var eventArr         : []
 
     /*! The default skin folder.  This will make it go look for <objectName>.qml in the <skin> folder in
         MaterialSettings.style.skinsPath.
         \b default: MaterialSettings.style.defaultSkin
+        \hr
     */
     property string skin          : MaterialSettings.style.defaultSkin
 
@@ -53,26 +54,28 @@ FocusScope {
 
     /*! The name of font1.
         \b default: MaterialSettings.font.font1
+        \hr
     */
     property string font1         : MaterialSettings.font.font1
 
     /*! The name of font2.
         \b default: MaterialSettings.font.font2
+        \hr
     */
     property string font2         : MaterialSettings.font.font2
 
-    /*! The respective ZSkin, if it has loaded successfully. */
+    /*! The respective ZSkin, if it has loaded successfully \hr */
     property var style   : styleLoader && styleLoader.item ? styleLoader.item : null
 
-    /*! Determines whether or not to append the "-disabled" to this ZObject if it is not enabled */
+    /*! Determines whether or not to append the "-disabled" to this ZObject if it is not enabled \hr */
     property bool   disableShowsGraphically : true
 
     focus : false
 
-    /*! Determines whether to print log messages to the console! */
+    /*! Determines whether to print log messages to the console! \hr */
     property bool debug           : false
 
-    /*! Same as console.log but prints only when this component is in debug mode */
+    /*! Same as console.log but prints only when this component is in debug mode \hr */
     function log(){
         if(debug)
             console.log.apply(this,arguments)
@@ -82,6 +85,7 @@ FocusScope {
 
     /*! This loads the SKIN or the way the component will look. By default they should be in the folder :
         \b default: <PROJECTDIR>/lib/Zabaat/Material/components/ui/skins/<skinName>/<objectName>.qml
+        \hr
     */
     Loader {
         id       : styleLoader
