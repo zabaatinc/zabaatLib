@@ -1,9 +1,15 @@
-#TEMPLATE = lib
-TEMPLATE = app
+#BUILD With LIB to get dll. Make sure you copy printsupport !
+#To test if build works, then build with APP.
 
+TEMPLATE = lib
 QT += qml quick printsupport
-CONFIG += c++11
 
+#TEMPLATE = app
+#QT += qml quick
+
+
+
+CONFIG += c++11
 SOURCES += main.cpp
 
 RESOURCES += qml.qrc
