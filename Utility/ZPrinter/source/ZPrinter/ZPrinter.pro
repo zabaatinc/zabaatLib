@@ -1,5 +1,5 @@
-TEMPLATE = lib
-#TEMPLATE = app
+#TEMPLATE = lib
+TEMPLATE = app
 
 QT += qml quick printsupport
 CONFIG += c++11
@@ -16,6 +16,5 @@ QML_IMPORT_PATH =
 # Default rules for deployment.
 include(deployment.pri)
 
-HEADERS += zprinter.h \
-    zprinterplugin.h
+HEADERS   += zprinter.h zprinterplugin.h
 DISTFILES += Example.qml
