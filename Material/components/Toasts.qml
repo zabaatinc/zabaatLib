@@ -118,7 +118,13 @@ Item {
 
             var newToast           = toastBakery.createObject(contentItem);
             newToast.anchors.fill  = contentItem
-            newToast.text          = msg || "undefined"
+
+            if(typeof msg === 'function') {
+                newToast.text = Qt.binding(msg);
+            }
+            else {
+                newToast.text = msg || "undefined"
+            }
             newToast.lastActiveThing = activeThing
 
             newToast.args          = args

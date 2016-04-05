@@ -17,11 +17,9 @@ Item {
         id : logic
         property ZSubModel zsub : ZSubModel {
             id : zsub
-//            sourceModel: rootObject.model
+//            sortRoles: null;
             compareFunction: function(a,b){
-                if     (a.__relatedIndex < b.__relatedIndex)           return -1;
-                else if(a.__relatedIndex > b.__relatedIndex)           return 1;
-                return 0;
+                return a.__relatedIndex - b.__relatedIndex
             }
         }
 
@@ -196,7 +194,6 @@ Item {
             return null;
         }
     }
-
     QtObject {
         id : guiVars
         property alias cellHeight              : lv.cellHeight

@@ -19,17 +19,25 @@ ListModel {
         repeat   : false
         running  : false
         onTriggered : {
+            console.time("begin")
             QueryHandler.sendMessage({type:"begin"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+            console.timeEnd("begin")
         }
     }
 
     onSourceModelChanged : {
-        if(!initTimer.running)
+        if(!initTimer.running) {
+            console.time("sourceModel")
             QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+            console.timeEnd("sourceModel")
+        }
     }
     onQueryTermChanged   : {
-        if(!initTimer.running)
+        if(!initTimer.running) {
+            console.time("queryTerm")
             QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+            console.timeEnd("queryTerm")
+        }
     }
 
 
@@ -47,7 +55,6 @@ ListModel {
 //            console.log("QML::",JSON.stringify(sourceModel.get(start),null,2) , sourceModel.count)
 //            console.log("-------------------------------------------------------")
 //            delayTimer.begin({type:"rowsInserted", data:{start:start,end:end,count:count,sourceModel:sourceModel} })
-
             QueryHandler.sendMessage({type:"rowsInserted", data:{start:start,end:end,count:count,
                                                            sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
                                                            sort:{roles:sortRoles,fn:compareFunction} }, debug)

@@ -218,8 +218,9 @@ QtObject {
         for(var i = 0; i < lm.count; ++i){
             var item = lm.get(i)
             var type = typeof item
-            if(type === 'string' || type === 'number' || type === 'date')
+            if(type === 'string' || type === 'number' || type === 'date') {
                 arr.push(item)
+            }
             else {
                 var obj = {};
                 for(var k in item){

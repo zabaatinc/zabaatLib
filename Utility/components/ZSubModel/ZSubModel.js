@@ -40,6 +40,7 @@ function sendMessage(msg, debug) {
         },
 
         findMatches: function(){
+            console.time("findMatches")
 //            console.log("finding matches for", JSON.stringify(queryTerm), sourceModel, rootModel)
             if(!rootModel || !sourceModel || sourceModel.count === 0 || !queryTerm)
                 return;
@@ -78,6 +79,8 @@ function sendMessage(msg, debug) {
             }
 
 
+
+            console.timeEnd("findMatches")
     //        console.log("finished finding matches")
 //            rootModel.sync()
         },
@@ -533,6 +536,7 @@ function sendMessage(msg, debug) {
     var handleRowsInserted = function(start,end,count){
         //let's increment the other rows!!
 //        console.log("HANDLE ROWS INSERTED")
+        console.time("handleRowsInserted")
         for(var i = 0 ; i < rootModel.count; ++i){
             var item = rootModel.get(i)
             if(item && item.__relatedIndex >= start){
@@ -552,8 +556,11 @@ function sendMessage(msg, debug) {
         }
 //        rootModel.sync()
     //    console.log("JS:: handleRowsInserted Finished")
+        console.timeEnd("handleRowsInserted")
     }
     var handleRowsMoved = function(fromStart,fromEnd,toStart,toEnd,count){
+
+        console.time("handleRowsMoved")
 //        var arrOrig = helperFunctions.getArr(start,end)
 //        var arrDest = helperFunctions.getArr(startEnd,destinationEnd)
 //        console.log("HANDLE ROWS MOVED" ,fromStart,fromEnd, "-->", toStart,toEnd, "\t\t", count)
@@ -609,9 +616,12 @@ function sendMessage(msg, debug) {
                 }
             }
         }
+
+        console.timeEnd("handleRowsMoved")
     }
     var handleRowsRemoved = function(start,end,count){
 
+        console.time("handleRowsRemoved")
         for(var i = rootModel.count -1; i >=0; --i){
     //                        console.log("s",s,"i",i)
             var item = rootModel.get(i)
@@ -625,10 +635,13 @@ function sendMessage(msg, debug) {
                 }
             }
         }
+
+        console.timeEnd("handleRowsRemoved")
 //        rootModel.sync()
     }
     var handleDataChanged = function(idx){
 //        debugMsg("Data Changed handler",idx)
+        console.time("handleDataChanged")
         var changedItem = sourceModel.get(idx)
 
         //if exists remove it cause it may not match anymore
@@ -650,6 +663,8 @@ function sendMessage(msg, debug) {
 //            debugMsg("insert @",i,"with relative idx", idx)
         }
 //        rootModel.sync()
+
+        console.timeEnd("handleDataChanged")
     }
 
 
@@ -658,52 +673,34 @@ function sendMessage(msg, debug) {
        l  --> Starting index,
        h  --> Ending index */
     var quickSortIterative = function (l, h){
-        function cmpFunc(a,b) {
-
-            function defaultCmpFunc(aVal,bVal,roles){
-                if(roles === null || typeof roles === 'undefined' ){
-    //                console.log("roiles are undefined")
-                    if(aVal < bVal)
-                        return -1
-                    else if(aVal > bVal)
-                        return 1
-                    return 0
-                }
-
-    //            console.log(roles)
-                for(var r = 0; r < roles.length; ++r){
-
-                    var role = roles[r]
-    //                console.log("on Role", role)
+        console.log('quickSortITerative',l,h)
+        var cmpFunc;
+        if(userCmpFunc){
+//            console.log("custom func teehee")
+            cmpFunc = function(a,b) { return userCmpFunc(rootModel.get(a), rootModel.get(b)) }
+        }
+        else if(sortRoles === null || typeof sortRoles === 'undefined' ){
+            return;
+//            cmpFunc = function(a,b) { return rootModel.get(a) - rootModel.get(b) } ;
+        }
+        else {
+            cmpFunc = function(a,b) {
+                var aVal = rootModel.get(a);
+                var bVal = rootModel.get(b);
+                for(var r = 0; r < sortRoles.length; ++r){
+                    var role = sortRoles[r]
                     var v1 = role.indexOf(".") !== -1 ? helperFunctions.deepGet(aVal,role) : aVal[role]
                     var v2 = role.indexOf(".") !== -1 ? helperFunctions.deepGet(bVal,role) : bVal[role]
+                    var res = v1 - v2
+                    if(res === 0)
+                        continue
 
-    //                console.log("____ ITERATING OVER ____" , role)
-
-                        if(v1 === v2 ) {
-    //                        console.log(v1,"is eqto", v2)
-                            continue
-                        }
-                        else if(v1 < v2) {
-    //                        console.log(v1,"is lt", v2)
-                            return -1
-                        }
-                        else {
-    //                        console.log(v1,"is gt", v2)
-                            return 1
-                        }
-
+                    return res;
                 }
                 return 0
             }
-
-
-            var sfunc = userCmpFunc ? userCmpFunc : defaultCmpFunc
-            var aVal  = rootModel.get(a)
-            var bVal  = rootModel.get(b)
-
-            return sfunc(aVal,bVal, sortRoles)
         }
+
         function swap(a,b){
             if (a<b) {
                 rootModel.move(a,b,1);
@@ -716,8 +713,6 @@ function sendMessage(msg, debug) {
         }
         function partition (l, h) { //l = startIndex, h = endIndex
             var arr = rootModel
-
-//            var x = arr.get(h);
             var i = l - 1;
 
             for (var j = l; j <= h- 1; j++)
@@ -795,9 +790,9 @@ function sendMessage(msg, debug) {
     }
 
     if(rootModel.count > 0 && (sortRoles || userCmpFunc)) {
-//        console.time("quicksort")
+        console.time("quicksort")
         quickSortIterative(0,rootModel.count - 1);
-//        console.timeEnd("quicksort")
+        console.timeEnd("quicksort")
     }
 
 
