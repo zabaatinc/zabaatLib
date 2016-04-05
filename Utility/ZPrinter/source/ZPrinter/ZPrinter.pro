@@ -5,7 +5,7 @@ TEMPLATE = lib
 QT += qml quick printsupport
 
 #TEMPLATE = app
-#QT += qml quick
+#QT += qml quick printsupport
 
 
 
