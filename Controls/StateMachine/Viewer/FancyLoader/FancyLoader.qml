@@ -71,7 +71,7 @@ Item {
             loader.finishedLoading();
         }
         function doTransition(from,to,transName){
-            if(_.isUndefined(transName) || transName === "")
+            if(!logic.isUndef(transName) || transName === "")
                 transName = transitionEffect
 
             var transition = getTransition(transName);
@@ -84,6 +84,10 @@ Item {
         }
         function getTransition(name){
             return transitions.map[name]
+        }
+
+        function isUndef(obj) {
+            return obj === null || typeof obj === 'undefined'
         }
 
     }

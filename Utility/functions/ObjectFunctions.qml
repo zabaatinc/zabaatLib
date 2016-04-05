@@ -1,7 +1,12 @@
 import QtQuick 2.0
 import "./Underscore"
 QtObject {
+    id : rootObject
+    objectName : "ObjectFunctions"
     //OBJECT
+    function clone(obj) {
+        return JSON.parse(JSON.stringify(obj))
+    }
     function isUndef(){
         if(arguments.length === 0)
             return true
@@ -153,7 +158,7 @@ QtObject {
                 obj[k] = listmodelToArray(val)
 //                    }
             else
-                obj[k] = _.clone(val)
+                obj[k] = clone(val)
         }
 
         return obj
@@ -229,9 +234,9 @@ QtObject {
                     if(or(ex, "objectname","objectnamechanged") || ex.indexOf("__") === 0 )
                         continue
 
-                    var val     = item[k]
+                    var val = item[k]
                     if(isUndef(val)){
-                        console.log(k, "is", val)
+                        console.log(rootObject, k, "is", val)
                         continue
                     }
 
@@ -244,7 +249,7 @@ QtObject {
                         obj[k] = listmodelToArray(val)
 //                    }
                     else
-                        obj[k] = _.clone(val)
+                        obj[k] = clone(val)
 //                    }
 
                 }
@@ -280,5 +285,6 @@ QtObject {
         }
         return ""
     }
+
 
 }

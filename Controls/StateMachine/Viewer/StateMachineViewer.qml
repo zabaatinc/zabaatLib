@@ -144,7 +144,7 @@ Item {
             return null;
         }
         function getAllowedFunctions(stateName){
-            var fArr = _.clone(alwaysAllowedFunctions)
+            var fArr = GFuncs.clone(alwaysAllowedFunctions)
             if(stateMachine && currentState !== "") {
                 var stateObj = GFuncs.getFromList(logic.states,stateName,"name")
                 var funcs    = stateObj ? stateObj.functions : null
@@ -201,6 +201,11 @@ Item {
             }
             else
                 console.warn("cannot go back. Already at the base state")
+        }
+
+
+        function isUndef(obj){
+            return obj === null || typeof obj === 'undefined'
         }
     }
 

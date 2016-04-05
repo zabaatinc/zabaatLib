@@ -6,6 +6,15 @@ QtObject {
     id : genericFunctions
 
 
+    function clone(obj) {
+        return JSON.parse(JSON.stringify(obj))
+    }
+
+    function isUndef(obj) {
+        return obj === null || typeof obj === 'undefined'
+    }
+
+
     function getFromArray(arr,value,prop, giveMeIndex){
         if(!arr || !prop)
             return giveMeIndex ? -1 : null;
@@ -72,7 +81,7 @@ QtObject {
                         continue
 
                     var val     = item[k]
-                    if(_.isUndefined(val)){
+                    if(isUndef(val)){
                         console.log(k, "is", val)
                         continue
                     }
