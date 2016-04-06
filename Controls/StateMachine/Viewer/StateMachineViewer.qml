@@ -89,7 +89,13 @@ Item {
         onStackChanged: console.log(stack)
 
         function cleanClone(){
-            return Functions.object.modelObjectToJs(modelObject)
+//            console.log("------------------------------------------------")
+//            console.log("------------------------------------------------")
+//            console.log(JSON.stringify(modelObject , null ,2));
+//            console.log("------------------------------------------------")
+//            console.log("------------------------------------------------")
+            var obj =  Functions.object.modelObjectToJs(modelObject)
+            return obj
         }
         function defaultTransitionFunc(id,state, cb){  modelObject.state = state; if(cb) cb() }
         function callFunction(fnName, params){

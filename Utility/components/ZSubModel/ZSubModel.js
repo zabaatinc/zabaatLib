@@ -40,7 +40,7 @@ function sendMessage(msg, debug) {
         },
 
         findMatches: function(){
-            console.time("findMatches")
+//            console.time("findMatches")
 //            console.log("finding matches for", JSON.stringify(queryTerm), sourceModel, rootModel)
             if(!rootModel || !sourceModel || sourceModel.count === 0 || !queryTerm)
                 return;
@@ -80,7 +80,7 @@ function sendMessage(msg, debug) {
 
 
 
-            console.timeEnd("findMatches")
+//            console.timeEnd("findMatches")
     //        console.log("finished finding matches")
 //            rootModel.sync()
         },
@@ -536,7 +536,7 @@ function sendMessage(msg, debug) {
     var handleRowsInserted = function(start,end,count){
         //let's increment the other rows!!
 //        console.log("HANDLE ROWS INSERTED")
-        console.time("handleRowsInserted")
+//        console.time("handleRowsInserted")
         for(var i = 0 ; i < rootModel.count; ++i){
             var item = rootModel.get(i)
             if(item && item.__relatedIndex >= start){
@@ -556,11 +556,11 @@ function sendMessage(msg, debug) {
         }
 //        rootModel.sync()
     //    console.log("JS:: handleRowsInserted Finished")
-        console.timeEnd("handleRowsInserted")
+//        console.timeEnd("handleRowsInserted")
     }
     var handleRowsMoved = function(fromStart,fromEnd,toStart,toEnd,count){
 
-        console.time("handleRowsMoved")
+//        console.time("handleRowsMoved")
 //        var arrOrig = helperFunctions.getArr(start,end)
 //        var arrDest = helperFunctions.getArr(startEnd,destinationEnd)
 //        console.log("HANDLE ROWS MOVED" ,fromStart,fromEnd, "-->", toStart,toEnd, "\t\t", count)
@@ -617,11 +617,11 @@ function sendMessage(msg, debug) {
             }
         }
 
-        console.timeEnd("handleRowsMoved")
+//        console.timeEnd("handleRowsMoved")
     }
     var handleRowsRemoved = function(start,end,count){
 
-        console.time("handleRowsRemoved")
+//        console.time("handleRowsRemoved")
         for(var i = rootModel.count -1; i >=0; --i){
     //                        console.log("s",s,"i",i)
             var item = rootModel.get(i)
@@ -636,19 +636,19 @@ function sendMessage(msg, debug) {
             }
         }
 
-        console.timeEnd("handleRowsRemoved")
+//        console.timeEnd("handleRowsRemoved")
 //        rootModel.sync()
     }
     var handleDataChanged = function(idx){
 //        debugMsg("Data Changed handler",idx)
 //        console.time("handleDataChanged")
-        console.log("this index changed" , idx);
+//        console.log("this index changed" , idx);
         //if exists remove it cause it may not match anymore
         for(var i = 0; i < rootModel.count; ++i){
             var item = rootModel.get(i)
             if(idx === item.__relatedIndex){
 //                debugMsg("remove @",i, JSON.stringify(changedItem,null,2))
-                debugMsg("removed @",i)
+//                debugMsg("removed @",i)
                 rootModel.remove(i)
                 break;
             }
@@ -660,7 +660,7 @@ function sendMessage(msg, debug) {
         if(matchItem){
             rootModel.insert(i,changedItem)
             logic.setRelatedIdx(idx,i)
-            debugMsg("insert @",i,"with relative idx", idx)
+//            debugMsg("insert @",i,"with relative idx", idx)
         }
 //        rootModel.sync()
 

@@ -19,24 +19,24 @@ ListModel {
         repeat   : false
         running  : false
         onTriggered : {
-            console.time("begin")
+//            console.time("begin")
             QueryHandler.sendMessage({type:"begin"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
-            console.timeEnd("begin")
+//            console.timeEnd("begin")
         }
     }
 
     onSourceModelChanged : {
         if(!initTimer.running) {
-            console.time("sourceModel")
+//            console.time("sourceModel")
             QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
-            console.timeEnd("sourceModel")
+//            console.timeEnd("sourceModel")
         }
     }
     onQueryTermChanged   : {
         if(!initTimer.running) {
-            console.time("queryTerm")
+//            console.time("queryTerm")
             QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
-            console.timeEnd("queryTerm")
+//            console.timeEnd("queryTerm")
         }
     }
 

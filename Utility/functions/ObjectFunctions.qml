@@ -223,10 +223,17 @@ QtObject {
         for(var i = 0; i < lm.count; ++i){
             var item = lm.get(i)
             var type = typeof item
-            if(type === 'string' || type === 'number' || type === 'date') {
+
+            if(type === 'string' || type === 'number' || type === 'date' || type === "bool" || type === "boolean") {
                 arr.push(item)
             }
-            else {
+            else {  //is an object?
+//                console.log("objecttype =", item.toString().toLowerCase())
+//                if(item.toString().toLowerCase().indexOf("rolemodelnode") !== -1) {
+//                    for(var k in item)
+//                        console.log(k, item[k])
+//                }
+
                 var obj = {};
                 for(var k in item){
                     //exclude objectname
@@ -236,14 +243,14 @@ QtObject {
 
                     var val = item[k]
                     if(isUndef(val)){
-                        console.log(rootObject, k, "is", val)
+//                        console.log(rootObject, k, "is", val , type)
                         continue
                     }
 
-                    type        = typeof val
+                    var type2   = typeof val
                     var typeStr = val.toString().toLowerCase()
 //                    console.log(k, val ,type,typeStr)
-                    if(or(type,"string","number","date","bool","boolean"))
+                    if(or(type2,"string","number","date","bool","boolean"))
                         obj[k] = val;
                     else if(typeStr.indexOf("listmodel") !== -1 || typeStr.indexOf("proxymodel") !== -1)
                         obj[k] = listmodelToArray(val)
