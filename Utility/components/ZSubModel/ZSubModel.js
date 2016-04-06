@@ -641,30 +641,30 @@ function sendMessage(msg, debug) {
     }
     var handleDataChanged = function(idx){
 //        debugMsg("Data Changed handler",idx)
-        console.time("handleDataChanged")
-        var changedItem = sourceModel.get(idx)
-
+//        console.time("handleDataChanged")
+        console.log("this index changed" , idx);
         //if exists remove it cause it may not match anymore
         for(var i = 0; i < rootModel.count; ++i){
             var item = rootModel.get(i)
             if(idx === item.__relatedIndex){
 //                debugMsg("remove @",i, JSON.stringify(changedItem,null,2))
-//                debugMsg("removed @",i)
+                debugMsg("removed @",i)
                 rootModel.remove(i)
                 break;
             }
         }
 
         //if it matches, now add it.
+        var changedItem = sourceModel.get(idx)
         var matchItem = logic.match(changedItem)
         if(matchItem){
             rootModel.insert(i,changedItem)
             logic.setRelatedIdx(idx,i)
-//            debugMsg("insert @",i,"with relative idx", idx)
+            debugMsg("insert @",i,"with relative idx", idx)
         }
 //        rootModel.sync()
 
-        console.timeEnd("handleDataChanged")
+//        console.timeEnd("handleDataChanged")
     }
 
 
@@ -673,7 +673,7 @@ function sendMessage(msg, debug) {
        l  --> Starting index,
        h  --> Ending index */
     var quickSortIterative = function (l, h){
-        console.log('quickSortITerative',l,h)
+//        console.log('quickSortITerative',l,h)
         var cmpFunc;
         if(userCmpFunc){
 //            console.log("custom func teehee")
@@ -790,9 +790,9 @@ function sendMessage(msg, debug) {
     }
 
     if(rootModel.count > 0 && (sortRoles || userCmpFunc)) {
-        console.time("quicksort")
+//        console.time("quicksort")
         quickSortIterative(0,rootModel.count - 1);
-        console.timeEnd("quicksort")
+//        console.timeEnd("quicksort")
     }
 
 

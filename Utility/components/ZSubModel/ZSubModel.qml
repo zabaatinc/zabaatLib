@@ -6,7 +6,7 @@ ListModel {
     id: rootObject
     property var  sourceModel : rootObject.sourceModel
     property var  queryTerm   : null
-    property bool debug       : false
+    property bool debug       : true
 
     property var compareFunction : null
     property var sortRoles    : []
