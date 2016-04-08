@@ -53,6 +53,7 @@ ZController {
         if(jsQuery === null || typeof jsQuery === 'undefined')
             jsQuery = {__sails_io_sdk_version : "1.2.0" }
 
+//         console.log(controller.uri)
         socketHandler.connect(uri,jsQuery)
     }
 
@@ -84,7 +85,9 @@ ZController {
     /*! fn : Remove event that we are listening to   \hr */
     readonly property var   removeEvent     : socketHandler.removeEvent
 
-
+    signal info(string msg);
+    signal error(string msg);
+    signal warning(string msg);
 
 
     onSendGetModelRequest: {
@@ -359,6 +362,7 @@ ZController {
                 return item
         }
         function addEvent(url){
+//            console.log("ADDING EVENT", url)
             var uarr = url.toString().split("/")
             if(uarr.length > 0 && uarr[0] !== "")
                 socketHandler.addEvent(uarr[0])
@@ -496,7 +500,14 @@ ZController {
             }
         }
 
-        onRegisteredEventsChanged: socketHandler.addEvents(logic.defaultEvents)
+        onError   : { console.log("SocketIOController::error"  , message) ; controller.error(message);     }
+        onWarning : { console.log("SocketIOController::warning", message) ; controller.warning(message);   }
+        onInfo    : { console.log("SocketIOController::info"   , message) ; controller.info(message);      }
+
+        onRegisteredEventsChanged: {
+            socketHandler.addEvents(logic.defaultEvents)
+//            console.log(socketHandler.registeredEvents)
+        }
     }
 }
 

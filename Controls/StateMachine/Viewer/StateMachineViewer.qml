@@ -2,6 +2,9 @@ import QtQuick 2.4
 import "Functions"
 import "FancyLoader"
 import Zabaat.Utility 1.0
+//import Zabaat.Utility.FileIO 1.0
+
+
 Item {
     id : rootObject
 
@@ -20,9 +23,14 @@ Item {
     property var methodCallFunc : null  //provide this function. inputs(string fnName, var params).Should change modeObject in someway
                                                                                                //(should rarely change state!)
 
+//    ZFileOperations { id : file  }
     property var updateFunc : !methodCallFunc ? null : function(cb){
         var obj = {id:logic.uid, data:[logic.cleanClone()] }
-//        console.log("Update", JSON.stringify(obj,null,2))
+
+//        console.log("Update"/*, JSON.stringify(obj,null,2)*/)
+//        file.writeFile("C:/MyProjects","updateFunc",JSON.stringify(obj,null,2))
+//        console.log(JSON.stringify(obj,null,2))
+
         methodCallFunc("update", obj, cb)
     }
 

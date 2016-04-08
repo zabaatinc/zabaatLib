@@ -27,7 +27,7 @@
 #include <QJsonDocument>
 #include <map>
 #include <QTimer>
-
+#include <QQmlEngine>
 
 //#include <rapidjson/rapidjson.h>
 
@@ -77,7 +77,7 @@ public :
     }
     ~qmlSocketIOClient() {
         timer->stop();
-        timer->deleteLater();
+//        timer->deleteLater();
     }
 
     QString sessionId() { return m_sessionId; }
@@ -98,7 +98,7 @@ public :
             }
 
             if(query.size() > 0){
-                qDebug() << BOOST_CURRENT_FUNCTION << "connecting with " << query.size() << " params";
+                Q_EMIT info(QString(BOOST_CURRENT_FUNCTION) + " connecting with " + query.size() + " params to:" + uri);
             }
 
         }
@@ -178,16 +178,6 @@ public :
     uint attemptedReconnects() {  return m_attemptedReconnects;    }
     bool reconnecting()        {  return m_reconnecting;           }
 
-
-//    Q_INVOKABLE QVariant test(){
-//        QJsonObject v;
-//        v.insert("derp","face");
-//        return v;
-//    }
-//    Q_INVOKABLE void test2(QJSValue arr){
-//        transformJSValue(arr);
-//    }
-
     int reconnectLimit() { return m_reconnectLimit; }
     void setReconnectLimit(int value) {
          if(value != m_reconnectLimit) {
@@ -195,11 +185,6 @@ public :
              Q_EMIT reconnectLimitChanged(value);
          }
     }
-
-
-
-
-
 
 Q_SIGNALS:
     void sessionIdChanged();
@@ -211,12 +196,16 @@ Q_SIGNALS:
     void reconnectingChanged(bool value);
     void reconnectLimitChanged(int value);
     void binaryServerResponse(QByteArray valueAsArray, QString valueAsString);
+    void info(QString message);
+    void error(QString message);
+    void warning(QString message);
 
 public Q_SLOTS:
     void timerTick() {  //The timer is thread safe. It will run on the UI thread. This is the only reason it exists!
         if(!cbListLocked){
             while(!cbList.isEmpty()) {
                 cbList[0].call();
+                QQmlEngine::setObjectOwnership(cbList[0].function.toQObject(), QQmlEngine::JavaScriptOwnership);
                 cbList.pop_front();
             }
         }
@@ -297,9 +286,18 @@ private:
             sio::message::ptr om = sio::object_message::create();
             auto &map = om->get_map();
 
+            QQmlEngine::setObjectOwnership(params.toQObject(), QQmlEngine::CppOwnership);
+            QQmlEngine::setObjectOwnership(headers.toQObject(), QQmlEngine::CppOwnership);
+            QQmlEngine::setObjectOwnership(cb.toQObject(), QQmlEngine::CppOwnership);
+
+
             std::pair<std::string,sio::message::ptr> _url   ("url"      , sio::string_message::create(url.toStdString())     );
-            std::pair<std::string,sio::message::ptr> _params("params"  , transformJSValue(params , isBinary)  );
+            std::pair<std::string,sio::message::ptr> _params("params"  , transformJSValue(params , isBinary));
             std::pair<std::string,sio::message::ptr> _headers("headers", transformJSValue(headers, isBinary));
+
+            QQmlEngine::setObjectOwnership(params.toQObject(), QQmlEngine::JavaScriptOwnership);
+            QQmlEngine::setObjectOwnership(headers.toQObject(), QQmlEngine::JavaScriptOwnership);
+
 
             map.insert(_url);
             map.insert(_params);
@@ -323,14 +321,12 @@ private:
                             cbListLocked = true;        //for safety! though we append at the end!
                             cbList.push_back(d);
                             cbListLocked = false;
-
 //                            Q_EMIT jsCb(cb,args);
-
-
-
                         }
-                        else
-                            qDebug() << "cb is not callable";
+                        else {
+                            Q_EMIT this->warning("cb provided for " + url + " is not callable");
+                        }
+
 
                         QStringList arr   = method.split("/");
                         QString eventName = "";
@@ -348,7 +344,7 @@ private:
             client.socket()->emit(method.toStdString(), om, func);
         }
         else {
-            qDebug() << BOOST_CURRENT_FUNCTION << " : socket is not connected " << url ;
+            Q_EMIT warning(QString(BOOST_CURRENT_FUNCTION) + " : socket is not connected " + url);
         }
     }
 
@@ -390,11 +386,18 @@ private:
             while(it.hasNext()){
                 it.next();
 
-                std::string key = it.name().toStdString();
-                QJSValue val    = it.value();
+                try {
+                    std::string key = it.name().toStdString();
+                    QJSValue val    = it.value();
+                    std::pair<std::string, sio::message::ptr> pair(key, transformJSValue(val));
+                    map.insert(pair);
 
-                std::pair<std::string, sio::message::ptr> pair(key, transformJSValue(val));
-                map.insert(pair);
+                } catch(std::exception &e) {
+                    qDebug() << "qmlSocketIOClient.h::transformJsValue EXCEPTION::"  << QString(e.what());
+                    Q_EMIT error(QString(e.what())) ;
+                }
+
+
             }
 
             return m;
