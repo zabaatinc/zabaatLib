@@ -59,6 +59,23 @@ Item {
         logic.create("","ZToastError",{err:strOrObj},{blocking:true,duration:-1},null,null,item)
     }
 
+    function dialog(title, text, cbAccept, cbCancel, args){
+        dialogIn(title,text,cbAccept,cbCancel,args)
+    }
+
+    function dialogIn(title, text, cbAccept, cbCancel, args, item) {
+        if(!args)
+            args = {}
+
+        args.title      = title;
+        args.acceptFunc = cbAccept;
+        args.cancelFunc = cbCancel;
+
+        logic.create(text,"ZToastDialog", args, {blocking:true,duration:-1} , null, null , item)
+    }
+
+
+
 
     property QtObject __private : QtObject {
         id : logic

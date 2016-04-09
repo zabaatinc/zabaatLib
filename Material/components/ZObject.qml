@@ -93,8 +93,7 @@ FocusScope {
         onLoaded : item.logic = rootObject
         anchors.fill: parent
         focus       : true
-        onActiveFocusChanged: if(activeFocus && item)
-                                  nextItemInFocusChain()
+
     }
 
     Loader {

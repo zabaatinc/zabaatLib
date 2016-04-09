@@ -10,13 +10,33 @@ ZSkin {
     property alias textContainer : textContainer
     property alias font          : text.font
 
+    focus : true
+    activeFocusOnTab: true
+//    onActiveFocusChanged: console.log(rootObject, "focus=", activeFocus)
+
     color           : graphical["fill_" + graphicalState]
     border.color    : graphical.borderColor
     anchors.centerIn: parent
-    onLogicChanged  : if(logic)
+    onLogicChanged  : if(logic) {
                           logic.containsMouse = Qt.binding(function() { return inkArea.containsMouse })
 
-    property string graphicalState : "Default"; //Press, Focus
+                      }
+
+    property string graphicalState : activeFocus ?  "Focus"  : "Default"
+
+    Keys.onPressed:  {
+        if(event.key == Qt.Key_Enter || event.key == Qt.Key_Return || event.key == Qt.Key_Space){
+            inkArea.simulatePress();
+            event.accepted = true;
+        }
+    }
+    Keys.onReleased: {
+        if(event.key == Qt.Key_Enter || event.key == Qt.Key_Return || event.key == Qt.Key_Space){
+            inkArea.simulateRelease(true);
+            event.accepted = true;
+        }
+    }
+
 
 
     ZInkArea {
@@ -62,19 +82,6 @@ ZSkin {
                                     "@height"      : [parent,"height"],
                                     rotation       : 0
                                    } ,
-                      "graphical" : {
-                           "@fill_Default": [Colors,"standard"],
-                           "@text_Default": [Colors,"text1"],
-                           "@fill_Press"  : [Colors,"standard"],
-                           "@text_Press"  : [Colors,"info"],
-                           "@fill_Focus"  : [Colors,"info"],
-                           "@text_Focus"  : [Colors,"text2"],
-                           "@inkColor"    : [Colors,"accent"],
-                           "@borderColor" : [Colors,"text1"],
-                           inkOpacity : 1,
-                           text_hAlignment : Text.AlignHCenter,
-                           text_vAlignment : Text.AlignVCenter
-                    },
                     textContainer : { rotation : 0 },
         },
        "diamond" : { rootObject: { "border.width": 1,

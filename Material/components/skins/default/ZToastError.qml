@@ -282,7 +282,7 @@ ZSkin {
     }
 
     states : ({
-          "default" : { "rootObject": { "border.width" : 5,
+          "default" : { "rootObject": { "border.width" : 3,
                                       "radius"       : 0,
                                       "@width"       : [parent,"width"],
                                       "@height"      : [parent,"height"],

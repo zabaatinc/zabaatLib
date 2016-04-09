@@ -10,7 +10,8 @@ ZObject{
     property string text             : ""
     property bool   allowDoubleClicks: false
 
-   debug                  : false
+//    focus : true;
+    debug                  : false
     onPressed              : log(self, "pressed")
     onClicked              : log(self, "clicked"      , x,  y,  button)
     onDoubleClicked        : log(self, "doubleClicked", x,  y,  button)

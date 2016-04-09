@@ -59,24 +59,33 @@ Item {
             onAccepted : Toasts.error({derp:"happened too many times",slurp:"sometimes rhymes"}, "NOES")
         }
 
-
-    }
-
-
-    Window {
-        width : 640
-        height : 480
-        visible : true
-        Component.onCompleted: WindowManager.registerWindow(this);
-
-
         ZTextBox {
             width : parent.width/4
-            height : parent.height/3
-            label : "Normal Toast"
-            onAccepted : Toasts.create(text,{title:label},null,0.5,0.25)
-            anchors.centerIn: parent
+            height : parent.h
+            label : "Error Toast"
+            onAccepted : Toasts.dialog("Would you like to herp today", "IMPORTANT!" , function(){ console.log("accept")} ,
+                                                                                      function(){ console.log("decline")})
+            Component.onCompleted: forceActiveFocus()
         }
+
+
     }
+
+
+//    Window {
+//        width : 640
+//        height : 480
+//        visible : true
+//        Component.onCompleted: WindowManager.registerWindow(this);
+
+
+//        ZTextBox {
+//            width : parent.width/4
+//            height : parent.height/3
+//            label : "Normal Toast"
+//            onAccepted : Toasts.create(text,{title:label},null,0.5,0.25)
+//            anchors.centerIn: parent
+//        }
+//    }
 
 }

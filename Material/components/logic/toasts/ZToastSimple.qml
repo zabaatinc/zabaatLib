@@ -7,6 +7,7 @@ ZObject{
     signal clicked(var self, int x, int y, int button)
     signal doubleClicked(var self, int x , int y, int button)
     signal requestDestruction()
+    signal attemptingDestruction()
 
     property bool containsMouse      : false
     property string title            : ""
@@ -22,7 +23,9 @@ ZObject{
     onDoubleClicked        : log(self, "doubleClicked", x,  y,  button)
     onContainsMouseChanged : log(this, "containsMouse", containsMouse )
 
-    function attemptDestruction(){
+    function attemptDestruction(suppressSignal){
+        if(!suppressSignal)
+            rootObject.attemptingDestruction()
         try{
             rootObject.destroy()
         }catch(e){
