@@ -310,6 +310,8 @@ ZController {
             url = correctifyUrl(url)
             socketHandler["sails" + type](url.toString(), params, function(response) {
                 if(response){
+//                    console.log("response received for", url, response);
+
                     response = priv.parseAndCheck(response,type+'req',url)
 //                    console.log(JSON.stringify(response,null,2))
 //                    console.log(JSON.stringify(response,null,2))

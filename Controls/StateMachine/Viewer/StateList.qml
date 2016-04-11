@@ -9,8 +9,19 @@ Item{   //Essentially a list of loaders
     property int    cellHeight   : 40
     property string  defaultDelegateFilename : "ListDelegate.qml"
     property alias lv : lv
+    property alias section : lv.section
+
 
     signal clicked(int index, var object);
+
+    function delegateAt(idx) {
+        for(var i = 0; i < lv.contentItem.children.length; ++i) {
+            var child = lv.contentItem.children[i]
+            if(child.imADelegate && lv._index === idx)
+                return child;
+        }
+        return null;
+    }
 
     function emulateClick(index){
          if(lv.model && lv.model.count > index && index >= 0)
@@ -56,6 +67,10 @@ Item{   //Essentially a list of loaders
             width  : lv.width
             height : cellHeight
             onClicked : rootObject.clicked(index, lv.model.get(index))
+
+            property bool imADelegate : true
+            property int _index : index
+            property alias loader : del
 
             Loader {
                 id : del

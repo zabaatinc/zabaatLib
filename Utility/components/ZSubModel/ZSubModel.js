@@ -14,6 +14,7 @@ function sendMessage(msg, debug) {
     var rootModel   = d.model
     var sourceModel = d.sourceModel
     var queryTerm   = d.queryTerm
+    var filterFunc  = d.filterFunction
 
     var s            = msg.sort
     var sortRoles    = s.roles
@@ -42,41 +43,43 @@ function sendMessage(msg, debug) {
         findMatches: function(){
 //            console.time("findMatches")
 //            console.log("finding matches for", JSON.stringify(queryTerm), sourceModel, rootModel)
-            if(!rootModel || !sourceModel || sourceModel.count === 0 || !queryTerm)
+            if(!rootModel || !sourceModel || sourceModel.count === 0 || (!queryTerm && !filterFunc))
                 return;
+
+            function add(modelItem, i) {
+                if(typeof modelItem.toJSON === 'function')
+                    rootModel.append(modelItem.toJSON())
+                else
+                    rootModel.append(modelItem)
+
+                logic.setRelatedIdx(i)
+            }
+
 
             rootModel.clear()
             var modelItem, i
 
-            if(!queryTerm){
-                for(i = 0 ; i < sourceModel.count; i++){
-        //            console.log(i)
-                    modelItem = sourceModel.get(i)
-                    if(typeof modelItem.toJSON === 'function')
-                        rootModel.append(modelItem.toJSON())
-                    else
-                        rootModel.append(modelItem)
-
-                    logic.setRelatedIdx(i)
+            if(filterFunc) {
+                for(i = 0; i < sourceModel.count; ++i) {
+                    modelItem = sourceModel.get(i);
+                    if(filterFunc(modelItem))
+                        add(modelItem,i)
                 }
             }
-            else {
+            else if(queryTerm) {
                 for(i = 0 ; i < sourceModel.count; i++){
-        //            console.log(i)
                     modelItem = sourceModel.get(i)
-        //            console.log(matchItem)
-                    if(logic.match(modelItem)){
-        //                console.log(JSON.stringify(modelItem,null,2))
-                        if(typeof modelItem.toJSON === 'function')
-                            rootModel.append(modelItem.toJSON())
-                        else
-                            rootModel.append(modelItem)
-
-                        logic.setRelatedIdx(i)
-        //                console.log("COPY", JSON.stringify(rootModel.get(i),null,2))
-                    }
+                    if(logic.match(modelItem))
+                        add(modelItem,i)
                 }
             }
+            else {  //add everything. Happy timez
+                for(i = 0 ; i < sourceModel.count; i++){
+                    modelItem = sourceModel.get(i)
+                    add(modelItem,i);
+                }
+            }
+
 
 
 
@@ -108,6 +111,11 @@ function sendMessage(msg, debug) {
 
         match : function(modelItem, queryObj){  //the brains of the whole deal!
     //        console.log("matching")
+
+//            console.log(modelItem,queryObj)
+            if(filterFunc)
+                return filterFunc(modelItem)
+
             if(!queryObj)
                 queryObj = queryTerm
 
@@ -548,7 +556,7 @@ function sendMessage(msg, debug) {
 
         for(i = start; i <= end; ++i){
             var newItem = sourceModel.get(i)
-            var matchItem = logic.match(newItem)
+            var matchItem = filterFunc ? filterFunc(newItem) : logic.match(newItem)
             if(matchItem) { //we need to make sure if this occurs, that we push the other rows!!
                 rootModel.append(newItem)
                 logic.setRelatedIdx(i)
@@ -656,7 +664,7 @@ function sendMessage(msg, debug) {
 
         //if it matches, now add it.
         var changedItem = sourceModel.get(idx)
-        var matchItem = logic.match(changedItem)
+        var matchItem = filterFunc ? filterFunc(changedItem) : logic.match(changedItem)
         if(matchItem){
             rootModel.insert(i,changedItem)
             logic.setRelatedIdx(idx,i)

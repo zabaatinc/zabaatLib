@@ -8,8 +8,11 @@ ListModel {
     property var  queryTerm   : null
     property bool debug       : true
 
+    property var filterFunction  : null //uses queryTerm is this is null to filter!!
     property var compareFunction : null
-    property var sortRoles    : []
+    property var sortRoles       : []
+
+
 
 //    dynamicRoles : true
 
@@ -20,23 +23,33 @@ ListModel {
         running  : false
         onTriggered : {
 //            console.time("begin")
-            QueryHandler.sendMessage({type:"begin"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+            QueryHandler.sendMessage({type:"begin"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm,filterFunction:filterFunction},sort:{roles:sortRoles,fn:compareFunction} }, debug)
 //            console.timeEnd("begin")
         }
     }
 
+    onFilterFunctionChanged: {
+        if(!initTimer.running) {
+//            console.log("FILTER FUNC CHANGED")
+//            console.time(rootObject + "filterFunc" )
+            QueryHandler.sendMessage({type:"queryTerm", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm,filterFunction:filterFunction},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+//            console.timeEnd(rootObject + "filterFunc")
+        }
+    }
+
+
     onSourceModelChanged : {
         if(!initTimer.running) {
 //            console.time("sourceModel")
-            QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+            QueryHandler.sendMessage({type:"sourceModel", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm,filterFunction:filterFunction},sort:{roles:sortRoles,fn:compareFunction} }, debug)
 //            console.timeEnd("sourceModel")
         }
     }
     onQueryTermChanged   : {
         if(!initTimer.running) {
-//            console.time("queryTerm")
-            QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},sort:{roles:sortRoles,fn:compareFunction} }, debug)
-//            console.timeEnd("queryTerm")
+//            console.time(rootObject + "queryTerm")
+            QueryHandler.sendMessage({type:"queryTerm"  , data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm,filterFunction:filterFunction},sort:{roles:sortRoles,fn:compareFunction} }, debug)
+//            console.timeEnd(rootObject + "queryTerm")
         }
     }
 
@@ -56,7 +69,7 @@ ListModel {
 //            console.log("-------------------------------------------------------")
 //            delayTimer.begin({type:"rowsInserted", data:{start:start,end:end,count:count,sourceModel:sourceModel} })
             QueryHandler.sendMessage({type:"rowsInserted", data:{start:start,end:end,count:count,
-                                                           sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
+                                                           sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm,filterFunction:filterFunction},
                                                            sort:{roles:sortRoles,fn:compareFunction} }, debug)
 //
         }
@@ -88,7 +101,7 @@ ListModel {
   //          var startEnd        = destinationEnd - (end-start);
 
             QueryHandler.sendMessage({type:"rowsMoved", data:{start:start,end:end,startEnd:startEnd,destinationEnd:destinationEnd,count:count,
-                                                              sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
+                                                              sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm,filterFunction:filterFunction},
                                                               sort:{roles:sortRoles,fn:compareFunction}},debug )
 //
         }
@@ -100,7 +113,7 @@ ListModel {
             var end   = arguments[2]
             var count = end - start + 1 //this is the amount of things that need it's indexes updated
             QueryHandler.sendMessage({type:"rowsRemoved", data:{start:start,end:end,count:count,
-                                                                sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
+                                                                sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm,filterFunction:filterFunction},
                                                                 sort:{roles:sortRoles,fn:compareFunction} } , debug)
 //
         }
@@ -109,7 +122,7 @@ ListModel {
                 return
 
             var idx         = arguments[1].row
-            QueryHandler.sendMessage({type:"dataChanged", data:{idx:idx, sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
+            QueryHandler.sendMessage({type:"dataChanged", data:{idx:idx, sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm,filterFunction:filterFunction},
                                                           sort:{roles:sortRoles,fn:compareFunction} },debug)
 //
         }
@@ -117,7 +130,7 @@ ListModel {
             if(initTimer.running)
                 return
 
-            QueryHandler.sendMessage({type:"modelReset", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm},
+            QueryHandler.sendMessage({type:"modelReset", data:{sourceModel:sourceModel,model:rootObject,queryTerm:queryTerm,filterFunction:filterFunction},
                                                          sort:{roles:sortRoles,fn:compareFunction}},debug)
 
         }
