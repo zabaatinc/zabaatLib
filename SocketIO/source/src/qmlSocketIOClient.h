@@ -114,7 +114,7 @@ public :
     //REGISTERED EVENTS
     QStringList registeredEvents() { return m_registeredEvents; }
     void setRegisteredEvents(QStringList nl) {
-        client.socket()->off_all();
+        client.socket()->off_all(); //remove all previous event listeners. BRUH
         m_registeredEvents.clear();
 
         setDefaultListeners();
@@ -130,11 +130,13 @@ public :
         if(!m_registeredEvents.contains(event)){
 
             client.socket()->on(event.toStdString(), [&](sio::event &ev){
+//                                                       qDebug () << "C++ EVENT FIRED::" << QString::fromStdString(ev.get_name());
                                                        Q_EMIT serverResponse(QString::fromStdString(ev.get_name()), transformMessage(ev.get_message()));
                                                     });
 
             m_registeredEvents.append(event);
             Q_EMIT registeredEventsChanged();
+
             return true;
         }
         return false;
@@ -253,7 +255,6 @@ private:
 //        client.set_reconnect_delay_max(4000);
 
         setDefaultListeners();
-
 
         timer = new QTimer(this);
         QObject::connect(timer, SIGNAL(timeout()) , this, SLOT(timerTick()));
@@ -435,13 +436,8 @@ private:
                 return arr;
             }
             case sio::message::flag_binary : {
-                //TODO
                 std::shared_ptr<const std::string> bin = msg->get_binary();
                 Q_EMIT binaryServerResponse(QByteArray(bin->c_str(), bin->length()),   QString::fromStdString(*bin));
-//                QFile outFile("temp.jpg");
-//                outFile.open(QFile::WriteOnly | QFile::Truncate);
-//                outFile.write(bin->c_str(), bin->length());
-//                outFile.close();
                 break;
             }
             case sio::message::flag_boolean : {
@@ -559,6 +555,8 @@ private:
 
         sync_isConnected(true,QString::fromStdString(nsp));
         sync_sessionId();
+//        qDebug () << "C++ registering events cause we connected" ;
+        setRegisteredEvents(m_registeredEvents);
     }
     void onClosed(sio::client::close_reason const & reason){
         setReconnecting(false);
