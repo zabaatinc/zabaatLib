@@ -425,6 +425,8 @@ ZController {
                             if(typeof message.data.id === 'undefined')
                                 message.data.id = message.id
 
+                            console.log("update message received on", modelName + "." + message.id )
+
                             controller.addModel(modelName, message.data)    //If one of the sets failed, that means that we either didn't have this property
                             updateReceived(modelName, message.data.id)
                             debug.debugMsg("finished handling update message received on", modelName + "." + message.id)
@@ -434,6 +436,8 @@ ZController {
                                 debug.debugMsg("update message received on", modelName + "." + message.id)
                                 if(typeof message.data.id === 'undefined')
                                     message.data.id = message.id
+
+                                console.log("update message received on", modelName + "." + message.id )
 
 
                                 controller.addModel(modelName, message.data)    //If one of the sets failed, that means that we either didn't have this property
