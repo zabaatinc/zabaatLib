@@ -63,8 +63,17 @@ Item {
             width : parent.width/4
             height : parent.h
             label : "Error Toast"
-            onAccepted : Toasts.dialog("Would you like to herp today", "IMPORTANT!" , function(){ console.log("accept")} ,
+            onAccepted : Toasts.dialog("Herpitudes", "Please tell me if your herpled today" , function(){ console.log("accept")} ,
                                                                                       function(){ console.log("decline")})
+        }
+
+        ZTextBox {
+            width : parent.width/4
+            height : parent.h
+            label : "Error Toast"
+            onAccepted : Toasts.dialogWithInput("QUESTION", "What is your name" , function(a){ console.log("accept",a)} ,
+                                                                                      function(){ console.log("decline")} ,
+                                                                                      {state : 'warning', label : "answer", focusFunc : function(){console.log("I FOCUS") }  })
             Component.onCompleted: forceActiveFocus()
         }
 

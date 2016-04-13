@@ -395,10 +395,20 @@ Item {
             })
 
             cache.injectState("tcenter"      , "graphical" , { text_hAlignment : Text.AlignHCenter, text_vAlignment : Text.AlignVCenter })
+
+            cache.injectState("tright"       , "graphical" , { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignVCenter })
+            cache.injectState("tleft"        , "graphical" , { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignVCenter })
             cache.injectState("tcenterright" , "graphical" , { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignVCenter })
             cache.injectState("tcenterleft"  , "graphical" , { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignVCenter })
+
+            cache.injectState("ttop"         , "graphical" , { text_hAlignment : Text.AlignHCenter, text_vAlignment : Text.AlignTop     })
+            cache.injectState("ttopcenter"   , "graphical" , { text_hAlignment : Text.AlignHCenter, text_vAlignment : Text.AlignTop     })
             cache.injectState("ttopright"    , "graphical" , { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignTop     })
             cache.injectState("ttopleft"     , "graphical" , { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignTop     })
+
+
+            cache.injectState("tbottom"      , "graphical" , { text_hAlignment : Text.AlignHCenter  , text_vAlignment : Text.AlignBottom  })
+            cache.injectState("tbottomcenter", "graphical" , { text_hAlignment : Text.AlignHCenter  , text_vAlignment : Text.AlignBottom  })
             cache.injectState("tbottomright" , "graphical" , { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignBottom  })
             cache.injectState("tbottomleft"  , "graphical" , { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignBottom  })
 

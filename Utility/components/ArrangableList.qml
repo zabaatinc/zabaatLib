@@ -9,6 +9,7 @@ Item {
     property alias guiVars    : guiVars
 
     property alias queryTerm       : zsub.queryTerm
+    property var filterFunction : null
     property alias model           : zsub.sourceModel
     property alias delegate        : guiVars.delegate
     property alias lv : lv
@@ -18,6 +19,7 @@ Item {
         property ZSubModel zsub : ZSubModel {
             id : zsub
 //            sortRoles: null;
+            filterFunction: rootObject.filterFunction
             compareFunction: function(a,b){
                 return a.__relatedIndex - b.__relatedIndex
             }

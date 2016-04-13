@@ -308,6 +308,8 @@ ZController {
 //            socketHandler.sailsGet(url.toString(), params, )
             //sails + type is the typeof function we are calling. sailsGet , sailsPut
             url = correctifyUrl(url)
+
+//            console.log("sails" + type, url.toString(), params ? params.id : "")
             socketHandler["sails" + type](url.toString(), params, function(response) {
                 if(response){
 //                    console.log("response received for", url, response);

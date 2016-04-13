@@ -27,6 +27,8 @@ Item {
     property var updateFunc : !methodCallFunc ? null : function(cb){
         var obj = {id:logic.uid, data:[logic.cleanClone()] }
 
+//        console.log("UPDATEING ", logic.uid)
+//        console.log(JSON.stringify(obj,null,2))
 //        console.log("Update"/*, JSON.stringify(obj,null,2)*/)
 //        file.writeFile("C:/MyProjects","updateFunc",JSON.stringify(obj,null,2))
 //        console.log(JSON.stringify(obj,null,2))

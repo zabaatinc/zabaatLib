@@ -74,6 +74,21 @@ Item {
         logic.create(text,"ZToastDialog", args, {blocking:true,duration:-1} , null, null , item)
     }
 
+    function dialogWithInput(title, text, cbAccept, cbCancel, args){
+        dialogWithInputIn(title,text,cbAccept,cbCancel,args)
+    }
+    function dialogWithInputIn(title, text, cbAccept, cbCancel, args, item) {
+        if(!args)
+            args = {}
+
+        args.title      = title;
+        args.acceptFunc = cbAccept;
+        args.cancelFunc = cbCancel;
+//        args.focusFunc = cbFocus;
+
+        logic.create(text,"ZToastDialogInput", args, {blocking:true,duration:-1} , null, null , item)
+    }
+
 
 
 
