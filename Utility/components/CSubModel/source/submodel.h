@@ -133,9 +133,7 @@ signals :
     void indexListChanged();
 
     void source_rowsInserted(uint start, uint end, uint count);
-    void source_rowsMoved(uint start, uint end, uint startEnd, uint destinationEnd);    //could be done here perhaps
-    void source_rowsRemoved(uint start, uint end, uint count);
-    void source_dataChanged(uint idx);
+    void source_dataChanged(uint idx, uint refIdx);
     void source_modelReset();
 
 
@@ -162,21 +160,102 @@ private:
         conn_modelReset   = connect(src, &QAbstractListModel::modelReset  , this, &submodel::__modelReset  );
     }
 
-    void __rowsInserted(const QModelIndex &parent, int first, int last){
-        qDebug() << parent.row() << " " << first << " " << last;
+    void __rowsInserted(const QModelIndex &parent, int start, int end){
+        //since we cant turn QVariant elems (from sourcemodel) into QJSValue here. We have to let JS handle this
+        //and run its filter function.
+        int count = end - start + 1;
+        Q_EMIT source_rowsInserted(start,end,count);
     }
-    void __rowsMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row) {
 
+    void __rowsRemoved(const QModelIndex &parent , int start, int end) {
+        int count = end - start + 1 ; //this is the amount of things that need it's indexes updated
+        int r;
+        for(int i = indices.length() -1; i >=0; --i){
+            r = indices[i];
+            if(r >= start && r <= end){
+                indices.removeAt(i);
+                //TODO emit row removed!
+            }
+            else if(r > end){
+                indices[i] -= count;
+                //This has adjusted the indices to match? Shouldn't really have to trigger anything I think.
+            }
+        }
     }
-    void __rowsRemoved(const QModelIndex &parent , int first, int last) {
 
-    }
     void __dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
+        //since we cant turn QVariant elems (from sourcemodel) into QJSValue here. We have to let JS handle this
+        //and run its filter function.
+        int actualIdx = bottomRight.row();
+        int refIdx = -1;
 
+        for(uint i = 0; i < indices.length(); ++i){
+            if(indices[i] == actualIdx){
+                refIdx = actualIdx;
+                break;
+            }
+        }
+
+        Q_EMIT source_dataChanged(actualIdx, refIdx);
     }
+
     void __modelReset() {
+        Q_EMIT source_modelReset();
+    }
+
+    void __rowsMoved(const QModelIndex &parent, int fromStart, int fromEnd, const QModelIndex &destination, int row) {
+        int count = fromEnd - fromStart +1;
+        int toStart, toEnd;
+        if(row < fromStart){
+            toStart = row;
+        }
+        else if(row > fromEnd){
+            toStart = row - count;
+        }
+        toEnd  = toStart + count - 1;
+
+        int moveConstant = toStart - fromStart;
+        int i, item, r, dist;
+        if(fromStart > toStart){    //original elements moved up!
+            dist = fromStart - toStart;
+            for(i = 0; i < indices.length(); ++i){
+                r   = indices[i];
+                if(r >= toStart && r <= fromEnd){   //only these things will be affected!!
+                    if(r >= fromStart && r <= fromEnd){ //if its the stuff moving up
+                        indices[i] = r - dist;
+                    }
+                    else {  //its the stuff moving down
+                        indices[i] = r + count;
+                    }
+                }
+            }
+            //EMIT stuff?
+        }
+        else if(fromStart < toStart) {  //original elements were moved down!
+            dist              = toStart - fromStart;
+            int elemsInMiddle = toStart - fromEnd - 1;
+            for(i = 0; i < indices.length(); ++i){
+                r   = indices[i];
+                if(r >= fromStart && r <= toEnd){
+                    if(r >= fromStart && r <= fromEnd){ //is in from
+                        indices[i] = r + dist;
+                    }
+                    else if(r >= toStart && r <= toEnd){ //is in the to SEction
+                        indices[i] = r - dist + elemsInMiddle;
+                    }
+                    else {  //is in the middle
+                        indices[i] = r - count;
+                    }
+                }
+            }
+            //EMIT stuff?  probably no.
+        }
+
+
+
 
     }
+
 
 
 
