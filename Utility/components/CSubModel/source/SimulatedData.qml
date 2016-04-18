@@ -17,7 +17,7 @@ QtObject {
                    }
 
     property ListModel model   : ListModel {
-        dynamicRoles : true
+//        dynamicRoles : true
     }
     property bool ready : false //model.count > 0
 

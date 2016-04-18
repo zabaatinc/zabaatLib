@@ -41,18 +41,7 @@ public:
         clear() ;
      }
 
-
-    Q_INVOKABLE QStringList getRoleNames() {
-        QStringList r;
-        QRoleItr i(roleNames());
-        while(i.hasNext()) {
-            i.next();
-            r.append(QString(i.value()));
-        }
-        return r;
-    }
-
-
+    //METHODS WE MUST PROVIDE!!
     QVariant data(const QModelIndex &index, int role) const {
         if(!index.isValid() || source == nullptr || index.row() < 0 || index.row() > indices.length())
             return nil.toVariant();
@@ -65,36 +54,10 @@ public:
         //have to constract a QModelIndex like a boss from our QList
         return source->data(source->index(relativeIdx),role);
     }
-
     int rowCount(const QModelIndex &parent = QModelIndex()) const {
         return source == nullptr ? 0 : indices.length() ;
     }
 
-    Q_INVOKABLE QVariant get(int row){
-        return (row < 0 || row > indices.length()) ? nil.toVariant() : sourceGet(indices[row]);
-    }
-    Q_INVOKABLE QVariant sourceGet(int row){
-        nanoTimer n;
-
-        if(source == nullptr || row < 0 || row > source->rowCount())
-            return nil.toVariant();
-
-        QVariantMap res;
-        QModelIndex idx = source->index(row, 0);
-
-        QRoleItr i(roleNames());
-        while(i.hasNext()) {
-            i.next();
-            QVariant data = idx.data(i.key());
-            res[i.value()] = data;
-        }
-
-
-        uint ns = n.stop();
-        qDebug() << "submodel::sourceGet(" << row << ").time\tns: " << ns << "\tms:" << ns / 1000000 ;
-
-        return res;
-    }
 
     QAbstractListModel* sourceModel() { return source; }
     void setSourceModel(QObject *src){
@@ -116,15 +79,82 @@ public:
     }
     void setIndexList(QList<int> intArr){
         safeList(intArr); //so everyuthing is kosher! i > 0  && i < rowCount of sourceModel
+
+        //since we are going to overwrite this indexList, let's make sure we tell the view that we
+        //don't need those delegated
+        clear();
+
         indices = intArr;
         Q_EMIT indexListChanged();
+
         indexListSignals();
     }
 
-    Q_INVOKABLE void clear() {
-        indices.clear();
-        emitClearSignals();
+    Q_INVOKABLE QStringList getRoleNames() {
+        QStringList r;
+        QRoleItr i(roleNames());
+        while(i.hasNext()) {
+            i.next();
+            r.append(QString(i.value()));
+        }
+        return r;
     }
+    Q_INVOKABLE QVariant get(int row){
+        return (row < 0 || row > indices.length()) ? nil.toVariant() : sourceGet(indices[row]);
+    }
+    Q_INVOKABLE QVariant sourceGet(int row){
+//        nanoTimer n;
+
+        if(source == nullptr || row < 0 || row > source->rowCount())
+            return nil.toVariant();
+
+        QVariantMap res;
+        QModelIndex idx = source->index(row, 0);
+
+        QRoleItr i(roleNames());
+        while(i.hasNext()) {
+            i.next();
+            QVariant data = idx.data(i.key());
+            res[i.value()] = data;
+        }
+
+
+//        uint ns = n.stop();
+//        qDebug() << "submodel::sourceGet(" << row << ").time\tns: " << ns << "\tms:" << ns / 1000000 ;
+
+        return res;
+    }
+    Q_INVOKABLE void addToIndexList(int idx) {
+        if(source != nullptr && !indices.contains(idx) && idx >= 0 && idx < source->rowCount()) {
+            Q_EMIT beginInsertRows(QModelIndex(), indices.length(), indices.length());  //cause we will put it
+            indices.append(idx);                                                         //at the end!
+            Q_EMIT endInsertRows();
+        }
+    }
+    Q_INVOKABLE void removeFromIndexList(int idx){
+        int indexOf;
+        if(-1 != (indexOf = indices.indexOf(idx))){
+            Q_EMIT beginRemoveRows(QModelIndex(), indexOf, indexOf);
+            indices.removeAt(indexOf);
+            Q_EMIT endRemoveRows();
+        }
+    }
+    Q_INVOKABLE void clear() {
+        if(indices.length() > 0) {
+            beginRemoveRows(QModelIndex(), 0, indices.length() - 1);
+            endRemoveRows();
+        }
+        indices.clear();
+        Q_EMIT countChanged(0);
+        Q_EMIT indexListChanged();
+    }
+
+
+    Q_INVOKABLE void emitDataChanged(int start, int end, const QVector<int> &roles = QVector<int>()){
+        emit dataChanged(index(start) ,index(end), roles);
+    }
+
+
 
 
 signals :
@@ -133,7 +163,7 @@ signals :
     void indexListChanged();
 
     void source_rowsInserted(uint start, uint end, uint count);
-    void source_dataChanged(uint idx, uint refIdx);
+    void source_dataChanged(uint idx, uint refIdx, QVector<int> roles);
     void source_modelReset();
 
 
@@ -173,8 +203,9 @@ private:
         for(int i = indices.length() -1; i >=0; --i){
             r = indices[i];
             if(r >= start && r <= end){
+                Q_EMIT beginRemoveRows(QModelIndex(), i, i);
                 indices.removeAt(i);
-                //TODO emit row removed!
+                Q_EMIT endRemoveRows();
             }
             else if(r > end){
                 indices[i] -= count;
@@ -183,21 +214,46 @@ private:
         }
     }
 
+
     void __dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
         //since we cant turn QVariant elems (from sourcemodel) into QJSValue here. We have to let JS handle this
         //and run its filter function.
-        int actualIdx = bottomRight.row();
-        int refIdx = -1;
 
+//        qDebug() << topLeft.row() << "," << topLeft.column() << "::" << bottomRight.row() << "::" << bottomRight.column();
+        int actualIdx = topLeft.row();
+        int refIdx = -1;
         for(uint i = 0; i < indices.length(); ++i){
             if(indices[i] == actualIdx){
-                refIdx = actualIdx;
+                refIdx = i;
                 break;
             }
         }
 
-        Q_EMIT source_dataChanged(actualIdx, refIdx);
+        Q_EMIT source_dataChanged(actualIdx, refIdx, roles);
     }
+
+//    void __dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
+//        //since we cant turn QVariant elems (from sourcemodel) into QJSValue here. We have to let JS handle this
+//        //and run its filter function.
+
+////        qDebug() << topLeft.row() << "," << topLeft.column() << "::" << bottomRight.row() << "::" << bottomRight.column();
+//        QVector<int> refList;
+//        for(uint j = topLeft.row(); j <= bottomRight.row(); ++j){
+
+//            int refIdx = -1;
+//            for(uint i = 0; i < indices.length(); ++i){
+//                if(indices[i] == j){
+//                    refIdx = i;
+//                    break;
+//                }
+//            }
+//            refList.push_back(refIdx);
+//        }
+
+//        //TODO let's make sure that the refIndice is in descending order so they can be sorted???
+////        qDebug() << topLeft.row() << " " << bottomRight.row() << " " << refList.length();
+//        Q_EMIT source_dataChanged(topLeft.row(), bottomRight.row(), refList, roles);
+//    }
 
     void __modelReset() {
         Q_EMIT source_modelReset();
@@ -214,8 +270,7 @@ private:
         }
         toEnd  = toStart + count - 1;
 
-        int moveConstant = toStart - fromStart;
-        int i, item, r, dist;
+        int i, r, dist;
         if(fromStart > toStart){    //original elements moved up!
             dist = fromStart - toStart;
             for(i = 0; i < indices.length(); ++i){
@@ -275,19 +330,14 @@ private:
             indices.clear();
         }
 
-        for(int i = indices.length() ; i >= 0; --i) {
+        for(int i = indices.length() - 1 ; i >= 0; --i) {
             int row = indices[i];
             if(row < 0 || row > source->rowCount())
                 indices.removeAt(i);
         }
     }
-    void emitClearSignals() {
-        Q_EMIT beginResetModel();
-        emitCountChanged(rowCount());
-        Q_EMIT endResetModel();
-    }
+
     void indexListSignals(){
-        emitClearSignals();
         if(source == nullptr)
             return;
 
@@ -298,8 +348,7 @@ private:
                 endInsertRows();
             }
         }
-        emitCountChanged(rowCount());
-//        Q_EMIT dataChanged(source->index(0), source->index(1)  );
+        Q_EMIT countChanged(rowCount());
     }
 
 

@@ -5,63 +5,102 @@ SubModel {
     property var filterFunc: function(a) {
                                 return true;
                              }
-    property var sortFunc: null
+    property var sortFunc  : null
+
 
     onSourceModelChanged: logic.filterAll()
     onFilterFuncChanged : logic.filterAll()
+    onSortFuncChanged   : if(sortFunc)
+                              logic.doSort();
 
     onSource_rowsInserted: logic.handleRowsInserted(start,end,count);
-    onSource_dataChanged: logic.handleDataChanged(idx, refIdx);
-    onSource_modelReset: logic.filterAll();
+    onSource_dataChanged : logic.handleDataChanged(idx, refIdx, roles);
+    onSource_modelReset  : logic.filterAll();
 
     property QtObject __logic : QtObject {
         id : logic
 
         function handleRowsInserted(start,end,count){
-
-        }
-
-        function handleDataChanged(idx, refIdx) {
-
-            //first lets see does this changed item still
-            if(refIdx === -1){
-
+            //first let's adjust the indices we already have cause they have moved!
+            for(var i = 0; i < rootObject.count; ++i) {
+                var r = indexList[i];
+                if(r >= start)
+                    indexList[i] += count;
             }
 
-            for(var i = 0; i < rootModel.count; ++i){
-                var item = rootModel.get(i)
-                if(idx === item.__relatedIndex){
-    //                debugMsg("remove @",i, JSON.stringify(changedItem,null,2))
-    //                debugMsg("removed @",i)
-                    rootModel.remove(i)
-                    break;
+            //now let's see if the new things match our filterFunction and add them if necessary
+            for(i = start; i <= end ; ++i){
+                var newItem = sourceModel.get(i);
+                var acceptable = filterFunc ? filterFunc(newItem) : true
+                if(acceptable){
+                    addToIndexList(i);
                 }
             }
 
-            //if it matches, now add it.
-            var changedItem = sourceModel.get(idx)
-            var matchItem = filterFunc ? filterFunc(changedItem) : logic.match(changedItem)
-            if(matchItem){
-                rootModel.insert(i,changedItem)
-                logic.setRelatedIdx(idx,i)
-    //            debugMsg("insert @",i,"with relative idx", idx)
-            }
 
-
+            if(sortFunc)
+                doSort();
         }
+        function handleDataChanged(idx, refIdx) {
 
+            //Idx is the actual index of the item (in the real model)
+            //refIdx is the index of the element that points to that
+
+            //if refIdx === -1 && is acceptable, add this item from indexList (list of references)
+            //if refIdx !== -1 && is unacceptable, remove this item from indexList (list of references)
+            var changedItem = sourceModel.get(idx)
+            var acceptable = filterFunc ? filterFunc(changedItem) : true
+
+            if(refIdx !== -1) {
+                if(!acceptable){    //remove if this new data makes this thing unacceptable!!
+                    removeFromIndexList(idx);
+                }
+                else {
+                    //emit data changed!!
+                    //gross way!
+                    //var src = sourceModel;
+                    //sourceModel= null;
+                    //sourceModel = src;
+                    emitDataChanged(refIdx,refIdx, roles)
+                }
+            }
+            else if(acceptable){
+                addToIndexList(idx);
+            }
+        }
         function filterAll(){
+            console.time("Filter")
+
             var arr = []
-            if(sourceModel && filterFunc) {
+            if(sourceModel) {
                 for(var i =0; i < sourceModel.count; ++i) {
                     var item = sourceModel.get(i)
-                    if(filterFunc(item))
+                    var acceptable = filterFunc ? filterFunc(item) : true
+                    if(acceptable)
                         arr.push(i);
                 }
             }
-            console.log('new indexList', arr)
+//            console.log('new indexList', arr)
             indexList = arr;
+            console.timeEnd("Filter")
+
+            if(sortFunc)
+                doSort()
+
+
+//            console.log("ASSIGNED INDEX LIST")
         }
+
+
+        function doSort(){
+//            console.log("DOING SORT")
+            console.time("sort Time")
+            indexList.sort(function(a,b){
+                return sortFunc(sourceModel.get(a), sourceModel.get(b))
+            })
+            console.timeEnd("sort Time")
+        }
+
 
     }
 
