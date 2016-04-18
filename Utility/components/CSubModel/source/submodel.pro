@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += qml quick qml-private gui-private
+QT += qml quick
 CONFIG += c++11
 
 SOURCES += main.cpp
