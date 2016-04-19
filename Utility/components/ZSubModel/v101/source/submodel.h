@@ -271,6 +271,9 @@ signals :
 
     void source_rowsInserted(uint start, uint end, uint count);
     void source_dataChanged(uint idx, uint refIdx, QVector<int> roles);
+    void source_rowsMoved();
+    void source_rowsRemoved();
+
     void source_modelReset();
     void readOnlyChanged();
 
@@ -327,6 +330,9 @@ private:
                 //This has adjusted the indices to match? Shouldn't really have to trigger anything I think.
             }
         }
+
+
+        Q_EMIT source_rowsRemoved();
     }
     void __dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
         //since we cant turn QVariant elems (from sourcemodel) into QJSValue here. We have to let JS handle this
@@ -419,8 +425,7 @@ private:
             //EMIT stuff?  probably no.
         }
 
-
-
+        Q_EMIT source_rowsMoved();
 
     }
 

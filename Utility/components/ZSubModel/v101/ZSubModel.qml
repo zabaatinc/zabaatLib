@@ -2,20 +2,21 @@ import QtQuick 2.5
 import Zabaat.Utility 1.1
 CSubModel {
     id : rootObject
-    property var filterFunc: null
-    property var sortFunc  : null
-    property alias filterFunction : rootObject.filterFunc   //to support older zsubmodel
-    property alias compareFunction: rootObject.sortFunc     //to support older zsubmodel
+    property var  filterFunc: null
+    property var  sortFunc  : null
+    property bool sortFuncAcceptsIndices : false
+
 
 
     onSourceModelChanged: logic.filterAll()
     onFilterFuncChanged : logic.filterAll()
-    onSortFuncChanged   : if(sortFunc)
-                              logic.doSort();
-
+    onSortFuncChanged   : if(sortFunc)  logic.doSort();
+    onSource_rowsMoved   : if(sortFunc) logic.doSort();
+    onSource_rowsRemoved : if(sortFunc) logic.doSort();
     onSource_rowsInserted: logic.handleRowsInserted(start,end,count);
     onSource_dataChanged : logic.handleDataChanged(idx, refIdx, roles);
     onSource_modelReset  : logic.filterAll();
+
 
     property QtObject __logic : QtObject {
         id : logic
@@ -95,9 +96,14 @@ CSubModel {
         function doSort(){
 //            console.log("DOING SORT")
             console.time("sort Time")
-            indexList.sort(function(a,b){
-                return sortFunc(sourceModel.get(a), sourceModel.get(b))
-            })
+            if(sortFuncAcceptsIndices){
+                indexList.sort(sortFunc)
+            }
+            else {
+                indexList.sort(function(a,b){
+                    return sortFunc(sourceModel.get(a), sourceModel.get(b))
+                })
+            }
             console.timeEnd("sort Time")
         }
 

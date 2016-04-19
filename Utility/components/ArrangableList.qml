@@ -1,6 +1,6 @@
 import QtQuick 2.5
-import "ZSubModel"
-//import Zabaat.Utility 1.0
+//import "ZSubModel"
+import Zabaat.Utility 1.1
 
 Item {
     id : rootObject
@@ -8,7 +8,11 @@ Item {
     property alias logic      : logic
     property alias guiVars    : guiVars
 
-    property alias queryTerm       : zsub.queryTerm
+    property var queryTerm : null
+    onQueryTermChanged: if(queryTerm){
+        console.warn("Deprecated QueryTerm used. Please fix. This does nothing");
+    }
+
     property var filterFunction : null
     property alias model           : zsub.sourceModel
     property alias delegate        : guiVars.delegate
@@ -19,10 +23,12 @@ Item {
         property ZSubModel zsub : ZSubModel {
             id : zsub
 //            sortRoles: null;
-            filterFunction: rootObject.filterFunction
-            compareFunction: function(a,b){
-                return a.__relatedIndex - b.__relatedIndex
+            filterFunc: rootObject.filterFunction
+            sortFunc: function(a,b){
+//                console.log(a,b)
+                return a - b //a.__relatedIndex - b.__relatedIndex
             }
+            sortFuncAcceptsIndices: true
         }
 
         function getSelected(){ //relatedIndices!
@@ -217,7 +223,7 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     font.pixelSize  : parent.height * 1/3
-                    text : parent.model && parent.model.name ? parent.model.__relatedIndex + ":\t" +  parent.model.name : ""
+                    text : parent.model && parent.model.name ? logic.zsub.actualIdx(parent.index) + ":\t" +  parent.model.name + "\t" + parent.index: ""
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -232,6 +238,7 @@ Item {
         anchors.fill: parent
         clip : false
         model : logic.zsub
+        cacheBuffer: 25000
 
         property int cellHeight : height * 0.1
 
@@ -243,7 +250,7 @@ Item {
 
             property var  m            : lv.model && lv.model.count > index ?  lv.model.get(index) : null
 //            onMChanged: if(m) console.log(JSON.stringify(m,null,2))
-            property int  relatedIndex : m && m.__relatedIndex !== null && typeof m.__relatedIndex !== 'undefined' ? m.__relatedIndex : -1
+            property int  relatedIndex : logic.zsub.actualIdx(index);
             property int _index        : index
             property bool imADelegate  : true
             property bool selected     : false
@@ -287,7 +294,7 @@ Item {
                 scale : dMsArea.isDragging ?  0.8 : 1
 
                 property var  m              : lv.model && lv.model.count > index ? lv.model.get(index) : null
-                property int  relatedIndex   : m && m.__relatedIndex !== null && typeof m.__relatedIndex !== "undefined" ? m.__relatedIndex : -1
+                property int  relatedIndex   : logic.zsub.actualIdx(index)
                 property var   originalParent : del
                 property var dTar: Drag.target
 //                onDTarChanged: console.log(dLoader," hovers over " , dTar)

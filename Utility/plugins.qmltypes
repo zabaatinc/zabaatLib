@@ -340,7 +340,9 @@ Module {
             Parameter { name: "refIdx"; type: "uint" }
             Parameter { name: "roles"; type: "QVector<int>" }
         }
-        Signal { name: "source_modelReset" }
+        Signal { name: "source_modelReset"  }
+		Signal { name: "source_rowsMoved"   }
+		Signal { name: "source_rowsRemoved" }
         Method { name: "getRoleNames"; type: "QStringList" }
         Method {
             name: "get"
