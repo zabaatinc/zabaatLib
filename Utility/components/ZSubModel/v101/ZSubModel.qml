@@ -17,6 +17,7 @@ CSubModel {
     onSource_dataChanged : logic.handleDataChanged(idx, refIdx, roles);
     onSource_modelReset  : logic.filterAll();
 
+    readonly property var filterAll : logic.filterAll
 
     property QtObject __logic : QtObject {
         id : logic

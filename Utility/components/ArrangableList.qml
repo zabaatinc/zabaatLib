@@ -1,7 +1,7 @@
 import QtQuick 2.5
 //import "ZSubModel"
 import Zabaat.Utility 1.1
-
+import QtQuick.Controls 1.4
 Item {
     id : rootObject
 
@@ -13,10 +13,11 @@ Item {
         console.warn("Deprecated QueryTerm used. Please fix. This does nothing");
     }
 
-    property var filterFunction : null
+    property var filterFunction    : null
     property alias model           : zsub.sourceModel
     property alias delegate        : guiVars.delegate
     property alias lv : lv
+    property alias subModel : zsub
 
     QtObject {
         id : logic
@@ -233,197 +234,208 @@ Item {
 
     }
 
-    ListView {
-        id : lv
+
+    ScrollView {
         anchors.fill: parent
-        clip : false
-        model : logic.zsub
-        cacheBuffer: 25000
 
-        property int cellHeight : height * 0.1
+        ListView {
+            id : lv
+            anchors.centerIn: parent
+            width : parent.width * 0.9
+            height : parent.height
+            clip : false
+            model : logic.zsub
+            cacheBuffer: 25000
 
-        delegate : Item {
-            id : del
-            objectName : "head" + _index
-            width : lv.width
-            height: lv.cellHeight
+            property real loaderWidth: width - cellHeight
+            property int cellHeight : height * 0.1
 
-            property var  m            : lv.model && lv.model.count > index ?  lv.model.get(index) : null
-//            onMChanged: if(m) console.log(JSON.stringify(m,null,2))
-            property int  relatedIndex : logic.zsub.actualIdx(index);
-            property int _index        : index
-            property bool imADelegate  : true
-            property bool selected     : false
+            delegate : Item {
+                id : del
+                objectName : "head" + _index
+                width : lv.width
+                height: lv.cellHeight
 
-//            property string name : m ? m.name : ""
+                property var  m            : lv.model && lv.model.count > index ?  lv.model.get(index) : null
+    //            onMChanged: if(m) console.log(JSON.stringify(m,null,2))
+                property int  relatedIndex : logic.zsub.actualIdx(index);
+                property int _index        : index
+                property bool imADelegate  : true
+                property bool selected     : false
 
-            property alias dDropArea : dDropArea
-            property alias dLoader   : dLoader
-            property alias dLoaderTail : dLoaderTail
-            property alias dBorderRect : dBorderRect
+    //            property string name : m ? m.name : ""
 
-            z : dMsArea.isDragging ?  1 : 0
+                property alias dDropArea : dDropArea
+                property alias dLoader   : dLoader
+                property alias dLoaderTail : dLoaderTail
+                property alias dBorderRect : dBorderRect
 
-            Rectangle {
-                id : dCheckBox
-                width  : parent.height/2
-                height : parent.height/2
-                anchors.left: parent.left
-                anchors.top: parent.top
-                anchors.margins: height/2
-                radius : height/2
-                border.color : "black"
-                color : del.selected ? guiVars.color_border_hightlight : "transparent"
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked : if(!del.selected)   logic.select(del._index, del.relatedIndex, del);
-                                else                logic.deselect(del._index, del.relatedIndex, del)
+                z : dMsArea.isDragging ?  1 : 0
+
+                Rectangle {
+                    id : dCheckBox
+                    width  : parent.height/2
+                    height : parent.height/2
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.margins: height/2
+                    radius : height/2
+                    border.color : "black"
+                    color : del.selected ? guiVars.color_border_hightlight : "transparent"
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked : if(!del.selected)   logic.select(del._index, del.relatedIndex, del);
+                                    else                logic.deselect(del._index, del.relatedIndex, del)
+                    }
+                    z : 0
                 }
-                z : 0
-            }
 
-            Loader {
-                id : dLoader
-                objectName : "Loader" + del._index
-                width        : parent.objectName.indexOf("head") === 0 ? parent.width - parent.height : parent.width
-                height       : parent.objectName.indexOf("head") === 0 ? parent.height                : parent.h
-                anchors.right: parent.objectName.indexOf("head") === 0 ? parent.right : undefined
-                anchors.left : parent.objectName.indexOf("head") === 0 ? undefined : parent.left
+                Loader {
+                    id : dLoader
+                    objectName : "Loader" + del._index
+                    width        : parent.objectName.indexOf("head") === 0 ? parent.width - parent.height : parent.width
+                    height       : parent.objectName.indexOf("head") === 0 ? parent.height                 : parent.h
+                    anchors.right: parent.objectName.indexOf("head") === 0 ? parent.right : undefined
+                    anchors.left : parent.objectName.indexOf("head") === 0 ? undefined : parent.left
 
-                sourceComponent : guiVars.delegate
-                scale : dMsArea.isDragging ?  0.8 : 1
+                    sourceComponent : guiVars.delegate
+                    scale : dMsArea.isDragging ?  0.8 : 1
 
-                property var  m              : lv.model && lv.model.count > index ? lv.model.get(index) : null
-                property int  relatedIndex   : logic.zsub.actualIdx(index)
-                property var   originalParent : del
-                property var dTar: Drag.target
-//                onDTarChanged: console.log(dLoader," hovers over " , dTar)
+                    property var  m              : lv.model && lv.model.count > index ? lv.model.get(index) : null
+                    property int  relatedIndex   : logic.zsub.actualIdx(index)
+                    property var   originalParent : del
+                    property var dTar: Drag.target
+    //                onDTarChanged: console.log(dLoader," hovers over " , dTar)
 
 
-                Drag.keys: ["dropItem"]
-                Drag.active: dMsArea.isDragging
-                Drag.hotSpot.x : width/2
-                Drag.hotSpot.y : height/2
-                onLoaded : if(item) {
-                               item.anchors.fill = dLoader
-                               if(item.hasOwnProperty("index"))
-                                   item.index = Qt.binding(function() { return del._index })
-                               if(item.hasOwnProperty("relatedIndex"))
-                                   item.relatedIndex = Qt.binding(function() { return del.relatedIndex})
-                               if(item.hasOwnProperty("model"))
-                                   item.model = Qt.binding(function() { return del.m })
-                           }
+                    Drag.keys: ["dropItem"]
+                    Drag.active: dMsArea.isDragging
+                    Drag.hotSpot.x : width/2
+                    Drag.hotSpot.y : height/2
+                    onLoaded : if(item) {
+                                   item.anchors.fill = dLoader
+                                   if(item.hasOwnProperty("index"))
+                                       item.index = Qt.binding(function() { return del._index })
+                                   if(item.hasOwnProperty("relatedIndex"))
+                                       item.relatedIndex = Qt.binding(function() { return del.relatedIndex})
+                                   if(item.hasOwnProperty("model"))
+                                       item.model = Qt.binding(function() { return del.m })
+                               }
 
-                MouseArea {
-                    id : dMsArea
+                    MouseArea {
+                        id : dMsArea
 
-                    propagateComposedEvents: true
-//                    hoverEnabled: true
-                    anchors.fill: parent
-                    drag.target : parent
-                    property bool isDragging : drag.active
+                        propagateComposedEvents: true
+    //                    hoverEnabled: true
+                        anchors.fill: parent
+                        drag.target : parent
+                        property bool isDragging : drag.active
 
-                    onIsDraggingChanged: {
-                        if(!zsub.sourceModel)
-                            return;
+                        onIsDraggingChanged: {
+                            if(!zsub.sourceModel)
+                                return;
 
-                        if(!isDragging){    //finished dragging
-                            //make sure we didn't drop on one of the selected!
-                            logic.dropped(dLoader.Drag.target, del)
-                            dLoader.x = dLoader.y = 0;
-                            dBorderRect.border.color = "black"
-                            dCountTeller.text = ""
-//                            logic.showAllSelected(del)
+                            if(!isDragging){    //finished dragging
+                                //make sure we didn't drop on one of the selected!
+                                logic.dropped(dLoader.Drag.target, del)
+                                dLoader.x = dLoader.y = 0;
+                                dBorderRect.border.color = "black"
+                                dCountTeller.text = ""
+    //                            logic.showAllSelected(del)
+                            }
+                            else {             //begun dragging
+                                logic.select(del._index, del.relatedIndex, del);
+                                var count = logic.hideOtherSelected(del)
+    //                            dLoaderTail.height = dLoader.height * (count - 1)
+                                dLoaderTail.kids   = count - 1
+
+                                dCountTeller.text  = " x" + count
+                            }
                         }
-                        else {             //begun dragging
-                            logic.select(del._index, del.relatedIndex, del);
-                            var count = logic.hideOtherSelected(del)
-//                            dLoaderTail.height = dLoader.height * (count - 1)
-                            dLoaderTail.kids   = count - 1
+                    }
 
-                            dCountTeller.text  = " x" + count
-                        }
+                    z : 1
+
+                    Column {
+                        id : dLoaderTail
+                        objectName : "tail"
+                        property int kids : 0
+
+                        anchors.top: dLoader.bottom
+                        width : parent.width
+                        height : dLoader.height * kids
+                        property int h : height/kids
+
+    //                    scale : dLoader.scale
                     }
                 }
 
-                z : 1
+                Text {
+                    //count teller
+                    id   : dCountTeller
+                    text : ""
+                    anchors.top: dLoader.top
+                    anchors.right: dLoader.right
+                    width : parent.height
+                    height : parent.height
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHJCenter
+                    font.pixelSize: height * 1/3
+                    color : guiVars.color_border_hightlight
+                    visible : text.length > 0
 
-                Column {
-                    id : dLoaderTail
-                    objectName : "tail"
-                    property int kids : 0
-
-                    anchors.top: dLoader.bottom
-                    width : parent.width
-                    height : dLoader.height * kids
-                    property int h : height/kids
-
-//                    scale : dLoader.scale
-                }
-            }
-
-            Text {
-                //count teller
-                id   : dCountTeller
-                text : ""
-                anchors.top: dLoader.top
-                anchors.right: dLoader.right
-                width : parent.height
-                height : parent.height
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHJCenter
-                font.pixelSize: height * 1/3
-                color : guiVars.color_border_hightlight
-                visible : text.length > 0
-
-                z  : 2
-            }
-
-
-            DropArea {
-                id : dDropArea
-                width : parent.width - parent.height
-                height : parent.height
-                anchors.right: parent.right
-                objectName : "DropArea:" + del._index
-                keys : ["dropItem"]
-                scale : dLoader.scale
-                z : 999
-
-//                onSourceChanged: console.log("SOURCE", source)
-
-
-                onEntered: if(drag.source !== null && typeof drag.source !== 'undefined' && drag.source.parent._index !== del._index){
-                        dBorderRect.border.color = guiVars.color_border_hightlight
+                    z  : 2
                 }
 
-                onExited: dBorderRect.border.color = dMsArea.isDragging ? "transparent" : guiVars.color_border_normal
 
-                Rectangle {
-                    id : dBorderRect
-                    anchors.fill: parent
-                    color : 'transparent'
-                    border.width: 1
-                    visible : dLoader.parent === del
+                DropArea {
+                    id : dDropArea
+                    width : parent.width - parent.height
+                    height : parent.height
+                    anchors.right: parent.right
+                    objectName : "DropArea:" + del._index
+                    keys : ["dropItem"]
+                    scale : dLoader.scale
+                    z : 999
+
+    //                onSourceChanged: console.log("SOURCE", source)
+
+
+                    onEntered: if(drag.source !== null && typeof drag.source !== 'undefined' && drag.source.parent._index !== del._index){
+                            dBorderRect.border.color = guiVars.color_border_hightlight
+                    }
+
+                    onExited: dBorderRect.border.color = dMsArea.isDragging ? "transparent" : guiVars.color_border_normal
+
+                    Rectangle {
+                        id : dBorderRect
+                        anchors.fill: parent
+                        color : 'transparent'
+                        border.width: 1
+                        visible : dLoader.parent === del
+                    }
                 }
+
+
+    //            Text {    //for debugging. checks if stuff is in sync. Brohim!
+    //                anchors.centerIn: parent
+    //                horizontalAlignment: Text.AlignHCenter
+    //                verticalAlignment: Text.AlignVCenter
+    //                font.pixelSize: parent.height * 1/3
+    //                text : parent.relatedIndex + ":\t" + parent.name
+
+    //                property var realname      : rootObject.model.get(parent._index)
+    //                property var suggestedName : rootObject.model.get(parent.relatedIndex)
+
+    //                color : realname !== suggestedName ? "red" : "green"
+    //            }
             }
 
-
-//            Text {    //for debugging. checks if stuff is in sync. Brohim!
-//                anchors.centerIn: parent
-//                horizontalAlignment: Text.AlignHCenter
-//                verticalAlignment: Text.AlignVCenter
-//                font.pixelSize: parent.height * 1/3
-//                text : parent.relatedIndex + ":\t" + parent.name
-
-//                property var realname      : rootObject.model.get(parent._index)
-//                property var suggestedName : rootObject.model.get(parent.relatedIndex)
-
-//                color : realname !== suggestedName ? "red" : "green"
-//            }
         }
 
+
     }
+
 
 
 }
