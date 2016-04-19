@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>main.qml</file>
-        <file>SimulatedData.qml</file>
-        <file>SFModel.qml</file>
-    </qresource>
-</RCC>

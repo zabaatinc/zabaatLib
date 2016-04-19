@@ -1,0 +1,4 @@
+module Zabaat.Utility.components.ZSubModel.v101
+plugin submodel
+typeinfo plugins.qmltypes
+ZSubModel 1.1 ZSubModel

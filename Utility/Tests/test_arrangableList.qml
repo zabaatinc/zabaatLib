@@ -44,7 +44,7 @@ Row {
         height : parent.height
         model : rootObject.sourceModel
 //        queryTerm: ({"$and":[{name: { "$gt":"A" } }  , {name: { "$lt":"E" } } , {name: { "!=":"C" } }  ]  })
-        queryTerm : ({"name":""})
+//        queryTerm : ({"name":""})
     }
 
 

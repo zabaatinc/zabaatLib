@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Window 2.2
-import Wolf 1.0
+import Zabaat.Utility.ZSubModel 1.1
 import QtQuick.Controls 1.4
 
 Window {
@@ -8,21 +8,10 @@ Window {
     width : Screen.width
     height : Screen.height - 300
 
-//    ListModel {
-//        id : original
 
-
-//        Component.onCompleted: {
-//            append([{n:'apple' , color : 'red' } ,
-//                    {n:'mango' , color : 'yellow' } ,
-//                    {n:'grape' , color : 'green' } ,
-//                    {n:'banana', color : 'yellow' } ,
-//                   ])
-//        }
-//    }
 
     property alias original : simData.model
-    SimulatedData {
+    Test_Main_SimulatedData {
         id: simData
 //        onReadyChanged : if(ready) {
 //                             sub.sourceModel = simData.model
@@ -54,7 +43,7 @@ Window {
            id : flv
            width : parent.width * 0.475
            height : parent.height
-           model : SFModel {
+           model : ZSubModel {
                id : sub
                sourceModel : original
                filterFunc: null

@@ -1,10 +1,10 @@
-TEMPLATE = app
+#TEMPLATE = app
+TEMPLATE = lib
 
-QT += qml quick
+QT += qml quick  qml-private core-private
 CONFIG += c++11
 
 SOURCES += main.cpp
-
 RESOURCES += qml.qrc data.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
@@ -12,5 +12,4 @@ QML_IMPORT_PATH =
 
 # Default rules for deployment.
 include(deployment.pri)
-
-HEADERS += submodel.h mstimer.h nanotimer.h
+HEADERS += submodel.h mstimer.h nanotimer.h submodelplugin.h

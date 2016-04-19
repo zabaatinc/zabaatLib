@@ -1,10 +1,8 @@
 import QtQuick 2.5
-import Wolf 1.0
-SubModel {
+import Zabaat.Utility.ZSubModel 1.1
+CSubModel {
     id : rootObject
-    property var filterFunc: function(a) {
-                                return true;
-                             }
+    property var filterFunc: null
     property var sortFunc  : null
 
 
@@ -41,7 +39,7 @@ SubModel {
             if(sortFunc)
                 doSort();
         }
-        function handleDataChanged(idx, refIdx) {
+        function handleDataChanged(idx, refIdx, roles) {
 
             //Idx is the actual index of the item (in the real model)
             //refIdx is the index of the element that points to that
@@ -61,6 +59,8 @@ SubModel {
                     //var src = sourceModel;
                     //sourceModel= null;
                     //sourceModel = src;
+
+//                    console.log("EMITING DATA CHANGED", refIdx, roles)
                     emitDataChanged(refIdx,refIdx, roles)
                 }
             }
@@ -90,8 +90,6 @@ SubModel {
 
 //            console.log("ASSIGNED INDEX LIST")
         }
-
-
         function doSort(){
 //            console.log("DOING SORT")
             console.time("sort Time")
@@ -100,7 +98,6 @@ SubModel {
             })
             console.timeEnd("sort Time")
         }
-
 
     }
 
