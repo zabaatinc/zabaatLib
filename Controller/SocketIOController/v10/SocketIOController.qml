@@ -54,7 +54,7 @@ ZController {
             jsQuery = {__sails_io_sdk_version : "1.2.0" }
 
 //         console.log(controller.uri)
-        socketHandler.connect(uri,jsQuery)
+        socketHandler.connect(uri, JSON.stringify(jsQuery))
     }
 
     /*! fn : disconnects any active connections and any attempts to reconnect  \hr */
@@ -310,7 +310,7 @@ ZController {
             url = correctifyUrl(url)
 
 //            console.log("sails" + type, url.toString(), params ? params.id : "")
-            socketHandler["sails" + type](url.toString(), params, function(response) {
+            socketHandler["sails" + type](url.toString(), JSON.stringify(params), function(response) {
                 if(response){
 //                    console.log("response received for", url, response);
 

@@ -25,6 +25,7 @@ Item {
 
 //    ZFileOperations { id : file  }
     property var updateFunc : !methodCallFunc ? null : function(cb){
+
         var obj = {id:logic.uid, data:[logic.cleanClone()] }
 
 //        console.log("UPDATEING ", logic.uid)
