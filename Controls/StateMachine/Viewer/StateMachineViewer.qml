@@ -2,30 +2,62 @@ import QtQuick 2.4
 import "Functions"
 import "FancyLoader"
 import Zabaat.Utility 1.0
+
+/*!
+   \brief The viewer for a statemachine. It will follow the rules of the statemachine.
+   \inqmlmodule Zabaat.Controls.StateMachine 1.0 \hr
+*/
 Item {
     id : rootObject
 
-    //this is the rootdirectory of state machine qmls. each statemachine should have it's own qml dir.
+    /*! this is the rootdirectory of state machine qmls. each statemachine should have it's own qml dir */
     property string qmlDirectory : Qt.resolvedUrl('example')
-    property var stateMachine    : null  //this is the statemachine
-    property var    modelObject  : null  //the object that obeys or lives inside the statemachine
+
+    /*! this is the statemachine object. The one whose rules should be followed! */
+    property var stateMachine    : null
+
+    /*! The object within the state machine. Should have a state property */
+    property var    modelObject  : null
+
+    /*! alias to logic */
     property alias logic         : logic
 
+    /*! the animation to play when moving from one state to another. These are the options : \br
+        fade        \br
+        slideRight  \br
+        slideLeft   \br
+        slideUp     \br
+        slideDown   \br
+        scaleIn     \br
+        rotateRight \br
+        rotateLeft  \br
+        \hr
+    */
     property alias defaultTransitionAnimation: loader.transitionEffect
+
+    /*!  the amount of ms it takes to transition from one state to the next */
     property alias defaultTransitionDuration : loader.transitionDuration
 
+    /*!  The current state that modelObject is in */
     readonly property alias currentState : logic.currentState
-    readonly property alias allStates    : logic.states
-    property var transitionFunc : logic.defaultTransitionFunc //provide this function. inputs(string id, string dest). Should make modelObject change states
-    property var methodCallFunc : null  //provide this function. inputs(string fnName, var params).Should change modeObject in someway
-                                                                                               //(should rarely change state!)
 
+    /*!  All the states that are available in this statemachine */
+    readonly property alias allStates    : logic.states
+
+    /*! \fn provide this function. inputs(string id, string dest). Should make modelObject change states. \br\b default: logic.defaultTransitionFunc */
+    property var transitionFunc : logic.defaultTransitionFunc
+
+    /*! \fn provide this function. inputs(string fnName, var params).Should change modeObject in someway. Should almost never change states!\br\b default : null */
+    property var methodCallFunc : null
+
+    /*! \fn uses methodCallFunc, if provided, to update the modelObject on the server. This should not really change the state. \br\b default : null */
     property var updateFunc : !methodCallFunc ? null : function(cb){
         var obj = {id:logic.uid, data:[logic.cleanClone()] }
 //        console.log("Update", JSON.stringify(obj,null,2))
         methodCallFunc("update", obj, cb)
     }
 
+    /*! Determines whether we should auto build the gui to show the options for adjacent states. Somewhat ugly but functional. */
     property bool usesDefaultNavigation : true
     property bool debug : true
 
