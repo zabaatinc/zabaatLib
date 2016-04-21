@@ -27,7 +27,7 @@
 #include <QJsonDocument>
 #include <map>
 #include <QTimer>
-
+#include <QQmlEngine>
 
 //#include <rapidjson/rapidjson.h>
 
@@ -77,7 +77,7 @@ public :
     }
     ~qmlSocketIOClient() {
         timer->stop();
-        timer->deleteLater();
+//        timer->deleteLater();
     }
 
     QString sessionId() { return m_sessionId; }
@@ -98,9 +98,40 @@ public :
             }
 
             if(query.size() > 0){
-                qDebug() << BOOST_CURRENT_FUNCTION << "connecting with " << query.size() << " params";
+                Q_EMIT info(QString(BOOST_CURRENT_FUNCTION) + " connecting with " + query.size() + " params to:" + uri);
             }
+        }
+        else if(js.isString()) {
+            QJsonParseError err;
+            QJsonDocument doc =  QJsonDocument::fromJson(QByteArray(js.toString().toStdString().c_str()) , &err);
 
+            if(err.error != QJsonParseError::NoError) {
+                printParseError(err, js);
+            }
+            else {
+                if(doc.isObject()){
+                    QJsonObject obj = doc.object();
+
+                    QJsonObject::iterator itr;
+                    for(itr = obj.begin(); itr != obj.end(); ++itr){
+                        QString key       = itr.key();
+                        QJsonValueRef val = itr.value();
+                        if(val.isString()) {
+                            query[key.toStdString()] = val.toString().toStdString();
+                        }
+                    }
+                }
+                else if(doc.isArray()){
+                    QJsonArray arr = doc.array();
+
+                    for(uint i =0; i < arr.count(); ++i){
+                        QJsonValueRef val = arr[i];
+                        if(val.isString()) {
+                            query[(QString::number(i)).toStdString()] = val.toString().toStdString();
+                        }
+                    }
+                }
+            }
         }
 
         client.connect(uri.toStdString(), query);
@@ -114,7 +145,7 @@ public :
     //REGISTERED EVENTS
     QStringList registeredEvents() { return m_registeredEvents; }
     void setRegisteredEvents(QStringList nl) {
-        client.socket()->off_all();
+        client.socket()->off_all(); //remove all previous event listeners. BRUH
         m_registeredEvents.clear();
 
         setDefaultListeners();
@@ -130,11 +161,13 @@ public :
         if(!m_registeredEvents.contains(event)){
 
             client.socket()->on(event.toStdString(), [&](sio::event &ev){
+//                                                       qDebug () << "C++ EVENT FIRED::" << QString::fromStdString(ev.get_name());
                                                        Q_EMIT serverResponse(QString::fromStdString(ev.get_name()), transformMessage(ev.get_message()));
                                                     });
 
             m_registeredEvents.append(event);
             Q_EMIT registeredEventsChanged();
+
             return true;
         }
         return false;
@@ -178,16 +211,6 @@ public :
     uint attemptedReconnects() {  return m_attemptedReconnects;    }
     bool reconnecting()        {  return m_reconnecting;           }
 
-
-//    Q_INVOKABLE QVariant test(){
-//        QJsonObject v;
-//        v.insert("derp","face");
-//        return v;
-//    }
-//    Q_INVOKABLE void test2(QJSValue arr){
-//        transformJSValue(arr);
-//    }
-
     int reconnectLimit() { return m_reconnectLimit; }
     void setReconnectLimit(int value) {
          if(value != m_reconnectLimit) {
@@ -195,11 +218,6 @@ public :
              Q_EMIT reconnectLimitChanged(value);
          }
     }
-
-
-
-
-
 
 Q_SIGNALS:
     void sessionIdChanged();
@@ -211,12 +229,16 @@ Q_SIGNALS:
     void reconnectingChanged(bool value);
     void reconnectLimitChanged(int value);
     void binaryServerResponse(QByteArray valueAsArray, QString valueAsString);
+    void info(QString message);
+    void error(QString message);
+    void warning(QString message);
 
 public Q_SLOTS:
     void timerTick() {  //The timer is thread safe. It will run on the UI thread. This is the only reason it exists!
         if(!cbListLocked){
             while(!cbList.isEmpty()) {
                 cbList[0].call();
+                QQmlEngine::setObjectOwnership(cbList[0].function.toQObject(), QQmlEngine::JavaScriptOwnership);
                 cbList.pop_front();
             }
         }
@@ -265,7 +287,6 @@ private:
 
         setDefaultListeners();
 
-
         timer = new QTimer(this);
         QObject::connect(timer, SIGNAL(timeout()) , this, SLOT(timerTick()));
         timer->start(10);
@@ -297,9 +318,18 @@ private:
             sio::message::ptr om = sio::object_message::create();
             auto &map = om->get_map();
 
+            QQmlEngine::setObjectOwnership(params.toQObject(), QQmlEngine::CppOwnership);
+            QQmlEngine::setObjectOwnership(headers.toQObject(), QQmlEngine::CppOwnership);
+            QQmlEngine::setObjectOwnership(cb.toQObject(), QQmlEngine::CppOwnership);
+
+
             std::pair<std::string,sio::message::ptr> _url   ("url"      , sio::string_message::create(url.toStdString())     );
-            std::pair<std::string,sio::message::ptr> _params("params"  , transformJSValue(params , isBinary)  );
+            std::pair<std::string,sio::message::ptr> _params("params"  , transformJSValue(params , isBinary));
             std::pair<std::string,sio::message::ptr> _headers("headers", transformJSValue(headers, isBinary));
+
+            QQmlEngine::setObjectOwnership(params.toQObject(), QQmlEngine::JavaScriptOwnership);
+            QQmlEngine::setObjectOwnership(headers.toQObject(), QQmlEngine::JavaScriptOwnership);
+
 
             map.insert(_url);
             map.insert(_params);
@@ -323,14 +353,12 @@ private:
                             cbListLocked = true;        //for safety! though we append at the end!
                             cbList.push_back(d);
                             cbListLocked = false;
-
 //                            Q_EMIT jsCb(cb,args);
-
-
-
                         }
-                        else
-                            qDebug() << "cb is not callable";
+                        else {
+                            Q_EMIT this->warning("cb provided for " + url + " is not callable");
+                        }
+
 
                         QStringList arr   = method.split("/");
                         QString eventName = "";
@@ -348,12 +376,60 @@ private:
             client.socket()->emit(method.toStdString(), om, func);
         }
         else {
-            qDebug() << BOOST_CURRENT_FUNCTION << " : socket is not connected " << url ;
+            Q_EMIT warning(QString(BOOST_CURRENT_FUNCTION) + " : socket is not connected " + url);
         }
     }
 
 
-    sio::message::ptr transformJSValue(QJSValue js, bool isBinary = false){ //turns any jsValue into a message::ptr object that we can send!
+    sio::message::ptr transformQJsonValueRef(QJsonValueRef &js, bool isBinary = false) {
+        if(js.isArray()){
+            sio::message::ptr m = sio::array_message::create();
+            auto &vec           = m->get_vector();
+            QJsonArray arr = js.toArray();
+            for(uint i =0; i < arr.count(); ++i){
+                QJsonValueRef val = arr[i];
+                vec.insert(vec.begin() + i, transformQJsonValueRef(val));
+            }
+            return m;
+        }
+        else if(js.isBool()) {
+            return sio::bool_message::create(js.toBool());
+        }
+        else if(js.isDouble()){
+            double d = js.toDouble();
+            double dummy = 0;
+            if(std::modf(d,&dummy) == 0.0){ //is int
+                return sio::int_message::create((int)d);
+            }
+            return sio::double_message::create(js.toDouble());
+        }
+        else if(js.isNull() || js.isUndefined()){
+            return sio::null_message::create();
+        }
+        else if(js.isObject()){
+            QJsonObject obj = js.toObject();
+
+            sio::message::ptr m = sio::object_message::create();
+            auto &map           = m->get_map();
+
+            QJsonObject::iterator itr;
+            for(itr = obj.begin(); itr != obj.end(); ++itr){
+                QString key       = itr.key();
+                QJsonValueRef val = itr.value();
+                std::pair<std::string, sio::message::ptr> pair(key.toStdString(), transformQJsonValueRef(val));
+                map.insert(pair);
+            }
+            return m;
+        }
+        else if(js.isString()){
+            return sio::string_message::create(js.toString().toStdString());
+        }
+        return sio::null_message::create();
+    }
+
+
+
+    sio::message::ptr transformJSValue(QJSValue js, bool isBinary = false, bool isRawString = false){ //turns any jsValue into a message::ptr object that we can send!
         if(js.isUndefined() || js.isNull()){
             return sio::null_message::create();
         }
@@ -369,17 +445,21 @@ private:
             auto &vec           = m->get_vector();
             QJSValueIterator it(js);
             while(it.hasNext()){
-                it.next();
+                if(it.next()) {
+//                    qWarning() << "it.next() *ARRAY*";
+                    std::string key = it.name().toStdString();
+//                    qWarning() << "std::string key = it.name().toStdString();";
+                    QJSValue val    = it.value();
+//                    qWarning() << "QJSValue val    = it.value();";
 
-                std::string key = it.name().toStdString();
-                QJSValue val    = it.value();
-
-                if(key != "length"){
-                    int idx = std::atoi(key.c_str());    //get int from the std::string
-                    vec.insert(vec.begin() + idx,transformJSValue(val));
+                    if(key != "length"){
+                        int idx = std::atoi(key.c_str());    //get int from the std::string
+//                        qWarning() << "int idx = std::atoi(key.c_str());    //get int from the std::string";
+                        vec.insert(vec.begin() + idx,transformJSValue(val));
+//                        qWarning() << "vec.insert(vec.begin() + idx,transformJSValue(val));";
+                    }
                 }
             }
-
             return m;
         }
         else if(js.isObject()){
@@ -388,18 +468,59 @@ private:
 
             QJSValueIterator it(js);
             while(it.hasNext()){
-                it.next();
-
-                std::string key = it.name().toStdString();
-                QJSValue val    = it.value();
-
-                std::pair<std::string, sio::message::ptr> pair(key, transformJSValue(val));
-                map.insert(pair);
+                if(it.next()){
+//                    qWarning() << "it.next()";
+                    std::string key = it.name().toStdString();
+//                    qWarning() << "std::string key = it.name().toStdString();";
+                    QJSValue val    = it.value();
+//                    qWarning() << "QJSValue val    = it.value();";
+                    std::pair<std::string, sio::message::ptr> pair(key, transformJSValue(val));
+//                    qWarning() << "std::pair<std::string, sio::message::ptr> pair(key, transformJSValue(val));";
+                    map.insert(pair);
+//                    qWarning() << "map.insert(pair);";
+                }
             }
 
             return m;
         }
-        else if(js.isString()){
+        else if(js.isString()){ //if isRawString is false, assumes JSON was given.
+            if(!isRawString){
+                QJsonParseError err;
+                QJsonDocument doc =  QJsonDocument::fromJson(QByteArray(js.toString().toStdString().c_str()) , &err);
+
+                if(err.error != QJsonParseError::NoError) {
+                    printParseError(err, js);
+                    return sio::null_message::create();
+                }
+                else {
+                    if(doc.isObject()){
+                        QJsonObject obj = doc.object();
+                        sio::message::ptr m = sio::object_message::create();
+                        auto &map           = m->get_map();
+
+                        QJsonObject::iterator itr;
+                        for(itr = obj.begin(); itr != obj.end(); ++itr){
+                            QString key       = itr.key();
+                            QJsonValueRef val = itr.value();
+                            std::pair<std::string, sio::message::ptr> pair(key.toStdString(), transformQJsonValueRef(val));
+                            map.insert(pair);
+                        }
+                        return m;
+                    }
+                    else if(doc.isArray()){
+                        QJsonArray arr = doc.array();
+                        sio::message::ptr m = sio::array_message::create();
+                        auto &vec           = m->get_vector();
+                        for(uint i =0; i < arr.count(); ++i){
+                            QJsonValueRef val = arr[i];
+                            vec.insert(vec.begin() + i, transformQJsonValueRef(val));
+                        }
+                        return m;
+                    }
+                    else
+                        return sio::null_message::create();
+                }
+            }
 //            qDebug() << BOOST_CURRENT_FUNCTION <<" is string";
             return sio::string_message::create(js.toString().toStdString());
         }
@@ -420,6 +541,56 @@ private:
 
         return sio::null_message::create();
     }
+
+    void printParseError(QJsonParseError &err, QJSValue js){
+        switch(err.error) {
+            case QJsonParseError::UnterminatedObject:
+              qWarning() << "An object is not correctly terminated with a closing curly bracket";
+              break;
+            case QJsonParseError::MissingNameSeparator:
+              qWarning() << "A comma separating different items is missing";
+              break;
+            case QJsonParseError::UnterminatedArray:
+              qWarning() << "The array is not correctly terminated with a closing square bracket";
+              break;
+            case QJsonParseError::MissingValueSeparator:
+              qWarning() << "A colon separating keys from values inside objects is missing";
+              break;
+            case QJsonParseError::IllegalValue:
+              qWarning() << "The value is illegal  " << js.toString();
+              break;
+            case QJsonParseError::TerminationByNumber:
+              qWarning() << "The input stream ended while parsing a number";
+              break;
+            case QJsonParseError::IllegalNumber:
+              qWarning() << "The number is not well formed";
+              break;
+            case QJsonParseError::IllegalEscapeSequence:
+              qWarning() << "An illegal escape sequence occurred in the input";
+              break;
+            case QJsonParseError::IllegalUTF8String:
+              qWarning() << "An illegal UTF8 sequence occurred in the input";
+              break;
+            case QJsonParseError::UnterminatedString:
+              qWarning() << "A string wasn't terminated with a quote";
+              break;
+            case QJsonParseError::MissingObject:
+              qWarning() << "An object was expected but couldn't be found";
+              break;
+            case QJsonParseError::DeepNesting:
+              qWarning() << "The JSON document is too deeply nested for the parser to parse it";
+              break;
+            case QJsonParseError::DocumentTooLarge:
+              qWarning() << "The JSON document is too large for the parser to parse it";
+              break;
+
+            case QJsonParseError::GarbageAtEnd:
+              qWarning() << "The parsed document contains additional garbage characters at the end";
+              break;
+        }
+    }
+
+
     QVariant transformMessage(const sio::message::ptr &msg, uint depth = 0){    //turns any message::ptr object into something QML can read!
         auto flag = msg->get_flag();
         switch(flag){
@@ -432,13 +603,8 @@ private:
                 return arr;
             }
             case sio::message::flag_binary : {
-                //TODO
                 std::shared_ptr<const std::string> bin = msg->get_binary();
                 Q_EMIT binaryServerResponse(QByteArray(bin->c_str(), bin->length()),   QString::fromStdString(*bin));
-//                QFile outFile("temp.jpg");
-//                outFile.open(QFile::WriteOnly | QFile::Truncate);
-//                outFile.write(bin->c_str(), bin->length());
-//                outFile.close();
                 break;
             }
             case sio::message::flag_boolean : {
@@ -556,6 +722,8 @@ private:
 
         sync_isConnected(true,QString::fromStdString(nsp));
         sync_sessionId();
+//        qDebug () << "C++ registering events cause we connected" ;
+        setRegisteredEvents(m_registeredEvents);
     }
     void onClosed(sio::client::close_reason const & reason){
         setReconnecting(false);

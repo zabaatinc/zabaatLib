@@ -59,6 +59,38 @@ Item {
         logic.create("","ZToastError",{err:strOrObj},{blocking:true,duration:-1},null,null,item)
     }
 
+    function dialog(title, text, cbAccept, cbCancel, args){
+        dialogIn(title,text,cbAccept,cbCancel,args)
+    }
+
+    function dialogIn(title, text, cbAccept, cbCancel, args, item) {
+        if(!args)
+            args = {}
+
+        args.title      = title;
+        args.acceptFunc = cbAccept;
+        args.cancelFunc = cbCancel;
+
+        logic.create(text,"ZToastDialog", args, {blocking:true,duration:-1} , null, null , item)
+    }
+
+    function dialogWithInput(title, text, cbAccept, cbCancel, args){
+        dialogWithInputIn(title,text,cbAccept,cbCancel,args)
+    }
+    function dialogWithInputIn(title, text, cbAccept, cbCancel, args, item) {
+        if(!args)
+            args = {}
+
+        args.title      = title;
+        args.acceptFunc = cbAccept;
+        args.cancelFunc = cbCancel;
+//        args.focusFunc = cbFocus;
+
+        logic.create(text,"ZToastDialogInput", args, {blocking:true,duration:-1} , null, null , item)
+    }
+
+
+
 
     property QtObject __private : QtObject {
         id : logic
@@ -118,7 +150,13 @@ Item {
 
             var newToast           = toastBakery.createObject(contentItem);
             newToast.anchors.fill  = contentItem
-            newToast.text          = msg || "undefined"
+
+            if(typeof msg === 'function') {
+                newToast.text = Qt.binding(msg);
+            }
+            else {
+                newToast.text = msg || "undefined"
+            }
             newToast.lastActiveThing = activeThing
 
             newToast.args          = args

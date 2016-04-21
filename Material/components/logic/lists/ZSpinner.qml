@@ -11,17 +11,23 @@ Item {
     property alias currentIndex        : lv.currentIndex
     property alias currentItem         : lv.currentItem
     property alias delegate            : lv.delegate
-    property int   cellHeight          : height * 0.1
+    property int   cellHeight          : rootObject.height * 0.1
     property bool  shrink    : false
     property DefaultDelegateOptions defaultDelegate : DefaultDelegateOptions{}
 
     ListView {
         id : lv
         width  : parent.width
-        height : shrink ? cellHeight: cellHeight * numDels
-        anchors.verticalCenter: parent.verticalCenter
+        height : Math.max(0, shrink ? cellHeight: parent.height)
+//        onHeightChanged: console.log("HEIGHTERTS :: " , height)
+        anchors.centerIn: parent
         clip   : true
         model  : 20
+
+        onCurrentIndexChanged: {
+//            console.log("CurrentIndex", currentIndex, width ,height, contentY)
+            positionViewAtIndex(currentIndex, ListView.Center)
+        }
 
         property real angleDifferencePerIndex : (90/numDels)
         property int numDels : parent.numDelegatesVisible === -1 ? Math.floor(parent.height/cellHeight) : parent.numDelegatesVisible
@@ -35,6 +41,13 @@ Item {
         preferredHighlightBegin: (lv.height - cellHeight)/2
         preferredHighlightEnd  : (lv.height - cellHeight)/2
         highlightRangeMode: ListView.StrictlyEnforceRange
+        snapMode          : ListView.NoSnap
+//        highlightMoveDuration: 300
+//                    highlightFollowsCurrentItem: true
+//                    snapMode           : ListView.SnapOneItem
+//                    highlightRangeMode : ListView.StrictlyEnforceRange
+//                    contentY: currentIndex * (lv.height * 0.1)
+//        onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Center)
         delegate : btnCmp
 
         Component {

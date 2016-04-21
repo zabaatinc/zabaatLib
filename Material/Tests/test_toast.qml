@@ -59,24 +59,42 @@ Item {
             onAccepted : Toasts.error({derp:"happened too many times",slurp:"sometimes rhymes"}, "NOES")
         }
 
-
-    }
-
-
-    Window {
-        width : 640
-        height : 480
-        visible : true
-        Component.onCompleted: WindowManager.registerWindow(this);
-
+        ZTextBox {
+            width : parent.width/4
+            height : parent.h
+            label : "Error Toast"
+            onAccepted : Toasts.dialog("Herpitudes", "Please tell me if your herpled today" , function(){ console.log("accept")} ,
+                                                                                      function(){ console.log("decline")})
+        }
 
         ZTextBox {
             width : parent.width/4
-            height : parent.height/3
-            label : "Normal Toast"
-            onAccepted : Toasts.create(text,{title:label},null,0.5,0.25)
-            anchors.centerIn: parent
+            height : parent.h
+            label : "Error Toast"
+            onAccepted : Toasts.dialogWithInput("QUESTION", "What is your name" , function(a){ console.log("accept",a)} ,
+                                                                                      function(){ console.log("decline")} ,
+                                                                                      {state : 'warning', label : "answer", focusFunc : function(){console.log("I FOCUS") }  })
+            Component.onCompleted: forceActiveFocus()
         }
+
+
     }
+
+
+//    Window {
+//        width : 640
+//        height : 480
+//        visible : true
+//        Component.onCompleted: WindowManager.registerWindow(this);
+
+
+//        ZTextBox {
+//            width : parent.width/4
+//            height : parent.height/3
+//            label : "Normal Toast"
+//            onAccepted : Toasts.create(text,{title:label},null,0.5,0.25)
+//            anchors.centerIn: parent
+//        }
+//    }
 
 }

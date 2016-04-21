@@ -1,7 +1,12 @@
 import QtQuick 2.0
 import "./Underscore"
 QtObject {
+    id : rootObject
+    objectName : "ObjectFunctions"
     //OBJECT
+    function clone(obj) {
+        return JSON.parse(JSON.stringify(obj))
+    }
     function isUndef(){
         if(arguments.length === 0)
             return true
@@ -153,7 +158,7 @@ QtObject {
                 obj[k] = listmodelToArray(val)
 //                    }
             else
-                obj[k] = _.clone(val)
+                obj[k] = clone(val)
         }
 
         return obj
@@ -218,9 +223,17 @@ QtObject {
         for(var i = 0; i < lm.count; ++i){
             var item = lm.get(i)
             var type = typeof item
-            if(type === 'string' || type === 'number' || type === 'date')
+
+            if(type === 'string' || type === 'number' || type === 'date' || type === "bool" || type === "boolean") {
                 arr.push(item)
-            else {
+            }
+            else {  //is an object?
+//                console.log("objecttype =", item.toString().toLowerCase())
+//                if(item.toString().toLowerCase().indexOf("rolemodelnode") !== -1) {
+//                    for(var k in item)
+//                        console.log(k, item[k])
+//                }
+
                 var obj = {};
                 for(var k in item){
                     //exclude objectname
@@ -228,22 +241,22 @@ QtObject {
                     if(or(ex, "objectname","objectnamechanged") || ex.indexOf("__") === 0 )
                         continue
 
-                    var val     = item[k]
+                    var val = item[k]
                     if(isUndef(val)){
-                        console.log(k, "is", val)
+//                        console.log(rootObject, k, "is", val , type)
                         continue
                     }
 
-                    type        = typeof val
+                    var type2   = typeof val
                     var typeStr = val.toString().toLowerCase()
 //                    console.log(k, val ,type,typeStr)
-                    if(or(type,"string","number","date","bool","boolean"))
+                    if(or(type2,"string","number","date","bool","boolean"))
                         obj[k] = val;
                     else if(typeStr.indexOf("listmodel") !== -1 || typeStr.indexOf("proxymodel") !== -1)
                         obj[k] = listmodelToArray(val)
 //                    }
                     else
-                        obj[k] = _.clone(val)
+                        obj[k] = clone(val)
 //                    }
 
                 }
@@ -279,5 +292,6 @@ QtObject {
         }
         return ""
     }
+
 
 }

@@ -53,7 +53,8 @@ ZController {
         if(jsQuery === null || typeof jsQuery === 'undefined')
             jsQuery = {__sails_io_sdk_version : "1.2.0" }
 
-        socketHandler.connect(uri,jsQuery)
+//         console.log(controller.uri)
+        socketHandler.connect(uri, JSON.stringify(jsQuery))
     }
 
     /*! fn : disconnects any active connections and any attempts to reconnect  \hr */
@@ -84,7 +85,9 @@ ZController {
     /*! fn : Remove event that we are listening to   \hr */
     readonly property var   removeEvent     : socketHandler.removeEvent
 
-
+    signal info(string msg);
+    signal error(string msg);
+    signal warning(string msg);
 
 
     onSendGetModelRequest: {
@@ -305,8 +308,12 @@ ZController {
 //            socketHandler.sailsGet(url.toString(), params, )
             //sails + type is the typeof function we are calling. sailsGet , sailsPut
             url = correctifyUrl(url)
-            socketHandler["sails" + type](url.toString(), params, function(response) {
+
+//            console.log("sails" + type, url.toString(), params ? params.id : "")
+            socketHandler["sails" + type](url.toString(), JSON.stringify(params), function(response) {
                 if(response){
+//                    console.log("response received for", url, response);
+
                     response = priv.parseAndCheck(response,type+'req',url)
 //                    console.log(JSON.stringify(response,null,2))
 //                    console.log(JSON.stringify(response,null,2))
@@ -359,6 +366,7 @@ ZController {
                 return item
         }
         function addEvent(url){
+//            console.log("ADDING EVENT", url)
             var uarr = url.toString().split("/")
             if(uarr.length > 0 && uarr[0] !== "")
                 socketHandler.addEvent(uarr[0])
@@ -419,6 +427,8 @@ ZController {
                             if(typeof message.data.id === 'undefined')
                                 message.data.id = message.id
 
+//                            console.log("update message received on", modelName + "." + message.id )
+
                             controller.addModel(modelName, message.data)    //If one of the sets failed, that means that we either didn't have this property
                             updateReceived(modelName, message.data.id)
                             debug.debugMsg("finished handling update message received on", modelName + "." + message.id)
@@ -428,6 +438,8 @@ ZController {
                                 debug.debugMsg("update message received on", modelName + "." + message.id)
                                 if(typeof message.data.id === 'undefined')
                                     message.data.id = message.id
+
+//                                console.log("update message received on", modelName + "." + message.id )
 
 
                                 controller.addModel(modelName, message.data)    //If one of the sets failed, that means that we either didn't have this property
@@ -496,7 +508,14 @@ ZController {
             }
         }
 
-        onRegisteredEventsChanged: socketHandler.addEvents(logic.defaultEvents)
+        onError   : { console.log("SocketIOController::error"  , message) ; controller.error(message);     }
+        onWarning : { console.log("SocketIOController::warning", message) ; controller.warning(message);   }
+        onInfo    : { console.log("SocketIOController::info"   , message) ; controller.info(message);      }
+
+        onRegisteredEventsChanged: {
+            socketHandler.addEvents(logic.defaultEvents)
+//            console.log(socketHandler.registeredEvents)
+        }
     }
 }
 

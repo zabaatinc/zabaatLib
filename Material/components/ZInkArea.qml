@@ -50,6 +50,10 @@ Item {
     //////////////////////////////////////////////////////////////////////////////////////
 
 
+    readonly property var simulatePress   : ma.functionPress
+    readonly property var simulateRelease : ma.functionRelease
+
+
     //Opacity mask is only used if target has a radius.
     Rectangle {
         id          : mask;
@@ -71,14 +75,18 @@ Item {
         property bool mouseIsIn : false;
         property point coords : Qt.point(mouseX, mouseY)
 
-        onPressed : {
+        function functionPress() {
             ink.tap();
             rootObject.pressed(coords.x,coords.y,pressedButtons);
             isPressed = true;
         }
-        onReleased: {
+        function functionRelease(hasMouse){
             ink.lockMouse()
-            if(containsMouse){
+
+            if(hasMouse === null || typeof hasMouse === 'undefined')
+                hasMouse = containsMouse
+
+            if(hasMouse){
                 if(clickWaitTimer.running){
                     clickWaitTimer.stop()
                     ink.end("grow", rootObject.doubleClicked, coords.x, coords.y, pressedButtons);
@@ -99,6 +107,10 @@ Item {
             }
             isPressed = false;
         }
+
+
+        onPressed : functionPress();
+        onReleased: functionRelease();
         onEntered : mouseIsIn = true;
         onExited  : mouseIsIn = false;
         onCanceled: ink.end("shrink")

@@ -1,9 +1,15 @@
+#BUILD With LIB to get dll. Make sure you copy printsupport !
+#To test if build works, then build with APP.
+
 TEMPLATE = lib
-#TEMPLATE = app
-
 QT += qml quick printsupport
-CONFIG += c++11
 
+#TEMPLATE = app
+#QT += qml quick printsupport
+
+
+
+CONFIG += c++11
 SOURCES += main.cpp
 
 RESOURCES += qml.qrc
@@ -16,6 +22,5 @@ QML_IMPORT_PATH =
 # Default rules for deployment.
 include(deployment.pri)
 
-HEADERS += zprinter.h \
-    zprinterplugin.h
+HEADERS   += zprinter.h zprinterplugin.h
 DISTFILES += Example.qml

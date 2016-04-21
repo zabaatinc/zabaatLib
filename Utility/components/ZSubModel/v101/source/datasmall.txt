@@ -1,0 +1,1109 @@
+{
+  "err": null,
+  "data": [
+    {
+      "currentOwner": "56c773e58853c8be59393001",
+      "soId": 435902,
+      "recordType": "salesorder",
+      "shipMethodid": "",
+      "shipMethod": "Frieght / Unknown",
+      "shopifyPO": "2516",
+      "soNumber": "26598",
+      "nsMeta": {
+        "created": "0",
+        "lastModified": "3/21/2016 1:13 pm"
+      },
+      "entityid": "1279",
+      "shippingAddressee": "Casilli Inc.",
+      "customer": {
+        "entityid": "107",
+        "internalid": "1279",
+        "name": "Casilli Inc."
+      },
+      "state": "packageShipQueue",
+      "item": [
+        {
+          "displayName": "Various G05 Emerald Green",
+          "id": "56a92c6c4bcec711d3affaf5",
+          "internalid": "1596",
+          "item": "1596",
+          "location": {
+            "a": "e",
+            "b": "1",
+            "s": "4",
+            "u": "22"
+          },
+          "name": "Various G05 Emerald Green",
+          "origQty": "60",
+          "qty": "60",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "60",
+          "qtyVerified": 60,
+          "rationBackorder": "0",
+          "sku": "G05-V",
+          "upcBox": "4511338038109",
+          "upc_box": "4511338038109",
+          "upccode": "4511338004937"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Various G28 Ocean Green",
+          "id": "56a92c6c4bcec711d3affb00",
+          "internalid": "1607",
+          "item": "1607",
+          "location": {
+            "a": "e",
+            "b": "3",
+            "s": "2",
+            "u": "23"
+          },
+          "minimumquantity": "1",
+          "name": "Various G28 Ocean Green",
+          "origQty": "96",
+          "qty": "19",
+          "qtyAdjusted": 21,
+          "qtyPicked": 21,
+          "qtyVerified": 21,
+          "rationBackorder": "77",
+          "salesdescription": "Various G28 Ocean Green",
+          "sku": "G28-V",
+          "upcBox": "4511338038215",
+          "upc_box": "4511338038215",
+          "upccode": "4511338005040"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Various RV09 Fuchsia",
+          "id": "56a92c6c4bcec711d3affb38",
+          "internalid": "1665",
+          "item": "1665",
+          "location": {
+            "a": "e",
+            "b": "2",
+            "s": "1",
+            "u": "27"
+          },
+          "minimumquantity": "1",
+          "name": "Various RV09 Fuchsia",
+          "origQty": "96",
+          "qty": "44",
+          "qtyAdjusted": 45,
+          "qtyPicked": 45,
+          "qtyVerified": 45,
+          "rationBackorder": "52",
+          "salesdescription": "Various RV09 Fuchsia",
+          "sku": "RV09-V",
+          "upcBox": "4511338037027",
+          "upc_box": "4511338037027",
+          "upccode": "4511338005286"
+        },
+        {
+          "displayName": "Various RV29 Crimson",
+          "id": "56a92c6c4bcec711d3affb42",
+          "internalid": "1675",
+          "item": "1675",
+          "location": {
+            "a": "e",
+            "b": "3",
+            "s": "4",
+            "u": "27"
+          },
+          "name": "Various RV29 Crimson",
+          "origQty": "30",
+          "qty": "30",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "30",
+          "qtyVerified": 30,
+          "rationBackorder": "0",
+          "sku": "RV29-V",
+          "upcBox": "4511338037126",
+          "upc_box": "4511338037126",
+          "upccode": "4511338005378"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Various V09 Violet",
+          "id": "56a92c6c4bcec711d3affb60",
+          "internalid": "1705",
+          "item": "1705",
+          "location": {
+            "a": "e",
+            "b": "3",
+            "s": "4",
+            "u": "29"
+          },
+          "minimumquantity": "1",
+          "name": "Various V09 Violet",
+          "origQty": "96",
+          "qty": "51",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "51",
+          "qtyVerified": 51,
+          "rationBackorder": "45",
+          "salesdescription": "Various V09 Violet",
+          "sku": "V09-V",
+          "upcBox": "4511338036907",
+          "upc_box": "4511338036907",
+          "upccode": "4511338005422"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Various YG67 Moss",
+          "id": "56a92c6c4bcec711d3affb9f",
+          "internalid": "1767",
+          "item": "1767",
+          "location": {
+            "a": "f",
+            "b": "1",
+            "s": "5",
+            "u": "3"
+          },
+          "minimumquantity": "1",
+          "name": "Various YG67 Moss",
+          "origQty": "96",
+          "qty": "20",
+          "qtyAdjusted": 21,
+          "qtyPicked": 21,
+          "qtyVerified": 21,
+          "rationBackorder": "76",
+          "salesdescription": "Various YG67 Moss",
+          "sku": "YG67-V",
+          "upcBox": "4511338038017",
+          "upc_box": "4511338038017",
+          "upccode": "4511338005736"
+        }
+      ],
+      "stateMeta": {
+        "ts": 1460053744851,
+        "user": "56c773e58853c8be59393001"
+      },
+      "relatedTickets": [],
+      "stateHistory": [
+        {
+          "name": "pickQueue",
+          "ts": "1459890106191",
+          "user": "56c773e58853c8be59393001"
+        },
+        {
+          "name": "pickInProgress",
+          "ts": "1459975399303",
+          "user": "56feef1e8853a8c3f11c8dac"
+        },
+        {
+          "name": "inspectQueue",
+          "ts": "1459975815819",
+          "user": "56feef1e8853a8c3f11c8dac"
+        },
+        {
+          "name": "inspecting",
+          "ts": "1460053461842",
+          "user": "56c773e58853c8be59393001"
+        }
+      ],
+      "boxes": [],
+      "palNum": -1,
+      "sort": 180,
+      "zId": 16977,
+      "createdAt": "2016-04-05T21:01:46.192Z",
+      "updatedAt": "2016-04-08T08:45:30.904Z",
+      "rationtime": 1459890577366,
+      "itemBlanks": [],
+      "fillRate": 9.999999999999872e-12,
+      "notes": [],
+      "id": "570427ba2f4318bc70d939a5"
+    },
+    {
+      "currentOwner": "56feef1e8853a8c3f11c8dac",
+      "soId": 223927,
+      "recordType": "salesorder",
+      "shipMethodid": "",
+      "shipMethod": "Frieght / Unknown",
+      "shopifyPO": "574694",
+      "soNumber": "19008",
+      "nsMeta": {
+        "created": 0,
+        "lastModified": "3/21/2016 12:45 pm"
+      },
+      "entityid": "1786",
+      "shippingAddressee": "Blick DC1",
+      "customer": {
+        "entityid": "434",
+        "internalid": "1786",
+        "name": "Dick Blick Co"
+      },
+      "state": "inspectQueue",
+      "item": [
+        {
+          "displayName": "Ciao B02 Robin's Egg Blue",
+          "id": "56a92c6c4bcec711d3aff97a",
+          "internalid": "455",
+          "item": "455",
+          "location": {
+            "a": "c",
+            "b": "1",
+            "s": "3",
+            "u": "16"
+          },
+          "name": "Ciao B02 Robin's Egg Blue",
+          "origQty": "45",
+          "qty": "45",
+          "qtyAdjusted": "-1",
+          "qtyPicked": 45,
+          "qtyVerified": "0",
+          "rationBackorder": "0",
+          "sku": "B02-I",
+          "upcBox": "4511338036259",
+          "upc_box": "4511338036259",
+          "upccode": "4511338010532"
+        }
+      ],
+      "stateMeta": {
+        "ts": 1460063672378,
+        "user": "56feef1e8853a8c3f11c8dac"
+      },
+      "relatedTickets": [],
+      "stateHistory": [
+        {
+          "name": "pickQueue",
+          "ts": "1459889920748",
+          "user": "56c773e58853c8be59393001"
+        },
+        {
+          "name": "pickInProgress",
+          "ts": "1460063621178",
+          "user": "56feef1e8853a8c3f11c8dac"
+        }
+      ],
+      "boxes": [],
+      "palNum": 0,
+      "sort": 337,
+      "zId": 17745,
+      "createdAt": "2016-04-05T20:58:46.340Z",
+      "updatedAt": "2016-04-08T08:45:30.933Z",
+      "rationtime": 1459890577366,
+      "itemBlanks": [],
+      "fillRate": 0.01,
+      "notes": [],
+      "id": "570427062f4318bc70d936d7"
+    },
+    {
+      "currentOwner": "56f592ae8853905819dfab3e",
+      "soId": 476979,
+      "recordType": "salesorder",
+      "shipMethodid": "",
+      "shipMethod": "Frieght / Unknown",
+      "shopifyPO": "027AHTVIII",
+      "soNumber": "27109",
+      "nsMeta": {
+        "created": "0",
+        "lastModified": "3/21/2016 1:17 pm"
+      },
+      "entityid": "1576",
+      "shippingAddressee": "Artist & Craftsman Supply",
+      "customer": {
+        "entityid": "324",
+        "internalid": "1576",
+        "name": "Artist & Craftsman Supply"
+      },
+      "state": "packageShipQueue",
+      "item": [
+        {
+          "displayName": "Multiliner SP Black .5",
+          "id": "56a92c6c4bcec711d3affc54",
+          "internalid": "974",
+          "item": "974",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "name": "Multiliner SP Black .5",
+          "origQty": "6",
+          "qty": "6",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "6",
+          "qtyVerified": 6,
+          "rationBackorder": "0",
+          "sku": "MLSP05",
+          "upcBox": "4511338041673",
+          "upc_box": "4511338041673",
+          "upccode": "4511338041178"
+        },
+        {
+          "displayName": "MLSP Refill Cartridge B",
+          "id": "56a92c6c4bcec711d3affc62",
+          "internalid": "966",
+          "item": "966",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "name": "MLSP Refill Cartridge B",
+          "origQty": "10",
+          "qty": "10",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "10",
+          "qtyVerified": 10,
+          "rationBackorder": "0",
+          "sku": "REFLB",
+          "upcBox": "4511338041710",
+          "upc_box": "4511338041710",
+          "upccode": "4511338041413"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Multiliner SP Black .2",
+          "id": "56a92c6c4bcec711d3affc50",
+          "internalid": "970",
+          "item": "970",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "minimumquantity": "1",
+          "name": "Multiliner SP Black .2",
+          "origQty": "6",
+          "qty": "0",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "0",
+          "qtyVerified": "0",
+          "rationBackorder": "6",
+          "salesdescription": "Multiliner SP Black .2",
+          "sku": "MLSP02",
+          "upcBox": "4511338041635",
+          "upc_box": "4511338041635",
+          "upccode": "4511338041130"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Multiliner SP Black .7",
+          "id": "56a92c6c4bcec711d3affc55",
+          "internalid": "975",
+          "item": "975",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "minimumquantity": "1",
+          "name": "Multiliner SP Black .7",
+          "origQty": "6",
+          "qty": "0",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "0",
+          "qtyVerified": "0",
+          "rationBackorder": "6",
+          "salesdescription": "Multiliner SP Black .7",
+          "sku": "MLSP07",
+          "upcBox": "4511338041680",
+          "upc_box": "4511338041680",
+          "upccode": "4511338041185"
+        }
+      ],
+      "stateMeta": {
+        "ts": 1459976567197,
+        "user": "56f592ae8853905819dfab3e"
+      },
+      "relatedTickets": [],
+      "stateHistory": [
+        {
+          "name": "pickQueue",
+          "ts": "1459890157952",
+          "user": "56c773e58853c8be59393001"
+        },
+        {
+          "name": "pickInProgress",
+          "ts": "1459959967955",
+          "user": "56f594658853905819dfab45"
+        },
+        {
+          "name": "inspectQueue",
+          "ts": "1459960177619",
+          "user": "56f594658853905819dfab45"
+        },
+        {
+          "name": "inspecting",
+          "ts": "1459976535344",
+          "user": "56f592ae8853905819dfab3e"
+        }
+      ],
+      "boxes": [],
+      "palNum": 0,
+      "sort": 87,
+      "zId": 16995,
+      "createdAt": "2016-04-05T21:02:37.953Z",
+      "updatedAt": "2016-04-08T08:45:30.926Z",
+      "rationtime": 1459890577366,
+      "itemBlanks": [],
+      "fillRate": 0.00000999999989180328,
+      "notes": [],
+      "id": "570427ed2f4318bc70d93a29"
+    },
+    {
+      "currentOwner": "56f592ae8853905819dfab3e",
+      "soId": 476877,
+      "recordType": "salesorder",
+      "shipMethodid": "",
+      "shipMethod": "Frieght / Unknown",
+      "shopifyPO": "028ABWDIII",
+      "soNumber": "27106",
+      "nsMeta": {
+        "created": "0",
+        "lastModified": "3/21/2016 1:17 pm"
+      },
+      "entityid": "1576",
+      "shippingAddressee": "Artist & Craftsman Supply",
+      "customer": {
+        "entityid": "324",
+        "internalid": "1576",
+        "name": "Artist & Craftsman Supply"
+      },
+      "state": "packageShipQueue",
+      "item": [
+        {
+          "displayName": "Multiliner SP Black .5",
+          "id": "56a92c6c4bcec711d3affc54",
+          "internalid": "974",
+          "item": "974",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "name": "Multiliner SP Black .5",
+          "origQty": "6",
+          "qty": "6",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "6",
+          "qtyVerified": 6,
+          "rationBackorder": "0",
+          "sku": "MLSP05",
+          "upcBox": "4511338041673",
+          "upc_box": "4511338041673",
+          "upccode": "4511338041178"
+        },
+        {
+          "displayName": "MLSP Refill Cartridge B",
+          "id": "56a92c6c4bcec711d3affc62",
+          "internalid": "966",
+          "item": "966",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "name": "MLSP Refill Cartridge B",
+          "origQty": "10",
+          "qty": "10",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "10",
+          "qtyVerified": 10,
+          "rationBackorder": "0",
+          "sku": "REFLB",
+          "upcBox": "4511338041710",
+          "upc_box": "4511338041710",
+          "upccode": "4511338041413"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Multiliner SP Black .2",
+          "id": "56a92c6c4bcec711d3affc50",
+          "internalid": "970",
+          "item": "970",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "minimumquantity": "1",
+          "name": "Multiliner SP Black .2",
+          "origQty": "6",
+          "qty": "0",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "0",
+          "qtyVerified": "0",
+          "rationBackorder": "6",
+          "salesdescription": "Multiliner SP Black .2",
+          "sku": "MLSP02",
+          "upcBox": "4511338041635",
+          "upc_box": "4511338041635",
+          "upccode": "4511338041130"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Multiliner SP Black .7",
+          "id": "56a92c6c4bcec711d3affc55",
+          "internalid": "975",
+          "item": "975",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "minimumquantity": "1",
+          "name": "Multiliner SP Black .7",
+          "origQty": "6",
+          "qty": "0",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "0",
+          "qtyVerified": "0",
+          "rationBackorder": "6",
+          "salesdescription": "Multiliner SP Black .7",
+          "sku": "MLSP07",
+          "upcBox": "4511338041680",
+          "upc_box": "4511338041680",
+          "upccode": "4511338041185"
+        }
+      ],
+      "stateMeta": {
+        "ts": 1459976944477,
+        "user": "56f592ae8853905819dfab3e"
+      },
+      "relatedTickets": [],
+      "stateHistory": [
+        {
+          "name": "pickQueue",
+          "ts": "1459890159405",
+          "user": "56c773e58853c8be59393001"
+        },
+        {
+          "name": "pickInProgress",
+          "ts": "1459959874524",
+          "user": "56feef1e8853a8c3f11c8dac"
+        },
+        {
+          "name": "inspectQueue",
+          "ts": "1459960140358",
+          "user": "56feef1e8853a8c3f11c8dac"
+        },
+        {
+          "name": "inspecting",
+          "ts": "1459976829180",
+          "user": "56f592ae8853905819dfab3e"
+        }
+      ],
+      "boxes": [],
+      "palNum": 0,
+      "sort": 85,
+      "zId": 16996,
+      "createdAt": "2016-04-05T21:02:39.411Z",
+      "updatedAt": "2016-04-08T08:45:30.927Z",
+      "rationtime": 1459890577366,
+      "itemBlanks": [],
+      "fillRate": 0.00000999999989180328,
+      "notes": [],
+      "id": "570427ef2f4318bc70d93a2e"
+    },
+    {
+      "currentOwner": "56f592ae8853905819dfab3e",
+      "soId": 482402,
+      "recordType": "salesorder",
+      "shipMethodid": "",
+      "shipMethod": "Frieght / Unknown",
+      "shopifyPO": "029ABPTIII",
+      "soNumber": "27170",
+      "nsMeta": {
+        "created": "0",
+        "lastModified": "3/21/2016 1:17 pm"
+      },
+      "entityid": "1576",
+      "shippingAddressee": "Artist & Craftsman Supply",
+      "customer": {
+        "entityid": "324",
+        "internalid": "1576",
+        "name": "Artist & Craftsman Supply"
+      },
+      "state": "packageShipQueue",
+      "item": [
+        {
+          "displayName": "Multiliner SP Black .5",
+          "id": "56a92c6c4bcec711d3affc54",
+          "internalid": "974",
+          "item": "974",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "name": "Multiliner SP Black .5",
+          "origQty": "6",
+          "qty": "6",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "6",
+          "qtyVerified": 6,
+          "rationBackorder": "0",
+          "sku": "MLSP05",
+          "upcBox": "4511338041673",
+          "upc_box": "4511338041673",
+          "upccode": "4511338041178"
+        },
+        {
+          "displayName": "MLSP Refill Cartridge B",
+          "id": "56a92c6c4bcec711d3affc62",
+          "internalid": "966",
+          "item": "966",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "name": "MLSP Refill Cartridge B",
+          "origQty": "10",
+          "qty": "10",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "10",
+          "qtyVerified": 10,
+          "rationBackorder": "0",
+          "sku": "REFLB",
+          "upcBox": "4511338041710",
+          "upc_box": "4511338041710",
+          "upccode": "4511338041413"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Multiliner SP Black .2",
+          "id": "56a92c6c4bcec711d3affc50",
+          "internalid": "970",
+          "item": "970",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "minimumquantity": "1",
+          "name": "Multiliner SP Black .2",
+          "origQty": "6",
+          "qty": "0",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "0",
+          "qtyVerified": "0",
+          "rationBackorder": "6",
+          "salesdescription": "Multiliner SP Black .2",
+          "sku": "MLSP02",
+          "upcBox": "4511338041635",
+          "upc_box": "4511338041635",
+          "upccode": "4511338041130"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Multiliner SP Black .7",
+          "id": "56a92c6c4bcec711d3affc55",
+          "internalid": "975",
+          "item": "975",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "minimumquantity": "1",
+          "name": "Multiliner SP Black .7",
+          "origQty": "6",
+          "qty": "0",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "0",
+          "qtyVerified": "0",
+          "rationBackorder": "6",
+          "salesdescription": "Multiliner SP Black .7",
+          "sku": "MLSP07",
+          "upcBox": "4511338041680",
+          "upc_box": "4511338041680",
+          "upccode": "4511338041185"
+        }
+      ],
+      "stateMeta": {
+        "ts": 1459977688569,
+        "user": "56f592ae8853905819dfab3e"
+      },
+      "relatedTickets": [],
+      "stateHistory": [
+        {
+          "name": "pickQueue",
+          "ts": "1459890159413",
+          "user": "56c773e58853c8be59393001"
+        },
+        {
+          "name": "pickInProgress",
+          "ts": "1459960559760",
+          "user": "570537fa8853d026a55f32a3"
+        },
+        {
+          "name": "holdQueue",
+          "ts": "1459960568174",
+          "user": "570537fa8853d026a55f32a3"
+        },
+        {
+          "name": "pickInProgress",
+          "ts": "1459960642795",
+          "user": "570537fa8853d026a55f32a3"
+        },
+        {
+          "name": "inspectQueue",
+          "ts": "1459960727710",
+          "user": "570537fa8853d026a55f32a3"
+        },
+        {
+          "name": "inspecting",
+          "ts": "1459977582797",
+          "user": "56f592ae8853905819dfab3e"
+        }
+      ],
+      "boxes": [],
+      "palNum": 0,
+      "sort": 91,
+      "zId": 16997,
+      "createdAt": "2016-04-05T21:02:39.414Z",
+      "updatedAt": "2016-04-08T08:45:30.928Z",
+      "rationtime": 1459890577366,
+      "itemBlanks": [],
+      "fillRate": 0.00000999999989180328,
+      "notes": [],
+      "id": "570427ef2f4318bc70d93a2f"
+    },
+    {
+      "currentOwner": "56f592ae8853905819dfab3e",
+      "soId": 482292,
+      "recordType": "salesorder",
+      "shipMethodid": "",
+      "shipMethod": "Frieght / Unknown",
+      "shopifyPO": "030APSEIII",
+      "soNumber": "27166",
+      "nsMeta": {
+        "created": "0",
+        "lastModified": "3/21/2016 1:17 pm"
+      },
+      "entityid": "1576",
+      "shippingAddressee": "Artist & Craftsman Supply",
+      "customer": {
+        "entityid": "324",
+        "internalid": "1576",
+        "name": "Artist & Craftsman Supply"
+      },
+      "state": "packageShipQueue",
+      "item": [
+        {
+          "displayName": "Multiliner SP Black .5",
+          "id": "56a92c6c4bcec711d3affc54",
+          "internalid": "974",
+          "item": "974",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "name": "Multiliner SP Black .5",
+          "origQty": "6",
+          "qty": "6",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "6",
+          "qtyVerified": 6,
+          "rationBackorder": "0",
+          "sku": "MLSP05",
+          "upcBox": "4511338041673",
+          "upc_box": "4511338041673",
+          "upccode": "4511338041178"
+        },
+        {
+          "displayName": "MLSP Refill Cartridge B",
+          "id": "56a92c6c4bcec711d3affc62",
+          "internalid": "966",
+          "item": "966",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "name": "MLSP Refill Cartridge B",
+          "origQty": "10",
+          "qty": "10",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "10",
+          "qtyVerified": 10,
+          "rationBackorder": "0",
+          "sku": "REFLB",
+          "upcBox": "4511338041710",
+          "upc_box": "4511338041710",
+          "upccode": "4511338041413"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Multiliner SP Black .2",
+          "id": "56a92c6c4bcec711d3affc50",
+          "internalid": "970",
+          "item": "970",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "minimumquantity": "1",
+          "name": "Multiliner SP Black .2",
+          "origQty": "6",
+          "qty": "0",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "0",
+          "qtyVerified": "0",
+          "rationBackorder": "6",
+          "salesdescription": "Multiliner SP Black .2",
+          "sku": "MLSP02",
+          "upcBox": "4511338041635",
+          "upc_box": "4511338041635",
+          "upccode": "4511338041130"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Multiliner SP Black .7",
+          "id": "56a92c6c4bcec711d3affc55",
+          "internalid": "975",
+          "item": "975",
+          "location": {
+            "a": "Z",
+            "b": "99",
+            "s": "99",
+            "u": "99"
+          },
+          "minimumquantity": "1",
+          "name": "Multiliner SP Black .7",
+          "origQty": "6",
+          "qty": "0",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "0",
+          "qtyVerified": "0",
+          "rationBackorder": "6",
+          "salesdescription": "Multiliner SP Black .7",
+          "sku": "MLSP07",
+          "upcBox": "4511338041680",
+          "upc_box": "4511338041680",
+          "upccode": "4511338041185"
+        }
+      ],
+      "stateMeta": {
+        "ts": 1459977382357,
+        "user": "56f592ae8853905819dfab3e"
+      },
+      "relatedTickets": [],
+      "stateHistory": [
+        {
+          "name": "pickQueue",
+          "ts": "1459890159412",
+          "user": "56c773e58853c8be59393001"
+        },
+        {
+          "name": "pickInProgress",
+          "ts": "1459960260461",
+          "user": "56f594658853905819dfab45"
+        },
+        {
+          "name": "inspectQueue",
+          "ts": "1459960330338",
+          "user": "56f594658853905819dfab45"
+        },
+        {
+          "name": "inspecting",
+          "ts": "1459977312135",
+          "user": "56f592ae8853905819dfab3e"
+        }
+      ],
+      "boxes": [],
+      "palNum": 0,
+      "sort": 89,
+      "zId": 16998,
+      "createdAt": "2016-04-05T21:02:39.417Z",
+      "updatedAt": "2016-04-08T08:45:30.929Z",
+      "rationtime": 1459890577366,
+      "itemBlanks": [],
+      "fillRate": 0.00000999999989180328,
+      "notes": [],
+      "id": "570427ef2f4318bc70d93a30"
+    },
+    {
+      "currentOwner": "56c773e58853c8be59393001",
+      "soId": 517762,
+      "recordType": "salesorder",
+      "shipMethodid": "",
+      "shipMethod": "Frieght / Unknown",
+      "shopifyPO": "3716",
+      "soNumber": "27628",
+      "nsMeta": {
+        "created": "0",
+        "lastModified": "3/21/2016 1:20 pm"
+      },
+      "entityid": "1279",
+      "shippingAddressee": "Casilli Inc.",
+      "customer": {
+        "entityid": "107",
+        "internalid": "1279",
+        "name": "Casilli Inc."
+      },
+      "state": "packageShipQueue",
+      "item": [
+        {
+          "displayName": "Various E31 Brick Beige",
+          "id": "56a92c6c4bcec711d3affac8",
+          "internalid": "1551",
+          "item": "1551",
+          "location": {
+            "a": "e",
+            "b": "1",
+            "s": "4",
+            "u": "19"
+          },
+          "name": "Various E31 Brick Beige",
+          "origQty": "42",
+          "qty": "42",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "42",
+          "qtyVerified": 42,
+          "rationBackorder": "0",
+          "sku": "E31-V",
+          "upcBox": "4511338039014",
+          "upc_box": "4511338039014",
+          "upccode": "4511338004746"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Various E44 Clay",
+          "id": "56a92c6c4bcec711d3affad2",
+          "internalid": "1561",
+          "item": "1561",
+          "location": {
+            "a": "e",
+            "b": "2",
+            "s": "2",
+            "u": "20"
+          },
+          "minimumquantity": "1",
+          "name": "Various E44 Clay",
+          "origQty": "42",
+          "qty": "39",
+          "qtyAdjusted": 42,
+          "qtyPicked": 42,
+          "qtyVerified": 42,
+          "rationBackorder": "3",
+          "salesdescription": "Various E44 Clay",
+          "sku": "E44-V",
+          "upcBox": "4511338039106",
+          "upc_box": "4511338039106",
+          "upccode": "4511338039106"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Various E55 Light Camel",
+          "id": "56a92c6c4bcec711d3affad8",
+          "internalid": "1567",
+          "item": "1567",
+          "location": {
+            "a": "e",
+            "b": "2",
+            "s": "4",
+            "u": "20"
+          },
+          "minimumquantity": "1",
+          "name": "Various E55 Light Camel",
+          "origQty": "42",
+          "qty": "42",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "42",
+          "qtyVerified": 42,
+          "rationBackorder": "0",
+          "salesdescription": "Various E55 Light Camel",
+          "sku": "E55-V",
+          "upcBox": "4511338039168",
+          "upc_box": "4511338039168",
+          "upccode": "4511338004876"
+        },
+        {
+          "baserecordtype": "inventoryitem",
+          "displayName": "Various R37 Carmine",
+          "id": "56a92c6c4bcec711d3affb28",
+          "internalid": "1649",
+          "item": "1649",
+          "location": {
+            "a": "e",
+            "b": "1",
+            "s": "1",
+            "u": "26"
+          },
+          "minimumquantity": "1",
+          "name": "Various R37 Carmine",
+          "origQty": "42",
+          "qty": "42",
+          "qtyAdjusted": "-1",
+          "qtyPicked": "42",
+          "qtyVerified": 42,
+          "rationBackorder": "0",
+          "salesdescription": "Various R37 Carmine",
+          "sku": "R37-V",
+          "upcBox": "4511338037386",
+          "upc_box": "4511338037386",
+          "upccode": "4511338005224"
+        }
+      ],
+      "stateMeta": {
+        "ts": 1460047541425,
+        "user": "56c773e58853c8be59393001"
+      },
+      "relatedTickets": [],
+      "stateHistory": [
+        {
+          "name": "pickQueue",
+          "ts": "1459890216129",
+          "user": "56c773e58853c8be59393001"
+        },
+        {
+          "name": "pickInProgress",
+          "ts": "1459978732051",
+          "user": "56d79fd918f70bbb0cd98768"
+        },
+        {
+          "name": "holdQueue",
+          "ts": "1459978735786",
+          "user": "56d79fd918f70bbb0cd98768"
+        },
+        {
+          "name": "pickInProgress",
+          "ts": "1459979174408",
+          "user": "56d79fd918f70bbb0cd98768"
+        },
+        {
+          "name": "inspectQueue",
+          "ts": "1459979374178",
+          "user": "56d79fd918f70bbb0cd98768"
+        },
+        {
+          "name": "inspecting",
+          "ts": "1460047234032",
+          "user": "56c773e58853c8be59393001"
+        }
+      ],
+      "boxes": [],
+      "palNum": -1,
+      "sort": 189,
+      "zId": 17006,
+      "createdAt": "2016-04-05T21:03:36.222Z",
+      "updatedAt": "2016-04-08T08:45:30.930Z",
+      "rationtime": 1459890577366,
+      "itemBlanks": [],
+      "fillRate": 0.000009999999999292357,
+      "notes": [],
+      "id": "570428282f4318bc70d93a8c"
+    }
+
+  ]
+}

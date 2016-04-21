@@ -1,0 +1,3 @@
+module Zabaat.Utility.ZPrinter
+plugin ZPrinter
+typeinfo plugins.qmltypes

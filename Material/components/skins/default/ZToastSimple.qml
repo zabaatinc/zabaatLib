@@ -6,30 +6,11 @@ ZSkin {
     color            : graphical.fill_Default
     border.color     : graphical.borderColor
     anchors.centerIn : parent
-//    border.width     : 1
 
-//    property alias graphical     : graphical
     property alias textContainer : textContainer
     property alias font          : text.font
     property alias timerText     : timerText
     property alias closeButton   : closeButton
-
-
-//    QtObject {
-//        id : graphical
-//        property color fill_Default: Colors.standard
-//        property color fill_Press  : Colors.accent
-//        property color fill_Focus  : Colors.info
-//        property color text_Default: Colors.text1
-//        property color text_Press  : Colors.text2
-//        property color text_Focus  : Colors.text2
-//        property int   text_hAlignment  : Text.AlignHCenter
-//        property int   text_vAlignment  : Text.AlignVCenter
-//        property color inkColor    : Colors.getContrastingColor(rootObject.color)
-//        property color borderColor : Colors.text1
-//        property real inkOpacity   : 1
-//    }
-
 
     MouseArea {
         anchors.fill: parent

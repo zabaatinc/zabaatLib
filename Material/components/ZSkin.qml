@@ -89,6 +89,7 @@ Item {
       \hr
     */
     property alias graphical      : graphical
+    readonly property var injectState : cache.injectState
 
     Rectangle { id: rect ; anchors.fill : parent; color: logic ? Colors.get(logic.colors , "standard") : "white"; opacity: graphical.fill_Opacity }
 
@@ -103,6 +104,8 @@ Item {
     function clr(name){
         return Colors.get(colorTheme , name)
     }
+
+//    focus : true
 
     Connections {
         target          : logic ? logic : null
@@ -129,6 +132,8 @@ Item {
             stateChangeOp(logic.state, logic.enabled)
         }
     }
+
+
 
     QtObject {
         id : cache
@@ -265,9 +270,9 @@ Item {
                "fill_Empty"      : "transparent",
                "@fill_Default"   : [Colors,"standard"],
                "@text_Default"   : [Colors,"text1"],
-               "@fill_Press"     : [Colors,"standard"],
-               "@text_Press"     : [Colors,"info"],
-               "@fill_Focus"     : [Colors,"info"],
+               "@fill_Press"     : [Colors,"accent"],
+               "@text_Press"     : [Colors,"text2"],
+               "@fill_Focus"     : [Colors.lighter, "accent"],
                "@text_Focus"     : [Colors,"text2"],
                "@inkColor"       : [Colors,"accent"],
                "@borderColor"    : [Colors,"text1"],
@@ -390,10 +395,20 @@ Item {
             })
 
             cache.injectState("tcenter"      , "graphical" , { text_hAlignment : Text.AlignHCenter, text_vAlignment : Text.AlignVCenter })
+
+            cache.injectState("tright"       , "graphical" , { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignVCenter })
+            cache.injectState("tleft"        , "graphical" , { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignVCenter })
             cache.injectState("tcenterright" , "graphical" , { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignVCenter })
             cache.injectState("tcenterleft"  , "graphical" , { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignVCenter })
+
+            cache.injectState("ttop"         , "graphical" , { text_hAlignment : Text.AlignHCenter, text_vAlignment : Text.AlignTop     })
+            cache.injectState("ttopcenter"   , "graphical" , { text_hAlignment : Text.AlignHCenter, text_vAlignment : Text.AlignTop     })
             cache.injectState("ttopright"    , "graphical" , { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignTop     })
             cache.injectState("ttopleft"     , "graphical" , { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignTop     })
+
+
+            cache.injectState("tbottom"      , "graphical" , { text_hAlignment : Text.AlignHCenter  , text_vAlignment : Text.AlignBottom  })
+            cache.injectState("tbottomcenter", "graphical" , { text_hAlignment : Text.AlignHCenter  , text_vAlignment : Text.AlignBottom  })
             cache.injectState("tbottomright" , "graphical" , { text_hAlignment : Text.AlignRight  , text_vAlignment : Text.AlignBottom  })
             cache.injectState("tbottomleft"  , "graphical" , { text_hAlignment : Text.AlignLeft   , text_vAlignment : Text.AlignBottom  })
 

@@ -15,6 +15,7 @@ Item {
     property var sourceComponent    : null
 
     signal loaded();
+
     onSourceChanged                 : logic.nextLoader.source          = source;
     onSourceComponentChanged        : logic.nextLoader.sourceComponent = sourceComponent;
 
@@ -31,6 +32,8 @@ Item {
         logic.nextLoader.mutex = false;
 
         l1.tempTrans = l2.tempTrans = "";
+
+        blocker.visible = false;
     }
 
     function load(source, args, transition){
@@ -71,12 +74,13 @@ Item {
             loader.finishedLoading();
         }
         function doTransition(from,to,transName){
-            if(_.isUndefined(transName) || transName === "")
+            if(!logic.isUndef(transName) || transName === "")
                 transName = transitionEffect
 
             var transition = getTransition(transName);
             if(transition) {
 //                console.log("TRANS FOUND",transition)
+                blocker.visible = true;
                 transition.begin(from,to)
             }
             else
@@ -84,6 +88,10 @@ Item {
         }
         function getTransition(name){
             return transitions.map[name]
+        }
+
+        function isUndef(obj) {
+            return obj === null || typeof obj === 'undefined'
         }
 
     }
@@ -118,6 +126,19 @@ Item {
 //        Component.onCompleted: console.log(this)
     }
 
+
+    Rectangle {
+        id : blocker
+        anchors.fill: parent
+        color : 'black'
+        opacity : 0.8
+        visible : false
+        z : Number.MAX_VALUE
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+        }
+    }
 
     Item {
         id : transitions

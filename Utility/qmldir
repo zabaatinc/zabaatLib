@@ -1,10 +1,13 @@
 module Zabaat.Utility
+singleton Functions 1.0 functions/Functions.qml
+singleton _ 		1.0 functions/Underscore/Underscore.qml
 UIBlocker 			1.0 components/UIBlocker.qml
 WarningMessage 		1.0 components/WarningMessage.qml
 ZTracer	 			1.0 components/ZTracer.qml
 ArrangableList		1.0 components/ArrangableList.qml
 ZGestureArea 		1.0 components/ZGestureArea.qml
-ZSubModel			1.0 components/ZSubModel/ZSubModel.qml
-singleton Functions 1.0 functions/Functions.qml
-singleton _ 		1.0 functions/Underscore/Underscore.qml
+ZSubModel			1.0 components/ZSubModel/v100/ZSubModel.qml
+ZSubModel 			1.1 components/ZSubModel/v101/ZSubModel.qml
 Moment		  		1.0 functions/Moment/moment.js
+plugin submodel
+typeinfo plugins.qmltypes
