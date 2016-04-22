@@ -5,5 +5,8 @@
         <file>Test_Main_SimulatedData.qml</file>
         <file>ZSubModel.qml</file>
         <file>Test_Empty.qml</file>
+        <file>Test_Section.qml</file>
+        <file>ArrangableList/ArrangableList.qml</file>
+        <file>ArrangableList/Tests/Test_Main.qml</file>
     </qresource>
 </RCC>

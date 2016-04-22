@@ -5,8 +5,9 @@ CSubModel {
     property var  filterFunc: null
     property var  sortFunc  : null
     property bool sortFuncAcceptsIndices : false
+    property bool debug: false
 
-
+//    dynamicRoles: true
 
     onSourceModelChanged: logic.filterAll()
     onFilterFuncChanged : logic.filterAll()
@@ -73,10 +74,12 @@ CSubModel {
             }
         }
         function filterAll(){
-            console.time("Filter")
-
+//            console.time("Filter")
             var arr = []
             if(sourceModel) {
+                if(debug)
+                    console.log("filterAll on", sourceModel.count , "source items")
+
                 for(var i =0; i < sourceModel.count; ++i) {
                     var item = sourceModel.get(i)
                     var acceptable = filterFunc ? filterFunc(item) : true
@@ -86,7 +89,11 @@ CSubModel {
             }
 //            console.log('new indexList', arr)
             indexList = arr;
-            console.timeEnd("Filter")
+
+            if(debug)
+                console.log("result = ", indexList , arr)
+//            console.timeEnd("Filter")
+
 
             if(sortFunc)
                 doSort()
@@ -96,7 +103,7 @@ CSubModel {
         }
         function doSort(){
 //            console.log("DOING SORT")
-            console.time("sort Time")
+//            console.time("sort Time")
             if(sortFuncAcceptsIndices){
                 indexList.sort(sortFunc)
             }
@@ -105,7 +112,7 @@ CSubModel {
                     return sortFunc(sourceModel.get(a), sourceModel.get(b))
                 })
             }
-            console.timeEnd("sort Time")
+//            console.timeEnd("sort Time")
         }
 
     }

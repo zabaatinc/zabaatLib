@@ -3,13 +3,13 @@ import QtQuick 2.5
 Item{   //Essentially a list of loaders
 	id : rootObject
 	objectName : "StateList"
-    property string qmlDirectory : ""
-    property var    stateMachine : null
-    property alias  model        : lv.model
-    property int    cellHeight   : 40
+    property string  qmlDirectory            : ""
+    property var     stateMachine            : null
+    property alias   model                   : lv.model
+    property int     cellHeight              : 40
     property string  defaultDelegateFilename : "ListDelegate.qml"
-    property alias lv : lv
-    property alias section : lv.section
+    property alias   lv                      : lv
+    property alias   section                 : lv.section
 
 
     signal clicked(int index, var object);

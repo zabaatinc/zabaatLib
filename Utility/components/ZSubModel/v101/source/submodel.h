@@ -30,6 +30,7 @@ protected:
         if(source == nullptr) {
             return QRoles();
         }
+
         return source->roleNames();
     }
 
@@ -43,6 +44,23 @@ public:
      }
 
     //METHODS WE MUST PROVIDE!!
+    QModelIndex index(int row, int column, const QModelIndex &parent) const
+    {
+        if(source == nullptr || row < 0 || row > indices.length())
+            return QModelIndex();
+        return source->index(indices[row],column,parent);
+    }
+
+    QVariant data(int index, int role) const {
+        if(source == nullptr || index < 0 || index > indices.length())
+            return nil.toVariant();
+
+        int relativeIdx = indices[index];
+        if(relativeIdx < 0 || relativeIdx > source->count())
+            return nil.toVariant();
+
+        return source->data(index,role);
+    }
     QVariant data(const QModelIndex &index, int role) const {
         if(!index.isValid() || source == nullptr || index.row() < 0 || index.row() > indices.length())
             return nil.toVariant();
@@ -73,10 +91,12 @@ public:
         if(src != source) {
             disconnectSignals();
 
+            beginResetModel();
             source = reinterpret_cast<QQmlListModel *>(src);
             if(source != nullptr) { //connect stuff
                 connectSignals(source);
             }
+            endResetModel();
 
             Q_EMIT sourceModelChanged();
         }
@@ -200,7 +220,7 @@ public:
 
     Q_INVOKABLE void emitDataChanged(int start, int end, const QVector<int> &roles = QVector<int>()){
 //        Q_EMIT dataChanged(index(start) ,index(end) , roles);
-        Q_EMIT dataChanged(index(start,0,QModelIndex()), index(end,0,QModelIndex()), roles);
+        Q_EMIT dataChanged(QQmlListModel::index(start,0,QModelIndex()), QQmlListModel::index(end,0,QModelIndex()), roles);
     }
 
 //    Q_INVOKABLE uint getActualIndex(int idx) {

@@ -14,8 +14,8 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
-    qmlRegisterType<submodel>("Zabaat.Utility.ZSubModel",1,1,"CSubModel");
-    engine.load(QUrl(QStringLiteral("qrc:/Test_Empty.qml")));
+    qmlRegisterType<submodel>("Zabaat.Utility",1,1,"CSubModel");
+    engine.load(QUrl(QStringLiteral("qrc:/Test_Main.qml")));
 
     return app.exec();
 }

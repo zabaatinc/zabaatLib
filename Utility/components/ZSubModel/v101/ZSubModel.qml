@@ -73,7 +73,7 @@ CSubModel {
             }
         }
         function filterAll(){
-            console.time("Filter")
+//            console.time("Filter")
 
             var arr = []
             if(sourceModel) {
@@ -86,7 +86,7 @@ CSubModel {
             }
 //            console.log('new indexList', arr)
             indexList = arr;
-            console.timeEnd("Filter")
+//            console.timeEnd("Filter")
 
             if(sortFunc)
                 doSort()
@@ -96,7 +96,7 @@ CSubModel {
         }
         function doSort(){
 //            console.log("DOING SORT")
-            console.time("sort Time")
+//            console.time("sort Time")
             if(sortFuncAcceptsIndices){
                 indexList.sort(sortFunc)
             }
@@ -105,7 +105,7 @@ CSubModel {
                     return sortFunc(sourceModel.get(a), sourceModel.get(b))
                 })
             }
-            console.timeEnd("sort Time")
+//            console.timeEnd("sort Time")
         }
 
     }
