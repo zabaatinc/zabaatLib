@@ -5,18 +5,18 @@ import QtQuick 2.5
 Item {
     ListModel {
         id : orig
-        ListElement { num : 1 ; clr : "white"     }
-        ListElement { num : 2 ; clr : "green"     }
-        ListElement { num : 3 ; clr : "red"       }
-        ListElement { num : 4 ; clr : "lightblue" }
+        ListElement { num : "A" ; clr : "white"     }
+        ListElement { num : "B" ; clr : "green"     }
+        ListElement { num : "C" ; clr : "red"       }
+        ListElement { num : "D" ; clr : "lightblue" }
     }
 
     ListModel {
         id : orig2
-        ListElement { num : 5 ; clr : "white"     }
-        ListElement { num : 6 ; clr : "green"     }
-        ListElement { num : 7 ; clr : "red"       }
-        ListElement { num : 8 ; clr : "lightblue" }
+        ListElement { num : "E" ; clr : "white"     }
+        ListElement { num : "F" ; clr : "green"     }
+        ListElement { num : "G" ; clr : "red"       }
+        ListElement { num : "H" ; clr : "lightblue" }
     }
 
     Button {
@@ -48,7 +48,7 @@ Item {
                 color : clr
                 Text {
                     anchors.fill: parent
-                    text : num
+                    text : num + " @" + index
                     font.pixelSize: height * 1/3
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -68,7 +68,7 @@ Item {
                 color : clr
                 Text {
                     anchors.fill: parent
-                    text : num
+                    text : num  + "  @" + sub1.indexList[index]
                     font.pixelSize: height * 1/3
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -88,7 +88,7 @@ Item {
                 color : clr
                 Text {
                     anchors.fill: parent
-                    text : num
+                    text : num + "  @" + sub2.indexList[index]
                     font.pixelSize: height * 1/3
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -111,7 +111,11 @@ Item {
             width : parent.width
             height : width
             text : "Add"
-            onClicked : orig.append({num:orig.count})
+            property color css: "red"
+            onClicked : {
+                var newClr = Qt.rgba(Math.random(), Math.random(), Math.random())
+                orig.append({num:orig.count, clr:newClr})
+            }
         }
 
         Button {

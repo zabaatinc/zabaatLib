@@ -76,7 +76,7 @@ CSubModel {
                     //var src = sourceModel;
                     //sourceModel= null;
                     //sourceModel = src;
-//                    console.log("EMITING DATA CHANGED", refIdx, roles)
+//                    console.log(objectName ? objectName : rootObject, "EMITING DATA CHANGED", refIdx, roles)
                     emitDataChanged(refIdx,refIdx, roles)
                 }
             }

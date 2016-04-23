@@ -316,6 +316,9 @@ private:
     QMetaObject::Connection conn_dataChanged;
     QMetaObject::Connection conn_modelReset;
 
+    QVector<int> rolesVecInt() {
+        return roleNames().keys().toVector();
+    }
 
     int srcSize() const {
         if(source == nullptr)
@@ -379,7 +382,7 @@ private:
         Q_EMIT source_rowsRemoved();
     }
     void __rowsMoved(const QModelIndex &parent, int fromStart, int fromEnd, const QModelIndex &destination, int row) {
-        qDebug() << indices;
+//        qDebug() << indices;
 
         int count = fromEnd - fromStart +1;
         int toStart, toEnd;
@@ -405,7 +408,8 @@ private:
                     }
                 }
             }
-            //EMIT stuff?
+            //WE need to tell that data was changed (so that the DATA function works properly)
+            emitDataChanged(0, indices.length()-1 , rolesVecInt() );
         }
         else if(fromStart < toStart) {  //original elements were moved down!
             dist              = toStart - fromStart;
@@ -424,10 +428,11 @@ private:
                     }
                 }
             }
-            //EMIT stuff?  probably no.
+            //WE need to tell that data was changed (so that the DATA function works properly)
+            emitDataChanged(0, indices.length() - 1 , rolesVecInt() );
         }
-
-        qDebug() << indices;
+//        qDebug() << indices;
+        Q_EMIT indexListChanged();
         Q_EMIT source_rowsMoved();
 
     }

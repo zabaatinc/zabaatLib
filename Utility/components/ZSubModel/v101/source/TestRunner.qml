@@ -15,10 +15,22 @@ Window {
             orientation: ListView.Horizontal
             height : parent.height  * 0.1
             width : parent.width
+            property string lastSrc: ""
             delegate : Button {
                 width : height * 4
                 height : lv.height
-                onClicked : if(text !== "") loader.source = text + ".qml"
+                onClicked : {
+                    if(text !== "") {
+                        if(text === "Refresh"){
+                            loader.source = ""
+                            loader.source = lv.lastSrc
+                        }
+                        else {
+                            lv.lastSrc = loader.source = text + ".qml"
+                        }
+                    }
+                }
+
                 text : m ? m.name : ""
                 property var m: lv.model.get(index)
             }
@@ -28,6 +40,7 @@ Window {
                 ListElement { name : "Test_Main" }
                 ListElement { name : "Test_ModelCeption" }
                 ListElement { name : "Test_Section" }
+                ListElement { name : "Refresh" }
             }
 
         }
