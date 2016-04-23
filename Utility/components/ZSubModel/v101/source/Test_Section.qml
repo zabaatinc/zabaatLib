@@ -1,13 +1,8 @@
 import QtQuick 2.5
-import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
 
-Window {
+Item {
     id : root
-    visible: true
-    width : Screen.width
-    height : Screen.height - 300
-
     Test_Main_SimulatedData {
         id: simData
 //        onReadyChanged : if(ready) {

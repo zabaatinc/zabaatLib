@@ -1,5 +1,5 @@
-#TEMPLATE = app
-TEMPLATE = lib
+TEMPLATE = app
+#TEMPLATE = lib
 
 QT += qml quick  qml-private core-private
 CONFIG += c++11

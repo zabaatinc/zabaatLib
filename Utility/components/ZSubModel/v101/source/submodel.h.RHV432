@@ -12,6 +12,7 @@
 #include "mstimer.h"
 #include "nanotimer.h"
 #include <QtQml/private/qqmllistmodel_p.h>    //dont think this helps since we dont actually want to copy
+#include <typeinfo>
 
 typedef QHash<int,QByteArray>         QRoles;
 typedef QHashIterator<int,QByteArray> QRoleItr;
@@ -21,7 +22,7 @@ class submodel : public QQmlListModel {
     Q_OBJECT
     Q_PROPERTY(QQmlListModel *sourceModel READ sourceModel WRITE setSourceModel NOTIFY sourceModelChanged)
     Q_PROPERTY(QList<int> indexList READ indexList WRITE setIndexList NOTIFY indexListChanged)
-    Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly NOTIFY readOnlyChanged)
 
 
@@ -30,13 +31,13 @@ protected:
         if(source == nullptr) {
             return QRoles();
         }
+
         return source->roleNames();
     }
 
 
 public:
     submodel(QObject * parent = 0) : QQmlListModel(parent) {
-        m_count = 0;
         m_readOnly = true;
         source = NULL;
         nil = QJSValue::NullValue;
@@ -55,8 +56,15 @@ public:
         if(source == nullptr || index < 0 || index > indices.length())
             return nil.toVariant();
 
+        submodel *srcSub = reinterpret_cast<submodel *>(source);    //BECAUSE, otherwise, it will call the default count() function!!
+        int count = srcSub != nullptr ? srcSub->count() : source->count();
         int relativeIdx = indices[index];
-        if(relativeIdx < 0 || relativeIdx >= srcSize() )
+
+        if(srcSub != nullptr) {
+            qDebug() << "succeeded in reinterpreting cast" ;
+        }
+
+        if(relativeIdx < 0 || relativeIdx > count)
             return nil.toVariant();
 
         return source->data(index,role);
@@ -65,27 +73,25 @@ public:
         if(!index.isValid() || source == nullptr || index.row() < 0 || index.row() > indices.length())
             return nil.toVariant();
 
+        submodel *srcSub = reinterpret_cast<submodel *>(source);    //BECAUSE, otherwise, it will call the default count() function!!
+        int count = srcSub != nullptr ? srcSub->count() : source->count();
+
+        if(srcSub != nullptr) {
+            qDebug() << "succeeded in reinterpreting cast" ;
+        }
 
         int relativeIdx = indices[index.row()];
-        if(relativeIdx < 0 || relativeIdx >= srcSize() )
+        if(relativeIdx < 0 || relativeIdx >= count)
             return nil.toVariant();
 
         //have to constract a QModelIndex like a boss from our QList
         return source->data(relativeIdx,role);
     }
-
-    int count() const{  //TO ENABLE MODELCEPTIOn,OMG!@
-//        qDebug() << objectName() << ".count(" << m_count << ")";
-        return m_count;
-    }
     int rowCount(const QModelIndex &parent = QModelIndex()) const {
-        return count();
+        return source == nullptr ? 0 : indices.length() ;
     }
-    void setCount(uint c){
-        if(c != m_count){
-            m_count = c;
-            Q_EMIT countChanged(m_count);
-        }
+    int count(){
+        return rowCount();
     }
 
     bool readOnly(){ return m_readOnly; }
@@ -99,15 +105,20 @@ public:
 
     QQmlListModel* sourceModel() { return source; }
     void setSourceModel(QObject *src){
+        if(src != nullptr){
+            qDebug() << src->staticMetaObject.className();
+        }
+
+
         if(src != source) {
             disconnectSignals();
 
-            //beginResetModel();
+            beginResetModel();
             source = reinterpret_cast<QQmlListModel *>(src);
             if(source != nullptr) { //connect stuff
                 connectSignals(source);
             }
-            //endResetModel();
+            endResetModel();
 
             Q_EMIT sourceModelChanged();
         }
@@ -118,7 +129,7 @@ public:
         return indices;
     }
     void setIndexList(QList<int> intArr){
-//        qDebug() << objectName() << "::setIndexList" << intArr;
+        qDebug() << objectName() << intArr.length();
         safeList(intArr); //so everyuthing is kosher! i > 0  && i < rowCount of sourceModel
 
         //since we are going to overwrite this indexList, let's make sure we tell the view that we
@@ -147,7 +158,7 @@ public:
         return QQmlListModel::get(row); //YAY, this will return undefined!!
     }
     Q_INVOKABLE QQmlV4Handle sourceGet(int row){
-        return source != nullptr ? source->get(row) : get(-1);
+        source == nullptr ? get(-1) : source->get(row);
     }
 
     Q_INVOKABLE void set(int index, const QQmlV4Handle & h){
@@ -186,44 +197,36 @@ public:
     }
 
     Q_INVOKABLE void addToIndexList(int idx) {
-        if(source == nullptr || indices.contains(idx) || idx < 0 || idx >= srcSize())
-            return;
-
-        beginInsertRows(QModelIndex(), indices.length(), indices.length());  //cause we will put it
-        indices.append(idx);
-        Q_EMIT indexListChanged();
-        setCount(indices.length());
-        endInsertRows();
+        int ss = srcSize();
+        qDebug() << "srcSize " << ss;
+        if(source != nullptr && !indices.contains(idx) && idx >= 0 && idx < srcSize()) {
+            Q_EMIT beginInsertRows(QModelIndex(), indices.length(), indices.length());  //cause we will put it
+            indices.append(idx);                                                         //at the end!
+            Q_EMIT endInsertRows();
+        }
     }
     Q_INVOKABLE void removeFromIndexList(int idx){
         int indexOf;
         if(-1 != (indexOf = indices.indexOf(idx))){
-            beginRemoveRows(QModelIndex(), indexOf, indexOf);
+            Q_EMIT beginRemoveRows(QModelIndex(), indexOf, indexOf);
             indices.removeAt(indexOf);
-            endRemoveRows();
-            setCount(indices.length());
+            Q_EMIT endRemoveRows();
         }
     }
     Q_INVOKABLE void clear() {
         if(indices.length() > 0) {
             beginRemoveRows(QModelIndex(), 0, indices.length() - 1);
             endRemoveRows();
-            indices.clear();
-            Q_EMIT indexListChanged();
         }
-        setCount(indices.length());
+        indices.clear();
+        Q_EMIT countChanged(0);
+        Q_EMIT indexListChanged();
     }
 
 
     Q_INVOKABLE void emitDataChanged(int start, int end, const QVector<int> &roles = QVector<int>()){
 //        Q_EMIT dataChanged(index(start) ,index(end) , roles);
-//        QModelIndex topLeft(start, 0, nullptr, source );
-//        QModelIndex bottomRight(end, 0, nullptr, source );
-//        auto topLeft     = QAbstractListModel::index(start,0, QModelIndex());
-//        auto bottomRight = QAbstractListModel::index(end,0, QModelIndex());
-        Q_EMIT dataChanged(QAbstractListModel::index(start,0, QModelIndex()),
-                           QAbstractListModel::index(end,0, QModelIndex()) ,
-                           roles);
+        Q_EMIT dataChanged(QQmlListModel::index(start,0,QModelIndex()), QQmlListModel::index(end,0,QModelIndex()), roles);
     }
 
 //    Q_INVOKABLE uint getActualIndex(int idx) {
@@ -261,15 +264,15 @@ public:
 //        qDebug () << "BEFORE " << indices;
 
 //        qDebug() << "BEGIN LOOP 1";
-        for(int i = 0; i < (realTo-realFrom); ++i){
+        for(uint i = 0; i < (realTo-realFrom); ++i){
             store.append(indices[realFrom+realN+i]);
         }
 //        qDebug() << "BEGIN LOOP 2";
-        for(int i = 0; i < realN; ++i){
+        for(uint i = 0; i < realN; ++i){
             store.append(indices[realFrom+i]);
         }
 //        qDebug() << "BEGIN LOOP 3";
-        for(int i = 0; i < store.length(); ++i){
+        for(uint i = 0; i < store.length(); ++i){
             indices[realFrom+i] = store[i];
         }
 //        qDebug() << "END " << indices;
@@ -292,8 +295,8 @@ signals :
     void countChanged(int);
     void indexListChanged();
 
-    void source_rowsInserted(int start, int end, int count);
-    void source_dataChanged(int idx, int refIdx, QVector<int> roles);
+    void source_rowsInserted(uint start, uint end, uint count);
+    void source_dataChanged(uint idx, uint refIdx, QVector<int> roles);
     void source_rowsMoved();
     void source_rowsRemoved();
 
@@ -305,7 +308,6 @@ private:
     QQmlListModel *source;  //the sourceModel
     QList<int> indices;     //indices that determine the subset of source
     QJSValue   nil;         //for ease of use mang!!
-    uint       m_count;
     bool       m_readOnly;
 
 
@@ -316,24 +318,7 @@ private:
     QMetaObject::Connection conn_dataChanged;
     QMetaObject::Connection conn_modelReset;
 
-
-    int srcSize() const {
-        if(source == nullptr)
-            return 0;
-
-        int value = source->count();
-        try {
-            submodel &s = dynamic_cast<submodel&>(*source);
-    //                qDebug() << "cast succeeded";
-            value = s.count();
-        }
-        catch(std::exception e){
-    //            qDebug() << "failed to cast " ;
-        }
-
-        return value;
-    }
-    bool moveIsLegal(int from, int to, int n){
+    bool moveIsLegal(uint from, uint to, uint n){
         return !(from+n > rowCount() || to+n > rowCount() || from < 0 || to < 0 || n < 0);
     }
 
@@ -356,7 +341,6 @@ private:
         //since we cant turn QVariant elems (from sourcemodel) into QJSValue here. We have to let JS handle this
         //and run its filter function.
         int count = end - start + 1;
-//        qDebug() << objectName() << "emitting source_rowsInserted" << start<< end << count;
         Q_EMIT source_rowsInserted(start,end,count);
     }
     void __rowsRemoved(const QModelIndex &parent , int start, int end) {
@@ -378,9 +362,26 @@ private:
 
         Q_EMIT source_rowsRemoved();
     }
-    void __rowsMoved(const QModelIndex &parent, int fromStart, int fromEnd, const QModelIndex &destination, int row) {
-        qDebug() << indices;
+    void __dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
+        //since we cant turn QVariant elems (from sourcemodel) into QJSValue here. We have to let JS handle this
+        //and run its filter function.
 
+//        qDebug() << topLeft.row() << "," << topLeft.column() << "::" << bottomRight.row() << "::" << bottomRight.column();
+        int actualIdx = topLeft.row();
+        int refIdx = -1;
+        for(uint i = 0; i < indices.length(); ++i){
+            if(indices[i] == actualIdx){
+                refIdx = i;
+                break;
+            }
+        }
+
+        Q_EMIT source_dataChanged(actualIdx, refIdx, roles);
+    }
+    void __modelReset() {
+        Q_EMIT source_modelReset();
+    }
+    void __rowsMoved(const QModelIndex &parent, int fromStart, int fromEnd, const QModelIndex &destination, int row) {
         int count = fromEnd - fromStart +1;
         int toStart, toEnd;
         if(row < fromStart){
@@ -427,34 +428,14 @@ private:
             //EMIT stuff?  probably no.
         }
 
-        qDebug() << indices;
         Q_EMIT source_rowsMoved();
 
     }
-    void __dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
-        //since we cant turn QVariant elems (from sourcemodel) into QJSValue here. We have to let JS handle this
-        //and run its filter function.
-//        qDebug() << objectName() <<"'s source changed" << topLeft.row() << "," << topLeft.column() << "::" << bottomRight.row() << "::" << bottomRight.column();
-        int actualIdx = topLeft.row();
-        int refIdx = -1;
-        for(int i = 0; i < indices.length(); ++i){
-            if(indices[i] == actualIdx){
-                refIdx = i;
-                break;
-            }
-        }
 
-        Q_EMIT source_dataChanged(actualIdx, refIdx, roles);
+    void emitCountChanged(int count){
+        if(rowCount() != count)
+            emit countChanged(count);
     }
-    void __modelReset() {
-        Q_EMIT source_modelReset();
-    }
-
-
-
-
-
-
     void safeList(QList<int> &indices){
         if(source == nullptr){
             indices.clear();
@@ -462,31 +443,34 @@ private:
 
         for(int i = indices.length() - 1 ; i >= 0; --i) {
             int row = indices[i];
-            if(row < 0 || row > srcSize())
+            if(row < 0 || row >= srcSize())
                 indices.removeAt(i);
         }
     }
+
     void indexListSignals(){
         if(source == nullptr)
             return;
 
-        setCount(indices.length());
-//        qDebug() << "about to begin inserting rows" << rowCount() << count();
         for(int i = 0; i < indices.length(); ++i) {
             int row = indices[i];
             if(row > -1 && row < srcSize()){
                 beginInsertRows(QModelIndex(), i, i);
                 endInsertRows();
             }
-            else {
-                qWarning() << objectName() << "Cannot insert" << row << "because source range is [0-" << srcSize() << "]";
-            }
         }
-
+        Q_EMIT countChanged(rowCount());
     }
+    int srcSize() {
+        if(source == nullptr)
+            return 0;
 
-
-
+        submodel *srcSub = reinterpret_cast<submodel *>(source);    //BECAUSE, otherwise, it will call the default count() function!!
+        if(srcSub != nullptr) {
+            qDebug() << "succeeded in reinterpreting cast" ;
+        }
+        return srcSub != nullptr ? srcSub->count() : source->count();
+    }
 
 
 

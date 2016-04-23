@@ -5,12 +5,19 @@ CSubModel {
     property var  filterFunc: null
     property var  sortFunc  : null
     property bool sortFuncAcceptsIndices : false
-    property bool debug: false
+//    property bool debug: false
 
 //    dynamicRoles: true
 
     onSourceModelChanged: logic.filterAll()
-    onFilterFuncChanged : logic.filterAll()
+    onFilterFuncChanged : {
+        if(filterFunc !== logic.lastFilterVal)
+            logic.filterAll()
+
+        logic.lastFilterVal = filterFunc;
+    }
+
+
     onSortFuncChanged   : if(sortFunc)  logic.doSort();
     onSource_rowsMoved   : if(sortFunc) logic.doSort();
     onSource_rowsRemoved : if(sortFunc) logic.doSort();
@@ -22,10 +29,14 @@ CSubModel {
 
     property QtObject __logic : QtObject {
         id : logic
+        property var lastFilterVal : null
+
 
         function handleRowsInserted(start,end,count){
             //first let's adjust the indices we already have cause they have moved!
+//            console.log("Handle rows inserted", start, end, count)
             for(var i = 0; i < rootObject.count; ++i) {
+//                console.log("FUR LOOP")
                 var r = indexList[i];
                 if(r >= start)
                     indexList[i] += count;
@@ -36,6 +47,7 @@ CSubModel {
                 var newItem = sourceModel.get(i);
                 var acceptable = filterFunc ? filterFunc(newItem) : true
                 if(acceptable){
+//                    console.log(objectName ? objectName : rootObject, "ADDING TO idx list")
                     addToIndexList(i);
                 }
             }
@@ -45,7 +57,7 @@ CSubModel {
                 doSort();
         }
         function handleDataChanged(idx, refIdx, roles) {
-
+//            console.log(rootObject, "handling data change", idx, refIdx, roles)
             //Idx is the actual index of the item (in the real model)
             //refIdx is the index of the element that points to that
 
@@ -64,7 +76,6 @@ CSubModel {
                     //var src = sourceModel;
                     //sourceModel= null;
                     //sourceModel = src;
-
 //                    console.log("EMITING DATA CHANGED", refIdx, roles)
                     emitDataChanged(refIdx,refIdx, roles)
                 }
@@ -77,9 +88,11 @@ CSubModel {
 //            console.time("Filter")
             var arr = []
             if(sourceModel) {
-                if(debug)
-                    console.log("filterAll on", sourceModel.count , "source items")
-
+//                if(debug) {
+//                    console.log(objectName ? objectName : rootObject, "filterAll on", sourceModel.count , "source items")
+//                    console.trace()
+//                    console.log("--------------------------------------------------")
+//                }
                 for(var i =0; i < sourceModel.count; ++i) {
                     var item = sourceModel.get(i)
                     var acceptable = filterFunc ? filterFunc(item) : true
@@ -88,10 +101,11 @@ CSubModel {
                 }
             }
 //            console.log('new indexList', arr)
+//            console.log("-----------------------")
+//            console.trace()
+//            console.log("-----------------------")
             indexList = arr;
-
-            if(debug)
-                console.log("result = ", indexList , arr)
+//             console.log("result = ", indexList , arr)
 //            console.timeEnd("Filter")
 
 
