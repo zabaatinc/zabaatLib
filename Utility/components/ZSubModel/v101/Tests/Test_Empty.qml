@@ -1,12 +1,8 @@
 import QtQuick 2.5
-import QtQuick.Window 2.2
 import Zabaat.Utility 1.1
 import QtQuick.Controls 1.4
 
-Window {
-    visible: true
-    width : Screen.width
-    height : Screen.height - 300
+Item {
 
     ZSubModel {
         id : sub

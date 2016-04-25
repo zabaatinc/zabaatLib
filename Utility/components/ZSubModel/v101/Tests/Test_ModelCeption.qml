@@ -108,10 +108,10 @@ Item {
             delegate : Rectangle {
                 width  : lv.width
                 height : lv.height * 0.1
-                color : sub2.get(index) ? sub2.get(index).clr : ""
+                color : clr
                 Text {
                     anchors.fill: parent
-                    text : sub2.get(index) ? sub2.get(index).num + "  @" + sub2.indexList[index] : ""
+                    text : num + "  @" + sub2.indexList[index]
                     font.pixelSize: height * 1/3
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter

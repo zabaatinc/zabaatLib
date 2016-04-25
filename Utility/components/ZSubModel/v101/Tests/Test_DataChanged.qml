@@ -1,13 +1,8 @@
 import QtQuick 2.5
-import QtQuick.Window 2.2
 import Zabaat.Utility 1.1
 import QtQuick.Controls 1.4
 
-Window {
-    visible : true
-    width : Screen.width
-    height : Screen.height - 300
-
+Item {
     ListModel {
         id : original
         Component.onCompleted: {
@@ -43,7 +38,10 @@ Window {
            model : ZSubModel {
                id : sub
                sourceModel : original
-               filterFunc: null
+               filterFunc: function(a) {
+                   return a.color === "yellow"
+               }
+
                sortFunc  : null
    //            onCountChanged         : console.log("sub.count=",count)
    //            Component.onCompleted  : console.log("sub.count=",count)
@@ -129,32 +127,11 @@ Window {
                }
            }
 
-           Button {
-               width : parent.width
-               height : width
-               text : 'Attach filter'
-               onClicked : {
-                    sub.filterFunc = function(a) {
-                        return a.state === "pickQueue"
-                    }
-               }
-           }
-
-           Button {
-               width : parent.width
-               height : width
-               text : 'Attach sort'
-               onClicked : {
-                    sub.sortFunc = function(a, b) {
-                        return a.sort - b.sort
-                    }
-               }
-           }
-
-
 
 
        }
+
+
     }
 
 

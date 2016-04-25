@@ -30,7 +30,16 @@ protected:
         if(source == nullptr) {
             return QRoles();
         }
-        return source->roleNames();
+
+        QRoles r;
+        try {
+            submodel &s = dynamic_cast<submodel&>(*source);
+            r = s.roleNames();
+        }
+        catch(std::exception e){
+            r = source->roleNames();
+        }
+        return r;
     }
 
 
@@ -46,21 +55,29 @@ public:
     //METHODS WE MUST PROVIDE!!
     QModelIndex index(int row, int column, const QModelIndex &parent) const
     {
-        if(source == nullptr || row < 0 || row > indices.length())
+        if(source == nullptr || row < 0 || row >= indices.length())
             return QModelIndex();
         return source->index(indices[row],column,parent);
     }
 
     QVariant data(int index, int role) const {
-        if(source == nullptr || index < 0 || index > indices.length())
+        if(source == nullptr || index < 0 || index >= indices.length())
             return nil.toVariant();
 
         int relativeIdx = indices[index];
         if(relativeIdx < 0 || relativeIdx >= srcSize() )
             return nil.toVariant();
 
-//        qDebug() << "data(" << index << "," << role ;
-        return source->data(index,role);
+        QVariant d;
+        try {
+            submodel &s = dynamic_cast<submodel&>(*source);
+            d = s.data(index,role);
+        }
+        catch(std::exception e){
+            d = source->data(index,role);
+        }
+
+        return d;
     }
     QVariant data(const QModelIndex &index, int role) const {
         if(!index.isValid() || source == nullptr || index.row() < 0 || index.row() > indices.length())
@@ -73,7 +90,16 @@ public:
 
         //have to constract a QModelIndex like a boss from our QList
 //        qDebug() << "data(" << index.row() << "," << role ;
-        return source->data(relativeIdx,role);
+        QVariant d;
+        try {
+            submodel &s = dynamic_cast<submodel&>(*source);
+            d = s.data(relativeIdx,role);
+        }
+        catch(std::exception e){
+            d = source->data(relativeIdx,role);
+        }
+
+        return d;
     }
 
     int count() const{  //TO ENABLE MODELCEPTIOn,OMG!@
@@ -142,6 +168,7 @@ public:
         }
         return r;
     }
+
     Q_INVOKABLE QQmlV4Handle get(int row){
         if(row >= 0 && row < indices.length() && source != nullptr) {
             return sourceGet(indices[row]);
@@ -149,41 +176,91 @@ public:
         return QQmlListModel::get(row); //YAY, this will return undefined!!
     }
     Q_INVOKABLE QQmlV4Handle sourceGet(int row){
-        return source != nullptr ? source->get(row) : get(-1);
+        //DANG, haf to do this err where
+        if(source == nullptr)
+            return QQmlListModel::get(-1);
+
+        QQmlV4Handle h;
+        try {
+            submodel &s = dynamic_cast<submodel&>(*source);
+            h = s.get(row);
+        }
+        catch(std::exception e){
+            h = source->get(row);
+        }
+        return h;
     }
 
     Q_INVOKABLE void set(int index, const QQmlV4Handle & h){
        if(m_readOnly)
             qWarning() << "submodel.h::set called w/o disabling readOnly";
-       else if(index >= 0 && index < indices.length() && source != nullptr)
-           source->set(indices[index] , h);
-
+       else if(index >= 0 && index < indices.length() && source != nullptr) {
+           try {
+               submodel &s = dynamic_cast<submodel&>(*source);
+               s.set(indices[index], h);
+           }
+           catch(std::exception e){
+               source->set(indices[index] , h);
+           }
+       }
     }
     Q_INVOKABLE void insert(QQmlV4Function *args) {
         if(m_readOnly)
             qWarning() << "submodel.h::insert use insert on the sourceModel. not this";
         else if(source != nullptr){
-            source->insert(args);
+
+            try {
+                submodel &s = dynamic_cast<submodel&>(*source);
+                s.insert(args);
+            }
+            catch(std::exception e){
+                source->insert(args);
+            }
+
         }
     }
     Q_INVOKABLE void append(QQmlV4Function *args){
         if(m_readOnly)
             qWarning() << "submodel.h::append use append on the sourceModel. not this";
-        else if(source != nullptr)
-            source->append(args);
+        else if(source != nullptr) {
+
+            try {
+                submodel &s = dynamic_cast<submodel&>(*source);
+                s.append(args);
+            }
+            catch(std::exception e){
+                source->append(args);
+            }
+        }
     }
     Q_INVOKABLE void remove(QQmlV4Function *args){
         if(m_readOnly)
             qWarning() << "submodel.h::remove use remove on the sourceModel. not this";
         else if(source != nullptr){
-            source->remove(args);
+
+            try {
+                submodel &s = dynamic_cast<submodel&>(*source);
+                s.remove(args);
+            }
+            catch(std::exception e){
+                source->remove(args);
+            }
+
         }
     }
     Q_INVOKABLE void setProperty(int index, const QString &property, const QVariant &value){
         if(m_readOnly)
             qWarning() << "submodel.h::setProperty use setProperty on the sourceModel. not this";
         else if(index >= 0 && index < indices.length() && source != nullptr) {
-            source->setProperty(indices[index] , property , value);
+
+            try {
+                submodel &s = dynamic_cast<submodel&>(*source);
+                s.setProperty(indices[index] , property , value);
+            }
+            catch(std::exception e){
+                source->setProperty(indices[index] , property , value);
+            }
+
         }
     }
 
