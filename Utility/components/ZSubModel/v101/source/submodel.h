@@ -59,6 +59,7 @@ public:
         if(relativeIdx < 0 || relativeIdx >= srcSize() )
             return nil.toVariant();
 
+//        qDebug() << "data(" << index << "," << role ;
         return source->data(index,role);
     }
     QVariant data(const QModelIndex &index, int role) const {
@@ -71,6 +72,7 @@ public:
             return nil.toVariant();
 
         //have to constract a QModelIndex like a boss from our QList
+//        qDebug() << "data(" << index.row() << "," << role ;
         return source->data(relativeIdx,role);
     }
 
@@ -409,7 +411,7 @@ private:
                 }
             }
             //WE need to tell that data was changed (so that the DATA function works properly)
-            emitDataChanged(0, indices.length()-1 , rolesVecInt() );
+            emitDataChanged(toStart, fromEnd , rolesVecInt() );
         }
         else if(fromStart < toStart) {  //original elements were moved down!
             dist              = toStart - fromStart;
@@ -429,12 +431,11 @@ private:
                 }
             }
             //WE need to tell that data was changed (so that the DATA function works properly)
-            emitDataChanged(0, indices.length() - 1 , rolesVecInt() );
+            emitDataChanged(fromStart, toEnd , rolesVecInt() );
         }
 //        qDebug() << indices;
         Q_EMIT indexListChanged();
         Q_EMIT source_rowsMoved();
-
     }
     void __dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>()) {
         //since we cant turn QVariant elems (from sourcemodel) into QJSValue here. We have to let JS handle this
@@ -449,6 +450,7 @@ private:
             }
         }
 
+//        qDebug() << objectName() << "source data changed" << actualIdx << refIdx ;
         Q_EMIT source_dataChanged(actualIdx, refIdx, roles);
     }
     void __modelReset() {

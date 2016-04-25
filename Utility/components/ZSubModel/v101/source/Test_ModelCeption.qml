@@ -3,6 +3,17 @@ import QtQuick.Controls 1.4
 import QtQuick 2.5
 
 Item {
+
+    function printIndexList(submodel){
+        var indices = submodel.indexList
+        var t = "";
+        for(var i = 0; i < submodel.indexList.length; ++i) {
+            t += i === submodel.indexList.length - 1 ? submodel.indexList[i] :
+                                                   submodel.indexList[i] + ","
+        }
+        return t;
+    }
+
     ListModel {
         id : orig
         ListElement { num : "A" ; clr : "white"     }
@@ -75,6 +86,18 @@ Item {
                 }
             }
 
+            Text {
+                anchors.top: lv.top
+                anchors.topMargin: lv.contentHeight
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment : Text.AlignVCenter
+                width : lv.width
+                height : lv.height * 0.1
+                font.pixelSize : height * 1/3
+                text : printIndexList(sub1)
+            }
+
         }
 
         ListView {
@@ -93,6 +116,17 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
+            }
+            Text {
+                anchors.top: lv2.top
+                anchors.topMargin: lv2.contentHeight
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment : Text.AlignVCenter
+                width : lv2.width
+                height : lv2.height * 0.1
+                font.pixelSize : height * 1/3
+                text : printIndexList(sub2)
             }
         }
     }
@@ -113,8 +147,8 @@ Item {
             text : "Add"
             property color css: "red"
             onClicked : {
-                var newClr = Qt.rgba(Math.random(), Math.random(), Math.random())
-                orig.append({num:orig.count, clr:newClr})
+
+                orig.append({num:orig.count.toString(), clr:"white"})
             }
         }
 
@@ -123,9 +157,9 @@ Item {
             height : width
             text : 'Data Change'
             onClicked : {
-                lv.model = null
+//                lv.model = null
                 orig.get(parent.randIdx()).num += 1
-                lv.model = orig
+//                lv.model = orig
             }
         }
 
