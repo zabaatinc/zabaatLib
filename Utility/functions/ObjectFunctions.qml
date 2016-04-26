@@ -7,6 +7,36 @@ QtObject {
     function clone(obj) {
         return JSON.parse(JSON.stringify(obj))
     }
+    function keys(obj, exclude){
+        return getProperties(obj, exclude);
+    }
+    function values(obj, exclude){
+        function indexOf(array,item){
+            var i = 0, length = array && array.length;
+            for (; i < length; i++)
+                if (array[i] === item) return i;
+            return -1;
+        }
+
+        var vals =  []
+        if(obj !== null && typeof obj !== 'undefined'){
+
+            for(var v in obj){
+                if(!isUndef(exclude) && !isUndef(exclude.length) &&  exclude.length > 0)
+                {
+                    if(indexOf(exclude,v) === -1)
+                        vals.push(obj[v])
+                }
+                else
+                    vals.push(obj[v])
+
+            }
+
+        }
+        console.log("RETURNING" , vals)
+        return vals;
+    }
+
     function isUndef(){
         if(arguments.length === 0)
             return true

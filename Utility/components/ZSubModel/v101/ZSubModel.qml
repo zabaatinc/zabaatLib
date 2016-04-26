@@ -18,7 +18,7 @@ CSubModel {
     }
 
 
-    onSortFuncChanged   : if(sortFunc)  logic.doSort();
+    onSortFuncChanged    : if(sortFunc)  logic.doSort();
     onSource_rowsMoved   : if(sortFunc) logic.doSort();
     onSource_rowsRemoved : if(sortFunc) logic.doSort();
     onSource_rowsInserted: logic.handleRowsInserted(start,end,count);

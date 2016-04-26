@@ -2,47 +2,188 @@ import "../"
 import QtQuick 2.5
 import QtQuick.Window 2.2
 import QtQuick.Controls 1.4
+import Zabaat.Utility 1.1
 
-Window {
+Rectangle {
     visible: true
     width : Screen.width
     height : Screen.height - 300
     color : "lightBlue"
 
-    ListModel {
-        id : testModel
-        ListElement { number : 1 }
-        ListElement { number : 2 }
-        ListElement { number : 3 }
-        ListElement { number : 4 }
-    }
+    Loader {
+        anchors.fill: parent
+        sourceComponent: testMain
 
-    Text {
-        text : "origCount:" +  al.count_Original + "\n" +
-               "subOrigCount:" +  al.count_ZSubOrignal + "\n" +
-               "subChangerCount:" +  al.count_ZSubChanger
-
-    }
+        Button {
+            anchors.right : parent.right
+            text : 'refresh'
+            onClicked : {
+                parent.sourceComponent = null
+                parent.sourceComponent = testMain
+            }
+        }
 
 
-    ArrangableList {
-        id : al
-        width : parent.width/2
-        height : parent.height/2
-        anchors.centerIn: parent
 
-        model : testModel
-//        delegate   : Component {
-//            ZText {
-//                property int index;
-//                property var model;
-//                anchors.fill: parent
-//                text        : model ? model.number : ""
-//                state  : 'f3-t1'
-//            }
-//        }
+
 
     }
+
+    function prettify(arr){
+        function stringerify(arr){
+            var s = "";
+            for(var i = 0; i < arr.length ; ++i){
+                s += i !== arr.length - 1 ? arr[i] + "," : arr[i]
+            }
+            return s;
+        }
+
+        var str = ""
+        for(var a = 0; a < arr.length; ++a){
+            str += a + " : " + stringerify(arr[a]) + "\n"
+        }
+        return str;
+    }
+    Component {
+        id : testMain
+        Item {
+            ListModel {
+                id : testModel
+                ListElement { number : 0 }
+                ListElement { number : 1 }
+                ListElement { number : 2 }
+                ListElement { number : 3 }
+                ListElement { number : 4 }
+//                ListElement { number : 5 }
+//                ListElement { number : 6 }
+//                ListElement { number : 7 }
+//                ListElement { number : 8 }
+//                ListElement { number : 9 }
+            }
+
+            Row {
+                width : parent.width * 0.7
+                height : parent.height * 0.6
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                spacing : width/12
+
+                ArrangableList {
+                    id : al
+                    width : parent.width/4
+                    height : parent.height/2
+                    model : testModel
+                    delegateCellHeight : height * 0.2
+
+                    delegate   : Component {
+                        id : cmp
+                        Rectangle {
+                            property int index;
+                            property var model;
+                            border.width: 1
+                            Text {
+                                anchors.fill: parent
+                                font.pixelSize : height * 1/3
+                                text        : parent.model ? parent.model.number : ""
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                    }
+                }
+
+                ListView {
+                    id     : intermediate
+                    width  : parent.width/4
+                    height : parent.height/2
+                    model  : al.logic.zsubOrig
+                    delegate : Rectangle {
+                        property var model : intermediate.model.get(index)
+                        width : intermediate.width
+                        height : intermediate.height * 0.2
+                        border.width: 1
+                        Text {
+                            anchors.fill: parent
+                            font.pixelSize : height * 1/3
+                            text        : parent.model ? parent.model.number : ""
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                }
+
+                ListView {
+                    id     : orig
+                    width  : parent.width/4
+                    height : parent.height/2
+                    model  : testModel
+                    delegate : Rectangle {
+                        property var model : testModel.get(index)
+                        width : orig.width
+                        height : orig.height * 0.2
+                        border.width: 1
+                        Text {
+                            anchors.fill: parent
+                            font.pixelSize : height * 1/3
+                            text        : parent.model ? parent.model.number : ""
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                }
+
+
+
+
+
+            }
+
+
+            Column {
+                Row {
+
+                    Button {
+                        text: "undo"
+                        onClicked : al.undo()
+                    }
+
+                    Button {
+                        text : "deselect All"
+                        onClicked : al.deselectAll()
+                    }
+
+                    Button {
+                        text : "select All"
+                        onClicked : al.selectAll()
+                    }
+
+                    Button {
+                        text: "move to top"
+                        onClicked : al.moveSelectedTo(0);
+                    }
+
+                    Button {
+                        text: "redo"
+                        onClicked : al.redo()
+                    }
+                }
+
+                Text { text : "origCount:" +  al.count_Original  }
+                Text { text : "subOrigCount:" +  al.count_ZSubOrignal }
+                Text { text : "subChangerCount:" +  al.count_ZSubChanger }
+                Text { text : "selection:"  + JSON.stringify(al.logic.selected) + " " + al.logic.selectedLen  + "\n\t\tCtrl:"   + al.gui.ctrlModifier + "\tShift:" + al.gui.shiftModifier }
+                Text { text : "undos:\n" + prettify((al.logic.undos())) ; height : paintedHeight + 5}
+                Text { text : "redos:\n" + prettify((al.logic.redos())) }
+            }
+
+
+
+
+        }
+
+
+    }
+
 
 
 

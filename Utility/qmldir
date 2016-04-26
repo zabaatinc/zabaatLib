@@ -5,6 +5,7 @@ UIBlocker 			1.0 components/UIBlocker.qml
 WarningMessage 		1.0 components/WarningMessage.qml
 ZTracer	 			1.0 components/ZTracer.qml
 ArrangableList		1.0 components/ArrangableList.qml
+ArrangableList		1.1 components/ArrangableList/ArrangableList.qml
 ZGestureArea 		1.0 components/ZGestureArea.qml
 ZSubModel			1.0 components/ZSubModel/v100/ZSubModel.qml
 ZSubModel 			1.1 components/ZSubModel/v101/ZSubModel.qml
