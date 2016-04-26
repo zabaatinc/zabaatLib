@@ -54,16 +54,16 @@ Rectangle {
                 ListElement { number : 2 }
                 ListElement { number : 3 }
                 ListElement { number : 4 }
-//                ListElement { number : 5 }
-//                ListElement { number : 6 }
-//                ListElement { number : 7 }
-//                ListElement { number : 8 }
-//                ListElement { number : 9 }
+                ListElement { number : 5 }
+                ListElement { number : 6 }
+                ListElement { number : 7 }
+                ListElement { number : 8 }
+                ListElement { number : 9 }
             }
 
             Row {
                 width : parent.width * 0.7
-                height : parent.height * 0.6
+                height : parent.height * 0.9
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
                 spacing : width/12
@@ -73,7 +73,7 @@ Rectangle {
                     width : parent.width/4
                     height : parent.height/2
                     model : testModel
-                    delegateCellHeight : height * 0.2
+                    delegateCellHeight : height * 0.1
 
                     delegate   : Component {
                         id : cmp
@@ -100,7 +100,7 @@ Rectangle {
                     delegate : Rectangle {
                         property var model : intermediate.model.get(index)
                         width : intermediate.width
-                        height : intermediate.height * 0.2
+                        height : intermediate.height * 0.1
                         border.width: 1
                         Text {
                             anchors.fill: parent
@@ -120,7 +120,7 @@ Rectangle {
                     delegate : Rectangle {
                         property var model : testModel.get(index)
                         width : orig.width
-                        height : orig.height * 0.2
+                        height : orig.height * 0.1
                         border.width: 1
                         Text {
                             anchors.fill: parent
@@ -166,6 +166,20 @@ Rectangle {
                         text: "redo"
                         onClicked : al.redo()
                     }
+
+                    Button {
+                      text : "odd filter"
+                      onClicked: al.filterFunc = al.filterFunc === parent.oddFilter ? null : parent.oddFilter
+                    }
+
+                    Button {
+                      text : "even filter"
+                      onClicked: al.filterFunc = al.filterFunc === parent.evenFilter ? null : parent.evenFilter
+                    }
+
+
+                    function oddFilter(a) { return a.number % 2 === 1; }
+                    function evenFilter(a) { return a.number % 2 === 0; }
                 }
 
                 Text { text : "origCount:" +  al.count_Original  }
