@@ -78,7 +78,7 @@ QtObject
 
     function union() { return UnderscoreLib._.union.apply(this,arguments) }
     function intersection(array) { return UnderscoreLib._.intersection.apply(this,arguments) }
-    function difference(array) { return UnderscoreLib._.difference(array) }
+    function difference(array) { return UnderscoreLib._.difference.apply(this,arguments) }
     function zip(array) { return UnderscoreLib._.zip(array) }
     function unzip(array) { return UnderscoreLib._.unzip(array) }
     function object(list,values) { return UnderscoreLib._.object(list,values)  }

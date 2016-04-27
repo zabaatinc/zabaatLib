@@ -49,16 +49,16 @@ Rectangle {
         Item {
             ListModel {
                 id : testModel
-                ListElement { number : 0 }
-                ListElement { number : 1 }
-                ListElement { number : 2 }
-                ListElement { number : 3 }
-                ListElement { number : 4 }
-                ListElement { number : 5 }
-                ListElement { number : 6 }
-                ListElement { number : 7 }
-                ListElement { number : 8 }
-                ListElement { number : 9 }
+                ListElement { number : "A" }
+                ListElement { number : "B" }
+                ListElement { number : "C" }
+                ListElement { number : "D" }
+                ListElement { number : "E" }
+                ListElement { number : "F" }
+//                ListElement { number : 6 }
+//                ListElement { number : 7 }
+//                ListElement { number : 8 }
+//                ListElement { number : 9 }
             }
 
             Row {
@@ -84,7 +84,7 @@ Rectangle {
                             Text {
                                 anchors.fill: parent
                                 font.pixelSize : height * 1/3
-                                text        : parent.model ? parent.model.number : ""
+                                text        : parent.model ? parent.model.number + " @" +  al.logic.zsubChanger.indexList[index]: ""
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                             }
@@ -105,7 +105,7 @@ Rectangle {
                         Text {
                             anchors.fill: parent
                             font.pixelSize : height * 1/3
-                            text        : parent.model ? parent.model.number : ""
+                            text        : parent.model ? parent.model.number + " @" +  al.logic.zsubOrig.indexList[index]: ""
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                         }
@@ -125,7 +125,7 @@ Rectangle {
                         Text {
                             anchors.fill: parent
                             font.pixelSize : height * 1/3
-                            text        : parent.model ? parent.model.number : ""
+                            text        : parent.model ? parent.model.number: ""
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
                         }
