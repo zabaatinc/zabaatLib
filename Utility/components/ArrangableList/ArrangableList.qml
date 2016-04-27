@@ -17,10 +17,13 @@ Item {
     property var   highlightDelegate             : rootObject.selectionDelegate //will normally just change by changing selectionDelegate!
     property var   delegate                      : simpleDelegate
     property real  delegateCellHeight            : lv.height * 0.1
+    property var   blankDelegate                 : blankDelegate
 
     readonly property int count_Original        : zsubOrig.sourceModel.count
     readonly property alias count_ZSubOrignal   : zsubOrig.count
     readonly property alias count_ZSubChanger   : zsubChanger.count
+    readonly property alias subModel            : zsubChanger  //for deprecated suppoert
+    readonly property alias subModelOrig        : zsubOrig
 
     readonly property var undo                  : logic.undo
     readonly property var redo                  : logic.redo
@@ -29,6 +32,7 @@ Item {
     readonly property var selectAll             : logic.selectAll
     readonly property var deselectAll           : logic.deselectAll
     readonly property var moveSelectedTo        : logic.moveSelectedTo
+    readonly property var resetState            : logic.resetState
 
     onActiveFocusChanged: if(activeFocus)
                               gui.forceActiveFocus()
@@ -48,10 +52,12 @@ Item {
             onSource_rowsInserted: {
                 //TODO
                 console.log("TODO rowsInserted", start, end, count )
+                logic.resetState();
             }
             onSource_rowsRemoved:  {
                 //TODO
                 console.log("TODO rowsRemoved", start, end , count)
+                logic.resetState();
             }
 
         }
@@ -64,17 +70,26 @@ Item {
             onIndexListChanged: {
                 logic.lastTouchedIdx = -1;
                 logic.deselectAll()
+
+                if(sourceModel && sourceModel.indexList.length > 0)
+                    logic.states.push(logic.cloneArr(sourceModel.indexList))
             }
             onSourceModelChanged: {
-                logic.stateIdx = 0;
-                logic.states   = [];
-
-                if(sourceModel)
+                logic.resetState();
+                if(sourceModel && sourceModel.indexList.length > 0)
                     logic.states.push(logic.cloneArr(sourceModel.indexList))
             }
 
 
         }
+
+        function resetState(){
+            logic.lastTouchedIdx = -1;
+            logic.stateIdx = 0;
+            logic.states   = [];
+        }
+
+
 
         function isSelected(idx){
             return typeof selected[idx] !== 'undefined'
@@ -228,7 +243,9 @@ Item {
             return true;
         }
 
-
+        function isUndef(item){
+            return item === null || typeof item === 'undefined'
+        }
 
         function undo(){
             if(states.length > 0 && stateIdx > 0){
@@ -258,14 +275,16 @@ Item {
             selected = {}
             selectedLen = 0
         }
-        function moveSelectedTo(idx){
+        function moveSelectedTo(idx , destIdx){     //destIdx is normally BLANK! HARD CODE, USE @ UR OWN RISK!
             if(selected && selectedLen > 0){
 
                 var len   = zsubChanger.indexList.length
-                var e     = selectedLen === 1 ? zsubChanger : zsubOrig
-                var begin = e.indexList[0]    //the refIdx at the start of our list(zsubChanger)
-                var end   = e.indexList[len -1]
-                var dest  = idx <= 0 ? begin : idx >= len ? end : e.indexList[idx]
+                var begin = zsubChanger.indexList[0]        //the refIdx at the start of our list(zsubChanger)
+                var end   = zsubChanger.indexList[len -1]
+//                var superBegin = zsubOrig.indexList[0]
+//                var superEnd   = zsubOrig.indexList[zsubOrig.indexList.length - 1]
+                var dest  = !isUndef(destIdx) ? destIdx :
+                                                idx <= 0 ? begin : idx >= len ? end : zsubChanger.indexList[idx]
 
                 if(selectedLen === 1){
                     //we only have one element. So this should be essy.
@@ -285,7 +304,7 @@ Item {
 
                     //step 1, rip out the selection array from the list
 //                    var il    = cloneArr(zsubOrig.indexList)
-                    dest      = zsubChanger.indexList[idx]
+                    dest = isUndef(destIdx) ? zsubChanger.indexList[idx]  : zsubOrig.indexList[destIdx]
 
                     var movingArr = []
                     var sar = []
@@ -305,7 +324,7 @@ Item {
                     //Figure out the head, tail
                     var head   = sar[0]
                     var tail   = sar[sar.length -1]
-                    var destIdx = indexOf(il, zsubOrig.indexList[dest]);
+                    destIdx    = indexOf(il, zsubOrig.indexList[dest])
 
 
 //                    console.log("H:",head, "T:",tail, "\t\tDest:", dest, "@", destIdx)
@@ -424,7 +443,7 @@ Item {
                 id : delegateLoader
                 width  : lv.width
                 height : delegateCellHeight
-                sourceComponent : dragDelegate.index !== index ? rootObject.delegate : blankDelegate
+                sourceComponent : dragDelegate.index !== index ? rootObject.delegate : rootObject.blankDelegate
                 property int _index       : index
                 property bool imADelegate : true
                 property bool selected: logic.selected && typeof logic.selected[index] !== 'undefined' ? true : false
@@ -556,13 +575,6 @@ Item {
                 return null;
             }
 
-
-
-
-
-
-
-
         }
 
         Component {
@@ -572,7 +584,6 @@ Item {
                 color : 'transparent'
             }
         }
-
         Component {
             id : simpleDelegate
             Rectangle {

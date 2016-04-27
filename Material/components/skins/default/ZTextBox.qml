@@ -49,7 +49,8 @@ ZSkin {
                 id : label
                 verticalAlignment  : Text.AlignVCenter
                 horizontalAlignment: graphical.text_hAlignment
-                color              : graphical.text_Press
+                color              : textArea.text.color
+                opacity            : 0.4    //the 0.4 opacity will give it a faded look!
                 text               : logic && logic.label ? logic.label : ""
                 font {
                     family : text.font.family

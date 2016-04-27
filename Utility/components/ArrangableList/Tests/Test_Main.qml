@@ -49,12 +49,13 @@ Rectangle {
         Item {
             ListModel {
                 id : testModel
-                ListElement { number : "A" }
-                ListElement { number : "B" }
-                ListElement { number : "C" }
-                ListElement { number : "D" }
-                ListElement { number : "E" }
-                ListElement { number : "F" }
+                ListElement { number : 0 }
+                ListElement { number : 1 }
+                ListElement { number : 2 }
+                ListElement { number : 3 }
+                ListElement { number : 4 }
+                ListElement { number : 5 }
+
 //                ListElement { number : 6 }
 //                ListElement { number : 7 }
 //                ListElement { number : 8 }

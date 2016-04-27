@@ -16,8 +16,14 @@ Item {
 
     signal loaded();
 
-    onSourceChanged                 : logic.nextLoader.source          = source;
-    onSourceComponentChanged        : logic.nextLoader.sourceComponent = sourceComponent;
+    onSourceChanged                 : {
+        blocker.visible = true;
+        logic.nextLoader.source          = source;
+    }
+    onSourceComponentChanged        : {
+        blocker.visible = true;
+        logic.nextLoader.sourceComponent = sourceComponent;
+    }
 
     onLoaded : {
         var newActive = logic.activeLoader === l1 ? l2 : l1
@@ -38,7 +44,9 @@ Item {
 
     function load(source, args, transition){
         logic.nextLoader.tempTrans = transition;
+
         rootObject.args = args;
+        blocker.visible = true;
         if(typeof source === 'string'){
             logic.nextLoader.setSource(source);
         }
@@ -80,7 +88,6 @@ Item {
             var transition = getTransition(transName);
             if(transition) {
 //                console.log("TRANS FOUND",transition)
-                blocker.visible = true;
                 transition.begin(from,to)
             }
             else
