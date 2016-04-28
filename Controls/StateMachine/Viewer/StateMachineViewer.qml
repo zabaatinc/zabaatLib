@@ -97,7 +97,7 @@ Item {
             ]
 
         property var stack : [] //this lets us go back states!
-        onStackChanged: console.log(stack)
+//        onStackChanged: console.log(stack)
 
         function cleanClone(){
 //            console.log("------------------------------------------------")
@@ -236,8 +236,12 @@ Item {
         height      : parent.height - defaultNavigationLoader.height
 //        transitionEffect: "rotateLeft"
         onLoaded    : if(item){
+//                          console.log(rootObject, item.hasOwnProperty('model') , item.hasOwnProperty('stateMachinePtr'))
                           if(item.hasOwnProperty('model'))              item.model           = modelObject;
                           if(item.hasOwnProperty("stateMachinePtr"))    item.stateMachinePtr = rootObject;
+                          if(item.hasOwnProperty("ready") && typeof item.ready === 'function') item.ready()
+
+
                       }
 //                      else                   console.error(item,"has no model property")
         source                     : !logic.stateMachineName || curState === "" ? "" : rootObject.qmlDirectory + "/" + logic.stateMachineName + "/" +  curState + ".qml"
