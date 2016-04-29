@@ -175,11 +175,22 @@ Item {
             property color disabled2        : "DarkGray"
         }
 
+        function has(obj, key){
+            if(key.charAt(0) === "@"){  //check for this and slice1
+                return typeof obj[key]          !== 'undefined' ||
+                       typeof obj[key.slice(1)] !== 'undefined' ? true : false
+            }
+            return typeof obj[key]              !== 'undefined' ||
+                   typeof obj["@" + key]        !== 'undefined' ? true : false
+        }
+
+
         function injectState(name, key, stateObject){    //makes sure we don't overwrite an existing state!
             if(states[name]){
-                if(states[name][key]){  //this key already exists!! don't overwrite special values!
+                if(has(states[name],key)){  //this key already exists!! don't overwrite special values!
                     for(var s in stateObject){
-                        if(typeof states[name][key][s] === 'undefined'){
+//                        console.log(key, s)
+                        if(!has(states[name][key],s) ){
                             //do nothing
                             states[name][key][s] = stateObject[s]
                         }
