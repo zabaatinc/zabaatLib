@@ -25,15 +25,15 @@ Rectangle {
                 id : array
                 LButton {
                     text : "chunk([1,2,3,4],2)";
-                    onClicked: prnt(Lodash.chunk([1,2,3,4],2)   )
+                    onClicked: prnt(_.chunk([1,2,3,4],2)   )
                 }
                 LButton {
                     text : "compact([0, 1, false, 2, '', 3])";
-                    onClicked: prnt(Lodash.compact([0, 1, false, 2, '', 3]))
+                    onClicked: prnt(_.compact([0, 1, false, 2, '', 3]))
                 }
                 LButton {
                     text : "concat([1], 2, [3], [[4]] )";
-                    onClicked:prnt(Lodash.concat([1], 2, [3], [[4]]     ) );
+                    onClicked:prnt(_.concat([1], 2, [3], [[4]]     ) );
                 }
 
             }
@@ -54,7 +54,7 @@ Rectangle {
 
                 LButton {
                     text : "delay(fn, 1000 ms)";
-                    onClicked: Lodash.delay(herp  , 1000 , "abc");
+                    onClicked: _.delay(herp  , 1000 , "abc");
                 }
 
 

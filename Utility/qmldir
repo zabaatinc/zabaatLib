@@ -1,7 +1,6 @@
 module Zabaat.Utility
 singleton Functions 1.0 functions/Functions.qml
 singleton Chance 	1.0 functions/Chance/Chance.qml
-singleton Lodash	1.0 functions/Lodash/Lodash.qml
 singleton _ 		1.0 functions/Lodash/Lodash.qml
 singleton Underscore 1.0 functions/Underscore/Underscore.qml
 UIBlocker 			1.0 components/UIBlocker.qml
