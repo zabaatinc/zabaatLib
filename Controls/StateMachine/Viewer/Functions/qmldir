@@ -1,2 +1,2 @@
-singleton _                Underscore.qml
+singleton _                Lodash.qml
 singleton GFuncs 		   GenericFunctions.qml
