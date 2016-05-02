@@ -91,7 +91,7 @@ Item {
         width : parent.width/2
         height : parent.height/2
         anchors.centerIn: parent
-        state : "fill"
+        state : "fill-vertical-superslow"
 
 
     }
