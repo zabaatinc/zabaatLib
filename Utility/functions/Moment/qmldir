@@ -1,1 +1,1 @@
-Moment ./moment.js
+singleton Moment Moment.qml
