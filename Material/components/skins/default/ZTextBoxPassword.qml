@@ -35,7 +35,7 @@ ZSkin {
             property alias text : text
             property alias label : label
             property alias input : input
-            Text {
+            TextInput {
                 id : text
                 horizontalAlignment: graphical.text_hAlignment
                 verticalAlignment  : Text.AlignVCenter
@@ -44,9 +44,9 @@ ZSkin {
                 visible            : input.opacity === 0
                 color              : input.color
                 focus              : false
-                onTextChanged      : input.text = text
+                onTextChanged      : input.text = text.text
                 enabled            : false
-//                echoMode: !graphicalOverride.pw ? TextInput.Normal : TextInput.Password
+                echoMode: TextInput.Password
             }
 
             Item {
@@ -95,7 +95,7 @@ ZSkin {
                                          logic.setTextFunc(input.text , true);
 //                                         nextItemInFocusChain();
                                      }
-//                echoMode: !graphicalOverride.pw ? TextInput.Normal : TextInput.Password
+                echoMode: TextInput.Password
                 onActiveFocusChanged : {
                     if(activeFocus && logic){
                         input.text = logic.text

@@ -164,6 +164,18 @@ QtObject {
     function exp_month     (options,seed){ return logic.chance(seed)[arguments.callee.name](options) }
     function exp_year      (options,seed){ return logic.chance(seed)[arguments.callee.name](options) }
 
+    //HELPERS
+    function pick       (options,seed){return logic.chance(seed)[arguments.callee.name](options) }
+    function pickone    (options,seed){return logic.chance(seed)[arguments.callee.name](options) }
+    function pickset    (options,seed){return logic.chance(seed)[arguments.callee.name](options) }
+    function set        (options,seed){return logic.chance(seed)[arguments.callee.name](options) }
+    function shuffle    (options,seed){return logic.chance(seed)[arguments.callee.name](options) }
+    function pad        (options,seed){return logic.chance(seed)[arguments.callee.name](options) }
+    function mixin      (options,seed){return logic.chance(seed)[arguments.callee.name](options) }
+    function capitalize (options,seed){return logic.chance(seed)[arguments.callee.name](options) }
+
+
+
     //MISC
     function d4   (options,seed){ return logic.chance(seed)[arguments.callee.name](options) }
     function d6   (options,seed){ return logic.chance(seed)[arguments.callee.name](options) }
