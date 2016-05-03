@@ -12,6 +12,7 @@ ZSkin {
     property alias timerText     : timerText
     property alias closeButton   : closeButton
 
+
     MouseArea {
         anchors.fill: parent
         drag.target: logic ? logic : null
@@ -59,6 +60,7 @@ ZSkin {
             id :  textContainer
             anchors.fill: parent
             clip : true
+            property bool dynamicScale : true
             Text {
                 id : text
                 anchors.fill       : parent
@@ -70,7 +72,8 @@ ZSkin {
                 text               : logic.text
                 color              : Colors.contrastingTextColor(rootObject.color)
                 textFormat         : Text.RichText
-                scale  : paintedWidth > width ? width/paintedWidth : 1
+                wrapMode: parent.dynamicScale ? Text.NoWrap : Text.WordWrap
+                scale   : parent.dynamicScale ?  (paintedWidth > width ? width/paintedWidth : 1) : 1
             }
         }
 
@@ -136,8 +139,8 @@ ZSkin {
             state          : logic ? logic.closeButtonState : "default"
             text           : FA.close
             onClicked      : if(logic) logic.attemptDestruction()
-            width : height
-            height : parent.height * 0.2
+            width  : height
+            height : parent.height * 0.1
 
         }
 
@@ -152,10 +155,13 @@ ZSkin {
                                      } ,
                       timerText     : {visible : false } ,
                       closeButton   : {visible : true  } ,
-                      textContainer : { rotation : 0 },
+                      textContainer : { rotation : 0 , dynamicScale : true },
+
           } ,
          "notimer" : {"timerText" : {visible : false } } ,
-         "noclose" : {"closeButton" : {visible:false} }
+         "noclose" : {"closeButton" : {visible:false} },
+         "nodynamicscale" : {"textContainer" : { dynamicScale:false} } ,
+         "multiline" : {"textContainer" : { dynamicScale:false} }
     })
 
 

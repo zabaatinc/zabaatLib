@@ -220,6 +220,15 @@ Item {
             cache.injectState("b9"  , "rootObject" , { "border.width" : 9  });
             cache.injectState("b10" , "rootObject" , { "border.width" : 10 });
 
+            cache.injectState("baccent"   , "graphical" , { "@borderColor" : [Colors,"accent"] });
+            cache.injectState("bdanger"   , "graphical" , { "@borderColor" : [Colors,"danger"] });
+            cache.injectState("bwarning"  , "graphical" , { "@borderColor" : [Colors,"warning"] });
+            cache.injectState("bsuccess"  , "graphical" , { "@borderColor" : [Colors,"success"] });
+            cache.injectState("binfo"     , "graphical" , { "@borderColor" : [Colors,"info"] });
+            cache.injectState("bstandard" , "graphical" , { "@borderColor" : [Colors,"standard"] });
+            cache.injectState("bt1"       , "graphical" , { "@borderColor" : [Colors,"text1"] });
+            cache.injectState("bt2"       , "graphical" , { "@borderColor" : [Colors,"text2"] });
+
             cache.bordersAdded = true;
         }
         function addFontStates(){
@@ -255,6 +264,16 @@ Item {
             cache.injectState("f8"         , "font" , { "@pixelSize" : ["@parent","height",1/8]  })
             cache.injectState("f9"         , "font" , { "@pixelSize" : ["@parent","height",1/9]  })
             cache.injectState("f10"        , "font" , { "@pixelSize" : ["@parent","height",1/10] })
+            cache.injectState("f11"        , "font" , { "@pixelSize" : ["@parent","height",1/11] })
+            cache.injectState("f12"        , "font" , { "@pixelSize" : ["@parent","height",1/12] })
+            cache.injectState("f13"        , "font" , { "@pixelSize" : ["@parent","height",1/13] })
+            cache.injectState("f14"        , "font" , { "@pixelSize" : ["@parent","height",1/14] })
+            cache.injectState("f15"        , "font" , { "@pixelSize" : ["@parent","height",1/15] })
+            cache.injectState("f16"        , "font" , { "@pixelSize" : ["@parent","height",1/16] })
+            cache.injectState("f17"        , "font" , { "@pixelSize" : ["@parent","height",1/17] })
+            cache.injectState("f18"        , "font" , { "@pixelSize" : ["@parent","height",1/18] })
+            cache.injectState("f19"        , "font" , { "@pixelSize" : ["@parent","height",1/19] })
+            cache.injectState("f20"        , "font" , { "@pixelSize" : ["@parent","height",1/20] })
             cache.injectState("fw1"        , "font" , { "@pixelSize" : ["@parent","width",1]     })
             cache.injectState("fw2"        , "font" , { "@pixelSize" : ["@parent","width",1/2]   })
             cache.injectState("fw3"        , "font" , { "@pixelSize" : ["@parent","width",1/3]   })
@@ -265,6 +284,16 @@ Item {
             cache.injectState("fw8"        , "font" , { "@pixelSize" : ["@parent","width",1/8]   })
             cache.injectState("fw9"        , "font" , { "@pixelSize" : ["@parent","width",1/9]   })
             cache.injectState("fw10"       , "font" , { "@pixelSize" : ["@parent","width",1/10]  })
+            cache.injectState("fw11"       , "font" , { "@pixelSize" : ["@parent","width",1/11]  })
+            cache.injectState("fw12"       , "font" , { "@pixelSize" : ["@parent","width",1/12]  })
+            cache.injectState("fw13"       , "font" , { "@pixelSize" : ["@parent","width",1/13]  })
+            cache.injectState("fw14"       , "font" , { "@pixelSize" : ["@parent","width",1/14]  })
+            cache.injectState("fw15"       , "font" , { "@pixelSize" : ["@parent","width",1/15]  })
+            cache.injectState("fw16"       , "font" , { "@pixelSize" : ["@parent","width",1/16]  })
+            cache.injectState("fw17"       , "font" , { "@pixelSize" : ["@parent","width",1/17]  })
+            cache.injectState("fw18"       , "font" , { "@pixelSize" : ["@parent","width",1/18]  })
+            cache.injectState("fw19"       , "font" , { "@pixelSize" : ["@parent","width",1/19]  })
+            cache.injectState("fw20"       , "font" , { "@pixelSize" : ["@parent","width",1/20]  })
             cache.injectState("bold"       , "font" , { bold      : true                      })
             cache.injectState("italic"     , "font" , { italic    : true                      })
             cache.injectState("underline"  , "font" , { underline : true                      })
@@ -308,11 +337,12 @@ Item {
             cache.injectState("accent","graphical", {
                   "@fill_Default": [Colors,"accent"],
                   "@text_Default": [Colors,"text2"],
-                  "@fill_Press"  : [Colors.darker,"accent"],
+                  "@fill_Press"  : [Colors.contrasting,"accent"],
                   "@text_Press"  : [Colors,"text2"],
-                  "@fill_Focus"  : [Colors,"accent"],
+                  "@fill_Focus"  : [Colors.contrasting,"accent"],
                   "@text_Focus"  : [Colors,"text1"],
-                  "@inkColor"    : [Colors,"info"],
+                  "@inkColor"    : [Colors.contrasting,"accent"],
+                  "inkOpacity"      : 1,
                   "@borderColor" : [Colors,"text1"]
              })
 
@@ -392,18 +422,54 @@ Item {
                 "@text_Default": [Colors,"text1"],
                 "@text_Press"  : [Colors,"text1"],
                 "@text_Focus"  : [Colors,"text2"],
-                "@inkColor"    : [Colors,"accent"],
                 "@borderColor" : [Colors,"text1"]
             })
-
-
             cache.injectState("t2","graphical", {
                   "@text_Default": [Colors,"text2"],
                   "@text_Press"  : [Colors,"text2"],
                   "@text_Focus"  : [Colors,"text1"],
-                  "@inkColor"    : [Colors,"accent"],
                   "@borderColor" : [Colors,"text2"]
             })
+            cache.injectState("taccent","graphical", {
+                "@text_Default": [Colors,"accent"],
+                "@text_Press"  : [Colors,"accent"],
+                "@text_Focus"  : [Colors.contrasting,"accent"],
+                "@borderColor" : [Colors,"accent"]
+            })
+            cache.injectState("tdanger","graphical", {
+                "@text_Default": [Colors,"danger"],
+                "@text_Press"  : [Colors,"danger"],
+                "@text_Focus"  : [Colors.contrasting,"danger"],
+                "@borderColor" : [Colors,"danger"]
+            })
+            cache.injectState("twarning","graphical", {
+                "@text_Default": [Colors,"warning"],
+                "@text_Press"  : [Colors,"warning"],
+                "@text_Focus"  : [Colors.contrasting,"warning"],
+                "@borderColor" : [Colors,"warning"]
+            })
+            cache.injectState("tsuccess","graphical", {
+                "@text_Default": [Colors,"success"],
+                "@text_Press"  : [Colors,"success"],
+                "@text_Focus"  : [Colors.contrasting,"success"],
+                "@borderColor" : [Colors,"success"]
+            })
+            cache.injectState("tinfo","graphical", {
+                "@text_Default": [Colors,"info"],
+                "@text_Press"  : [Colors,"info"],
+                "@text_Focus"  : [Colors.contrasting,"info"],
+                "@borderColor" : [Colors,"info"]
+            })
+            cache.injectState("tstandard","graphical", {
+                "@text_Default": [Colors,"standard"],
+                "@text_Press"  : [Colors,"standard"],
+                "@text_Focus"  : [Colors.contrasting,"standard"],
+                "@borderColor" : [Colors,"standard"]
+            })
+
+
+
+
 
             cache.injectState("tcenter"      , "graphical" , { text_hAlignment : Text.AlignHCenter, text_vAlignment : Text.AlignVCenter })
 

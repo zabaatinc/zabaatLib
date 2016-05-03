@@ -15,6 +15,7 @@ ZSkin {
     QtObject {
         id : graphicalOverride
         property real  barHeight     : 4
+        property bool  pw : false
     }
 
     Item {
@@ -44,29 +45,38 @@ ZSkin {
                 visible            : input.opacity === 0
                 color              : input.color
                 focus              : false
-                onTextChanged      : input.text = text
+                onTextChanged      : input.text = text.text
+                enabled            : false
+//                echoMode: !graphicalOverride.pw ? TextInput.Normal : TextInput.Password
             }
-            Text {
-                id : label
-                verticalAlignment  : Text.AlignVCenter
-                horizontalAlignment: graphical.text_hAlignment
-                color              : input.color
-                opacity            : 0.5    //the 0.5 opacity will give it a faded look!
-                text               : logic && logic.label ? logic.label : ""
-                font {
-                    family : text.font.family
-                    pixelSize: text.font.pixelSize
-                }
+
+            Item {
                 width  : parent.width
                 height : parent.height
+                clip : label.clip
+                Text {
+                    id : label
+                    verticalAlignment  : Text.AlignVCenter
+                    horizontalAlignment: graphical.text_hAlignment
+                    color              : input.color
+                    opacity            : 0.5    //the 0.5 opacity will give it a faded look!
+                    text               : logic && logic.label ? logic.label : ""
+                    font {
+                        family : text.font.family
+                        pixelSize: text.font.pixelSize
+                    }
+                    width  : parent.width
+                    height : parent.height
+                    anchors.left      : parent.left
+                    anchors.top       : parent.top
+                    anchors.topMargin : gui.inputState || (text.text !== "" && input.text !== "") ? -(height + font.pixelSize/2) : 0
 
-                anchors.left      : parent.left
-                anchors.top       : parent.top
-                anchors.topMargin : gui.inputState || (text.text !== "" && input.text !== "") ? -(height + font.pixelSize/2) : 0
+                    Behavior on anchors.topMargin  { NumberAnimation { duration : 333  } }
 
-                Behavior on anchors.topMargin  { NumberAnimation { duration : 333  } }
-
+                }
             }
+
+
 
 
 
@@ -86,6 +96,7 @@ ZSkin {
                                          logic.setTextFunc(input.text , true);
 //                                         nextItemInFocusChain();
                                      }
+                echoMode: !graphicalOverride.pw ? TextInput.Normal : TextInput.Password
                 onActiveFocusChanged : {
                     if(activeFocus && logic){
                         input.text = logic.text
@@ -166,12 +177,20 @@ ZSkin {
                                       } ,
                         graphical : { "fill_Default" : "transparent" } ,
                         "graphicalOverride" : {
-                          "barHeight" : 4
+                          "barHeight" : 4,
+                          "pw" : false
                          },
-
+                       "gui.textArea.label" : { visible : true , clip : false }
           },
          "nolabel" : { "gui.textArea.label" : { visible : false }
 
+                     } ,
+         "cliplabel" : { "gui.textArea.label" : { clip : true }
+
+                      } ,
+         "password" : { "graphicalOverride" : {
+                          "pw" : true
+                         },
                      }
 
 
