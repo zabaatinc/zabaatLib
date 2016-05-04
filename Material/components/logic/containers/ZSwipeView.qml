@@ -14,7 +14,7 @@ ZObject {
     property var currentItem       : null
 
     property int count             : 0
-    property var items             :[]
+    property var items             : []
 
     property alias container       : container
 
@@ -30,13 +30,10 @@ ZObject {
     QtObject {
         id: priv
 
+
         function isArray(obj){
             return toString.call(obj) === '[object Array]';
         }
-
-        property string addProperty : isArray(items) ? "push" : "append"
-        property string lenProperty : isArray(items) ? "length" : "count"
-
 
         function indexOf(arr,item){
             for(var i = 0; i < arr.length; ++i){
@@ -73,24 +70,54 @@ ZObject {
             }
         }
 
-        function kidnap(){
-            var newItems = []
-            var start = count
-            for(var i = 0; i < rootObject.children.length; ++i) {
+        property bool kidnapping : false
+        function getArray(){
+            var tbkidnapped = []
+
+            for(var i = 0; i < rootObject.children.length ; ++i) {
                 var child = rootObject.children[i]
                 if(child &&
-                   child !== announcementTimer && child !== priv &&
+                   child !== priv &&
                    child.objectName !== "styleLoader" &&
                    child.objectName !== "editModeLoader" && priv.indexOf(items,child) === -1 )
                 {
-                    child.Component.destruction.connect(function(){ priv.destructionHandler(child) })
-                    child.parent = container
-                    newItems.push(child)
-                    items[addProperty](child);
+                    tbkidnapped.push(child)
                 }
             }
-            count = items[lenProperty]
+
+            return tbkidnapped;
+        }
+
+
+        function kidnap(arr){
+            kidnapping = true;
+
+            if(items === null || typeof items === 'undefined')
+                items = []
+
+            var newItems = []
+            var start = rootObject.count
+
+            var childrenArr = arr ? arr : getArray()
+            for(var c in childrenArr){
+                var child = childrenArr[c]
+//                console.log(child)
+                child.Component.destruction.connect(function(){ priv.destructionHandler(child) })
+                child.parent = container
+
+                newItems.push(child)
+                rootObject.items.push(child);
+            }
+            rootObject.count = rootObject.items.length
             rootObject.itemsAdded(newItems, start, start + newItems.count - 1,  newItems.count);
+
+            var remaining = getArray()
+            if(remaining.length === 0) {
+                kidnapping = false;
+            }
+            else {
+                kidnap(remaining);
+            }
         }
 
 
@@ -102,17 +129,18 @@ ZObject {
     }
 
 
-    onChildrenChanged : announcementTimer.start()
+
+    onChildrenChanged : if(!priv.kidnapping)
+                            priv.kidnap()
+
+
+
 
     signal itemsAdded(var items, int startIdx, int endIdx, int count)
     signal itemRemoved(var idx)
 
 
-    Timer {
-        id : announcementTimer
-        interval : 10
-        onTriggered : priv.kidnap()
-    }
+
 
 
 

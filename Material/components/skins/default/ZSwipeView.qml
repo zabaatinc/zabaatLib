@@ -6,9 +6,6 @@ ZSkin {
     border.color: graphical.borderColor
     anchors.centerIn: parent
 
-    onLogicChanged : if(logic)
-                         logic.count = guiLogic.len;
-
     property alias guiLogic : guiLogic
 
     Connections {
@@ -28,15 +25,16 @@ ZSkin {
 
     QtObject {
         id : guiLogic
-        property real   cellHeight   : 1
+        property real   cellHeight   : 0.1
         property int    moveDuration : 300
         property string state        : "top"
         property bool vertical       : false;
         property bool headerFill     : false;
-        property bool headerVisible  : true
+        property bool headerVisible  : true;
+        property bool headerLocked   : false;
 
         readonly property var kidnappedElems : logic ? logic.items : null
-        readonly property int len            : logic ? logic.count : 0
+        property int len            : logic ? logic.count : 0
         property int oldIdx                  : -1;
 
         function handleRemove(){
@@ -64,6 +62,8 @@ ZSkin {
                 logic.currentIndex = lvHeader.currentIndex
             }
         }
+
+
     }
 
 
@@ -75,8 +75,8 @@ ZSkin {
 
         ListView {
             id : lvHeader
-            width      : visible ? gui.width                                : 0
-            height     : visible ? gui.height * (0.1 * guiLogic.cellHeight) : 0
+            width      : visible ? gui.width                          : 0
+            height     : visible ? gui.height * (guiLogic.cellHeight) : 0
             orientation: isHorizontal ? ListView.Horizontal : ListView.Vertical
             visible    : guiLogic.headerVisible ? true : false
 
@@ -87,7 +87,7 @@ ZSkin {
             readonly property alias ss : guiLogic.state
             onSsChanged          : refreshView()
             Component.onCompleted: refreshView()
-            interactive          : !guiLogic.headerFill
+            interactive          : !guiLogic.headerFill && !guiLogic.headerLocked
 
 
             onVisibleChanged: {
@@ -105,7 +105,7 @@ ZSkin {
                                     anchors.right  = undefined
                                     if(lvHeader.visible){
                                         width  = Qt.binding(function() { return gui.width })
-                                        height = Qt.binding(function() { return gui.height * (0.1 * guiLogic.cellHeight) } )
+                                        height = Qt.binding(function() { return gui.height * (guiLogic.cellHeight) } )
                                     }
                                     else {
                                         width = height = 0;
@@ -116,7 +116,7 @@ ZSkin {
                                     anchors.bottom = undefined
                                     anchors.right  = undefined
                                     if(lvHeader.visible){
-                                        width = Qt.binding(function() { return gui.width * (0.05 * guiLogic.cellHeight) })
+                                        width = Qt.binding(function() { return gui.width * (guiLogic.cellHeight) })
                                         height = Qt.binding(function() { return gui.height})
                                     }
                                     else {
@@ -128,7 +128,7 @@ ZSkin {
                                     anchors.bottom = undefined
                                     anchors.right  = gui.right
                                     if(lvHeader.visible){
-                                        width = Qt.binding(function() { return gui.width * (0.05 * guiLogic.cellHeight) })
+                                        width = Qt.binding(function() { return gui.width * ( guiLogic.cellHeight) })
                                         height = Qt.binding(function() { return gui.height})
                                     }
                                     else {
@@ -141,13 +141,22 @@ ZSkin {
                                     anchors.right  = undefined
                                     if(lvHeader.visible){
                                         width  = Qt.binding(function() { return gui.width })
-                                        height = Qt.binding(function() { return gui.height * (0.1 * guiLogic.cellHeight) } )
+                                        height = Qt.binding(function() { return gui.height * ( guiLogic.cellHeight) } )
                                     }
                                     else {
                                         width = height = 0;
                                     }
                                     break;
                 }
+            }
+
+            function delegateInstanceAt(idx){
+                for(var i =0; i < contentItem.children.length; ++i) {
+                    var child = contentItem.children[i]
+                    if(child.imADelegate && child._index === idx)
+                        return child;
+                }
+                return null;
             }
 
             property point fillPx: Qt.point(width / guiLogic.len, height / guiLogic.len)
@@ -176,15 +185,24 @@ ZSkin {
                 property point sz : {
                     var w, h
                     if(lvHeader.isHorizontal){
-                        w = guiLogic.headerFill ? lvHeader.fillPx.x : lvHeader.height * 2.5
+                        w = guiLogic.headerFill ? lvHeader.fillPx.x :
+                                                  fill ? lvHeader.width * fill : lvHeader.height * 2.5
                         h = lvHeader.height
                     }
                     else {
                         w = lvHeader.width
-                        h = guiLogic.headerFill ? lvHeader.fillPx.y : lvHeader.width * 1.5
+                        h = guiLogic.headerFill ? lvHeader.fillPx.y :
+                                                  fill ? lvHeader.height * fill : lvHeader.width * 1.5
                     }
                     return Qt.point(w,h)
                 }
+
+                property var myItem :  logic && logic.items ? logic.items[index] : null
+                property var fill : myItem && myItem.fill !== null && typeof myItem.fill !== 'undefined' ? myItem.fill : null
+                property bool imADelegate : true
+                property int _index : index
+
+                property bool hasOnClickHandler : false
 
                 sourceComponent: !visible ? null :
                                             (logic && logic.headerDelegate ? logic.headerDelegate :  defaultHeader )
@@ -197,6 +215,18 @@ ZSkin {
                                 item.title = Qt.binding(function() { return myItem && myItem.title ? myItem.title : "" })
                             else if(item.hasOwnProperty('text'))
                                 item.text = Qt.binding(function() { return myItem && myItem.title ? myItem.title : "" })
+
+                            if(typeof item.clicked === 'function') {
+                                item.clicked.connect(function(){
+                                    if(lvHeader && index !== null && typeof index !== 'undefined'){
+                                        lvHeader.currentIndex = index;
+                                    }
+                                    else
+                                        console.error("NO index!")
+                                })
+//                                console.log("CONNECTED")
+                                lvHeaderLoader.hasOnClickHandler = true;
+                            }
                         }
                     }
                 }
@@ -228,12 +258,33 @@ ZSkin {
                 propagateComposedEvents: true
                 preventStealing: false
                 anchors.fill: parent
-                onClicked : {
+
+                property bool isPressed : false
+                onPressed: {
+                    isPressed = true;
+                    mouse.accepted = false;
+                }
+                onReleased : {
+                    isPressed = false;
+                    mouse.accepted = false;
+                }
+
+                onIsPressedChanged:  if(!isPressed) {   //same as is released!
                     var idx = lvHeader.isHorizontal ? lvHeader.indexAt(lvHeader.contentX + mouseX, mouseY) :
                                                     lvHeader.indexAt(mouseX, lvHeader.contentY + mouseY)
+
                     if(idx !== -1){
-                         lvHeader.currentIndex= idx;
+                        var item = lvHeader.delegateInstanceAt(idx);
+                        if(!item || !item.hasOnClickHandler) {
+                            lvHeader.currentIndex= idx;
+                            mouse.accepted = true;
+                        }
+                        else {
+                            //else do nothing!
+                            mouse.accepted = false;
+                        }
                     }
+
                 }
             }
         }
@@ -306,7 +357,7 @@ ZSkin {
                         }
                     }
                     else
-                        console.log("CHECK FAILED")
+                        console.log("ZSwipeViewSkin::lvContentDelegate::err CHECK FAILED", guiLogic.len , "<=" , index)
                 }
                 Component.onDestruction: {
                     if(myItem ){
@@ -365,9 +416,58 @@ ZSkin {
                                         "state" : "top",
                                         "vertical" : false ,
                                         "headerFill" : false,
-                                        "headerVisible" : true
+                                        "headerVisible" : true ,
+                                        "headerLocked" : false,
+                                        "cellHeight"    : 0.1
                                      }
                   } ,
+        "notabs"    : { "guiLogic" : { "headerVisible" : false   }  } ,
+        "noheaders" : { "guiLogic" : { "headerVisible" : false   }  } ,
+        "locked"    : { "guiLogic" : { "headerLocked"  : true   }  } ,
+        "unlocked"    : { "guiLogic" : { "headerLocked"  : false   }  } ,
+        "headers"   : { "guiLogic" : { "headerVisible" : true   }  } ,
+        "tabs"      : { "guiLogic" : { "headerVisible" : true   }  } ,
+
+
+        "h005"  :  { "guiLogic" : { "cellHeight" : 0.05   }  } ,
+        "h006"  :  { "guiLogic" : { "cellHeight" : 0.06   }  } ,
+        "h007"  :  { "guiLogic" : { "cellHeight" : 0.07   }  } ,
+        "h008"  :  { "guiLogic" : { "cellHeight" : 0.08   }  } ,
+        "h009"  :  { "guiLogic" : { "cellHeight" : 0.09   }  } ,
+        "h01"   :  { "guiLogic" : { "cellHeight" : 0.10   }  } ,
+        "h010"  :  { "guiLogic" : { "cellHeight" : 0.10   }  } ,
+        "h011"  :  { "guiLogic" : { "cellHeight" : 0.11   }  } ,
+        "h012"  :  { "guiLogic" : { "cellHeight" : 0.12   }  } ,
+        "h013"  :  { "guiLogic" : { "cellHeight" : 0.13   }  } ,
+        "h014"  :  { "guiLogic" : { "cellHeight" : 0.14   }  } ,
+        "h015"  :  { "guiLogic" : { "cellHeight" : 0.15   }  } ,
+        "h016"  :  { "guiLogic" : { "cellHeight" : 0.16   }  } ,
+        "h017"  :  { "guiLogic" : { "cellHeight" : 0.17   }  } ,
+        "h018"  :  { "guiLogic" : { "cellHeight" : 0.18   }  } ,
+        "h019"  :  { "guiLogic" : { "cellHeight" : 0.19   }  } ,
+        "h020"  :  { "guiLogic" : { "cellHeight" : 0.20   }  } ,
+        "h021"  :  { "guiLogic" : { "cellHeight" : 0.21   }  } ,
+        "h022"  :  { "guiLogic" : { "cellHeight" : 0.22   }  } ,
+        "h023"  :  { "guiLogic" : { "cellHeight" : 0.23   }  } ,
+        "h024"  :  { "guiLogic" : { "cellHeight" : 0.24   }  } ,
+        "h025"  :  { "guiLogic" : { "cellHeight" : 0.25   }  } ,
+        "h11"  :  { "guiLogic" : { "cellHeight" : 0.11   }  } ,
+        "h12"  :  { "guiLogic" : { "cellHeight" : 0.12   }  } ,
+        "h13"  :  { "guiLogic" : { "cellHeight" : 0.13   }  } ,
+        "h14"  :  { "guiLogic" : { "cellHeight" : 0.14   }  } ,
+        "h15"  :  { "guiLogic" : { "cellHeight" : 0.15   }  } ,
+        "h16"  :  { "guiLogic" : { "cellHeight" : 0.16   }  } ,
+        "h17"  :  { "guiLogic" : { "cellHeight" : 0.17   }  } ,
+        "h18"  :  { "guiLogic" : { "cellHeight" : 0.18   }  } ,
+        "h19"  :  { "guiLogic" : { "cellHeight" : 0.19   }  } ,
+        "h20"  :  { "guiLogic" : { "cellHeight" : 0.20   }  } ,
+        "h21"  :  { "guiLogic" : { "cellHeight" : 0.21   }  } ,
+        "h22"  :  { "guiLogic" : { "cellHeight" : 0.22   }  } ,
+        "h23"  :  { "guiLogic" : { "cellHeight" : 0.23   }  } ,
+        "h24"  :  { "guiLogic" : { "cellHeight" : 0.24   }  } ,
+        "h25"  :  { "guiLogic" : { "cellHeight" : 0.25   }  } ,
+
+
         "left"     : { "guiLogic" : { "state" : "left"   }  } ,
         "right"    : { "guiLogic" : { "state" : "right"   }  } ,
         "top"      : { "guiLogic" : { "state" : "top"   }  } ,
@@ -375,10 +475,6 @@ ZSkin {
         "vertical" : { "guiLogic" : { "vertical" : true   }  } ,
         "fill"     : { "guiLogic" : { "headerFill" : true   }  } ,
         "nofill"   : { "guiLogic" : { "headerFill" : false   }  } ,
-        "notabs"   : { "guiLogic" : { "headerVisible" : false   }  } ,
-        "noheaders": { "guiLogic" : { "headerVisible" : false   }  } ,
-        "headers"   : { "guiLogic" : { "headerVisible" : true   }  } ,
-        "tabs"      : { "guiLogic" : { "headerVisible" : true   }  } ,
         "superslow": { "guiLogic" : { "moveDuration" : 3000   }  } ,
         "veryslow" : { "guiLogic" : { "moveDuration" : 1000   }  } ,
         "slow"     : { "guiLogic" : { "moveDuration" : 500    }  } ,
