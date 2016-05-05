@@ -201,19 +201,34 @@ QtObject {
     }
 
 
-    function unique    (fnName,length,options, seed){
-        if(fnName !== null && typeof fnName !== 'undefined' && logic.chanceJsFuncs.indexOf(fnName) !== -1){
-            var c  = logic.chance(seed);
-            var fn = c[fnName]
-            return options ? c.unique(fn, length, options) : c.unique(fn, length, {})
+    function unique (func,length,options, seed){
+        if(func !== null) {
+            var typ = typeof func
+            if(typ === 'string' &&  logic.chanceJsFuncs.indexOf(func) !== -1) {
+                var c  = logic.chance(seed);
+                var fn = c[func]
+                return options ? c.unique(fn, length, options) : c.unique(fn, length, {})
+            }
+            else if(typ === 'function'){
+                c  = logic.chance(seed);
+                return options ? c.unique(func, length, options) : c.unique(func, length, {})
+            }
         }
         return []
     }
-    function n (fnName,length, options, seed) {
-        if(fnName !== null && typeof fnName !== 'undefined' && logic.chanceJsFuncs.indexOf(fnName) !== -1){
-            var c  = logic.chance(seed);
-            var fn = c[fnName]
-            return c.n(fn, length, options)
+    function n (func,length, options, seed) {
+        if(func !== null){
+            var typ = typeof func
+            if(typ === 'string' && logic.chanceJsFuncs.indexOf(func) !== -1) {
+                var c  = logic.chance(seed);
+                var fn = c[func]
+                return c.n(fn, length, options)
+            }
+            else if(typ === 'function') {
+                c  = logic.chance(seed);
+                return c.n(func, length, options);
+            }
+
         }
         return []
     }
