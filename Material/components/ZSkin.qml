@@ -65,7 +65,7 @@ Item {
     property alias color          : rect.color
 
     /*! Alias to border \hr */
-    property alias border         : rect.border
+    property alias border         : borderRect.border
 
     /*! The position of the ZObject parent \hr */
     property alias radius         : rect.radius
@@ -91,7 +91,15 @@ Item {
     property alias graphical      : graphical
     readonly property var injectState : cache.injectState
 
-    Rectangle { id: rect ; anchors.fill : parent; color: logic ? Colors.get(logic.colors , "standard") : "white"; opacity: graphical.fill_Opacity }
+    Rectangle { id: rect ; anchors.fill : parent; color: logic ? Colors.get(logic.colors , "standard") : "white"; opacity: graphical.fill_Opacity; }
+    Rectangle {
+        id: borderRect ;
+        anchors.fill : parent;
+        color: "transparent";
+        border.color: graphical.borderColor
+        radius : rect.radius
+        z : Number.MAX_VALUE
+    }
 
     /*! The money maker of ZSkin objects. Works sort of like css. Example: state : "warning-t2 \b default : "default" \hr */
     property string state  : "default"
@@ -219,6 +227,12 @@ Item {
             cache.injectState("b8"  , "rootObject" , { "border.width" : 8  });
             cache.injectState("b9"  , "rootObject" , { "border.width" : 9  });
             cache.injectState("b10" , "rootObject" , { "border.width" : 10 });
+
+            cache.injectState("rounded" , "rootObject" , { "@radius" : [rootObject,"height",1/10]  });
+            cache.injectState("rounded2", "rootObject" , { "@radius" : [rootObject,"height",1/8]  });
+            cache.injectState("rounded3", "rootObject" , { "@radius" : [rootObject,"height",1/6]  });
+            cache.injectState("rounded4", "rootObject" , { "@radius" : [rootObject,"height",1/4]  });
+            cache.injectState("circle"  , "rootObject" , { "@radius" : [rootObject,"height",1/2]  });
 
             cache.injectState("baccent"   , "graphical" , { "@borderColor" : [Colors,"accent"] });
             cache.injectState("bdanger"   , "graphical" , { "@borderColor" : [Colors,"danger"] });

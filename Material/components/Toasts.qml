@@ -102,6 +102,21 @@ Item {
     }
 
 
+    function listOptions(title, model, cbAccept, cbCancel, args){
+        listOptionsIn(title,model,cbAccept,cbCancel,args)
+    }
+
+    function listOptionsIn(title, model, cbAccept, cbCancel, args, item){
+        if(!args)
+            args = {}
+
+        args.title = title;
+        args.acceptFunc = cbAccept;
+        args.cancelFunc = cbCancel;
+        args.model      = model;
+
+        logic.create("","ZToastList",args,{blocking:true,duration:-1}, null, null, item)
+    }
 
 
     property QtObject __private : QtObject {

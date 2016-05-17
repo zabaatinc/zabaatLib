@@ -14,8 +14,8 @@ Item {
 
     Column {
         anchors.fill: parent
-        spacing : parent.height * 0.1
-        property int h : parent.height/3 - (spacing * 3)
+        spacing : h/3
+        property int h : 32
 
         ZTextBox {
             width : parent.width/4
@@ -74,12 +74,49 @@ Item {
             onAccepted : Toasts.dialogWithInput("QUESTION", "What is your name" , function(a){ console.log("accept",a)} ,
                                                                                       function(){ console.log("decline")} ,
                                                                                       {state : 'warning', label : "answer", focusFunc : function(){console.log("I FOCUS") }  })
+//            Component.onCompleted: forceActiveFocus()
+        }
+
+
+
+        ZTextBox {
+            width : parent.width/4
+            height : parent.h
+            label : "List toast"
+            onAccepted : Toasts.listOptions("List",  lm, function(a){ console.log("accept",JSON.stringify(a))} ,
+                                                                        function(){ console.log("decline")} ,
+                                                                        {state : 'warning', label : "answer", focusFunc : function(){console.log("I FOCUS") }  })
+//            Component.onCompleted: forceActiveFocus()
+        }
+
+        ZTextBox {
+            width : parent.width/4
+            height : parent.h
+            label : "List toast"
+            onAccepted : Toasts.listOptions("List", lm, function(a){ console.log("accept",JSON.stringify(a))} ,
+                                                                        function(){ console.log("decline")} ,
+                                                                        { columns: 2 })
             Component.onCompleted: forceActiveFocus()
         }
 
 
     }
 
+
+    ListModel {
+        id : lm
+        ListElement { name : "red" }
+        ListElement { name : "blue" }
+        ListElement { name : "green" }
+        ListElement { name : "purple" }
+        ListElement { name : "black" }
+        ListElement { name : "white" }
+        ListElement { name : "raindbow" }
+        ListElement { name : "silver" }
+        ListElement { name : "gold" }
+        ListElement { name : "magenta" }
+        ListElement { name : "fuschia" }
+    }
 
 //    Window {
 //        width : 640

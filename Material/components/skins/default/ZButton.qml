@@ -15,7 +15,7 @@ ZSkin {
 //    onActiveFocusChanged: console.log(rootObject, "focus=", activeFocus)
 
     color           : graphical["fill_" + graphicalState]
-    border.color    : text.color
+    border.color    : graphical.borderColor
     anchors.centerIn: parent
     onLogicChanged  : if(logic) {
                           logic.containsMouse = Qt.binding(function() { return inkArea.containsMouse })
