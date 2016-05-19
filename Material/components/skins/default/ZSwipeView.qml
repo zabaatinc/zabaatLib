@@ -34,7 +34,7 @@ ZSkin {
         property bool headerLocked   : false;
 
         readonly property var kidnappedElems : logic ? logic.items : null
-        property int len            : logic ? logic.count : 0
+        property int len                     : logic ? logic.count : 0
         property int oldIdx                  : -1;
 
         function handleRemove(){
@@ -350,7 +350,7 @@ ZSkin {
                 property var myItem : null
 
                 Component.onCompleted: {
-                    if(guiLogic.len > index) {
+                    if(guiLogic.kidnappedElems.length > index) {
                         myItem = guiLogic.kidnappedElems[index]
                         if(myItem){
                             myItem.anchors.fill = myItem.parent = lvContentDelegate;
@@ -421,6 +421,7 @@ ZSkin {
                                         "cellHeight"    : 0.1
                                      }
                   } ,
+        "headerfill": { "guiLogic" : { "headerFill" : true  } } ,
         "notabs"    : { "guiLogic" : { "headerVisible" : false   }  } ,
         "noheaders" : { "guiLogic" : { "headerVisible" : false   }  } ,
         "locked"    : { "guiLogic" : { "headerLocked"  : true   }  } ,
@@ -460,6 +461,7 @@ ZSkin {
         "h17"  :  { "guiLogic" : { "cellHeight" : 0.17   }  } ,
         "h18"  :  { "guiLogic" : { "cellHeight" : 0.18   }  } ,
         "h19"  :  { "guiLogic" : { "cellHeight" : 0.19   }  } ,
+        "h20"  :  { "guiLogic" : { "cellHeight" : 0.20   }  } ,
         "h20"  :  { "guiLogic" : { "cellHeight" : 0.20   }  } ,
         "h21"  :  { "guiLogic" : { "cellHeight" : 0.21   }  } ,
         "h22"  :  { "guiLogic" : { "cellHeight" : 0.22   }  } ,

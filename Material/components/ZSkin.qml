@@ -228,10 +228,20 @@ Item {
             cache.injectState("b9"  , "rootObject" , { "border.width" : 9  });
             cache.injectState("b10" , "rootObject" , { "border.width" : 10 });
 
-            cache.injectState("rounded" , "rootObject" , { "@radius" : [rootObject,"height",1/10]  });
-            cache.injectState("rounded2", "rootObject" , { "@radius" : [rootObject,"height",1/8]  });
-            cache.injectState("rounded3", "rootObject" , { "@radius" : [rootObject,"height",1/6]  });
-            cache.injectState("rounded4", "rootObject" , { "@radius" : [rootObject,"height",1/4]  });
+            cache.injectState("rounded" , "rootObject" , { "@radius" : [rootObject,"height",1/10] });
+
+            cache.injectState("rounded10", "rootObject" , { "@radius" : [rootObject,"height",1/10]  });
+            cache.injectState("rounded9" , "rootObject" , { "@radius" : [rootObject,"height",1/9]   });
+            cache.injectState("rounded8" , "rootObject" , { "@radius" : [rootObject,"height",1/8]   });
+            cache.injectState("rounded7" , "rootObject" , { "@radius" : [rootObject,"height",1/7]   });
+            cache.injectState("rounded6" , "rootObject" , { "@radius" : [rootObject,"height",1/6]   });
+            cache.injectState("rounded5" , "rootObject" , { "@radius" : [rootObject,"height",1/5]   });
+            cache.injectState("rounded4" , "rootObject" , { "@radius" : [rootObject,"height",1/4]   });
+            cache.injectState("rounded3" , "rootObject" , { "@radius" : [rootObject,"height",1/3]   });
+            cache.injectState("rounded25", "rootObject" , { "@radius" : [rootObject,"height",1/2.5] });
+            cache.injectState("rounded2" , "rootObject" , { "@radius" : [rootObject,"height",1/2]   });
+
+
             cache.injectState("circle"  , "rootObject" , { "@radius" : [rootObject,"height",1/2]  });
 
             cache.injectState("baccent"   , "graphical" , { "@borderColor" : [Colors,"accent"] });
