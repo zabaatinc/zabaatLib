@@ -28,6 +28,8 @@ Item
     /*! Functions to transform specific models && model objects as they arrive. Determined by key. \hr */
     property var modelTransformerFunctions : ({})
 
+    signal newModelAdded(string modelName);
+
 
     QtObject {
         id : _debug
@@ -193,7 +195,6 @@ Item
        if(!priv.models[modelName])
        {
 //           console.log('creating new model ', modelName)
-
            var lm = Functions.getNewObject("ZListModel.qml",null)
            priv.models[modelName] = lm                                 //add this new model to our list
            __appendToModel(modelName,model)
@@ -203,6 +204,7 @@ Item
 
 //           if(modelName === "workorders")
 //               __printObject(priv.models[modelName])
+           rootObject.newModelAdded(modelName); //emit that a new model was added!
        }
        else
        {

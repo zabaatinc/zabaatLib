@@ -51,12 +51,12 @@ Item {
             id : zsubOrig
             onSource_rowsInserted: {
                 //TODO
-                console.log("TODO rowsInserted", start, end, count )
+//                console.log("TODO rowsInserted", start, end, count )
                 logic.resetState();
             }
             onSource_rowsRemoved:  {
                 //TODO
-                console.log("TODO rowsRemoved", start, end , count)
+//                console.log("TODO rowsRemoved", start, end , count)
                 logic.resetState();
             }
 

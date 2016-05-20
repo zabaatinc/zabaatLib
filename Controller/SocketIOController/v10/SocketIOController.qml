@@ -21,7 +21,6 @@ ZController {
     /*! Create message was received (verb was create or created) \hr*/
     signal createReceived(string createdModel, string createdId)
 
-
     /*! A function that can display errors if XhrController encounters any. \b default : null \hr */
     property var    errHandler            : null   //works on postReqs
 
