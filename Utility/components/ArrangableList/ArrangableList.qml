@@ -51,12 +51,12 @@ Item {
             id : zsubOrig
             onSource_rowsInserted: {
                 //TODO
-                console.log("TODO rowsInserted", start, end, count )
+//                console.log("TODO rowsInserted", start, end, count )
                 logic.resetState();
             }
             onSource_rowsRemoved:  {
                 //TODO
-                console.log("TODO rowsRemoved", start, end , count)
+//                console.log("TODO rowsRemoved", start, end , count)
                 logic.resetState();
             }
 
@@ -434,148 +434,155 @@ Item {
             }
         }
 
-
-        ListView {
-            id : lv
+        ScrollView {
             anchors.fill: parent
-            model : zsubChanger
-            delegate : Loader  {
-                id : delegateLoader
-                width  : lv.width
-                height : delegateCellHeight
-                sourceComponent : dragDelegate.index !== index ? rootObject.delegate : rootObject.blankDelegate
-                property int _index       : index
-                property bool imADelegate : true
-                property bool selected: logic.selected && typeof logic.selected[index] !== 'undefined' ? true : false
 
-                onLoaded : {
-                    item.anchors.fill = delegateLoader
-                    if(item.hasOwnProperty('model'))
-                        item.model = Qt.binding(function() { return lv.model.get(index) })
-                    if(item.hasOwnProperty('index'))
-                        item.index = Qt.binding(function() { return index; })
-                }
 
-                Loader {
-                    anchors.fill   : parent
-                    sourceComponent: parent.selected && !dMsArea.isDragging ? rootObject.selectionDelegate : null
-                    z : 9
-                }
-                DropArea {
-                    id : dDropArea
-                    anchors.fill: parent
-                    objectName : "DropArea:" + parent._index
-                    keys : ["dropItem"]
-                    z : 999
+            ListView {
+                id : lv
+                width : gui.width
+                height : gui.height
+                model : zsubChanger
+                delegate : Loader  {
+                    id : delegateLoader
+                    width  : lv.width
+                    height : delegateCellHeight
+                    sourceComponent : dragDelegate.index !== index ? rootObject.delegate : rootObject.blankDelegate
+                    property int _index       : index
+                    property bool imADelegate : true
+                    property bool selected: logic.selected && typeof logic.selected[index] !== 'undefined' ? true : false
 
-                    onEntered: delHighlightLoader.sourceComponent = rootObject.highlightDelegate//dBorderRect.border.width = rootObject.delegateHighlightThickness
-                    onExited : delHighlightLoader.sourceComponent = null; //dBorderRect.border.width  = 0;
-
+                    onLoaded : {
+                        item.anchors.fill = delegateLoader
+                        if(item.hasOwnProperty('model'))
+                            item.model = Qt.binding(function() { return lv.model.get(index) })
+                        if(item.hasOwnProperty('index'))
+                            item.index = Qt.binding(function() { return index; })
+                    }
 
                     Loader {
-                        id : delHighlightLoader
+                        anchors.fill   : parent
+                        sourceComponent: parent.selected && !dMsArea.isDragging ? rootObject.selectionDelegate : null
+                        z : 9
+                    }
+                    DropArea {
+                        id : dDropArea
                         anchors.fill: parent
-                    }
+                        objectName : "DropArea:" + parent._index
+                        keys : ["dropItem"]
+                        z : 999
 
-                }
+                        onEntered: delHighlightLoader.sourceComponent = rootObject.highlightDelegate//dBorderRect.border.width = rootObject.delegateHighlightThickness
+                        onExited : delHighlightLoader.sourceComponent = null; //dBorderRect.border.width  = 0;
 
-            }
-            MouseArea {
-                id : dMsArea
-                anchors.fill: parent
-                propagateComposedEvents: true
-                preventStealing: false
-                drag.target: dragDelegate
-                onClicked:  {
-                    gui.forceActiveFocus()
-                    var idx = lv.indexAt(mouseX, mouseY + lv.contentY)
-                    if(idx !== -1){
-                        if(!gui.ctrlModifier && !gui.shiftModifier)
-                            logic.lastTouchedIdx = idx;
 
-                        return logic.selected && typeof logic.selected[idx] !== 'undefined' ? logic.deselect(idx, gui.ctrlModifier, gui.shiftModifier) :
-                                                                                                logic.select(idx  , gui.ctrlModifier, gui.shiftModifier);
-                    }
-                }
-
-                property bool isDragging : drag.active
-                onIsDraggingChanged: {
-                    if(!isDragging){
-                        var dTarget = dragDelegate.Drag.target
-                        if(dTarget){
-                            var idx = dTarget.parent._index
-                            if(idx > -1 && idx < logic.zsubChanger.indexList.length){
-                                logic.moveSelectedTo(idx);
-                            }
+                        Loader {
+                            id : delHighlightLoader
+                            anchors.fill: parent
                         }
-                        dragDelegate.index= -1;
+
                     }
-                    else {
-                        idx = lv.indexAt(mouseX, mouseY + lv.contentY)
+
+                }
+                MouseArea {
+                    id : dMsArea
+                    anchors.fill: parent
+                    propagateComposedEvents: true
+                    preventStealing: false
+                    drag.target: dragDelegate
+                    onClicked: {
+                        gui.forceActiveFocus()
+                        var idx = lv.indexAt(mouseX, mouseY + lv.contentY)
                         if(idx !== -1){
-                            dragDelegate.index = idx
-                            if(!logic.isSelected(idx)) {
-                                logic.select(idx, true);
+                            if(!gui.ctrlModifier && !gui.shiftModifier)
+                                logic.lastTouchedIdx = idx;
+
+                            return logic.selected && typeof logic.selected[idx] !== 'undefined' ? logic.deselect(idx, gui.ctrlModifier, gui.shiftModifier) :
+                                                                                                    logic.select(idx  , gui.ctrlModifier, gui.shiftModifier);
+                        }
+                    }
+
+                    property bool isDragging : drag.active
+                    onIsDraggingChanged: {
+                        if(!isDragging){
+                            var dTarget = dragDelegate.Drag.target
+                            if(dTarget){
+                                var idx = dTarget.parent._index
+                                if(idx > -1 && idx < logic.zsubChanger.indexList.length){
+                                    logic.moveSelectedTo(idx);
+                                }
+                            }
+                            dragDelegate.index= -1;
+                        }
+                        else {
+                            idx = lv.indexAt(mouseX, mouseY + lv.contentY)
+                            if(idx !== -1){
+                                dragDelegate.index = idx
+                                if(!logic.isSelected(idx)) {
+                                    logic.select(idx, true);
+                                }
                             }
                         }
                     }
+
+
                 }
-
-
-            }
-            Loader {
-                id : dragDelegate
-                width : logic.selectedLen > 1 ? lv.width - height : lv.width
-                height : delegateCellHeight
-                sourceComponent: index !== -1  ? rootObject.delegate : null
-                property int index : -1
-                x : dMsArea.mouseX - width/2
-                y : dMsArea.mouseY - height/2
-                onLoaded : {
-                    item.anchors.fill = dragDelegate
-                    if(item.hasOwnProperty('model'))
-                        item.model = Qt.binding(function() { return lv.model.get(index) })
-                    if(item.hasOwnProperty('index'))
-                        item.index = Qt.binding(function() { return index; })
-                }
-
-                Drag.keys: ["dropItem"]
-                Drag.active: dMsArea.isDragging
-                Drag.hotSpot.x : width/2
-                Drag.hotSpot.y : height/2
-
-                Rectangle {
-                    anchors.left: parent.right
-                    width : parent.height
-                    height : parent.height
-                    radius : height/2
-                    color  : "red"
-                    visible : logic.selectedLen > 1 && dragDelegate.sourceComponent !== null
-                    border.width: 1
-                    Text{
-                        anchors.fill: parent
-                        font.pixelSize: height * 1/2
-                        color : 'white'
-                        text  : logic.selectedLen
-                        scale : paintedWidth > width ? width / paintedWidth : 1
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
+                Loader {
+                    id : dragDelegate
+                    width : logic.selectedLen > 1 ? lv.width - height : lv.width
+                    height : delegateCellHeight
+                    sourceComponent: index !== -1  ? rootObject.delegate : null
+                    property int index : -1
+                    x : dMsArea.mouseX - width/2
+                    y : dMsArea.mouseY - height/2
+                    onLoaded : {
+                        item.anchors.fill = dragDelegate
+                        if(item.hasOwnProperty('model'))
+                            item.model = Qt.binding(function() { return lv.model.get(index) })
+                        if(item.hasOwnProperty('index'))
+                            item.index = Qt.binding(function() { return index; })
                     }
+
+                    Drag.keys: ["dropItem"]
+                    Drag.active: dMsArea.isDragging
+                    Drag.hotSpot.x : width/2
+                    Drag.hotSpot.y : height/2
+
+                    Rectangle {
+                        anchors.left: parent.right
+                        width : parent.height
+                        height : parent.height
+                        radius : height/2
+                        color  : "red"
+                        visible : logic.selectedLen > 1 && dragDelegate.sourceComponent !== null
+                        border.width: 1
+                        Text{
+                            anchors.fill: parent
+                            font.pixelSize: height * 1/2
+                            color : 'white'
+                            text  : logic.selectedLen
+                            scale : paintedWidth > width ? width / paintedWidth : 1
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+
                 }
 
-            }
 
-
-            function getDelegateInstance(idx){
-                for(var i = 0; i < lv.contentItem.children.length; ++i) {
-                    var child = lv.contentItem.children[i]
-                    if(child && child.imADelegate && child._index === idx)
-                        return child;
+                function getDelegateInstance(idx){
+                    for(var i = 0; i < lv.contentItem.children.length; ++i) {
+                        var child = lv.contentItem.children[i]
+                        if(child && child.imADelegate && child._index === idx)
+                            return child;
+                    }
+                    return null;
                 }
-                return null;
+
             }
 
         }
+
 
         Component {
             id : blankDelegate
