@@ -52,11 +52,23 @@ Item {
         logic.create(message,type,args,{blocking:true,duration:-1},wPerc,hPerc,item)
     }
 
-    function error(strOrObj,title){
-        logic.create("","ZToastError",{err:strOrObj},{blocking:true,duration:-1})
+    function error(strOrObj,title,args){
+        var  obj = { err : strOrObj }
+        if(args) {
+            for(var a in args){
+                obj[a] = args[a]
+            }
+        }
+        logic.create("","ZToastError", obj ,{blocking:true,duration:-1})
     }
-    function errorIn(item,strOrObj,title){
-        logic.create("","ZToastError",{err:strOrObj},{blocking:true,duration:-1},null,null,item)
+    function errorIn(item,strOrObj,title,args){
+        var  obj = { err : strOrObj }
+        if(args){
+            for(var a in args){
+                obj[a] = args[a]
+            }
+        }
+        logic.create("","ZToastError", obj ,{blocking:true,duration:-1},null,null,item)
     }
 
     function dialog(title, text, cbAccept, cbCancel, args){
@@ -90,6 +102,21 @@ Item {
     }
 
 
+    function listOptions(title, model, cbAccept, cbCancel, args){
+        listOptionsIn(title,model,cbAccept,cbCancel,args)
+    }
+
+    function listOptionsIn(title, model, cbAccept, cbCancel, args, item){
+        if(!args)
+            args = {}
+
+        args.title = title;
+        args.acceptFunc = cbAccept;
+        args.cancelFunc = cbCancel;
+        args.model      = model;
+
+        logic.create("","ZToastList",args,{blocking:true,duration:-1}, null, null, item)
+    }
 
 
     property QtObject __private : QtObject {

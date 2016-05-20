@@ -1,6 +1,6 @@
 import QtQuick 2.4
 import Zabaat.Material 1.0
-import "helpers/Underscore"
+import "helpers/Lodash"
 
 ZSkin {
     id : rootObject

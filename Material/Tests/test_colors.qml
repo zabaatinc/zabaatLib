@@ -25,8 +25,8 @@ Rectangle {
 
     ListView {
         id : lv
-        width  : parent.width
-        height : parent.height * 0.1
+        width  : (rootObject.width * 0.05) * count
+        height : rootObject.height * 0.1
         orientation : ListView.Horizontal
         model  : ListModel {
             ListElement { name : "default" }
@@ -48,17 +48,24 @@ Rectangle {
             ListElement { name : "tbottomright"    }
             ListElement { name : "tbottomleft"     }
         }
-        delegate : Button {
-            width : lv.width * 0.05
-            height : lv.height
-            text : name
+        delegate   : Button {
+            width  : rootObject.width * 0.05
+            height : rootObject.height * 0.1
+            text      : name
             onClicked : rootObject.allState = name + transparency
         }
 
 
     }
-
-
+    Slider {
+        minimumValue: 1
+        maximumValue: 10
+        value : 1
+        width : rootObject.width - lv.width
+        height : lv.height
+        anchors.right: parent.right
+        onValueChanged: Units.multiplier = value;
+    }
 
     property int w : 128
     property int h : 64

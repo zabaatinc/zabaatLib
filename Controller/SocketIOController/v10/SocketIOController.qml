@@ -333,7 +333,11 @@ ZController {
                         catch(e){
                             console.log("BZZT BZZT BLOOP TI DOOP", socketHandler,type, ":","Error when executing callback for", url, e)
                             if(errHandler){
-                                errHandler({msg: "Error when executing callback", "for" : uri});
+                                errHandler({ msg: "Error when executing callback",
+                                             "for" : uri,
+                                             response : response ,
+                                             callback : callback
+                                           });
                             }
                         }
 

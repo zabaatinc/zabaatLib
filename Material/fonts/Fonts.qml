@@ -12,7 +12,8 @@ QtObject {
     property bool     loaded         : false
 
     property string font1 : ""
-    property string font2: ""
+    property string font2 : ""
+    readonly property string fa: "FontAwesome"
 
     onLoadedChanged      : if(loaded) console.log("Fonts loaded:", getCustomFonts())
     Component.onCompleted: logic.log("Singleton Fonts is born")

@@ -2,9 +2,10 @@ import QtQuick 2.4
 import Zabaat.Material 1.0
 ZSkin {
     id : rootObject
-    color            : graphical.fill_Empty
+    color            : graphical.fill_Default
     border.color     : graphical.borderColor
     anchors.centerIn : parent
+//    clip : true
 //    border.width     : 1
     property alias graphicalOverride : graphicalOverride
     property alias font : text.font
@@ -41,31 +42,40 @@ ZSkin {
                 text               : logic && logic.text ? logic.text : ""
                 anchors.fill       : parent
                 visible            : input.opacity === 0
-                color              : Colors.contrastingTextColor(rootObject.color)
+                color              : input.color
                 focus              : false
                 onTextChanged      : input.text = text
+                enabled            : false
+//                echoMode: !graphicalOverride.pw ? TextInput.Normal : TextInput.Password
             }
-            Text {
-                id : label
-                verticalAlignment  : Text.AlignVCenter
-                horizontalAlignment: graphical.text_hAlignment
-                color              : textArea.text.color
-                opacity            : 0.4    //the 0.4 opacity will give it a faded look!
-                text               : logic && logic.label ? logic.label : ""
-                font {
-                    family : text.font.family
-                    pixelSize: text.font.pixelSize
-                }
+
+            Item {
                 width  : parent.width
                 height : parent.height
+                clip : label.clip
+                Text {
+                    id : label
+                    verticalAlignment  : Text.AlignVCenter
+                    horizontalAlignment: graphical.text_hAlignment
+                    color              : input.color
+                    opacity            : 0.5    //the 0.5 opacity will give it a faded look!
+                    text               : logic && logic.label ? logic.label : ""
+                    font {
+                        family : text.font.family
+                        pixelSize: text.font.pixelSize
+                    }
+                    width  : parent.width
+                    height : parent.height
+                    anchors.left      : parent.left
+                    anchors.top       : parent.top
+                    anchors.topMargin : gui.inputState || (text.text !== "" && input.text !== "") ? -(height + font.pixelSize/2) : 0
 
-                anchors.left      : parent.left
-                anchors.top       : parent.top
-                anchors.topMargin : gui.inputState || (text.text !== "" && input.text !== "") ? -(height + font.pixelSize/2) : 0
+                    Behavior on anchors.topMargin  { NumberAnimation { duration : 333  } }
 
-                Behavior on anchors.topMargin  { NumberAnimation { duration : 333  } }
-
+                }
             }
+
+
 
 
 
@@ -85,6 +95,7 @@ ZSkin {
                                          logic.setTextFunc(input.text , true);
 //                                         nextItemInFocusChain();
                                      }
+//                echoMode: !graphicalOverride.pw ? TextInput.Normal : TextInput.Password
                 onActiveFocusChanged : {
                     if(activeFocus && logic){
                         input.text = logic.text
@@ -115,9 +126,11 @@ ZSkin {
 
         Rectangle {
             id : botBar
-            width         : parent.width
+            width         : parent.width * 0.95
             height        : graphicalOverride.barHeight
+            anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
+            anchors.bottomMargin: height/2
             color         : Colors.getContrastingColor(thickerBar.color,1.2)
             focus : false
 
@@ -125,6 +138,7 @@ ZSkin {
                 id : thickerBar
                 width : parent.width
                 height : parent.height + 3      //the plus should be an odd number :)
+
                 anchors.verticalCenter: parent.verticalCenter
                 color : error.text === "" ?  graphical.fill_Focus : Colors.danger
                 transform: Scale {
@@ -160,16 +174,18 @@ ZSkin {
                                       "@height"        : [parent,"height"],
                                        rotation        : 0
                                       } ,
-                        "graphicalOverride" : { "barHeight" : 4  },
+                        graphical : { "fill_Default" : "transparent" } ,
+                        "graphicalOverride" : {
+                          "barHeight" : 4,
+                         },
+                       "gui.textArea.label" : { visible : true , clip : false }
           },
          "nolabel" : { "gui.textArea.label" : { visible : false }
 
-                     }
+                     } ,
+         "cliplabel" : { "gui.textArea.label" : { clip : true }
 
-
-
-
-
+                      } ,
     })
 
 }

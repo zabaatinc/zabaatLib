@@ -16,6 +16,7 @@ ZObject{
     property string closeButtonState : "danger-f2-t2"
 
     property var    autoCloseFunc    : null
+    property var    cb               : null //happens on destruction if provided!
 
     debug                  : false
     onPressed              : log(self, "pressed")
@@ -33,6 +34,9 @@ ZObject{
             rootObject.requestDestruction()
         }
     }
+
+    Component.onDestruction: if(cb)
+                                 cb()
 
     Timer {
         id : autoCloseTimer

@@ -11,6 +11,8 @@ ZSkin {
     property alias font          : text.font
     property alias timerText     : timerText
     property alias closeButton   : closeButton
+    property alias notext : textContainer.notext
+    property alias notitle : textContainer.notitle
 
     MouseArea {
         anchors.fill: parent
@@ -27,15 +29,16 @@ ZSkin {
 
             Rectangle {
                 anchors.bottom: parent.bottom
-                width : titleText.paintedWidth * 1.05
-                height : 2
                 anchors.horizontalCenter: parent.horizontalCenter
                 color : Colors.getContrastingColor(graphical.fill_Default)
+
+                visible : !textContainer.notitle
+                width   : visible ? titleText.paintedWidth * 1.05 : 0
+                height  : visible ? 2 : 0
             }
 
             Text {
                 id : titleText
-                anchors.fill       : parent
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment  : Text.AlignVCenter
                 font.bold:               rootObject.font.bold
@@ -52,13 +55,23 @@ ZSkin {
                 color              : text.color
                 textFormat         : Text.RichText
                 text               : logic.title ? logic.title : ""
+
+                visible : !textContainer.notitle
+                width   : visible ? parent.width : 0
+                height  : visible ? parent.height : 0
             }
 
         }
         Item {
             id :  textContainer
-            anchors.fill: parent
-            clip : true
+            width   : visible ? parent.width : 0
+            height  : visible ? parent.height : 0
+            visible : !notext
+            clip    : true
+            property bool dynamicScale : true
+            property bool notitle : false
+            property bool notext : false
+
             Text {
                 id : text
                 anchors.fill       : parent
@@ -70,7 +83,8 @@ ZSkin {
                 text               : logic.text
                 color              : Colors.contrastingTextColor(rootObject.color)
                 textFormat         : Text.RichText
-                scale  : paintedWidth > width ? width/paintedWidth : 1
+                wrapMode: parent.dynamicScale ? Text.NoWrap : Text.WordWrap
+                scale   : parent.dynamicScale ?  (paintedWidth > width ? width/paintedWidth : 1) : 1
             }
         }
 
@@ -136,8 +150,8 @@ ZSkin {
             state          : logic ? logic.closeButtonState : "default"
             text           : FA.close
             onClicked      : if(logic) logic.attemptDestruction()
-            width : height
-            height : parent.height * 0.2
+            width  : height
+            height : parent.height * 0.1
 
         }
 
@@ -152,10 +166,15 @@ ZSkin {
                                      } ,
                       timerText     : {visible : false } ,
                       closeButton   : {visible : true  } ,
-                      textContainer : { rotation : 0 },
+                      textContainer : { rotation : 0 , dynamicScale : true, notext:false,notitle:false },
+
           } ,
          "notimer" : {"timerText" : {visible : false } } ,
-         "noclose" : {"closeButton" : {visible:false} }
+         "noclose" : {"closeButton" : {visible:false} },
+         "nodynamicscale" : {"textContainer" : { dynamicScale:false} } ,
+         "multiline" : {"textContainer" : { dynamicScale:false} } ,
+         "notext"    : {"textContainer" : { notext:true} } ,
+         "notitle"   : {"textContainer" : { notitle:true} }
     })
 
 

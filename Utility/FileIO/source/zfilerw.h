@@ -33,6 +33,16 @@ public:
         }
         return content;
     }
+    Q_INVOKABLE QString readFileAsB64(QString fileName) {
+        if(fileName.contains("qrc:///"))
+            fileName = fileName.replace("qrc:///", ":");
+
+        QFile file(fileName);
+        file.open(QIODevice::ReadOnly);
+        QByteArray image = file.readAll();
+
+        return QString(image.toBase64());
+    }
     Q_INVOKABLE bool createDirIfDoesNotExist(QString dir){
         if(!QDir(dir).exists()){
             return QDir().mkdir(dir);

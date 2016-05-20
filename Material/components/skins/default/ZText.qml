@@ -6,6 +6,7 @@ ZSkin {
     property alias text : text
     property alias font : text.font
     color : graphical.fill_Default
+    border.color: graphical.borderColor
 
     Text {
         id : text

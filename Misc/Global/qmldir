@@ -1,3 +1,0 @@
-module Zabaat.Misc.Global
-singleton ZGlobal 1.0 ZGlobal.qml
-ZAnimator 1.0 ZAnimator.qml

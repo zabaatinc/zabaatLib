@@ -1,3 +1,4 @@
-singleton _         ./Underscore/Underscore.qml
-singleton Functions		    ./Functions.qml
-Moment		  		functions/Moment/moment.js
+singleton _			 ./Lodash/Lodash.qml
+singleton Underscore ./Underscore/Underscore.qml
+singleton Functions  ./Functions.qml
+Moment		  		 functions/Moment/moment.js

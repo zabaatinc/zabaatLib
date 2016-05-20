@@ -1,5 +1,6 @@
 import QtQuick 2.4
 import "moment.js" as M
+import Zabaat.Utility 1.0
 
 pragma Singleton
 QtObject {
@@ -14,5 +15,26 @@ QtObject {
 //        var m = create()
 //        return m.daysInMonth(year,month)
 //    }
+    property QtObject __logic : QtObject {
+        id : logic
+
+        function create(args){
+            return new M.m();
+        }
+    }
+
+    function now(){
+        var m = logic.create()
+        _.each(_.keys(m), function(a){
+            console.log(a)
+        })
+        return m;
+    }
+
+
+
+
+
+
 
 }

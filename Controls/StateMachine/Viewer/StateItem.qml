@@ -4,6 +4,12 @@ Item {
     property var    model                 : null
     property string stateName             : model ? model.state : ""
     property var    stateMachinePtr       : null
+
+    property int status                   : Component.Loading
+
+    signal ready()   //use this instead of Component.onCompleted!! The SMV will turn this on!
+    onReady : status = Component.Ready
+
 //    onStateNameChanged: console.log(this, stateName)
 
     //all this is just for intellisense!!
