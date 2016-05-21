@@ -28,7 +28,9 @@ Item
     /*! Functions to transform specific models && model objects as they arrive. Determined by key. \hr */
     property var modelTransformerFunctions : ({})
 
-    signal newModelAdded(string modelName);
+    signal newModelAdded(string modelName, int count);
+
+    property alias modelCount : priv.modelCount
 
 
     QtObject {
@@ -50,8 +52,10 @@ Item
     }
     QtObject {
         id : priv
-        property var models        : []
-        property var modelCbs      : []         //These are callbacks for the entire models!
+        property var models        : ({})
+        property int modelCount    : 0
+        property var modelCbs      : ({})         //These are callbacks for the entire models!
+
 
         //Checks callbacks for newly received models or model pieces
         //If we got something like "customers/1" , it will check for "customers/1" as well as "customers"
@@ -102,7 +106,7 @@ Item
                     }
                     modelCbs[modelName].splice(i,1)
                 }
-                modelCbs.splice(modelName,1)
+                delete modelCbs[modelName]
             }
 
             //also check if we had a query callback available for this model!
@@ -164,9 +168,9 @@ Item
 //       console.log("________________________________________________")
 
        var tabStr = arguments.length == 3 ? arguments[2] : ""
-       debug.debugMsg(tabStr + "-------------------------------------------------")
-       debug.debugMsg(tabStr + "ZController.addModel(",name,",<model>)")
-       debug.debugMsg(tabStr + "-------------------------------------------------")
+//       debug.debugMsg(tabStr + "-------------------------------------------------")
+//       debug.debugMsg(tabStr + "ZController.addModel(",name,",<model>)")
+//       debug.debugMsg(tabStr + "-------------------------------------------------")
 
        var modelName = name
        var id        = ""
@@ -204,7 +208,7 @@ Item
 
 //           if(modelName === "workorders")
 //               __printObject(priv.models[modelName])
-           rootObject.newModelAdded(modelName); //emit that a new model was added!
+           rootObject.newModelAdded(modelName, ++priv.modelCount); //emit that a new model was added!
        }
        else
        {
@@ -320,7 +324,6 @@ Item
                debug.debugMsg(tabStr + "\tZController.addModel -- Adding to existing list model...",name, data.id, "was not found. Adding it")
 //               console.log(tabStr + "\tZController.addModel -- Adding to existing list model...",name, data.id, "was not found. Adding it")
                modelPtr.append(data)
-
 //               if(name === 'items')
 //                  console.log('HEH appending this shit', priv.models[name].get(0), JSON.stringify(priv.models[name].get(0),null,2) )
 
