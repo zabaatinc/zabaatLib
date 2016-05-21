@@ -12,21 +12,20 @@ Item {
     Component.onCompleted: {
         var p = []
         var s = Chance.unique(Chance.state,50)
-        for(var i =0; i < 100; ++i)
+        for(var i =0; i < 1; ++i)
             p.push({ id   : i.toString(),
                      name : Chance.first() + " " + Chance.last() ,
                      info : {
                            gender : Chance.gender() ,
                            prefix : Chance.prefix() ,
-                           children : rollChildren(i === 0 ? 1 : null)
-                       }
+                       },
+                     children : rollChildren(i === 0 ? 1 : null)
 
                    })
         controller.addModel("people",p)
 
-
         for(i = 0; i < s.length; ++i) {
-            s[i] = {id: i.toString(), name: s[i]}
+            s[i] = {id: i.toString(), name: s[i], info : {rating :0, herp : 0}}
         }
         controller.addModel("states",s)
 
@@ -59,8 +58,10 @@ Item {
                                info : {
                                         gender : Chance.gender() ,
                                         prefix : Chance.prefix() ,
-                                        children : null
-                                    }})
+
+                                    },
+                               children : null
+                              })
             }
             return children;
         }
@@ -71,7 +72,27 @@ Item {
         id : cv
         anchors.fill: parent
         controller: controller
+    }
 
+    Timer {
+        id : updateChecker
+        running : true
+        interval : 100
+        repeat : true
+        onTriggered : {
+            var m = controller.getById("people","0")
+            if(m){
+                m.children.get(0).name += "_";
+//                console.log(item.name)
+            }
+
+            var s=  controller.getById('states','0')
+            if(s){
+                var r = s.info.rating + 1
+                s.info = {rating : r , herp : s.info.herp }
+//                console.log(s.info.rating)
+            }
+        }
     }
 
 

@@ -9,7 +9,7 @@ Item {
     property alias color : sb.color
     property alias textColor : sb.textColor
     property real cellHeightAbsolute
-
+//    clip : true
 
     SimpleButton {
         id: sb
@@ -18,6 +18,7 @@ Item {
         onClicked: parent.expanded = !parent.expanded
         text : eb.text
         font : eb.font
+//        clip : true
 
         Text {
             anchors.fill: parent
@@ -36,6 +37,7 @@ Item {
         width : parent.width
         height : parent.expanded ? contentHeight : 0
         cellHeightAbsolute: eb.cellHeightAbsolute
+//        clip : true
 
         visible : parent.expanded
         obj : eb.obj

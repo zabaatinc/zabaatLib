@@ -14,7 +14,10 @@ Item {
         property ListFunctions list     : ListFunctions   { id : fnList }
         property ObjectFunctions object : ObjectFunctions { id : fnObj  }
         property ListModel lm: ListModel { id : lm; dynamicRoles : true }
-        property var excludeList : ['objectName', 'objectNameChanged','hasOwnProperty']
+        property var excludeList : ['objectName', 'undefined', 'null', 'objectNameChanged','hasOwnProperty']
+        property var  rootType : fnObj.getType(obj)
+//        property var rootTypeStr : rootType === null ? "null" : rootType === undefined ? "undefined" : rootType
+
 
         function addObj(){
             for(var p in obj){
@@ -43,10 +46,11 @@ Item {
 
         function addLm(){
             for(var i = 0; i < obj.count ; ++i){
-                var item = obj.get(i)
-//                console.log(JSON.stringify(item,null,2))
+//                var item = obj.get(i)
+                var type = fnObj.getType(obj.get(i))
+                //console.log(i, 'adding', type, JSON.stringify(obj.get(i),null,2))
                 lm.append({ key     : i ,
-                            type    : fnObj.getType(item)
+                            type    : type
                           })
             }
         }
@@ -63,7 +67,7 @@ Item {
                     addArr()
                 }
                 else if(n.indexOf("model") !== -1){
-//                    console.log(rootObject.objectName, 'adding model')
+                    console.log(rootObject.objectName, 'adding model')
                     addLm()
                 }
                 else if(typeof obj === 'object'){
@@ -117,14 +121,33 @@ Item {
             anchors.fill: parent
             model : lm
             property real ch : cellHeightAbsolute !== -1 ? cellHeightAbsolute : lv.height * cellHeight
+
             delegate : Row {
                 id : del
                 width : lv.width
                 height : valueLoader.expanded ? lv.ch + valueLoader.contentHeight : lv.ch
-                property bool ready  : obj && type !== null && type !== undefined && key !== null && key !== undefined
+                property bool ready  : obj && type !== null && type !== undefined && key !== null && key !== undefined ? true : false
                 property var stdType : ready ? logic.isStdJsType(value) : null
-                property var value   : !ready ? null : type.indexOf('model') !== -1 && type.indexOf('modelnode') === -1 ? obj.get(key) : obj[key]
-//                onValueChanged: console.log(rootObject.objectName, stdType, JSON.stringify(value))
+                property var value   : {
+                    if(!ready || !logic.rootType || logic.rootType === 'undefined')
+                        return null;
+
+//                    console.log(rootObject.name , key)
+                    if(logic.rootType.indexOf('modelNode') !== -1){
+//                        console.log("\tmNode")
+                        return obj[key]
+                    }
+                    else if(logic.rootType.indexOf('model') !== -1){
+//                        console.log('\tm')
+                        return obj.get(key)
+                    }
+                    else {
+//                        console.log('\telse')
+                        return obj[key]
+                    }
+
+                }
+//                onValueChanged: console.log(rootType, rootObject.objectName, key, type, JSON.stringify(value), '\t\t', stdType  )
                 property string typeText : {
                     if(value === null)
                         return "null"
@@ -138,17 +161,21 @@ Item {
                         return type;
 
                     var typestr = value.toString().toLowerCase()
-                    if(typestr.indexOf('modelnode' !== -1))
+                    if(typestr.indexOf('modelnode') !== -1) {
                         return type + " (" + fnObj.getProperties(value, logic.excludeList, "__").length + ")"
+                    }
 
-                    if(typestr.indexOf('model') !== -1)
+                    if(typestr.indexOf('model') !== -1) {
+//                        console.log("m")
                         return type + " (" + value.count +  ")"
+                    }
 
-                    else if(toString.call(value) === "[object Array]")
+                    else if(toString.call(value) === "[object Array]") {
+//                        console.log("arr")
                         return type + " (" + value.length  + ")"
+                    }
 
-
-
+//                    console.log("final")
                     return type + " (" + fnObj.getProperties(value, logic.excludeList, "__").length + ")"
                 }
 
@@ -158,6 +185,7 @@ Item {
                     height : parent.height
                     text : key
                     font : rootObject.font
+                    clip : true
                 }
                 Column {
                     width  : parent.width * 0.85
@@ -169,6 +197,7 @@ Item {
                         visible: del.stdType !== false
                         color : value === null || typeof value === 'undefined' ? colors.undefOrNull : colors.stdType
                         textColor : 'white'
+                        clip : true
                     }
                     Loader {
                         id : valueLoader
@@ -176,6 +205,7 @@ Item {
                         height : del.stdType !== false ? parent.height * 0.6 : parent.height
                         property bool expanded : false
                         property real contentHeight : item && item.contentHeight ? item.contentHeight : 0
+                        clip : true
                         source : del.stdType || !del.ready ? "SimpleButton.qml" : "ExpanderButton.qml"
                         onLoaded: doLoad()
 
@@ -202,7 +232,8 @@ Item {
                                     }
                                 }
                                 else {
-                                    item.text = value === null ? "null" : value === undefined ? "undefined" : value.toString();
+                                    item.text = Qt.binding(function() { return del.value === null ?     "null" :
+                                                                                 del.value === undefined ? 'undefined' : del.value.toString() } );
                                 }
                             }
                         }
