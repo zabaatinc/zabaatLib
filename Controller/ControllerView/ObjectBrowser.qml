@@ -67,7 +67,7 @@ Item {
                     addArr()
                 }
                 else if(n.indexOf("model") !== -1){
-                    console.log(rootObject.objectName, 'adding model')
+//                    console.log(rootObject.objectName, 'adding model')
                     addLm()
                 }
                 else if(typeof obj === 'object'){
