@@ -30,13 +30,11 @@ Item {
             }
         }
 
-        function addArr(debug){
+        function addArr(){
             for(var i = 0; i < obj.length ; ++i){
                 var key = i
                 var type = fnObj.getType(obj[key])
-                if(debug){
-                    console.log('addArr', key, type, JSON.stringify(obj[key]))
-                }
+//                console.log('addArr', key, type, JSON.stringify(obj[key]))
                 lm.append({ key     : key ,
                             type    : type
                            })
@@ -57,27 +55,28 @@ Item {
             if(obj){
                 var n = obj.toString().toLowerCase()
                 if(n.indexOf("modelnode") !== -1){
-                    console.log(rootObject.objectName , 'adding obj')
+//                    console.log(rootObject.objectName , 'adding obj')
                     addObj()
                 }
                 else if(toString.call(obj) === '[object Array]'){
-                    console.log(rootObject.objectName, "adding array at", obj.length)
-                    addArr(true)
+//                    console.log(rootObject.objectName, "adding array at", obj.length)
+                    addArr()
                 }
                 else if(n.indexOf("model") !== -1){
-                    console.log(rootObject.objectName, 'adding model')
+//                    console.log(rootObject.objectName, 'adding model')
                     addLm()
                 }
                 else if(typeof obj === 'object'){
-                    console.log(rootObject.objectName, "adding object last")
+//                    console.log(rootObject.objectName, "adding object last")
                     addObj()
                 }
                 else {
-                    console.log(rootObject.objectName, 'adding nothing!!!!!!!', obj, typeof obj)
+//                    console.log(rootObject.objectName, 'adding nothing!!!!!!!', obj, typeof obj)
                 }
             }
-            else if(rootObject.objectName !== "")   //not an empty thing but still null!
-                console.error(rootObject.objectName , "obj is null or undefined!!")
+            else if(rootObject.objectName !== ""){   //not an empty thing but still null!
+//                console.error(rootObject.objectName , "obj is null or undefined!!")
+            }
         }
         function existsInLm(lm, func) {
             if(lm){
@@ -122,19 +121,10 @@ Item {
                 id : del
                 width : lv.width
                 height : valueLoader.expanded ? lv.ch + valueLoader.contentHeight : lv.ch
-                property bool stdType : logic.isStdJsType(value)
-                property var value : {
-                    if(obj && type && key){
-//                        console.log(obj, type, key, obj[key])
-
-                        if(type.indexOf('model') !== -1 && type.indexOf('modelnode') === -1)
-                            return obj.get(key)
-
-                        return obj[key]
-                    }
-                    return null;
-                }
-                property bool ready : obj && type !== undefined && key !== undefined
+                property bool ready  : obj && type !== null && type !== undefined && key !== null && key !== undefined
+                property var stdType : ready ? logic.isStdJsType(value) : null
+                property var value   : !ready ? null : type.indexOf('model') !== -1 && type.indexOf('modelnode') === -1 ? obj.get(key) : obj[key]
+//                onValueChanged: console.log(rootObject.objectName, stdType, JSON.stringify(value))
                 property string typeText : {
                     if(value === null)
                         return "null"
@@ -174,26 +164,26 @@ Item {
                     height : parent.height
                     SimpleButton {
                         width  : parent.width
-                        height : del.stdType ?parent.height * 0.4 : 0
+                        height : del.stdType !== false ? parent.height * 0.4 : 0
                         text   : del.typeText
-                        visible: del.stdType
+                        visible: del.stdType !== false
                         color : value === null || typeof value === 'undefined' ? colors.undefOrNull : colors.stdType
                         textColor : 'white'
                     }
                     Loader {
                         id : valueLoader
                         width : parent.width
-                        height : del.stdType ? parent.height * 0.6 : parent.height
+                        height : del.stdType !== false ? parent.height * 0.6 : parent.height
                         property bool expanded : false
                         property real contentHeight : item && item.contentHeight ? item.contentHeight : 0
-                        source : del.ready ? del.stdType ? "SimpleButton.qml" : "ExpanderButton.qml" : ""
+                        source : del.stdType || !del.ready ? "SimpleButton.qml" : "ExpanderButton.qml"
                         onLoaded: doLoad()
 
                         function doLoad() {
                             if(item){
                                 item.anchors.fill = valueLoader
                                 item.font = rootObject.font
-                                if(!del.stdType){
+                                if(del.stdType === false){
                                     if(item.hasOwnProperty('obj')){
                                         item.objectName = rootObject.objectName + "_" + key
                                         item.cellHeightAbsolute = lv.ch
@@ -202,15 +192,13 @@ Item {
 
                                         item.text = del.typeText
                                         item.obj = Qt.binding(function() { return del.value } );
-                                        if(item.obj.length)
-                                            console.log('nestage', item.objectName, item.obj, fnObj.getType(item.obj))
-
-
+//                                        if(item.obj.length)
+//                                            console.log('nestage', item.objectName, item.obj, fnObj.getType(item.obj))
                                         valueLoader.expanded = item.expanded;
                                         item.onExpandedChanged.connect(function(){ valueLoader.expanded = item.expanded })
                                     }
                                     else{
-                                        console.error("No obj @", rootObject.objectName + "_" + key)
+                                        console.error("No obj @", rootObject.objectName + "_" + key, del.stdType, del.value)
                                     }
                                 }
                                 else {

@@ -12,7 +12,7 @@ Item {
     Component.onCompleted: {
         var p = []
         var s = Chance.unique(Chance.state,50)
-        for(var i =0; i < 1; ++i)
+        for(var i =0; i < 100; ++i)
             p.push({ id   : i.toString(),
                      name : Chance.first() + " " + Chance.last() ,
                      info : {
@@ -25,10 +25,10 @@ Item {
         controller.addModel("people",p)
 
 
-//        for(i = 0; i < s.length; ++i) {
-//            s[i] = {id: i.toString(), name: s[i]}
-//        }
-//        controller.addModel("states",s)
+        for(i = 0; i < s.length; ++i) {
+            s[i] = {id: i.toString(), name: s[i]}
+        }
+        controller.addModel("states",s)
 
         //console.log(JSON.stringify(p,null,2))
 
