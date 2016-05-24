@@ -4,13 +4,13 @@ singleton Chance 	1.0 functions/Chance/Chance.qml
 singleton _ 		1.0 functions/Lodash/Lodash.qml
 singleton Underscore 1.0 functions/Underscore/Underscore.qml
 UIBlocker 			1.0 components/UIBlocker.qml
-WarningMessage 		1.0 components/WarningMessage.qml
 ZTracer	 			1.0 components/ZTracer.qml
-ArrangableList		1.0 components/ArrangableList.qml
-ArrangableList		1.1 components/ArrangableList/ArrangableList.qml
-ZGestureArea 		1.0 components/ZGestureArea.qml
+ArrangableList		1.0 components/ArrangableList/v10/ArrangableList.qml
+ArrangableList		1.1 components/ArrangableList/v11/ArrangableList.qml
+ZGestureArea 		1.0 components/ZGestureArea/v10/ZGestureArea.qml
 ZSubModel			1.0 components/ZSubModel/v100/ZSubModel.qml
 ZSubModel 			1.1 components/ZSubModel/v101/ZSubModel.qml
+GenericHeader		1.0 components/GenericHeader/v10/GenericHeader.qml
 Moment		  		1.0 functions/Moment/moment.js
 plugin submodel
 typeinfo plugins.qmltypes
