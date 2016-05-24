@@ -48,7 +48,7 @@ Item {
             for(var i = 0; i < obj.count ; ++i){
 //                var item = obj.get(i)
                 var type = fnObj.getType(obj.get(i))
-                //console.log(i, 'adding', type, JSON.stringify(obj.get(i),null,2))
+//                console.log(i, 'adding', type, JSON.stringify(obj.get(i),null,2))
                 lm.append({ key     : i ,
                             type    : type
                           })
@@ -133,11 +133,12 @@ Item {
                         return null;
 
 //                    console.log(rootObject.name , key)
-                    if(logic.rootType.indexOf('modelNode') !== -1){
+                    var r = logic.rootType.toLowerCase()
+                    if(r.indexOf('modelNode') !== -1){
 //                        console.log("\tmNode")
                         return obj[key]
                     }
-                    else if(logic.rootType.indexOf('model') !== -1){
+                    else if(r.indexOf('model') !== -1){
 //                        console.log('\tm')
                         return obj.get(key)
                     }

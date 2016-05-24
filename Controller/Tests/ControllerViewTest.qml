@@ -83,7 +83,7 @@ Item {
             var m = controller.getById("people","0")
             if(m){
                 m.children.get(0).name += "_";
-//                console.log(item.name)
+//                console.log(m.children.get(0).name)
             }
 
             var s=  controller.getById('states','0')
