@@ -346,6 +346,40 @@ Item {
                "fill_Opacity"    : 1
             })
 
+            cache.injectState("text1","graphical", {
+               "fill_Empty"      : "transparent",
+               "@fill_Default"   : [Colors,"text1"],
+               "@text_Default"   : [Colors,"text2"],
+               "@fill_Press"     : [Colors,"accent"],
+               "@text_Press"     : [Colors,"text2"],
+               "@fill_Focus"     : [Colors.lighter, "accent"],
+               "@text_Focus"     : [Colors,"text2"],
+               "@inkColor"       : [Colors,"accent"],
+               "@borderColor"    : [Colors,"text1"],
+               "inkOpacity"      : 1,
+               "text_hAlignment" : Text.AlignHCenter,
+               "text_vAlignment" : Text.AlignVCenter,
+               "fill_Opacity"    : 1
+            })
+
+            cache.injectState("text2","graphical", {
+               "fill_Empty"      : "transparent",
+               "@fill_Default"   : [Colors,"text2"],
+               "@text_Default"   : [Colors,"text1"],
+               "@fill_Press"     : [Colors,"accent"],
+               "@text_Press"     : [Colors,"text1"],
+               "@fill_Focus"     : [Colors.lighter, "accent"],
+               "@text_Focus"     : [Colors,"text1"],
+               "@inkColor"       : [Colors,"accent"],
+               "@borderColor"    : [Colors,"text2"],
+               "inkOpacity"      : 1,
+               "text_hAlignment" : Text.AlignHCenter,
+               "text_vAlignment" : Text.AlignVCenter,
+               "fill_Opacity"    : 1
+            })
+
+
+
             cache.injectState("disabled","graphical", {
                  "@fill_Default": [graphical, "disabled1"],
                  "@text_Default": [graphical, "disabled2"],

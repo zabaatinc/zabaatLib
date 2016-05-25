@@ -3,19 +3,13 @@ import QtQuick 2.4
 
 ZSkin {
     id : rootObject
-
-
     property alias font : text.font
+    property string guiState : "Default"
 
     Connections {
         target : logic ? logic : null
 //        onValueChanged : update()
     }
-
-//    onLogicChanged: if(logic)
-//                        update()
-    property string guiState : "Default"
-
 
     border.color : graphical.borderColor
     radius : 2
@@ -45,7 +39,8 @@ ZSkin {
 
     states : ({
         "default" : {
-                  "graphical" : { "@fill_Default" : [Colors, "success"] }
+                  "graphical" : { "@fill_Default" : [Colors, "standard"] }
+
 
          }
 

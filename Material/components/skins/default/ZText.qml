@@ -24,10 +24,7 @@ ZSkin {
     states : ({ "default" :  { rootObject : { "border.width" : 0 ,
 
                                               },
-                               graphical : {"@text_Default" : function() { return Colors.contrastingTextColor(rootObject.color) } ,
-                                            "fill_Default" : "transparent"
-
-                                           }
+                               graphical : { "fill_Default" : "transparent" }
                   },
                  "fit" : {text : { "@scale" : function() { return text.paintedWidth > text.width ? (text.width - 5) / text.paintedWidth : 1}  }
 

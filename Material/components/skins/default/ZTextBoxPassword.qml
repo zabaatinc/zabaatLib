@@ -15,6 +15,8 @@ ZSkin {
     QtObject {
         id : graphicalOverride
         property real  barHeight     : 4
+        property int label_hAlignment : Text.AlignHCenter
+        property int label_vAlignment : Text.AlignVCenter
     }
 
     Item {
@@ -26,19 +28,20 @@ ZSkin {
 
         Item {
             id : textArea
-            width  : parent.width  - 5
-            height : parent.height - botBar.height - label.font.pixelSize
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom          : botBar.top
+            width  : botBar.width  - 5
+            property bool emptyBackground :Qt.colorEqual(rootObject.color,graphical.fill_Empty)
+            height : emptyBackground ? parent.height - botBar.height - label.font.pixelSize : parent.height - botBar.height
+            anchors.centerIn: emptyBackground ? undefined : parent
+            anchors.bottom: emptyBackground ? botBar.top : undefined
             focus : false
 
-            property alias text : text
+            property alias text  : text
             property alias label : label
             property alias input : input
             TextInput {
                 id : text
                 horizontalAlignment: graphical.text_hAlignment
-                verticalAlignment  : Text.AlignVCenter
+                verticalAlignment  : graphical.text_vAlignment
                 text               : logic && logic.text ? logic.text : ""
                 anchors.fill       : parent
                 visible            : input.opacity === 0
@@ -55,8 +58,8 @@ ZSkin {
                 clip : label.clip
                 Text {
                     id : label
-                    verticalAlignment  : Text.AlignVCenter
-                    horizontalAlignment: graphical.text_hAlignment
+                    verticalAlignment  : graphicalOverride.label_vAlignment
+                    horizontalAlignment: graphicalOverride.label_hAlignment
                     color              : input.color
                     opacity            : 0.5    //the 0.5 opacity will give it a faded look!
                     text               : logic && logic.label ? logic.label : ""
@@ -112,7 +115,7 @@ ZSkin {
                                          logic.setTextFunc(input.text);
 
                 horizontalAlignment: graphical.text_hAlignment
-                verticalAlignment  : Text.AlignVCenter
+                verticalAlignment  : graphical.text_vAlignment
                 focus              : true
                 opacity            : gui.inputState ? 1 : 0
                 font               : text.font
@@ -174,10 +177,12 @@ ZSkin {
                                       "@height"        : [parent,"height"],
                                        rotation        : 0
                                       } ,
-                        graphical : { "fill_Default" : "transparent" } ,
-                        "graphicalOverride" : {
-                          "barHeight" : 4,
-                         },
+                      graphical : { "fill_Default" : "transparent" } ,
+                      "graphicalOverride" : {
+                        "barHeight" : 4,
+                        label_hAlignment : Text.AlignHCenter,
+                        label_vAlignment : Text.AlignVCenter
+                       },
                        "gui.textArea.label" : { visible : true , clip : false }
           },
          "nolabel" : { "gui.textArea.label" : { visible : false }
@@ -186,6 +191,20 @@ ZSkin {
          "cliplabel" : { "gui.textArea.label" : { clip : true }
 
                       } ,
+        "nobar"    : { "graphicalOverride" : { barHeight : 0 } } ,
+      "lcenter"      :{ "graphicalOverride" : { label_hAlignment : Text.AlignHCenter, label_vAlignment : Text.AlignVCenter }} ,
+      "lright"       :{ "graphicalOverride" : { label_hAlignment : Text.AlignRight  , label_vAlignment : Text.AlignVCenter }} ,
+      "lleft"        :{ "graphicalOverride" : { label_hAlignment : Text.AlignLeft   , label_vAlignment : Text.AlignVCenter }} ,
+      "lcenterright" :{ "graphicalOverride" : { label_hAlignment : Text.AlignRight  , label_vAlignment : Text.AlignVCenter }} ,
+      "lcenterleft"  :{ "graphicalOverride" : { label_hAlignment : Text.AlignLeft   , label_vAlignment : Text.AlignVCenter }} ,
+      "ltop"         :{ "graphicalOverride" : { label_hAlignment : Text.AlignHCenter, label_vAlignment : Text.AlignTop     }} ,
+      "ltopcenter"   :{ "graphicalOverride" : { label_hAlignment : Text.AlignHCenter, label_vAlignment : Text.AlignTop     }} ,
+      "ltopright"    :{ "graphicalOverride" : { label_hAlignment : Text.AlignRight  , label_vAlignment : Text.AlignTop     }} ,
+      "ltopleft"     :{ "graphicalOverride" : { label_hAlignment : Text.AlignLeft   , label_vAlignment : Text.AlignTop     }} ,
+      "lbottom"      :{ "graphicalOverride" : { label_hAlignment : Text.AlignHCenter, label_vAlignment : Text.AlignBottom  }} ,
+      "lbottomcenter":{ "graphicalOverride" : { label_hAlignment : Text.AlignHCenter, label_vAlignment : Text.AlignBottom  }} ,
+      "lbottomright" :{ "graphicalOverride" : { label_hAlignment : Text.AlignRight  , label_vAlignment : Text.AlignBottom  }} ,
+      "lbottomleft"  :{ "graphicalOverride" : { label_hAlignment : Text.AlignLeft   , label_vAlignment : Text.AlignBottom  }}
     })
 
 }
