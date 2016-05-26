@@ -177,6 +177,8 @@ ZController {
 
     QtObject {
         id : priv
+        property var cbObjects: ({})
+
         function getSailsErr(msg){
             var err  = msg[0] && msg[0].err ? msg[0].err : msg[0]
             if(msg[0] && msg[0].err){
@@ -206,16 +208,12 @@ ZController {
 
             return  { type:'unknown', code:'8125', message : 'shenanigans', originPtr: 'no pointer' }
         }
-
-
-
         function correctifyUrl(url){
             if(url.charAt(0) !== "/") {
                 return "/" + url;
             }
             return url;
         }
-
         function findInHistory(obj) {
             if(externalDebugFunc)
                 externalDebugFunc('ZClient.qml - findInHistory(obj)- FIX COMPARiSON')
@@ -308,58 +306,15 @@ ZController {
             //sails + type is the typeof function we are calling. sailsGet , sailsPut
             url = correctifyUrl(url)
 
+
 //            console.log("sails" + type, url.toString(), params ? params.id : "")
-            socketHandler["sails" + type](url.toString(), JSON.stringify(params), function(response) {
-                if(response){
-//                    console.log("response received for", url, response);
-
-                    response = priv.parseAndCheck(response,type+'req',url)
-//                    console.log(JSON.stringify(response,null,2))
-//                    console.log(JSON.stringify(response,null,2))
-                    if(response.body)
-                        response = response.body
-
-                    if(response !== false && modelToUpdate && priv.errorCheck(response, type + 'req'))
-                        controller.addModel(modelToUpdate, response.data);
-
-                    if(typeof callback === 'function') {
-
-                        try {
-                            callback(response);
-//                            if(type === 'get')    callback(response[0]);  //TODO fix this later! :)
-//                            else                  callback(response);     //they should all behave the same way
-                        }
-                        catch(e){
-                            console.log("BZZT BZZT BLOOP TI DOOP", socketHandler,type, ":","Error when executing callback for", url, e)
-                            if(errHandler){
-                                errHandler({ msg: "Error when executing callback",
-                                             "for" : uri,
-                                             response : response ,
-                                             callback : callback
-                                           });
-                            }
-                        }
-
-                    }
-
-//                    if(response[0] !== false && modelToUpdate && priv.errorCheck(response[0], type + "req") )
-//                       controller.addModel(modelToUpdate, response[0]);    //TODO, add one for delete
-
-//                    if(typeof callback === 'function') {
-
-//                        try {
-//                            if(type === 'get')    callback(response[0]);  //TODO fix this later! :)
-//                            else                  callback(response);     //they should all behave the same way
-//                        }
-//                        catch(e){
-//                            console.log("BZZT BZZT BLOOP TI DOOP", socketHandler,type, ":","Error when executing callback for", url, e)
-//                        }
-
-//                    }
-
-
-                }
-            });
+            var cbId = socketHandler["sails" + type](url.toString(), JSON.stringify(params));
+            priv.cbObjects[cbId] = {
+                callback : callback,
+                type: type ,
+                url: url,
+                modelToUpdate :modelToUpdate
+            }
         }
         function getJsObject(item){
             if(typeof item === "string"){
@@ -374,19 +329,105 @@ ZController {
             if(uarr.length > 0 && uarr[0] !== "")
                 socketHandler.addEvent(uarr[0])
         }
+
+        function cbHandlerFunc(response, callback, type,url, modelToUpdate){
+            if(response){
+//                console.log(JSON.stringify(response,null,2))
+                if(modelToUpdate && priv.errorCheck(response, type + 'req') && response.data)
+                    controller.addModel(modelToUpdate, response.data);
+
+                if(typeof callback === 'function') {
+
+                    try {
+                        callback(response);
+    //                            if(type === 'get')    callback(response[0]);  //TODO fix this later! :)
+    //                            else                  callback(response);     //they should all behave the same way
+                    }
+                    catch(e){
+                        console.log("BZZT BZZT BLOOP TI DOOP", socketHandler,type, ":","Error when executing callback for", url, e)
+                        if(errHandler){
+                            errHandler({ msg: "Error when executing callback",
+                                         "for" : uri,
+                                         response : response ,
+                                         callback : callback
+                                       });
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+
+
     }
     ZSocketIO {
         id : socketHandler
-        onServerResponse: logic.handleMessage(priv.getJsObject(value) , eventName)
+        onServerResponse: {
+            var jsRes = priv.parseAndCheck(value,"",cbId)
+//            if(eventName === "/sub/interact")
+//                console.log(eventName, JSON.stringify(jsRes,null,2))
+
+            if(logic.isArray(jsRes))        jsRes = jsRes[0]
+            if(jsRes.statusCode && !jsRes.statusCode === "200" && !jsRes.statusCode === "201")  {
+                //is error!
+                if(errHandler){
+                    errHandler( { msg   : "Server Error",
+                                  event : eventName,
+                                  code  : jsRes.statusCode
+                                }
+                               )
+                }
+
+                return;
+            }
+            if(jsRes.headers && typeof jsRes.body !== 'undefined')  //use part of the message we actually need!
+                jsRes = jsRes.body
+            if(jsRes.statusCode && !jsRes.statusCode === "200" && !jsRes.statusCode === "201")  {
+                //is error!
+                if(errHandler){
+                    errHandler( { msg   : "Server Error",
+                                  event : eventName,
+                                  code  : jsRes.statusCode
+                                }
+                               )
+                }
+
+                return;
+            }
+
+            var arr = eventName.split("/")
+            var mName = arr[0] !== "" ? arr[0] : arr.length > 1 ? arr[1] : ""
+
+//            console.log(eventName)
+            if(mName !== "")
+                logic.handleMessage(jsRes , mName)
+            else
+                console.log("bad model name!")
+
+
+            if(cbId !== "") {
+                var cbObj = priv.cbObjects[cbId]
+                if(cbObj) {
+                    priv.cbHandlerFunc(jsRes,  cbObj.callback, cbObj.type, cbObj.url, cbObj.modelToUpdate)
+                    delete priv.cbObjects[cbId]
+                }
+            }
+        }
+
+
         property QtObject logic : QtObject {
             id : logic
             property var defaultEvents : ["message","prints"]   //todo, make prints outside
+
+
             function isArray(obj) {
                 return toString.call(obj) === '[object Array]'
             }
             function handleMessage(message , modelName, depth){
 
-
+//                console.log("handleMessage", modelName, JSON.stringify(message,null,2))
 //                console.log("----------------------------")
 //                console.log(JSON.stringify(message,null,2))
 //                console.log("----------------------------")
@@ -511,9 +552,9 @@ ZController {
             }
         }
 
-        onError   : { console.log("SocketIOController::error"  , message) ; controller.error(message);     }
-        onWarning : { console.log("SocketIOController::warning", message) ; controller.warning(message);   }
-        onInfo    : { console.log("SocketIOController::info"   , message) ; controller.info(message);      }
+//        onError   : { console.log("SocketIOController::error"  , message) ; controller.error(message);     }
+//        onWarning : { console.log("SocketIOController::warning", message) ; controller.warning(message);   }
+//        onInfo    : { console.log("SocketIOController::info"   , message) ; controller.info(message);      }
 
         onRegisteredEventsChanged: {
             socketHandler.addEvents(logic.defaultEvents)

@@ -12,7 +12,9 @@ Item {
     property color color2     : 'orange'
     property font  font       : Qt.font({ pixelSize : 16 })
 
-
+    onControllerChanged: if(controller){
+                             logic.init()
+                         }
 
 
 

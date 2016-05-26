@@ -3,6 +3,17 @@ QtObject {
     id : rootObject
     signal imageReady(string src, string name);
 
+
+    function load(imgSource, object, prop) {    //convenience function of calling add and getBySourceWhenArrives!
+        var src = srcMap[imgSource]
+        if(!src) {
+            getBySourceWhenArrives(imgSource,object,prop)
+            add(imgSource)
+            return ""
+        }
+        return src
+    }
+
     function add(imgSource, nameOptional){
         if(!srcMap[imgSource]){
             var i = imgFactory.createObject(imgContainer)

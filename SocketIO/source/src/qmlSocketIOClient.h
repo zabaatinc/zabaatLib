@@ -26,7 +26,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <map>
-#include <QTimer>
 #include <QQmlEngine>
 
 //#include <rapidjson/rapidjson.h>
@@ -49,19 +48,6 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 using std::placeholders::_4;
 
-struct dataHolder {
-    QJSValue     function;
-    QJSValueList params;
-
-    void call(){
-        if(function.isCallable()){
-            function.call(params);
-        }
-    }
-
-};
-
-
 class qmlSocketIOClient : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString sessionId READ sessionId NOTIFY sessionIdChanged) //ready only property
@@ -76,7 +62,6 @@ public :
         init();
     }
     ~qmlSocketIOClient() {
-        timer->stop();
 //        timer->deleteLater();
     }
 
@@ -162,7 +147,7 @@ public :
 
             client.socket()->on(event.toStdString(), [&](sio::event &ev){
 //                                                       qDebug () << "C++ EVENT FIRED::" << QString::fromStdString(ev.get_name());
-                                                       Q_EMIT serverResponse(QString::fromStdString(ev.get_name()), transformMessage(ev.get_message()));
+                                                       Q_EMIT serverResponse(QString::fromStdString(ev.get_name()), transformMessage(ev.get_message()) , "");
                                                     });
 
             m_registeredEvents.append(event);
@@ -194,17 +179,17 @@ public :
     }
 
     //SIALS RELATED
-    Q_INVOKABLE void sailsGet   (QString url, QJSValue params = QJSValue::NullValue, QJSValue cb = QJSValue::NullValue, QJSValue headers = QJSValue::NullValue){
-        sailsReq("get",url,params,headers,cb);
+    Q_INVOKABLE QString sailsGet   (QString url, QJSValue params = QJSValue::NullValue, QJSValue headers = QJSValue::NullValue){
+        return sailsReq("get",url,params,headers);
     }
-    Q_INVOKABLE void sailsPut   (QString url, QJSValue params = QJSValue::NullValue, QJSValue cb = QJSValue::NullValue, QJSValue headers = QJSValue::NullValue){
-        sailsReq("put",url,params,headers,cb);
+    Q_INVOKABLE QString sailsPut   (QString url, QJSValue params = QJSValue::NullValue, QJSValue headers = QJSValue::NullValue){
+        return sailsReq("put",url,params,headers);
     }
-    Q_INVOKABLE void sailsPost  (QString url, QJSValue params = QJSValue::NullValue, QJSValue cb = QJSValue::NullValue, QJSValue headers = QJSValue::NullValue){
-        sailsReq("post",url,params,headers,cb);
+    Q_INVOKABLE QString sailsPost  (QString url, QJSValue params = QJSValue::NullValue, QJSValue headers = QJSValue::NullValue){
+        return sailsReq("post",url,params,headers);
     }
-    Q_INVOKABLE void sailsDelete(QString url, QJSValue params = QJSValue::NullValue, QJSValue cb = QJSValue::NullValue, QJSValue headers = QJSValue::NullValue){
-        sailsReq("delete",url,params,headers,cb);
+    Q_INVOKABLE QString sailsDelete(QString url, QJSValue params = QJSValue::NullValue, QJSValue headers = QJSValue::NullValue){
+        return sailsReq("delete",url,params,headers);
     }
 
 
@@ -223,7 +208,7 @@ Q_SIGNALS:
     void sessionIdChanged();
     void isConnectedChanged(QString details);
     void failed();
-    void serverResponse(QString eventName, QVariant value);
+    void serverResponse(QString eventName, QVariant value, QString cbId);
     void registeredEventsChanged();
     void attemptedReconnectsChanged(uint value);
     void reconnectingChanged(bool value);
@@ -233,16 +218,7 @@ Q_SIGNALS:
     void error(QString message);
     void warning(QString message);
 
-public Q_SLOTS:
-    void timerTick() {  //The timer is thread safe. It will run on the UI thread. This is the only reason it exists!
-        if(!cbListLocked){
-            while(!cbList.isEmpty()) {
-                cbList[0].call();
-                QQmlEngine::setObjectOwnership(cbList[0].function.toQObject(), QQmlEngine::JavaScriptOwnership);
-                cbList.pop_front();
-            }
-        }
-    }
+
 
 
 private:
@@ -250,13 +226,12 @@ private:
     bool              m_connected;
     QString           m_sessionId;
     sio::client       client;
-    QList<dataHolder> cbList;
-    bool              cbListLocked;
-    QTimer            *timer;
 
     int               m_reconnectLimit;
     unsigned int      m_attemptedReconnects;
     bool              m_reconnecting;
+
+    ulong             nextCbId;
 
 
     void setAttemptedReconnects(uint value){
@@ -274,22 +249,15 @@ private:
 
     void init(){
         m_reconnectLimit = 0xFFFFFFFF;
-        m_attemptedReconnects = 0;
+        m_attemptedReconnects = nextCbId = 0;
         m_reconnecting = m_connected = false;
         m_sessionId = "";
         m_registeredEvents.clear();
-
-        cbListLocked = false;
-        cbList.clear();
 
 //        client.set_reconnect_delay(2000);
 //        client.set_reconnect_delay_max(4000);
 
         setDefaultListeners();
-
-        timer = new QTimer(this);
-        QObject::connect(timer, SIGNAL(timeout()) , this, SLOT(timerTick()));
-        timer->start(10);
     }
 
     void setDefaultListeners(){
@@ -313,15 +281,13 @@ private:
 
 
 
-    Q_INVOKABLE void sailsReq(QString method, QString url, QJSValue params, QJSValue headers, QJSValue cb = QJSValue::NullValue, bool isBinary = false){
+    Q_INVOKABLE QString sailsReq(QString method, QString url, QJSValue params, QJSValue headers, bool isBinary = false){
         if(m_connected){
             sio::message::ptr om = sio::object_message::create();
             auto &map = om->get_map();
 
             QQmlEngine::setObjectOwnership(params.toQObject(), QQmlEngine::CppOwnership);
             QQmlEngine::setObjectOwnership(headers.toQObject(), QQmlEngine::CppOwnership);
-            QQmlEngine::setObjectOwnership(cb.toQObject(), QQmlEngine::CppOwnership);
-
 
             std::pair<std::string,sio::message::ptr> _url   ("url"      , sio::string_message::create(url.toStdString())     );
             std::pair<std::string,sio::message::ptr> _params("params"  , transformJSValue(params , isBinary));
@@ -336,48 +302,27 @@ private:
             map.insert(_headers);
 
             //create callback
+            //return a UNIQUE ID for this call!!
+            QString cbId = url + "/" +  QString::number(nextCbId++);
             std::function<void (sio::message::list const&)> const& func  =
                     [=](const sio::message::list &list) mutable->void {
-                        if(cb.isCallable()){
-//                            qDebug() << "is callable";
-                            QJSValueList args;
-                            for(uint i = 0; i < list.size(); i++){
-                                QJSValue v = transformMessageToJs(list[i]);
-                                args.push_back(v);
-                            }
-//                            cb.call(args);
-
-                            dataHolder d;
-                            d.function = cb;
-                            d.params   = args;
-                            cbListLocked = true;        //for safety! though we append at the end!
-                            cbList.push_back(d);
-                            cbListLocked = false;
-//                            Q_EMIT jsCb(cb,args);
-                        }
-                        else {
-                            Q_EMIT this->warning("cb provided for " + url + " is not callable");
+                        QJSValueList args;
+                        for(uint i = 0; i < list.size(); i++){
+                            QJSValue v = transformMessageToJs(list[i]);
+                            args.push_back(v);
                         }
 
-
-                        QStringList arr   = method.split("/");
-                        QString eventName = "";
-                        if(!arr.empty()){
-                            if(arr[0] != "")
-                                eventName = arr[0];
-                            else if(arr.length() > 1)
-                                eventName = arr[1];
-                        }
-
-                        sailsResponse(eventName, list);
+                        sailsResponse(url, list, cbId);
                     };
 
             //send it out and pass in the func cb
             client.socket()->emit(method.toStdString(), om, func);
+            return cbId;
         }
         else {
             Q_EMIT warning(QString(BOOST_CURRENT_FUNCTION) + " : socket is not connected " + url);
         }
+        return "";
     }
 
 
@@ -748,14 +693,14 @@ private:
 
         Q_EMIT failed();
     }
-    void sailsResponse(QString eventName, sio::message::list const &list){
+    void sailsResponse(QString eventName, sio::message::list const &list, QString cbId){
 //        qDebug() << "server replied with" << list.size() << "elements";
         QVariantList var;
         for(uint i = 0; i < list.size(); i++){
              //we have to figure out what it is that the server is trying to send, up in here!
              var.push_back(transformMessage(list[i]));
         }
-        Q_EMIT serverResponse(eventName, var);
+        Q_EMIT serverResponse(eventName, var, cbId);
     }
 
     void addTo(QJsonArray &array, QVariant v){

@@ -214,6 +214,7 @@ Item
        {
 //            console.log(modelName,"already exists.gonna append to it instead!")
             debug.debugMsg(modelName,"already exists.gonna append to it instead!")
+//           console.log(modelName, "already exists. gonna append to it instead!", JSON.stringify(model))
             __appendToModel(modelName,model)        //otherwise, we append to this already existing model
        }
        debug.debugMsg(tabStr + "ZController.addModel(",modelName,")   end")
@@ -253,6 +254,12 @@ Item
                 }
            }
            else {
+//               if(!data) {
+//                   console.log("BAD DATA @", name)
+//                   console.log("_____________________________________________")
+//                   console.trace()
+//                   console.log("_____________________________________________")
+//               }
 //               console.log(rootObject, 'appending data object to', name , priv.models[name].count)
                 __addData(name,data,'root')
 //               if(name === 'otherUsersOnPage'){
