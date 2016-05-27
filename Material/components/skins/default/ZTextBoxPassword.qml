@@ -75,6 +75,7 @@ ZSkin {
 
                     Behavior on anchors.topMargin  { NumberAnimation { duration : 333  } }
 
+                    textFormat: Text.RichText
                 }
             }
 

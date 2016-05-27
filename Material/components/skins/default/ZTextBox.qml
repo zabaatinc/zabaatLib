@@ -73,6 +73,7 @@ ZSkin {
                     anchors.left      : parent.left
                     anchors.top       : parent.top
                     anchors.topMargin : gui.inputState || (text.text !== "" && input.text !== "") ? -(height + font.pixelSize/2) : 0
+                    textFormat : Text.RichText
 
                     Behavior on anchors.topMargin  { NumberAnimation { duration : 333  } }
 
