@@ -77,8 +77,13 @@ def save_icons(icons, filename):
                                                  len(icons), filename))
 
 
-def save_icons_qml(icons, filename):
+def save_icons_qml(icons, filename,prefix,affix):
     saved_count = 0
+    if prefix != "":
+        prefix = "'" + prefix + "'+" 
+    if affix != "":
+        affix =  "+'"+ affix + "'"
+	
 
     with codecs.open(filename, encoding='utf-8', mode='w') as f:
         f.write(qml_template_header)
@@ -92,8 +97,7 @@ def save_icons_qml(icons, filename):
                     firstchar = icon_name[0]
                     if firstchar.isdigit():
                         icon_name = "_" + icon_name
-
-                f.write("\tproperty string {0}: '\\u{1}'\n".format(icon_name, code))
+                f.write("\tproperty string {0}: {2}'\\u{1}'{3}\n".format(icon_name, code,prefix,affix ))
 
         f.write(qml_template_footer)
 
@@ -115,8 +119,8 @@ def download_font(url, filename):
 if __name__ == '__main__':
     icons = get_awesome_icons()
     save_icons(icons, 'awesome.js')
-    save_icons_qml(icons, 'FontAwesome.qml')
-
+    save_icons_qml(icons, 'FontAwesome.qml', '', '')
+    save_icons_qml(icons, 'FontAwesomeRichText.qml', '<font face="fontawesome">', '</font>')
     download_font('http://github.com/FortAwesome/Font-Awesome/' +
-                  'blob/master/fonts/FontAwesome.otf', 
+                  'blob/master/fonts/FontAwesome.otf?raw=true', 
                   '../FontAwesome.otf')

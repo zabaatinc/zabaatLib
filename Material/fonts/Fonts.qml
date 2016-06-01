@@ -80,7 +80,7 @@ QtObject {
 
             FontLoader {
                 id     : fontAwesome
-                source : "fontawesome-webfont.ttf"
+                source : "FontAwesome.otf"
             }
 
 

@@ -1,6 +1,7 @@
 module Zabaat.Material
 singleton MaterialSettings 	1.0 MaterialSettings.qml
 singleton FA 	    		1.0 ./fonts/FontAwesome.qml
+singleton FAR				1.0 ./fonts/FontAwesomeRichText.qml
 singleton Fonts     		1.0 ./fonts/Fonts.qml
 singleton Colors			1.0 ./components/Colors.qml
 singleton Units				1.0 ./components/Units.qml
@@ -20,6 +21,8 @@ ZSpinner					1.0 ./components/logic/lists/ZSpinner.qml
 ZTextBox					1.0 ./components/logic/textboxes/ZTextBox.qml
 ZTextBoxPassword			1.0 ./components/logic/textboxes/ZTextBoxPassword.qml
 ZText 						1.0 ./components/logic/textboxes/ZText.qml
+ZChip						1.0 ./components/logic/textboxes/ZChip.qml
+ZChipBox 					1.0 ./components/logic/textboxes/ZChipBox.qml
 ZRadialView					1.0 ./components/logic/lists/ZRadialView.qml
 ZCheckbox					1.0 ./components/logic/selection_controls/ZCheckbox.qml
 ZTextBoxLabel 				1.0 ./components/logic/textboxes/ZTextBoxLabel.qml
