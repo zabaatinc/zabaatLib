@@ -1,12 +1,16 @@
 import Zabaat.Material 1.0
 import QtQuick 2.5
 import QtGraphicalEffects 1.0
+import "helpers"
 
 ZSkin {
     id : rootObject
-
     property alias font    : text.font
     property alias guiVars : guiVars
+    color : graphical.fill_Empty
+    onWidthChanged : if(guiVars.dynamicScale && logic) {
+                        logic.width = width
+                     }
 
     QtObject {
         id : guiVars
@@ -20,7 +24,12 @@ ZSkin {
 
     Item {
         id : gui
-        anchors.fill: parent
+        height : parent.height
+        width  : childrenRect.width
+        onWidthChanged : if(guiVars.dynamicScale) {
+                            rootObject.width = width
+                         }
+
 
         Item {
             id      : labelContainer
@@ -93,19 +102,34 @@ ZSkin {
             z : 2
         }
 
+        SemiCircle {
+            id : semi1
+            state : 'left'
+            width  : guiVars.hasLabel ? height/2 : 0
+            visible : guiVars.hasLabel
+            color  : graphical.fill_Default
+            height : parent.height
+            anchors.left: labelContainer.right
+            anchors.leftMargin: -labelContainer.width * 0.75
+            radius :  rootObject.radius
+        }
 
         Rectangle {
             id : textContainer
-            radius: height/2
-            width  : !guiVars.dynamicScale ?  parent.width - labelContainer.width/4 : text.width
-            onWidthChanged : if(guiVars.dynamicScale) {
-                                rootObject.width = guiVars.dynamicScale
-                             }
-
+            width  : text.width
             height : parent.height
-            anchors.left: parent.left
-            anchors.leftMargin: guiVars.hasLabel ? labelContainer.width/4 : 0
+            anchors.left: semi1.right
             color  : graphical.fill_Default
+            radius : !guiVars.hasLabel ? rootObject.radius : 0
+            Rectangle {
+                width   : parent.width/2
+                height  : parent.height
+                anchors.right : parent.right
+                color : parent.color
+                visible : !guiVars.hasLabel
+
+            }
+
             MouseArea {
                 anchors.fill: parent
                 onClicked : if(logic)   logic.clicked()
@@ -113,10 +137,10 @@ ZSkin {
 
             Text {
                 id : text
-                width  : !guiVars.dynamicScale ? parent.width - closeBtnContainer.width - labelContainer.width/4 :
-                                                 Math.min(paintedWidth +20 , height * 2.5)
-                height : parent.height
-                anchors.centerIn: parent
+                width  : !guiVars.dynamicScale ? parent.width  - labelContainer.width/4 :
+                                                 Math.max(paintedWidth * 1.1 ,height * 1.25)
+                height             : parent.height
+                anchors.centerIn   : parent
                 horizontalAlignment: graphical.text_hAlignment
                 verticalAlignment  : graphical.text_vAlignment
                 font.family        : Fonts.font1
@@ -129,31 +153,34 @@ ZSkin {
 
                                 }
 
-//                Rectangle { anchors.fill: parent ; border.width: 1; color : 'transparent' }
 
             }
 
         }
 
 
-        Item {
-            id : closeBtnContainer
-            anchors.right: parent.right
-            width : height
-            height : guiVars.hasClose ? parent.height  : 0
-            visible : guiVars.hasClose
 
-            ZButton {
-                state  : logic ? logic.closeButtonState : ""
-                height : parent.height/2
-                width  : height
-                anchors.centerIn: parent
-                text   : FAR.close
-                onClicked : if(logic)
-                                logic.close()
-                disableShowsGraphically: false
-            }
+        SemiCircle {
+            id : semi2
+            state : 'right'
+            height : parent.height
+            radius :  rootObject.radius
+            anchors.left: textContainer.right
+            color  : graphical.fill_Default
         }
+        ZButton {
+            state  : logic ? logic.closeButtonState : ""
+            height : parent.height/2
+            width  : height
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: semi2.left
+            anchors.leftMargin: -width/2
+            text   : logic? logic.closeButtonText : "close"
+            onClicked : if(logic)
+                            logic.close()
+            disableShowsGraphically: false
+        }
+
 
 
 
@@ -164,7 +191,7 @@ ZSkin {
 
     states : ({
         "default" :  { graphical :  { "@fill_Default" : function() { return Colors.getContrastingColor(Colors.standard, 1.2) } } ,
-                      "rootObject": { "border.width" : 0 } ,
+                      "rootObject": { "border.width" : 0 , '@radius' : function() { return rootObject.height/2 }  } ,
                       "guiVars"   : { hasClose: false, "@labelColor" : [Colors,"success"], maskRadius : 0.5 }
                      } ,
         "close" :    { "guiVars"  : { hasClose: true }} ,

@@ -6,6 +6,7 @@ ZObject {
     property string label        : ""
     property bool   labelIsImage : false
     property string closeButtonState : 'disabled-circle-f2'
+    property string closeButtonText  : FAR.close
 
     signal clicked()
     signal close()

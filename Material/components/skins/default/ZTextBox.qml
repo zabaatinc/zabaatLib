@@ -28,13 +28,13 @@ ZSkin {
 
         Item {
             id : textArea
-
-
             width  : botBar.width  - 5
             property bool emptyBackground :Qt.colorEqual(rootObject.color,graphical.fill_Empty)
-            height : emptyBackground ? parent.height - botBar.height - label.font.pixelSize : parent.height - botBar.height
-            anchors.centerIn: emptyBackground ? undefined : parent
-            anchors.bottom: emptyBackground ? botBar.top : undefined
+            property bool centerCondition : emptyBackground && label.font.pixelSize < Math.floor(rootObject.height)
+            property real h               : parent.height - botBar.height
+            height          : centerCondition ? h - label.font.pixelSize : h
+            anchors.centerIn: centerCondition ? undefined : parent
+            anchors.bottom  : centerCondition ? botBar.top : undefined
             focus : false
 
             property alias text : text

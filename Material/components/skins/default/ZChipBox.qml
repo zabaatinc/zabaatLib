@@ -2,9 +2,8 @@ import Zabaat.Material 1.0
 import QtQuick 2.5
 ZSkin {
     id : rootObject
-
-    onLogicChanged: if(logic){
-                        textBox.text = logic.text
+    onLogicChanged: if(logic && lv.footerItem){
+                        lv.footerItem.text = logic.text
                     }
     clip : true
 
@@ -12,54 +11,51 @@ ZSkin {
         id : lv
         width  : parent.width
         height : parent.height
-        orientation: ListView.Horizontal
-        model : logic && logic.chips ? logic.chips : null
-        snapMode : ListView.NoSnap
-        highlightRangeMode : ListView.NoHighlightRange
-
+        anchors.left: parent.left
+        anchors.leftMargin: 5
+        orientation        : ListView.Horizontal
+        model              : logic && logic.chips ? logic.chips : null
+//        snapMode           : ListView.NoSnap
+//        highlightRangeMode : ListView.NoHighlightRange
+        spacing : 5
         delegate : ZChip {
-            height : parent.height
-            width  : height * 2.5
+            height : lv.height * 3/4
+            width  : lv.height * 2.5
+            anchors.verticalCenter: parent.verticalCenter
             state  : logic ? logic.chipState : ""
+            closeButtonState: logic?  logic.chipCloseButtonState : ""
+            closeButtonText: logic ? logic.chipCloseButtonText : "Close"
             text   : lv.model ? lv.model[index] : ""
-//            Component.onCompleted: console.log("OH NOES")
             onClose: if(logic){
                 logic.removeChip(index)
             }
         }
-        onCountChanged : if(textBox.activeFocus){
-                             lv.positionViewAtIndex(lv.count -1 , ListView.End)
+        onCountChanged : if(footerItem && count === 0){
+                             footerItem.x = 0
                          }
-    }
-
-    ZTextBox {
-        id : textBox
-        width : parent.width
-        height : parent.height
-        anchors.left      : lv.left
-        anchors.leftMargin: -lv.contentX + lv.contentWidth
-
-
-        property bool mutex : false
-        state : logic ? logic.textBoxState + '-b1' : ""
-        label : logic ? logic.label : ""
-        onAccepted    : setText(text)
-//        onTextChanged : setText(text)
-        function setText(text){
-            if(!mutex) {
-                mutex = true;
-
-                if(logic)
-                    logic.text = text
-
-//                textBox.text = "";
-
-                mutex = false;
+        footer : Item {
+            width  : lv.width
+            height : lv.height
+            property alias text : footerTextBox.text
+                ZTextBox {
+                id : footerTextBox
+                anchors.fill: parent
+                anchors.margins: Math.min(parent.width,parent.height) * 0.1
+                property bool mutex : false
+                state : logic ? 'b1-f3-tleft' : ""
+                label : logic ? logic.label : ""
+                onAccepted    : if(logic) logic.setText(text)
             }
+            Component.onCompleted: if(logic) {
+                                       text = logic.text
+                                   }
+
+
+
         }
-        onActiveFocusChanged: if(activeFocus) {
-                                lv.positionViewAtIndex(lv.count -1 , ListView.End)
-                              }
+
+
     }
+
 
 }

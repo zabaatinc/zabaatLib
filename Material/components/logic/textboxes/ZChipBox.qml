@@ -7,12 +7,21 @@ ZObject {
     property string text         : ""
     property var    chips        : []
     property string chipState    : "close"
+    property string chipCloseButtonState : 'disabled-circle-f2'
+    property string chipCloseButtonText  : FAR.close
     property string textBoxState : "nobar-b0-tleft"
 
     onTextChanged : if(typeof chipMakerFunc === 'function'){
                         chips = chipMakerFunc(text);
-                        console.log("reassinging chipos", chips)
                     }
+
+    function setText(text) {
+        if(chipMakerFunc) {
+            rootObject.text = text;
+            chips =chipMakerFunc(text);
+        }
+    }
+
 
     property var chipMakerFunc : function(text){
         if(text !== "") {

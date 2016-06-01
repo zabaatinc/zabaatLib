@@ -241,7 +241,7 @@ Item {
             cache.injectState("rounded25", "rootObject" , { "@radius" : [rootObject,"height",1/2.5] });
             cache.injectState("rounded2" , "rootObject" , { "@radius" : [rootObject,"height",1/2]   });
 
-
+            cache.injectState("square"   , "rootObject" , { "radius" : 0   });
             cache.injectState("circle"  , "rootObject" , { "@radius" : [rootObject,"height",1/2]  });
 
             cache.injectState("baccent"   , "graphical" , { "@borderColor" : [Colors,"accent"] });
