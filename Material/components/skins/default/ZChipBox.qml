@@ -36,13 +36,13 @@ ZSkin {
         footer : Item {
             width  : lv.width
             height : lv.height
+            clip : true
             property alias text : footerTextBox.text
                 ZTextBox {
                 id : footerTextBox
                 anchors.fill: parent
-                anchors.margins: Math.min(parent.width,parent.height) * 0.1
-                property bool mutex : false
-                state : logic ? 'b1-f3-tleft' : ""
+//                anchors.margins: Math.min(parent.width,parent.height) * 0.05
+                state : logic ? logic.textBoxState : ""
                 label : logic ? logic.label : ""
                 onAccepted    : if(logic) logic.setText(text)
             }

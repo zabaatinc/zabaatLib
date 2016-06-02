@@ -104,7 +104,6 @@ ZObject {
 //                console.log(child)
                 child.Component.destruction.connect(function(){ priv.destructionHandler(child) })
                 child.parent = container
-
                 newItems.push(child)
                 rootObject.items.push(child);
             }

@@ -14,6 +14,7 @@ ZSkin						1.0 ./components/ZSkin.qml
 ZInk 						1.0 ./components/ZInk.qml
 ZInkArea 					1.0 ./components/ZInkArea.qml
 ZButton 					1.0 ./components/logic/buttons/ZButton.qml
+ZImageButton 			    1.0 ./components/logic/buttons/ZImageButton.qml
 ZHoldButton 				1.0 ./components/logic/buttons/ZHoldButton.qml
 ZSwitch 					1.0 ./components/logic/buttons/ZSwitch.qml
 ZSlider						1.0 ./components/logic/sliders/ZSlider.qml

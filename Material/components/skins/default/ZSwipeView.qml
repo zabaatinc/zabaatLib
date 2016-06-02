@@ -32,6 +32,7 @@ ZSkin {
         property bool headerFill     : false;
         property bool headerVisible  : true;
         property bool headerLocked   : false;
+        property bool interactive    : true;
 
         readonly property var kidnappedElems : logic ? logic.items : null
         property int len                     : logic ? logic.count : 0
@@ -258,8 +259,8 @@ ZSkin {
                 propagateComposedEvents: true
                 preventStealing: false
                 anchors.fill: parent
-
                 property bool isPressed : false
+
                 onPressed: {
                     isPressed = true;
                     mouse.accepted = false;
@@ -269,19 +270,20 @@ ZSkin {
                     mouse.accepted = false;
                 }
 
+                onPressedChanged : isPressed = pressed;
                 onIsPressedChanged:  if(!isPressed) {   //same as is released!
                     var idx = lvHeader.isHorizontal ? lvHeader.indexAt(lvHeader.contentX + mouseX, mouseY) :
-                                                    lvHeader.indexAt(mouseX, lvHeader.contentY + mouseY)
-
+                                                      lvHeader.indexAt(mouseX, lvHeader.contentY + mouseY)
+                    console.log(idx)
                     if(idx !== -1){
                         var item = lvHeader.delegateInstanceAt(idx);
                         if(!item || !item.hasOnClickHandler) {
                             lvHeader.currentIndex= idx;
-                            mouse.accepted = true;
+//                            mouse.accepted = true;
                         }
                         else {
                             //else do nothing!
-                            mouse.accepted = false;
+//                            mouse.accepted = false;
                         }
                     }
 
@@ -297,6 +299,7 @@ ZSkin {
             readonly property alias ss : guiLogic.state
             onSsChanged          : refreshView()
             Component.onCompleted: refreshView()
+            interactive : guiLogic.interactive
 
             function refreshView(){
                 switch(ss){
@@ -348,6 +351,7 @@ ZSkin {
                 width : lvContent.width
                 height : lvContent.height
                 property var myItem : null
+                clip : true
 
                 Component.onCompleted: {
                     if(guiLogic.kidnappedElems.length > index) {
@@ -418,14 +422,17 @@ ZSkin {
                                         "headerFill" : false,
                                         "headerVisible" : true ,
                                         "headerLocked" : false,
-                                        "cellHeight"    : 0.1
+                                        "cellHeight"    : 0.1,
+                                        "interactive" : true
                                      }
                   } ,
         "headerfill": { "guiLogic" : { "headerFill" : true  } } ,
         "notabs"    : { "guiLogic" : { "headerVisible" : false   }  } ,
         "noheaders" : { "guiLogic" : { "headerVisible" : false   }  } ,
-        "locked"    : { "guiLogic" : { "headerLocked"  : true   }  } ,
-        "unlocked"    : { "guiLogic" : { "headerLocked"  : false   }  } ,
+        "locked"    : { "guiLogic" : { "interactive"  : false   }  } ,
+        "unlocked"  : { "guiLogic" : { "interactive"  : true   }  } ,
+        "headerlocked"    : { "guiLogic" : { "headerLocked"  : true   }  } ,
+        "headerunlocked"    : { "guiLogic" : { "headerLocked"  : false   }  } ,
         "headers"   : { "guiLogic" : { "headerVisible" : true   }  } ,
         "tabs"      : { "guiLogic" : { "headerVisible" : true   }  } ,
 
@@ -468,8 +475,21 @@ ZSkin {
         "h23"  :  { "guiLogic" : { "cellHeight" : 0.23   }  } ,
         "h24"  :  { "guiLogic" : { "cellHeight" : 0.24   }  } ,
         "h25"  :  { "guiLogic" : { "cellHeight" : 0.25   }  } ,
-
-
+        "h26"  :  { "guiLogic" : { "cellHeight" : 0.26   }  } ,
+        "h27"  :  { "guiLogic" : { "cellHeight" : 0.27   }  } ,
+        "h28"  :  { "guiLogic" : { "cellHeight" : 0.28   }  } ,
+        "h29"  :  { "guiLogic" : { "cellHeight" : 0.29   }  } ,
+        "h30"  :  { "guiLogic" : { "cellHeight" : 0.30   }  } ,
+        "h31"  :  { "guiLogic" : { "cellHeight" : 0.31   }  } ,
+        "h32"  :  { "guiLogic" : { "cellHeight" : 0.32   }  } ,
+        "h33"  :  { "guiLogic" : { "cellHeight" : 0.33   }  } ,
+        "h34"  :  { "guiLogic" : { "cellHeight" : 0.34   }  } ,
+        "h35"  :  { "guiLogic" : { "cellHeight" : 0.35   }  } ,
+        "h36"  :  { "guiLogic" : { "cellHeight" : 0.36   }  } ,
+        "h37"  :  { "guiLogic" : { "cellHeight" : 0.37   }  } ,
+        "h38"  :  { "guiLogic" : { "cellHeight" : 0.38   }  } ,
+        "h39"  :  { "guiLogic" : { "cellHeight" : 0.39   }  } ,
+        "h40"  :  { "guiLogic" : { "cellHeight" : 0.40   }  } ,
         "left"     : { "guiLogic" : { "state" : "left"   }  } ,
         "right"    : { "guiLogic" : { "state" : "right"   }  } ,
         "top"      : { "guiLogic" : { "state" : "top"   }  } ,

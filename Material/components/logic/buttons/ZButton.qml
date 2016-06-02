@@ -9,7 +9,6 @@ ZObject{
     property bool containsMouse      : false
     property string text             : ""
     property bool   allowDoubleClicks: false
-
 //    focus : true;
     debug                  : false
     onPressed              : log(self, "pressed")

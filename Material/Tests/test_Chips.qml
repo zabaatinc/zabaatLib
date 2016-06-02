@@ -6,9 +6,18 @@ Item {
     id : rootObject
     property real h : height * 0.07
     property real w : h * 4
+    property string coolImage : "http://img-cache.cdn.gaiaonline.com/2f45d08d3ccb85bcfbee269c8671a266/http://i155.photobucket.com/albums/s296/drunkonshadows2/Other/wolf.jpg"
 
 
-
+    ZImageButton {
+        source : coolImage
+        width : height
+        height : 128
+        anchors.centerIn: parent
+        z : Number.MAX_VALUE
+//        radius : height/2
+//        state : 'accent-circle'
+    }
 
     Column {
         width : parent.width / 2
@@ -111,7 +120,7 @@ Item {
             width  : w
             height : h
             text   : "Wolf"
-            label  : "http://img-cache.cdn.gaiaonline.com/2f45d08d3ccb85bcfbee269c8671a266/http://i155.photobucket.com/albums/s296/drunkonshadows2/Other/wolf.jpg"
+            label  : coolImage
             labelIsImage: true
             onClose: destroy()
         }
@@ -129,7 +138,7 @@ Item {
             width  : w
             height : h
             text   : "Wolf"
-            label  : "http://img-cache.cdn.gaiaonline.com/2f45d08d3ccb85bcfbee269c8671a266/http://i155.photobucket.com/albums/s296/drunkonshadows2/Other/wolf.jpg"
+            label  : coolImage
             state  : 'close'
             labelIsImage: true
             onClose: destroy()
