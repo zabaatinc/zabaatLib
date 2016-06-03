@@ -155,6 +155,7 @@ QtObject {
     property color text2    : get("text2"   )
     property color gray     : Qt.rgba(0,0,0)
 
+    property SvgColors names : SvgColors {  }
 
     property QtObject darker : QtObject {
         property color accent   : Qt.darker(accent )

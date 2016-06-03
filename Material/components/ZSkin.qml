@@ -48,6 +48,8 @@ spill1 - spill9 : spill of the ink from the knob (low to high)
 Item {
     id : rootObject
 
+    signal initialized()
+
     /*! The ZObject that has loaded this ZSkin as its skin \hr */
     property var    logic        : null         //the pointer to the parent logic itme
 
@@ -69,6 +71,13 @@ Item {
 
     /*! The position of the ZObject parent \hr */
     property alias radius         : rect.radius
+
+    /*! This allows the logic section (ZOBject) to call functions inside the skin! It's up to the skin to implement
+        the function the logic calls! Will always take two params (name, params). So ZObject can always call
+        something like : ZObject.skinFunc("fnName", {herp:derp} )
+
+    */
+    property var skinFunc : null
 
     /*! The container for colors that all ZObjects should use. The colors are the following:  \hr
         fill_Empty       : \b default : "transparent"
@@ -116,16 +125,19 @@ Item {
 //    focus : true
 
     Connections {
+        id : conn
+        property bool hasInit : false
+
         target          : logic ? logic : null
-        onStateChanged  : stateChangeOp(logic.state, logic.enabled)
-        onEnabledChanged: stateChangeOp(logic.state, logic.enabled)
+        onStateChanged  : { stimer.begin(logic.state, logic.enabled)  }
+        onEnabledChanged: { stimer.begin(logic.state, logic.enabled); }
     }
     onStatesChanged: {
         if(logic){
             if(logic.hasOwnProperty('font'))    cache.addFontStates()
             if(logic.hasOwnProperty('knob'))    cache.addKnobStates()
 
-            stateChangeOp(logic.state, logic.enabled)
+            stimer.begin(logic.state, logic.enabled)
         }
     }
     onLogicChanged: {
@@ -137,7 +149,7 @@ Item {
             if(rootObject.hasOwnProperty("knob"))
                 cache.addKnobStates()
 
-            stateChangeOp(logic.state, logic.enabled)
+            stimer.begin(logic.state, logic.enabled)
         }
     }
 
@@ -160,7 +172,7 @@ Item {
         }
 
         onReadyChanged : if(ready){
-                             stateChangeOp(state,enable,true)
+                             stimer.begin(state,enable,true)
                          }
 
 
@@ -587,6 +599,7 @@ Item {
     //Automatically adds borderStates and fontStates if there is a font in the rootLevel Object!!
     //these states are - b1-b10 , f1-f10, fw1-fw10      //fw means font size is dependent on the Width instead of height of the component
     function stateChangeOp(state, enabled, force){
+//        console.log(rootObject, 'setting state to', state)
         if(!force && state === cache.state && enabled === cache.enable)
             return;
 
@@ -602,6 +615,28 @@ Item {
 
         cache.state  = state
         cache.enable = enabled
+    }
+
+    Timer {
+         id : stimer
+         property string newstate : ""
+         property bool   newEnable : true
+         property bool   doForce   : false
+         interval : 5
+         onTriggered: {
+             rootObject.stateChangeOp(newstate,newEnable,doForce)
+              if(!conn.hasInit) {
+                  conn.hasInit = true;
+                  rootObject.initialized()
+              }
+         }
+
+         function begin(state,enabled,force){
+             newstate = state;
+             newEnable = enabled
+             doForce = force ? true : false
+             stimer.start()
+         }
     }
 
 

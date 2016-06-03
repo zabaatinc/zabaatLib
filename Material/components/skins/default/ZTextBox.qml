@@ -12,6 +12,75 @@ ZSkin {
     property alias gui  : gui
     readonly property alias isFocused : input.activeFocus
 
+    skinFunc : function(name, params) { //the logic may call this!!
+        var fn = guiLogic[name]
+        if(typeof fn === 'function')
+            return fn(params);
+        console.log(rootObject, 'has no skin function called', name)
+        return null;
+    }
+
+    QtObject  {
+        id : guiLogic
+        function copy()             { return input[arguments.callee.name]() }
+        function cut()              { return input[arguments.callee.name]() }
+        function deselect()         { return input[arguments.callee.name]() }
+        function undo()             { return input[arguments.callee.name]() }
+        function redo()             { return input[arguments.callee.name]() }
+        function paste()            { return input[arguments.callee.name]() }
+        function select(obj) {
+            if(obj && obj.start !== undefined && obj.end !== undefined) {
+                return input.select(obj.start, obj.end)
+            }
+            return null;
+        }
+        function selectAll()  { return input.selectAll()  }
+        function selectWord(obj) {
+            if(obj && typeof obj.num !== "undefined") {
+                var arr = input.text.split(" ")
+                var startAt = 0;
+                for(var i = 0; i < arr.length && i <= obj.num; i++) {
+                    var word = arr[i]
+                    if(typeof word === "undefined" || word === "") {
+                        obj.num++
+                    }
+                    else if(i !== obj.num){
+                        startAt += word.length
+                    }
+                    else if(i === obj.num ) {
+                        return input.select(startAt, startAt + word.length)
+                    }
+                    startAt++
+                }
+                return null;
+            }
+            return input.selectWord()
+        }
+        function selectedText() { return input.selectedText }
+        function removeWord(obj) {
+            if(obj && typeof obj.num !== "undefined") {
+                var arr = input.text.split(" ")
+                var startAt = 0;
+                for(var i = 0; i < arr.length && i <= obj.num; i++) {
+                    var word = arr[i]
+                    if(typeof word === "undefined" || word === "") {
+                        obj.num++
+                    }
+                    else if(i !== obj.num){
+                        startAt += word.length
+                    }
+                    else if(i === obj.num ) {
+                        //rempve the space before the word toO!
+                        return startAt !== 0 ? input.remove(startAt - 1, startAt + word.length) :
+                                               input.remove(startAt, startAt + word.length)
+                    }
+                    startAt++
+                }
+            }
+            return null;
+        }
+    }
+
     QtObject {
         id : graphicalOverride
         property real  barHeight     : 4

@@ -7,10 +7,16 @@ ZSkin {
     id : rootObject
     property alias font    : text.font
     property alias guiVars : guiVars
-    color : graphical.fill_Empty
+    color          : graphical.fill_Empty
     onWidthChanged : if(guiVars.dynamicScale && logic) {
                         logic.width = width
                      }
+    skinFunc : function(name, params) {
+        var fn = guiLogic[name]
+        if(typeof fn === 'function')
+            return fn(params)
+        return null;
+    }
 
     QtObject {
         id : guiVars
@@ -19,6 +25,25 @@ ZSkin {
         property color labelColor : Colors.success
         property real maskRadius : 0.5
         property bool dynamicScale : true
+    }
+
+    QtObject {
+        id : guiLogic
+        function setColor(params) {
+            if(params && params.color) {
+                var success = true;
+                try {
+                    graphical.fill_Default = params.color
+                }
+                catch(e) {
+                    console.log(rootObject, e)
+                    success = false;
+                }
+//                console.log("color = ", graphical.fill_Default , "is assigned")
+                return success;
+            }
+            return false;
+        }
     }
 
 

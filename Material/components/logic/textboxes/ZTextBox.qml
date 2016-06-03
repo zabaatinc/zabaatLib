@@ -18,23 +18,9 @@ ZObject {
     //so our text is validated upon startup!!
     onValidationFuncChanged: if(setTextFunc) setTextFunc(text, false, true)
     Component.onCompleted  : if(setTextFunc) setTextFunc(text, false, true)
-
-
     debug : false
 
-    function getUnformattedText(rtfText){
-        if(rtfText === null || typeof rtfText === 'undefined')
-            rtfText = text;
 
-        do {
-            var startIndex = rtfText.indexOf("<")
-            var endIndex   = rtfText.indexOf(">")
-            if(startIndex !== -1 && startIndex < endIndex )
-                rtfText = rtfText.substring(0,startIndex) + rtfText.substring(endIndex+ 1, rtfText.length);
-        }while(startIndex !== -1 && startIndex < endIndex )
-
-        return rtfText;
-    }
 
     property var setTextFunc : function(val, accept, override) {
         if(val !== text || accept || override) {
@@ -59,4 +45,40 @@ ZObject {
             }
         }
     }
+
+    function getUnformattedText(rtfText){
+        if(rtfText === null || typeof rtfText === 'undefined')
+            rtfText = text;
+
+        do {
+            var startIndex = rtfText.indexOf("<")
+            var endIndex   = rtfText.indexOf(">")
+            if(startIndex !== -1 && startIndex < endIndex )
+                rtfText = rtfText.substring(0,startIndex) + rtfText.substring(endIndex+ 1, rtfText.length);
+        }while(startIndex !== -1 && startIndex < endIndex )
+
+        return rtfText;
+    }
+    function copy()             { return skinFunc(arguments.callee.name) }
+    function cut()              { return skinFunc(arguments.callee.name) }
+    function deselect()         { return skinFunc(arguments.callee.name) }
+    function undo()             { return skinFunc(arguments.callee.name) }
+    function redo()             { return skinFunc(arguments.callee.name) }
+    function paste()            { return skinFunc(arguments.callee.name) }
+    function select(start, end) { return skinFunc(arguments.callee.name, {start:start,end:end}) }
+    function selectAll()        { return skinFunc(arguments.callee.name) }
+    function selectWord(num)    { return skinFunc(arguments.callee.name, {num:num } ) }
+    function removeWord(num)    { return skinFunc(arguments.callee.name, {num:num } ) }
+    function selectedText()     { return skinFunc(arguments.callee.name) }
+
+//    function getText(int start, int end)
+//    function insert(int position, string text)
+//    function isRightToLeft(int start, int end)
+//    function moveCursorSelection(int position, SelectionMode mode)
+//    function int positionAt(real x, real y, CursorPosition position)
+//    function rect positionToRectangle(int pos)
+//    function remove(int start, int end)
+
+
+
 }

@@ -22,6 +22,7 @@ FocusScope {
     /*! This is <b>VERY IMPORTANT<b>. This skin will be loaded!!  */
     objectName : ""
     signal imDying(var self);
+    signal skinLoaded();
     Component.onDestruction: imDying(rootObject);
 
 
@@ -81,6 +82,15 @@ FocusScope {
             console.log.apply(this,arguments)
     }
 
+    function skinFunc(name, params) {
+        if(styleLoader && styleLoader.item && styleLoader.item.skinFunc)
+            return styleLoader.item.skinFunc(name,params)
+//        console.log(rootObject, "'s selected skin", MaterialSettings.style.defaultSkin, " has no skinFunc defined")
+        return null;
+    }
+
+//signal internalSignal(string name, var params)  //use this to tell zskin to do stuff!
+
 
 
     /*! This loads the SKIN or the way the component will look. By default they should be in the folder :
@@ -90,7 +100,10 @@ FocusScope {
     Loader {
         id       : styleLoader
         objectName : "styleLoader"
-        onLoaded : item.logic = rootObject
+        onLoaded : {
+            item.logic = rootObject
+            item.initialized.connect(rootObject.skinLoaded)
+        }
         anchors.fill: parent
         focus       : true
 

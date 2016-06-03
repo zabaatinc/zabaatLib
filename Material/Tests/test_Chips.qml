@@ -9,34 +9,49 @@ Item {
     property string coolImage : "http://img-cache.cdn.gaiaonline.com/2f45d08d3ccb85bcfbee269c8671a266/http://i155.photobucket.com/albums/s296/drunkonshadows2/Other/wolf.jpg"
 
 
-    ZImageButton {
-        source : coolImage
-        width : height
-        height : 128
-        anchors.centerIn: parent
-        z : Number.MAX_VALUE
-//        radius : height/2
-//        state : 'accent-circle'
-    }
+//    ZImageButton {
+//        source : coolImage
+//        width : height
+//        height : 128
+//        anchors.centerIn: parent
+//        z : Number.MAX_VALUE
+////        radius : height/2
+////        state : 'accent-circle'
+//    }
 
     Column {
         width : parent.width / 2
         height : parent.height * 0.1
         anchors.horizontalCenter: parent.horizontalCenter
-        ZTextBox {
+        Item {
             width : parent.width
             height : parent.height/2
-            property string name : "f1text"
-            onAccepted : {
-                console.log('on accepted')
-                var chip = chipFactory.createObject(col);
-                chip.text = text;
+            ZTextBox {
+                id : chipMaker
+                anchors.fill: parent
+                property string name : "f1text"
+                onAccepted : {
+//                    console.log('on accepted')
+                    var chip = chipFactory.createObject(col);
+                    chip.text = text;
 
-                chip.state = hasClose.state !== '' ? 'close' : ""
-                chip.labelIsImage = true;
+                    chip.state = hasClose.state !== '' ? 'close' : ""
+                    chip.labelIsImage = true;
+                }
+                state : 'b1-f1'
             }
-            state : 'b1-f1'
+            ZButton {
+                width : height
+                height : parent.height
+                anchors.left: chipMaker.right
+                onClicked : chipMaker.selectWord(1);
+                text : "SELECT"
+            }
         }
+
+
+
+
         Row {
             width : parent.width
             height : parent.height/2
@@ -63,9 +78,6 @@ Item {
         }
 
     }
-
-
-
     Component {
         id : chipFactory
         ZChip {
@@ -85,10 +97,17 @@ Item {
         ZChipBox {
             width : w
             height : h
-
             chipState: "square-close"
             chipCloseButtonState: "transparent-f2"
             chipCloseButtonText: "X"
+//            textBoxState: "b3"
+
+            chipModifierFunc: function(name,item) {
+                if(Colors.names[name]) {
+                    item.setColor(Colors.names[name])
+                }
+            }
+
 
         }
 
