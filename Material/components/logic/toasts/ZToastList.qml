@@ -20,8 +20,9 @@ ZToastSimple {
     }
 
 //    property string textAccept : "Ok"
-    property string textCancel : "Cancel"
-    property string label      : ""
+    property string textCancel     : "Cancel"
+    property string label          : ""
+
 
     property var acceptFunc        : null
     property var cancelFunc        : null

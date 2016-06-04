@@ -104,6 +104,17 @@ ZSkin {
             height          : centerCondition ? h - label.font.pixelSize : h
             anchors.centerIn: centerCondition ? undefined : parent
             anchors.bottom  : centerCondition ? botBar.top : undefined
+            onCenterConditionChanged: {
+                if(centerCondition){
+                    anchors.bottom  = undefined
+                    anchors.centerIn  = gui
+                }
+                else {
+                    anchors.centerIn  = undefined
+                    anchors.bottom  = botBar.top
+                }
+            }
+
             focus : false
 
             property alias text : text
@@ -202,12 +213,12 @@ ZSkin {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: height/2
             color         : Colors.getContrastingColor(thickerBar.color,1.2)
-            focus : false
+            focus         : false
 
             Rectangle {
                 id : thickerBar
                 width : parent.width
-                height : parent.height + 3      //the plus should be an odd number :)
+                height : graphicalOverride.barHeight ?  parent.height + 3 : 0    //the plus should be an odd number :)
 
                 anchors.verticalCenter: parent.verticalCenter
                 color : error.text === "" ?  graphical.fill_Focus : Colors.danger

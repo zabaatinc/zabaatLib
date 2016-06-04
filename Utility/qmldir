@@ -11,6 +11,8 @@ ZGestureArea 		1.0 components/ZGestureArea/v10/ZGestureArea.qml
 ZSubModel			1.0 components/ZSubModel/v100/ZSubModel.qml
 ZSubModel 			1.1 components/ZSubModel/v101/ZSubModel.qml
 GenericHeader		1.0 components/GenericHeader/v10/GenericHeader.qml
+ObjectEditor		1.0 components/ObjectEditor/v10/ObjectEditor.qml
+FancyLoader			1.0 components/FancyLoader/FancyLoader.qml
 Moment		  		1.0 functions/Moment/moment.js
 plugin submodel
 typeinfo plugins.qmltypes

@@ -14,6 +14,7 @@ ZObject{
     property string text             : ""
     property alias  duration         : destructionTimer.interval        //-1 is permanent
     property string closeButtonState : "danger-f2-t2"
+    property string closeButtonText  : FA.close
 
     property var    autoCloseFunc    : null
     property var    cb               : null //happens on destruction if provided!

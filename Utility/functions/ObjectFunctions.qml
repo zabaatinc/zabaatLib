@@ -59,9 +59,114 @@ QtObject {
         }
         return true
     }
+
+
+    function deepSet(obj, propStr, value) {
+        var success = true;
+        var isFunc  = typeof value === 'function'
+
+        if(isUndef(obj, propStr))
+            return false
+
+        if(propStr === "") {
+            try {
+                obj = isFunc ? Qt.binding(value) : value
+            }catch(e) {
+                success = false;
+                console.log(rootObject, e, "unable to set", obj, 'to', value)
+            }
+            return success
+        }
+
+//            console.log(propStr)
+        var propArray = []
+
+        if(typeof propStr === "string"){
+            //turn this into a nice array that we can just walk over!!
+            //[1]foo.bar[0].green[0]
+
+            //first lets convert the []s into dots
+            while(propStr.indexOf("[") !== -1){
+                var startIdx = propStr.indexOf("[")
+                var endIdx   = propStr.indexOf("]")
+
+                if(startIdx +1  !== endIdx ){
+                    var varname = propStr.slice(startIdx+1, endIdx )
+                    propArray.push(varname)
+//                        console.log(varname)
+                    //remove the whole between [ and ]
+                }
+                propStr = propStr.replace(propStr.slice(startIdx, endIdx +1)  , "@")
+//                    console.log(propStr)
+            }
+
+            //now subdivide on "."
+            propStr            = propStr.split(".")
+            var propArrCounter = propArray.length - 1
+            for(var i = propStr.length - 1; i >= 0; i--){
+
+                while(propStr[i].indexOf("@") !== -1){
+                    varname = propStr[i]
+                    var idx = propStr[i].indexOf("@")
+                    if(idx !== -1){
+                        if(idx === 0){  //insert var before
+                            propStr[i] = varname.slice(1)
+                            propStr.splice(i,0, propArray[propArrCounter])
+                            propArrCounter--
+                        }
+                        else{           //insert var after (this is at the end)
+                           propStr[i] = varname.slice(0,-1)
+                           propStr.splice(i+1,0, propArray[propArrCounter])
+                           propArrCounter--
+                        }
+                    }
+                }
+            }
+        }
+        propArray = propStr
+//            console.log("end = > ", propArray)
+
+        var currentPropsWalked = ""
+        if(isDef(obj,propArray)){
+            //iterate!!
+            var objPtr = obj
+            for(var p = 0; p < propArray.length; ++p){
+                var prop = propArray[p]
+                currentPropsWalked += currentPropsWalked === "" ? prop : "." + prop
+                if(isDef(objPtr[prop])){
+
+                    if(p !== propArray.length -1 ){
+                        objPtr = objPtr[prop]
+                    }
+                    else {
+
+                        try {
+                            objPtr[prop] = isFunc ? Qt.binding(value) : value
+                        }catch(e) {
+                            console.log(rootObject, e, "unable to set", obj , ".", currentPropsWalked, 'to', value)
+                            success = false;
+
+                        }
+                        return success;
+                    }
+                }
+                else {
+                    return false
+                }
+            }
+            return objPtr
+        }
+        else
+            return false
+    }
+
+
     function deepGet(obj, propStr){
         if(isUndef(obj, propStr))
             return null
+
+        if(propStr === "")
+            return obj
 
 //            console.log(propStr)
         var propArray = []

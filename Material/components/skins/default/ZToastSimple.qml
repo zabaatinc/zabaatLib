@@ -13,6 +13,12 @@ ZSkin {
     property alias closeButton   : closeButton
     property alias notext : textContainer.notext
     property alias notitle : textContainer.notitle
+    property alias guiLogic : guiLogic
+    QtObject {
+        id : guiLogic
+        property real cellHeight : 0.2
+        property int closeBtnPos : 0
+    }
 
     MouseArea {
         anchors.fill: parent
@@ -144,14 +150,15 @@ ZSkin {
         }
         ZButton {
             id : closeButton
-            anchors.right  : parent.right
+            anchors.right  : guiLogic.closeBtnPos === 0  ?  parent.right : undefined
+            anchors.left   : guiLogic.closeBtnPos === 1  ?  parent.left : undefined
             anchors.top    : parent.top
             anchors.margins: 5
             state          : logic ? logic.closeButtonState : "default"
-            text           : FA.close
+            text           : logic ? logic.closeButtonText  : FA.close
             onClicked      : if(logic) logic.attemptDestruction()
             width  : height
-            height : parent.height * 0.1
+            height : parent.height * guiLogic.cellHeight
 
         }
 
@@ -174,7 +181,62 @@ ZSkin {
          "nodynamicscale" : {"textContainer" : { dynamicScale:false} } ,
          "multiline" : {"textContainer" : { dynamicScale:false} } ,
          "notext"    : {"textContainer" : { notext:true} } ,
-         "notitle"   : {"textContainer" : { notitle:true} }
+         "notitle"   : {"textContainer" : { notitle:true} } ,
+          "closeleft"   :  { "guiLogic" : { "closeBtnPos" : 0   }  } ,
+          "closeright"  :  { "guiLogic" : { "closeBtnPos" : 1   }  } ,
+          "h005"  :  { "guiLogic" : { "cellHeight" : 0.05   }  } ,
+          "h006"  :  { "guiLogic" : { "cellHeight" : 0.06   }  } ,
+          "h007"  :  { "guiLogic" : { "cellHeight" : 0.07   }  } ,
+          "h008"  :  { "guiLogic" : { "cellHeight" : 0.08   }  } ,
+          "h009"  :  { "guiLogic" : { "cellHeight" : 0.09   }  } ,
+          "h01"   :  { "guiLogic" : { "cellHeight" : 0.10   }  } ,
+          "h010"  :  { "guiLogic" : { "cellHeight" : 0.10   }  } ,
+          "h011"  :  { "guiLogic" : { "cellHeight" : 0.11   }  } ,
+          "h012"  :  { "guiLogic" : { "cellHeight" : 0.12   }  } ,
+          "h013"  :  { "guiLogic" : { "cellHeight" : 0.13   }  } ,
+          "h014"  :  { "guiLogic" : { "cellHeight" : 0.14   }  } ,
+          "h015"  :  { "guiLogic" : { "cellHeight" : 0.15   }  } ,
+          "h016"  :  { "guiLogic" : { "cellHeight" : 0.16   }  } ,
+          "h017"  :  { "guiLogic" : { "cellHeight" : 0.17   }  } ,
+          "h018"  :  { "guiLogic" : { "cellHeight" : 0.18   }  } ,
+          "h019"  :  { "guiLogic" : { "cellHeight" : 0.19   }  } ,
+          "h020"  :  { "guiLogic" : { "cellHeight" : 0.20   }  } ,
+          "h021"  :  { "guiLogic" : { "cellHeight" : 0.21   }  } ,
+          "h022"  :  { "guiLogic" : { "cellHeight" : 0.22   }  } ,
+          "h023"  :  { "guiLogic" : { "cellHeight" : 0.23   }  } ,
+          "h024"  :  { "guiLogic" : { "cellHeight" : 0.24   }  } ,
+          "h025"  :  { "guiLogic" : { "cellHeight" : 0.25   }  } ,
+          "h11"  :  { "guiLogic" : { "cellHeight" : 0.11   }  } ,
+          "h12"  :  { "guiLogic" : { "cellHeight" : 0.12   }  } ,
+          "h13"  :  { "guiLogic" : { "cellHeight" : 0.13   }  } ,
+          "h14"  :  { "guiLogic" : { "cellHeight" : 0.14   }  } ,
+          "h15"  :  { "guiLogic" : { "cellHeight" : 0.15   }  } ,
+          "h16"  :  { "guiLogic" : { "cellHeight" : 0.16   }  } ,
+          "h17"  :  { "guiLogic" : { "cellHeight" : 0.17   }  } ,
+          "h18"  :  { "guiLogic" : { "cellHeight" : 0.18   }  } ,
+          "h19"  :  { "guiLogic" : { "cellHeight" : 0.19   }  } ,
+          "h20"  :  { "guiLogic" : { "cellHeight" : 0.20   }  } ,
+          "h20"  :  { "guiLogic" : { "cellHeight" : 0.20   }  } ,
+          "h21"  :  { "guiLogic" : { "cellHeight" : 0.21   }  } ,
+          "h22"  :  { "guiLogic" : { "cellHeight" : 0.22   }  } ,
+          "h23"  :  { "guiLogic" : { "cellHeight" : 0.23   }  } ,
+          "h24"  :  { "guiLogic" : { "cellHeight" : 0.24   }  } ,
+          "h25"  :  { "guiLogic" : { "cellHeight" : 0.25   }  } ,
+          "h26"  :  { "guiLogic" : { "cellHeight" : 0.26   }  } ,
+          "h27"  :  { "guiLogic" : { "cellHeight" : 0.27   }  } ,
+          "h28"  :  { "guiLogic" : { "cellHeight" : 0.28   }  } ,
+          "h29"  :  { "guiLogic" : { "cellHeight" : 0.29   }  } ,
+          "h30"  :  { "guiLogic" : { "cellHeight" : 0.30   }  } ,
+          "h31"  :  { "guiLogic" : { "cellHeight" : 0.31   }  } ,
+          "h32"  :  { "guiLogic" : { "cellHeight" : 0.32   }  } ,
+          "h33"  :  { "guiLogic" : { "cellHeight" : 0.33   }  } ,
+          "h34"  :  { "guiLogic" : { "cellHeight" : 0.34   }  } ,
+          "h35"  :  { "guiLogic" : { "cellHeight" : 0.35   }  } ,
+          "h36"  :  { "guiLogic" : { "cellHeight" : 0.36   }  } ,
+          "h37"  :  { "guiLogic" : { "cellHeight" : 0.37   }  } ,
+          "h38"  :  { "guiLogic" : { "cellHeight" : 0.38   }  } ,
+          "h39"  :  { "guiLogic" : { "cellHeight" : 0.39   }  } ,
+          "h40"  :  { "guiLogic" : { "cellHeight" : 0.40   }  }
     })
 
 

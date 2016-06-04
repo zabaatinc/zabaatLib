@@ -95,7 +95,7 @@ Item {
 
         function isStdJsType(obj){
             var t = typeof obj
-            if(obj === null || t === 'undefined' || t === 'boolean' || t === 'number' || t === 'string' || toString.call(t) === '[object Date]' )
+            if(obj === null || t === 'undefined' || t === 'boolean' || t === 'number' || t === 'string' || toString.call(obj) === '[object Date]' )
                 return true;
             return false;
         }
@@ -134,7 +134,7 @@ Item {
 
 //                    console.log(rootObject.name , key)
                     var r = logic.rootType.toLowerCase()
-                    if(r.indexOf('modelNode') !== -1){
+                    if(r.indexOf('modelnode') !== -1 || r.indexOf("modelobject") !== -1){
 //                        console.log("\tmNode")
                         return obj[key]
                     }
@@ -162,7 +162,7 @@ Item {
                         return type;
 
                     var typestr = value.toString().toLowerCase()
-                    if(typestr.indexOf('modelnode') !== -1) {
+                    if(typestr.indexOf('modelnode') !== -1 || typestr.indexOf("modelobject") !== -1) {
                         return type + " (" + fnObj.getProperties(value, logic.excludeList, "__").length + ")"
                     }
 
