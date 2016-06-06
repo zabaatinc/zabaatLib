@@ -203,11 +203,12 @@ Item
            priv.models[modelName] = lm                                 //add this new model to our list
            __appendToModel(modelName,model)
 
-           priv.checkCallbacks(modelName,tabStr + "\t")        //check if anything has requested this model!
+
 //           console.log(rootObject, "New model made",modelName)
 
 //           if(modelName === "workorders")
 //               __printObject(priv.models[modelName])
+           priv.checkCallbacks(modelName,tabStr + "\t")        //check if anything has requested this model!
            rootObject.newModelAdded(modelName, ++priv.modelCount); //emit that a new model was added!
        }
        else
@@ -337,7 +338,7 @@ Item
            }
 
            //check if anything has requested this model!
-           priv.checkCallbacks(name,tabStr + "\t")
+//           priv.checkCallbacks(name,tabStr + "\t")
        }
 
 

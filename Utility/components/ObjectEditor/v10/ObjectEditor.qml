@@ -353,25 +353,27 @@ Item {
                 id: titleRect
                 width : parent.width
                 height : cellHeight * 1.1
+                Loader {
+                    anchors.fill    : parent
+                    sourceComponent : label.component
+                    onLoaded        : item[label.valueProperty] = title
+                    property var ss : title
+                    onSsChanged: if(item) item[label.valueProperty] = ss
+                }
                 Loader { //button
                     width : parent.height
                     height : parent.height
                     sourceComponent: button.component
                     onLoaded : {
-                        item[button.valueProperty] = ss
+                        item[button.valueProperty] = button.textShallower
                         item.clicked.connect(rootObject.close)
                     }
                     property var ss: button.textShallower
-                    onSsChanged: if(item) item[button.valueProperty] = ss;
+                    onSsChanged: if(item) {
+                                     item[button.valueProperty] = ss;
+                                 }
                 }
 
-                Loader {
-                    anchors.fill: parent
-                    sourceComponent : label.component
-                    onLoaded : {
-                        item[label.valueProperty] = title
-                    }
-                }
 
                 Rectangle {
                     anchors.fill: parent
@@ -380,6 +382,7 @@ Item {
                     border.color: rootObject.border.color
                 }
 
+                z : Number.MAX_VALUE
             }
             Item {
                 width  : parent.width
@@ -413,7 +416,9 @@ Item {
                             if(origValue === undefined)                         return "undefined"
                             if(typeof origValue === 'string')                   return "string"
                             if(toString.call(origValue) === "[object Date]")    return "date"
-                                                                                return type;
+
+//                            console.log(origValue,type)
+                            return type;
                         }
 
                         property var mConf     : key && logic.thisConf && logic.thisConf[key] ? logic.thisConf[key] : null
@@ -542,10 +547,11 @@ Item {
                             }
                         }
 
-                        Text {
-                            anchors.fill: parent
-                            text : del.typeText
-                        }
+//                        Text {
+//                            anchors.fill: parent
+//                            text : del.typeText
+//                            visible  : rootObject.debugMode
+//                        }
                         Rectangle {
                             anchors.fill: parent
                             color : 'transparent'
