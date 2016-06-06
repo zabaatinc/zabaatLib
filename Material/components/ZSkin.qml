@@ -342,6 +342,22 @@ Item {
             cache.fontsAdded = true;
         }
         function addGraphicalStates() {
+            cache.injectState("standard","graphical", {
+               "fill_Empty"      : "transparent",
+               "@fill_Default"   : [Colors,"standard"],
+               "@text_Default"   : [Colors,"text1"],
+               "@fill_Press"     : [Colors,"accent"],
+               "@text_Press"     : [Colors,"text2"],
+               "@fill_Focus"     : [Colors.lighter, "accent"],
+               "@text_Focus"     : [Colors,"text2"],
+               "@inkColor"       : [Colors,"accent"],
+               "@borderColor"    : [Colors,"text1"],
+               "inkOpacity"      : 1,
+               "text_hAlignment" : Text.AlignHCenter,
+               "text_vAlignment" : Text.AlignVCenter,
+               "fill_Opacity"    : 1
+            })
+
             cache.injectState("default","graphical", {
                "fill_Empty"      : "transparent",
                "@fill_Default"   : [Colors,"standard"],
