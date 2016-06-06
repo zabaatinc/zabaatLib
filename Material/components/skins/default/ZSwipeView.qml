@@ -274,7 +274,7 @@ ZSkin {
                 onIsPressedChanged:  if(!isPressed) {   //same as is released!
                     var idx = lvHeader.isHorizontal ? lvHeader.indexAt(lvHeader.contentX + mouseX, mouseY) :
                                                       lvHeader.indexAt(mouseX, lvHeader.contentY + mouseY)
-                    console.log(idx)
+//                    console.log(idx)
                     if(idx !== -1){
                         var item = lvHeader.delegateInstanceAt(idx);
                         if(!item || !item.hasOnClickHandler) {
