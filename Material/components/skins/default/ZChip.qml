@@ -177,8 +177,6 @@ ZSkin {
                 onTextChanged : if(guiVars.dynamicScale) {
 
                                 }
-
-
             }
 
         }
@@ -199,7 +197,7 @@ ZSkin {
             width  : height
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: semi2.left
-            anchors.leftMargin: -width/2
+            anchors.leftMargin: -width/4
             text   : logic? logic.closeButtonText : "close"
             onClicked : if(logic)
                             logic.close()

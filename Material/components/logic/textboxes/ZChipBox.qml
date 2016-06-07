@@ -1,4 +1,5 @@
 import Zabaat.Material 1.0
+import QtQuick 2.5
 ZObject {
     id : rootObject
     objectName : "ZChipBox"
@@ -6,7 +7,7 @@ ZObject {
     property string label                : ""
     property string text                 : ""
     property var    chips                : []
-    property var    chipModifierFunc     : null
+    property var    chipModifierFunc
 
     property string chipState            : "close"
     property string chipCloseButtonState : 'disabled-circle-f2'
@@ -15,6 +16,16 @@ ZObject {
 
 
     onTextChanged : if(typeof chipMakerFunc === 'function'){
+//                        var newChips = chipMakerFunc(text);
+////                        console.log("text change happening", newChips)
+//                        if(newChips) {
+////                            console.log(chips, "CMP" ,newChips)
+//                            if(!priv.arraysEqual(chips,newChips))
+//                                chips = newChips
+//                        }
+//                        else {
+//                            chips = []
+//                        }
                         chips = chipMakerFunc(text);
                     }
 
@@ -49,15 +60,28 @@ ZObject {
             refresh()
         }
     }
-    function setText(text) {
-        if(chipMakerFunc) {
-            rootObject.text = text;
-            chips = chipMakerFunc(text);
-        }
+
+    function getInputMode(){
+        return skinFunc('getInputMode')
     }
 
 
+    QtObject {
+        id : priv
+        function arraysEqual(a, b) {
+          if (a === b) return true;
+          if (a == null || b == null) return false;
+          if (a.length != b.length) return false;
 
+          // If you don't care about the order of the elements inside
+          // the array, you should sort both arrays here.
+
+          for (var i = 0; i < a.length; ++i) {
+            if (a[i] !== b[i]) return false;
+          }
+          return true;
+        }
+    }
 
 
 }

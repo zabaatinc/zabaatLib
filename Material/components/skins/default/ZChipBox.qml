@@ -4,11 +4,10 @@ import Zabaat.Utility 1.0
 ZSkin {
     id : rootObject
     clip : true
-    property alias guiVars : guiVars
-
     onLogicChanged: if(logic && textBox.text){
                         textBox.text = logic.text
                     }
+    color : graphical.fill_Default
 
     skinFunc : function(name, params) {
         var fn = guiLogic[name]
@@ -18,19 +17,18 @@ ZSkin {
     }
 
 
-    QtObject  {
-        id : guiVars
-
-
-    }
     QtObject {
         id : guiLogic
 
-        property bool inputMode : false
+        property bool inputMode : lv.count === 0 ? true : false
 
         function selectWord(wordNum) {
             guiLogic.inputMode = true;
             textBox.selectWord(wordNum)
+        }
+
+        function getInputMode() {
+            return textBox.visible ?  1 : 0
         }
 
     }
@@ -45,7 +43,7 @@ ZSkin {
             state         : logic ? logic.textBoxState : ""
             label         : logic ? logic.label : ""
             onAccepted    : if(logic) {
-                                logic.setText(text)
+                                logic.text = text
                                 guiLogic.inputMode = false;
 
                             }
