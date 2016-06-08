@@ -25,7 +25,7 @@ ZSkin {
             horizontalAlignment: graphical.text_hAlignment
             verticalAlignment  : graphical.text_vAlignment
             font.family        : logic.font1
-            font.pixelSize     : parent.height * 1/4
+            font.pixelSize     : parent ? parent.height * 1/4  : 10
             text               : "@__@"
             color              : Colors.text1
             textFormat         : Text.PlainText

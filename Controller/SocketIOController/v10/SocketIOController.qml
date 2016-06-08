@@ -337,22 +337,23 @@ ZController {
                     controller.addModel(modelToUpdate, response.data);
 
                 if(typeof callback === 'function') {
+                    callback(response);
 
-                    try {
-                        callback(response);
-    //                            if(type === 'get')    callback(response[0]);  //TODO fix this later! :)
-    //                            else                  callback(response);     //they should all behave the same way
-                    }
-                    catch(e){
-                        console.log("BZZT BZZT BLOOP TI DOOP", socketHandler,type, ":","Error when executing callback for", url, e)
-                        if(errHandler){
-                            errHandler({ msg: "Error when executing callback",
-                                         "for" : uri,
-                                         response : response ,
-                                         callback : callback
-                                       });
-                        }
-                    }
+//                    try {
+//                        callback(response);
+//    //                            if(type === 'get')    callback(response[0]);  //TODO fix this later! :)
+//    //                            else                  callback(response);     //they should all behave the same way
+//                    }
+//                    catch(e){
+//                        console.log("BZZT BZZT BLOOP TI DOOP", socketHandler,type, ":","Error when executing callback for", url, e)
+//                        if(errHandler){
+//                            errHandler({ msg: "Error when executing callback",
+//                                         "for" : uri,
+//                                         response : response ,
+//                                         callback : callback
+//                                       });
+//                        }
+//                    }
 
                 }
             }
