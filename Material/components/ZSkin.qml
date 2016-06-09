@@ -489,8 +489,8 @@ Item {
                                   inkOpacity : 0.5
                             })
 
-            cache.injectState("ghostAlt","rootObject", {"border.width" : 1 })
-            cache.injectState("ghostAlt","graphical" , {
+            cache.injectState("ghostalt","rootObject", {"border.width" : 1 })
+            cache.injectState("ghostalt","graphical" , {
                                   "fill_Default" : "transparent",
                                   "@text_Default": [Colors,"text2"],
                                   "@fill_Press"  : [Colors.lighter,"success"],

@@ -83,7 +83,7 @@ ZSkin {
 
     QtObject {
         id : graphicalOverride
-        property real  barHeight     : 4
+        property real  barHeight     : 2
         property int label_hAlignment : Text.AlignHCenter
         property int label_vAlignment : Text.AlignVCenter
     }
@@ -257,7 +257,7 @@ ZSkin {
                                       } ,
                         graphical : { "fill_Default" : "transparent" } ,
                         "graphicalOverride" : {
-                          "barHeight" : 4,
+                          "barHeight" : 2,
                           label_hAlignment : Text.AlignHCenter,
                           label_vAlignment : Text.AlignVCenter
                          },
