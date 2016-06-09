@@ -489,6 +489,19 @@ Item {
                                   inkOpacity : 0.5
                             })
 
+            cache.injectState("ghostAlt","rootObject", {"border.width" : 1 })
+            cache.injectState("ghostAlt","graphical" , {
+                                  "fill_Default" : "transparent",
+                                  "@text_Default": [Colors,"text2"],
+                                  "@fill_Press"  : [Colors.lighter,"success"],
+                                  "@text_Press"  : [Colors,"text1"],
+                                  "@fill_Focus"  : [Colors,"success"],
+                                  "@text_Focus"  : [Colors,"text1"],
+                                  "@inkColor"    : [Colors,"text2"],
+                                  "@borderColor" : [Colors,"text2"],
+                                  inkOpacity : 0.5
+                            })
+
 
             cache.injectState("transparent", "rootObject", {"border.width" : 0})
             cache.injectState("transparent", "graphical" , {
