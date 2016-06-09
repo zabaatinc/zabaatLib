@@ -216,6 +216,8 @@ ZSkin {
                                 item.title = Qt.binding(function() { return myItem && myItem.title ? myItem.title : "" })
                             else if(item.hasOwnProperty('text'))
                                 item.text = Qt.binding(function() { return myItem && myItem.title ? myItem.title : "" })
+                            if(item.hasOwnProperty('index'))
+                                item.index = Qt.binding(function() { return lvHeaderLoader._index })
 
                             if(typeof item.clicked === 'function') {
                                 item.clicked.connect(function(){

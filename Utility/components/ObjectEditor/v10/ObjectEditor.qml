@@ -67,6 +67,7 @@ Item {
     property alias  logic         : logic
     property bool   centered      : false
     property int    animDuration  : 333
+    property bool   hideTitle     : false
 
     property alias string : str
     property alias label  : label
@@ -76,7 +77,6 @@ Item {
     property alias image  : image
     property alias button : button
     property alias func   : func
-
     property alias border : border
 
     signal change(var obj, string location , var value)
@@ -351,8 +351,10 @@ Item {
 
             Item {
                 id: titleRect
-                width : parent.width
-                height : cellHeight * 1.1
+                width   : parent.width
+                height  : !hideTitle ? cellHeight * 1.1 : 0
+                visible : !hideTitle
+
                 Loader {
                     anchors.fill    : parent
                     sourceComponent : label.component
