@@ -367,8 +367,9 @@ ZController {
         id : socketHandler
         onServerResponse: {
             var jsRes = priv.parseAndCheck(value,"",cbId)
-//            if(eventName === "/sub/interact")
+//            if(eventName.indexOf("user") === 0 && JSON.stringify(value).indexOf("572a76c905fdb1545abab84b") !== -1) {
 //                console.log(eventName, JSON.stringify(jsRes,null,2))
+//            }
 
             if(logic.isArray(jsRes))        jsRes = jsRes[0]
             if(jsRes.statusCode && !jsRes.statusCode === "200" && !jsRes.statusCode === "201")  {
