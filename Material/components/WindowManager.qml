@@ -15,7 +15,7 @@ Item {
     readonly property alias jsObj : logic.js
     readonly property alias json  : logic.json
 
-    property QtObject __private__ : QtObject {
+    QtObject {
         id : logic
         property var mainWindow : null
         property var map        : ({})

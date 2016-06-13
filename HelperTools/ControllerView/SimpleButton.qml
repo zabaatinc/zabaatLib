@@ -8,6 +8,7 @@ Rectangle {
     property alias textColor : t.color
     property alias text      : t.text
     property alias font      : t.font
+    property alias paintedWidth : t.paintedWidth
     signal clicked();
     Text {
         id : t

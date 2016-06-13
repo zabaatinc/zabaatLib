@@ -14,12 +14,12 @@ ZController {
 //    modelTransformerFunctions   : ({ books : priv.transformBooks })
     /*! apparently never gets called \hr*/
     signal statusUpdate  (string status, int reconnectTimer)
+    signal info(string msg);
+    signal error(string msg);
+    signal warning(string msg);
+    signal reqSent    (string id, string type, string url, var params)
+    signal resReceived(string id, string type, string url, var res)
 
-    /*! Update message was recevied (verb was update or updated) \hr*/
-    signal updateReceived(string updatedModel, string updatedId)
-
-    /*! Create message was received (verb was create or created) \hr*/
-    signal createReceived(string createdModel, string createdId)
 
     /*! A function that can display errors if XhrController encounters any. \b default : null \hr */
     property var    errHandler            : null   //works on postReqs
@@ -84,9 +84,7 @@ ZController {
     /*! fn : Remove event that we are listening to   \hr */
     readonly property var   removeEvent     : socketHandler.removeEvent
 
-    signal info(string msg);
-    signal error(string msg);
-    signal warning(string msg);
+
 
 
     onSendGetModelRequest: {
@@ -308,7 +306,9 @@ ZController {
 
 
 //            console.log("sails" + type, url.toString(), params ? params.id : "")
+            //emit signal for debugging
             var cbId = socketHandler["sails" + type](url.toString(), JSON.stringify(params));
+            reqSent(cbId,type,url,params)
             priv.cbObjects[cbId] = {
                 callback : callback,
                 type: type ,
@@ -412,6 +412,8 @@ ZController {
             if(cbId !== "") {
                 var cbObj = priv.cbObjects[cbId]
                 if(cbObj) {
+                    //emit signal that res was received!
+                    resReceived(cbId, cbObj.type, cbObj.url, jsRes);
                     priv.cbHandlerFunc(jsRes,  cbObj.callback, cbObj.type, cbObj.url, cbObj.modelToUpdate)
                     delete priv.cbObjects[cbId]
                 }
@@ -507,7 +509,6 @@ ZController {
                                                                                            //or the whole item. In any case, appendToModel should take care of it
                                                                                            //But it does much more instructions so we only call it if we have to
                                 createReceived(modelName, message.data.id)
-
                                 debug.debugMsg("finished handling update message received on",modelName + "." + message.id)
                                 break;
 
@@ -520,7 +521,6 @@ ZController {
                                                                                            //or the whole item. In any case, appendToModel should take care of it
                                                                                            //But it does much more instructions so we only call it if we have to
                                 createReceived(modelName, message.data.id)
-
                                 debug.debugMsg("finished handling update message received on",modelName + "." + message.id)
                                 break;
 

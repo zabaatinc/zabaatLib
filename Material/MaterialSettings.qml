@@ -51,9 +51,13 @@ Item {
         id : settings_Units
         property real pixelDensity : 4.3
         property real scaleMulti   : 1.45
+        property real defaultWidth : 1920   //Pages are inited to this
+        property real defaultHeight: 1080   //Pages are inited to this
 
-        onPixelDensityChanged: Units.pixelDensity = pixelDensity
-        onScaleMultiChanged: Units.multiplier     = scaleMulti
+        onPixelDensityChanged : Units.pixelDensity  = pixelDensity
+        onScaleMultiChanged   : Units.multiplier    = scaleMulti
+        onDefaultWidthChanged : Units.defaultWidth  = defaultWidth
+        onDefaultHeightChanged: Units.defaultHeight = defaultHeight
     }
 
     QtObject {

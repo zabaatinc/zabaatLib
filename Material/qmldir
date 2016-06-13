@@ -8,6 +8,7 @@ singleton Units				1.0 ./components/Units.qml
 singleton ZStateHandler		1.0 ./components/ZStateHandler.qml
 singleton Toasts		 	1.0 ./components/Toasts.qml
 singleton WindowManager 	1.0 ./components/WindowManager.qml
+ZPage						1.0 ./components/ZPage.qml
 ZObject						1.0 ./components/ZObject.qml
 ZEdit						1.0 ./components/ZEdit.qml
 ZSkin						1.0 ./components/ZSkin.qml

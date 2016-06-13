@@ -12,6 +12,14 @@ Item
 
     /*! request to get model <modelName> . Both XhrController and SocketIOController act to this request  \hr */
     signal sendGetModelRequest(string modelName)
+    signal newModelAdded(string modelName, int count);
+
+    /*! Update message was recevied (verb was update or updated) \hr*/
+    signal updateReceived(string updatedModel, string updatedId)
+
+    /*! Create message was received (verb was create or created) \hr*/
+    signal createReceived(string createdModel, string createdId)
+
 
     /*! A function to log debug messages. Can be null. We have an internal one by default.  \hr */
     property var externalDebugFunc         : null
@@ -28,7 +36,7 @@ Item
     /*! Functions to transform specific models && model objects as they arrive. Determined by key. \hr */
     property var modelTransformerFunctions : ({})
 
-    signal newModelAdded(string modelName, int count);
+
 
     property alias modelCount : priv.modelCount
 

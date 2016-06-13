@@ -30,6 +30,9 @@ QtObject {
     property real pixelDensity: 4.46
     property real multiplier  : 1.4 //default multiplier, but can be changed by user
 
+    property real defaultWidth : 1920
+    property real defaultHeight : 1080
+
     /*!
        This is the standard function to use for accessing device-independent pixels. You should use
        this anywhere you need to refer to distances on the screen.

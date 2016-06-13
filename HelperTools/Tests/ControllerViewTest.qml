@@ -1,6 +1,7 @@
 import QtQuick 2.5
 import Zabaat.Utility 1.0
 import Zabaat.Controller 1.0 as C
+import Zabaat.HelperTools 1.0
 
 Item {
 
@@ -68,7 +69,7 @@ Item {
     }
 
 
-    C.ControllerView {
+    ControllerView {
         id : cv
         anchors.fill: parent
         controller: controller

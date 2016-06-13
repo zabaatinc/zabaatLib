@@ -112,14 +112,10 @@ QtObject {
     }
     function contrastingTextColor(color) {
         if(isDarkColor(color)){
-            if(isDarkColor(text1))
-                return text2
-            return text1
+            return isDarkColor(text1) ? text2 : text1
         }
         else {
-            if(isDarkColor(text1))
-                return text1
-            return text2
+            return isDarkColor(text1) ? text1 : text2
         }
     }
     function rgbToHex(r,g,b){
