@@ -37,6 +37,15 @@ Item {
         property var modelFilters
         property var modelTypes : ["All","req", "res" , "Get","Post","Put","Delete","update","create"]
 
+        function findCbId(id) {
+            for(var i = 0 ; i < lm.count; ++i){
+                var item = lm.get(i)
+                if(item.cbId === id)
+                    return i;
+            }
+            return -1;
+        }
+
 
         property QtObject counts : QtObject {
             property int getReq          : 0
@@ -129,7 +138,7 @@ Item {
             var data = res
             var cbId = id
 
-            var reqIdx =  Functions.list.getFromList(lm,cbId,"cbId",true) // controller.getByProperty(lm, 'cbId', cbId)
+            var reqIdx =  findCbId(cbId)
 //            console.log("reqIdx is " , reqIdx)
             arr = _.compact(id.toString().split("/"))
             id = arr[arr.length -1]
