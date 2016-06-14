@@ -290,7 +290,15 @@ Item {
                     id : detailLoader
                     anchors.fill: parent
                     property var m : lv.model && lv.count > lv.currentIndex ? lv.model.get(lv.currentIndex) : null
-                    onMChanged : sourceComponent = m ? components['cmp_' + m.type]  : null
+                    property bool detailViewToggle : false
+
+                    onMChanged : {
+                        if(item ) {
+                            detailViewToggle = item.detailViewToggle ? true : false
+                        }
+                        sourceComponent = null  //to refresh
+                        sourceComponent = m ? components['cmp_' + m.type]  : null
+                    }
                     onLoaded : if(item){
                                    item.state = 'detailed'
                                    if(item.hasOwnProperty('model'))
@@ -301,6 +309,8 @@ Item {
                                        item.clicked.connect(function() { lv.currentIndex = index })
                                    if(item.hasOwnProperty('sourceModel'))
                                        item.sourceModel = lm
+                                   if(item.hasOwnProperty('detailViewToggle'))
+                                       item.detailViewToggle = detailViewToggle
 //                                   if(item.hasOwnProperty('res')) {
 
 //                                   }

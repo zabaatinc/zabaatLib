@@ -21,6 +21,7 @@ Item {
     property var res
     property string title    : "REQ"
     property var timeDiff : rootObject.time && res && res.time ? (+res.time) - (+rootObject.time)  : -1
+    property bool detailViewToggle : false
 
     onSourceModelChanged: if(resIdx !== -1 && sourceModel)   res = sourceModel.get(resIdx)
     onResIdxChanged     : if(resIdx !== -1 && sourceModel)   res = sourceModel.get(resIdx)
@@ -114,7 +115,8 @@ Item {
             color : 'white'
 
             property var d        : rootObject.d
-            property bool toggle  : false
+            property bool toggle  : rootObject.detailViewToggle
+            onToggleChanged: rootObject.detailViewToggle = toggle;
 
             Row {
                 id : detRectRow
