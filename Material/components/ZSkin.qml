@@ -515,6 +515,11 @@ Item {
 
             cache.injectState("semitransparent", "graphical" , { "fill_Opacity" : 0.8  })
 
+            cache.injectState("tcontrasting","graphical", {
+                "@text_Default": function() {return Colors.contrastingTextColor(graphical.fill_Default)},
+                "@text_Press"  : function() {return Colors.contrastingTextColor(graphical.fill_Press)},
+                "@text_Focus"  : function() {return Colors.contrastingTextColor(graphical.fill_Focus)}
+             })
 
 
             cache.injectState("t1","graphical", {
