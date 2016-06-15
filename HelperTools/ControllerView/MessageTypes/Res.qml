@@ -116,7 +116,16 @@ Item {
 
             property var d        : rootObject.d
             property bool toggle  : rootObject.detailViewToggle
-            onToggleChanged: rootObject.detailViewToggle = toggle;
+            onDChanged: detailedText.text = JSON.stringify(d,null,2)
+            onToggleChanged: {
+                rootObject.detailViewToggle = toggle;
+                if(toggle) {
+                    detRect.d = rootObject.req._data
+                }
+                else {
+                    detRect.d = rootObject.d
+                }
+            }
 
             Row {
                 id : detRectRow
@@ -129,10 +138,7 @@ Item {
                     text : "Req"
                     visible   : rootObject.req ? true : false
                     color     : detRect.toggle ? "orange" : "transparent"
-                    onClicked : {
-                        detRect.d = rootObject.req._data
-                        detRect.toggle = true
-                    }
+                    onClicked : detRect.toggle = true
                 }
 
                 SimpleButton {
@@ -140,10 +146,7 @@ Item {
                     height    : parent.height
                     text      : "Res (" + timeDiff + " ms)"
                     color     : !detRect.toggle ? "orange" : "transparent"
-                    onClicked :{
-                        detRect.toggle = false
-                        detRect.d = rootObject.d
-                    }
+                    onClicked : detRect.toggle = false
                 }
             }
 
@@ -161,12 +164,6 @@ Item {
                     font.pixelSize: detRect.height / 40
                     Component.onCompleted: {
                         text = JSON.stringify(detRect.d,null,2)
-                    }
-                    Connections {
-                        target : detRect
-                        onDChanged : {
-                            detailedText.text = JSON.stringify(detRect.d,null,2)
-                        }
                     }
                 }
             }

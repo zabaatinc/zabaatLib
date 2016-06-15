@@ -116,7 +116,20 @@ Item {
 
             property var d        : rootObject.d
             property bool toggle  : rootObject.detailViewToggle
-            onToggleChanged: rootObject.detailViewToggle = toggle;
+
+            onToggleChanged: {
+                rootObject.detailViewToggle = toggle;
+                if(toggle) {
+                    detRect.d = rootObject.res._data
+                }
+                else {
+                    detRect.d = rootObject.d
+                }
+            }
+            onDChanged : {
+//                console.log(JSON.stringify(d,null,2))
+                detailedText.text = JSON.stringify(d,null,2)
+            }
 
             Row {
                 id : detRectRow
@@ -128,10 +141,7 @@ Item {
                     height : parent.height
                     text : "Req"
                     color     : !detRect.toggle ? "orange" : "transparent"
-                    onClicked : {
-                        detRect.d = rootObject.d
-                        detRect.toggle = false
-                    }
+                    onClicked : detRect.toggle = false
                 }
 
                 SimpleButton {
@@ -140,10 +150,7 @@ Item {
                     text      : "Res (" + timeDiff + " ms)"
                     visible   : rootObject.res ? true : false
                     color     : detRect.toggle ? "orange" : "transparent"
-                    onClicked : {
-                        detRect.d = rootObject.res._data
-                        detRect.toggle = true;
-                    }
+                    onClicked : detRect.toggle = true;
                 }
             }
 
@@ -161,12 +168,6 @@ Item {
                     font.pixelSize: detRect.height / 40
                     Component.onCompleted: {
                         text = JSON.stringify(detRect.d,null,2)
-                    }
-                    Connections {
-                        target : detRect
-                        onDChanged : {
-                            detailedText.text = JSON.stringify(detRect.d,null,2)
-                        }
                     }
                 }
             }
