@@ -17,7 +17,7 @@ Item {
     property var modelName   : model && model.model     ? model.model  : ""
     property var funcName    : model && model.func      ? model.func   : ""
     property var type        : model && model.reqType   ? model.reqType   : ""
-    property var reqIdx      : model ? model.resIdx : -1
+    property var reqIdx      : model ? model.reqIdx : -1
     property var req
     property string title    : "RES"
     property var timeDiff : rootObject.time && req && req.time ? (+rootObject.time) - (+req.time)  : -1
@@ -25,6 +25,7 @@ Item {
     onSourceModelChanged: if(reqIdx !== -1 && sourceModel)   req = sourceModel.get(reqIdx)
     onReqIdxChanged     : if(reqIdx !== -1 && sourceModel)   req = sourceModel.get(reqIdx)
 
+    property bool detailViewToggle : false
 
     property color bgkColor  : 'yellow'
     property color textColor : 'white'
@@ -114,7 +115,17 @@ Item {
             color : 'white'
 
             property var d        : rootObject.d
-            property bool toggle  : false
+            property bool toggle  : rootObject.detailViewToggle
+            onDChanged: detailedText.text = JSON.stringify(d,null,2)
+            onToggleChanged: {
+                rootObject.detailViewToggle = toggle;
+                if(toggle) {
+                    detRect.d = rootObject.req._data
+                }
+                else {
+                    detRect.d = rootObject.d
+                }
+            }
 
             Row {
                 id : detRectRow
@@ -127,10 +138,7 @@ Item {
                     text : "Req"
                     visible   : rootObject.req ? true : false
                     color     : detRect.toggle ? "orange" : "transparent"
-                    onClicked : {
-                        detRect.d = rootObject.req._data
-                        detRect.toggle = true
-                    }
+                    onClicked : detRect.toggle = true
                 }
 
                 SimpleButton {
@@ -138,10 +146,7 @@ Item {
                     height    : parent.height
                     text      : "Res (" + timeDiff + " ms)"
                     color     : !detRect.toggle ? "orange" : "transparent"
-                    onClicked :{
-                        detRect.toggle = false
-                        detRect.d = rootObject.d
-                    }
+                    onClicked : detRect.toggle = false
                 }
             }
 
@@ -159,12 +164,6 @@ Item {
                     font.pixelSize: detRect.height / 40
                     Component.onCompleted: {
                         text = JSON.stringify(detRect.d,null,2)
-                    }
-                    Connections {
-                        target : detRect
-                        onDChanged : {
-                            detailedText.text = JSON.stringify(detRect.d,null,2)
-                        }
                     }
                 }
             }
