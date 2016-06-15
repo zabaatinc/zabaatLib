@@ -19,7 +19,9 @@ ZController {
     signal warning(string msg);
     signal reqSent    (string id, string type, string url, var params)
     signal resReceived(string id, string type, string url, var res)
+    signal resProcessed(string id, var ms)
 
+    property int longTime : 1000    //in milliseconds!
 
     /*! A function that can display errors if XhrController encounters any. \b default : null \hr */
     property var    errHandler            : null   //works on postReqs
@@ -129,9 +131,9 @@ ZController {
         override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
         passToken : this is automatically token from rootObject
     */
-    function postReq(url, params, callback,modelToUpdate,override,passToken){
+    function postReq(url, params, callback,modelToUpdate){
         //decipher the mdoelname!!
-        priv.req('Post', url, params, callback, modelToUpdate, override, passToken)
+        priv.req('Post', url, params, callback, modelToUpdate)
     }
 
     /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
@@ -140,8 +142,8 @@ ZController {
         override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
         passToken : this is automatically token from rootObject
     */
-    function putReq(url, params, callback,modelToUpdate,override,passToken) {
-        priv.req('Put', url, params, callback, modelToUpdate, override, passToken)
+    function putReq(url, params, callback,modelToUpdate) {
+        priv.req('Put', url, params, callback, modelToUpdate)
     }
 
     /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
@@ -150,8 +152,8 @@ ZController {
         override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
         passToken : this is automatically token from rootObject
     */
-    function getReq(url, params, callback, modelToUpdate,override,passToken){
-        priv.req('Get', url, params, callback, modelToUpdate, override, passToken)
+    function getReq(url, params, callback, modelToUpdate){
+        priv.req('Get', url, params, callback, modelToUpdate)
     }
 
     /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
@@ -160,17 +162,8 @@ ZController {
         override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
         passToken : this is automatically token from rootObject
     */
-    function deleteReq(url, params, callback, modelToUpdate, override, passToken){
-        priv.req('Delete', url, params, callback, modelToUpdate, override, passToken)
-    }
-
-    /*! Returns an object with {access_token:<token> } \hr */
-    function tokenAppend(paramsA){
-        var params = paramsA
-        if(typeof params ==='undefined'|| params === null)           params              = {access_token:socketHandler.token }
-        else                                                         params.access_token = socketHandler.token
-
-        return params
+    function deleteReq(url, params, callback, modelToUpdate){
+        priv.req('Delete', url, params, callback, modelToUpdate)
     }
 
     QtObject {
@@ -286,14 +279,18 @@ ZController {
             }
             return true
         }
-        function req(type, url, params, callback, modelToUpdate, override, passToken){
+        function req(type, url, params, callback, modelToUpdate, passToken){
             if(autoAddEventListeners){
 //                console.log("ADDING EVENT LISTENER FOR", url)
                 priv.addEvent(url)
             }
 
-            if(override && priv.findInHistory(params))        return    //if found in history, then don't do it
-            else                                              controller.requestHistory.push(params)
+            if(socketHandler.token) {
+                if(params)
+                    params.access_token = socketHandler.token
+                else
+                    params = { access_token : socketHandler.token }
+            }
 
             if (passToken)
                 params = controller.tokenAppend(params)
@@ -414,7 +411,19 @@ ZController {
                 if(cbObj) {
                     //emit signal that res was received!
                     resReceived(cbId, cbObj.type, cbObj.url, jsRes);
+                    var time = +(new Date().getTime())
                     priv.cbHandlerFunc(jsRes,  cbObj.callback, cbObj.type, cbObj.url, cbObj.modelToUpdate)
+                    time = +(new Date().getTime()) - time
+
+                    if(time > longTime) {
+                        console.warn("WARNING : handling response for ", cbObj.url, "took", (time/1000).toFixed(2), " seconds!!!!")
+//                        console.log("---------------------------------------")
+//                        console.trace()
+//                        console.log("---------------------------------------")
+                    }
+                    resProcessed(cbId, time)
+
+
                     delete priv.cbObjects[cbId]
                 }
             }

@@ -13,23 +13,28 @@ Item {
     property int   longTime   : 3000
 
     onControllerChanged : if(controller){
-                              if(typeof controller.newModelAdded === 'function')
-                                  controller.newModelAdded.connect(logic.refreshModelFilters);
+          if(typeof controller.newModelAdded === 'function')    controller.newModelAdded.connect(logic.refreshModelFilters);
+          if(typeof controller.updateReceived === 'function')   controller.updateReceived.connect(logic.handleUpdateReceived)
+          if(typeof controller.createReceived === 'function')   controller.createReceived.connect(logic.handleCreateReceived)
+          if(typeof controller.reqSent === 'function')          controller.reqSent.connect(logic.handleReqSent)
+          if(typeof controller.resReceived === 'function')      controller.resReceived.connect(logic.handleResReceived)
+          if(typeof controller.resProcessed === 'function')     controller.resProcessed.connect(logic.handleResProcessed)
 
-                              if(typeof controller.updateReceived === 'function')
-                                  controller.updateReceived.connect(logic.handleUpdateReceived)
+          logic.refreshModelFilters()
+    }
 
-                              if(typeof controller.createReceived === 'function')
-                                  controller.createReceived.connect(logic.handleCreateReceived)
+    Component.onDestruction:  if(controller){
+          if(typeof controller.newModelAdded === 'function')    controller.newModelAdded.disconnect(logic.refreshModelFilters);
+          if(typeof controller.updateReceived === 'function')   controller.updateReceived.disconnect(logic.handleUpdateReceived)
+          if(typeof controller.createReceived === 'function')   controller.createReceived.disconnect(logic.handleCreateReceived)
+          if(typeof controller.reqSent === 'function')          controller.reqSent.disconnect(logic.handleReqSent)
+          if(typeof controller.resReceived === 'function')      controller.resReceived.disconnect(logic.handleResReceived)
+          if(typeof controller.resProcessed === 'function')     controller.resProcessed.disconnect(logic.handleResProcessed)
+    }
 
-                              if(typeof controller.reqSent === 'function')
-                                  controller.reqSent.connect(logic.handleReqSent)
 
-                              if(typeof controller.resReceived === 'function')
-                                  controller.resReceived.connect(logic.handleResReceived)
 
-                              logic.refreshModelFilters()
-                          }
+
 
     QtObject {
         id : logic
@@ -38,12 +43,21 @@ Item {
         property var modelTypes : ["All","req", "res" , "Get","Post","Put","Delete","update","create"]
 
         function findCbId(id) {
-            for(var i = 0 ; i < lm.count; ++i){
+            for(var i = lm.count - 1 ; i >=0; --i){
                 var item = lm.get(i)
                 if(item.cbId === id)
                     return i;
             }
             return -1;
+        }
+        function findAllCbId(id){
+            var arr = []
+            for(var i = 0 ; i < lm.count; ++i){
+                var item = lm.get(i)
+                if(item.cbId === id)
+                    arr.push(i);
+            }
+            return arr
         }
 
 
@@ -124,6 +138,7 @@ Item {
                         func    : fn,
                         reqType : type,
                         cbId    : cbId,
+                        procTime : -1,
                         resIdx  : -1,
                       })
 
@@ -151,6 +166,7 @@ Item {
                         func    : fn,
                         reqType : type,
                         cbId    : cbId,  //use this to find matching req res
+                        procTime : -1,
                         reqIdx  : reqIdx
                       })
 
@@ -161,6 +177,14 @@ Item {
             }
 
 //            console.log('res gotten', id, type, url, res, Qt.formatTime(new Date()))
+        }
+        function handleResProcessed(id, time) {
+            var cbId = id
+            var indices = findAllCbId(id);
+            for(var i = 0; i < indices.length ; ++i) {
+                var idx = indices[i]
+                lm.get(idx).procTime = time;
+            }
         }
         function refreshModelFilters(){
             lv.currentIndex = -1

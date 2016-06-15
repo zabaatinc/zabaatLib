@@ -21,6 +21,7 @@ Item {
     property var res
     property string title    : "REQ"
     property var timeDiff : rootObject.time && res && res.time ? (+res.time) - (+rootObject.time)  : -1
+    property var procTime : model && model.procTime ? model.procTime : 0
     property bool detailViewToggle : false
 
     onSourceModelChanged: if(resIdx !== -1 && sourceModel)   res = sourceModel.get(resIdx)
@@ -78,18 +79,53 @@ Item {
                          color       : Qt.lighter(bgkColor)
                          border.color: Qt.darker(bgkColor)
                          textColor : timeDiff > longTime ? "red" :  Qt.darker(bgkColor)
+
+                         SequentialAnimation on color {
+                             running : rootObject.procTime > longTime
+                             loops : Animation.Infinite
+                             ColorAnimation {
+                                 from: "darkRed"
+                                 to: "black"
+                                 duration: 200
+                             }
+                             ColorAnimation {
+                                 from: "black"
+                                 to: "darkRed"
+                                 duration: 200
+                             }
+                             onStopped : r.color  = Qt.lighter(bgkColor)
+                         }
                      }
                  }
 
-                SimpleButton {
-                     width     : parent.width
-                     height    : parent.height / 2
-                     enabled   : false
-                     textColor : rootObject.textColor
-                     color     : Qt.lighter(bgkColor)
-                     text      : timeDiff === -1 ? "" : (timeDiff/1000).toFixed(2) + " s"
-                     border.width: 0
-                 }
+                 Rectangle {
+                      id: timeReporter
+                      width     : parent.width
+                      height    : parent.height / 2
+                      color     : Qt.lighter(bgkColor)
+                      border.width: 0
+                      property var rtt : timeDiff === -1 ? "" : "RTT: "  + (timeDiff/1000).toFixed(2) + "s"
+                      property var proc: procTime === -1 ? "" : "PROC: " + (procTime/1000).toFixed(2) + "s"
+
+                      Text {
+                          anchors.fill: parent
+                          anchors.margins: 5
+                          font.pixelSize: height * 1/2
+                          color       : rootObject.textColor
+                          text        : parent.rtt
+                          verticalAlignment: Text.AlignVCenter
+                          horizontalAlignment: Text.AlignLeft
+                      }
+                      Text {
+                          anchors.fill: parent
+                          anchors.margins: 5
+                          font.pixelSize: height * 1/2
+                          color       : rootObject.textColor
+                          text        : parent.proc
+                          verticalAlignment: Text.AlignVCenter
+                          horizontalAlignment: Text.AlignRight
+                      }
+                  }
             }
 
             Rectangle {
@@ -147,7 +183,7 @@ Item {
                 SimpleButton {
                     width     : parent.width / 4
                     height    : parent.height
-                    text      : "Res (" + timeDiff + " ms)"
+                    text      : "Res (RTT: " + timeDiff + " ms) (PROC: " + procTime + " ms)"
                     visible   : rootObject.res ? true : false
                     color     : detRect.toggle ? "orange" : "transparent"
                     onClicked : detRect.toggle = true;
