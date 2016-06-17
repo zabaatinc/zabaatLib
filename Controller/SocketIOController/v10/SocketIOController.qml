@@ -279,7 +279,7 @@ ZController {
             }
             return true
         }
-        function req(type, url, params, callback, modelToUpdate, passToken){
+        function req(type, url, params, callback, modelToUpdate){
             if(autoAddEventListeners){
 //                console.log("ADDING EVENT LISTENER FOR", url)
                 priv.addEvent(url)
@@ -291,11 +291,6 @@ ZController {
                 else
                     params = { access_token : socketHandler.token }
             }
-
-            if (passToken)
-                params = controller.tokenAppend(params)
-
-
 
 //            socketHandler.sailsGet(url.toString(), params, )
             //sails + type is the typeof function we are calling. sailsGet , sailsPut
@@ -335,23 +330,6 @@ ZController {
 
                 if(typeof callback === 'function') {
                     callback(response);
-
-//                    try {
-//                        callback(response);
-//    //                            if(type === 'get')    callback(response[0]);  //TODO fix this later! :)
-//    //                            else                  callback(response);     //they should all behave the same way
-//                    }
-//                    catch(e){
-//                        console.log("BZZT BZZT BLOOP TI DOOP", socketHandler,type, ":","Error when executing callback for", url, e)
-//                        if(errHandler){
-//                            errHandler({ msg: "Error when executing callback",
-//                                         "for" : uri,
-//                                         response : response ,
-//                                         callback : callback
-//                                       });
-//                        }
-//                    }
-
                 }
             }
         }
