@@ -403,6 +403,28 @@ QtObject {
 
 
 
+    function removeFirstThatMatches(list, killerFunc){
+        for(var i = 0; i < list.count ; ++i){
+            if(killerFunc(list.get(i)))
+                list.remove(i)
+        }
+    }
+    function removeLastThatMatches(list, killerFunc) {
+        removeAllThatMatch(list, killerFunc, 1)
+    }
+    function removeAllThatMatch(list, killerFunc, count) {
+        var remCount = 0;
+        for(var i = list.count - 1; i >= 0 ; --i){
+            if(killerFunc(list.get(i))) {
+                list.remove(i)
+                remCount++
+                if(count && remCount === count) {
+                    return
+                }
+            }
+        }
+    }
+
 
 
 

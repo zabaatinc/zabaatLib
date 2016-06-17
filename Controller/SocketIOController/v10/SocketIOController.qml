@@ -465,7 +465,7 @@ ZController {
 //                            console.log("update message received on", modelName + "." + message.id )
 
                             controller.addModel(modelName, message.data)    //If one of the sets failed, that means that we either didn't have this property
-                            updateReceived(modelName, message.data.id)
+                            updateReceived(modelName, message.data.id, message.data)
                             debug.debugMsg("finished handling update message received on", modelName + "." + message.id)
                             break;
 
@@ -483,7 +483,7 @@ ZController {
                                                 "ON MODEL=", JSON.stringify(_controller.getById("deals",message.data.id)    ))
                                 }      */                                   //or the whole item. In any case, appendToModel should take care of it
                                                                                     //But it does much more instructions so we only call it if we have to
-                                updateReceived(modelName, message.data.id)
+                                updateReceived(modelName, message.data.id, message.data)
                                 debug.debugMsg("finished handling update message received on", modelName + "." + message.id)
                                 break;
 
@@ -495,7 +495,7 @@ ZController {
                                 controller.addModel(modelName, message.data)   //If one of the sets failed, that means that we either didn't have this property
                                                                                            //or the whole item. In any case, appendToModel should take care of it
                                                                                            //But it does much more instructions so we only call it if we have to
-                                createReceived(modelName, message.data.id)
+                                createReceived(modelName, message.data.id, message.data)
                                 debug.debugMsg("finished handling update message received on",modelName + "." + message.id)
                                 break;
 
@@ -507,7 +507,7 @@ ZController {
                                 controller.addModel(modelName, message.data)   //If one of the sets failed, that means that we either didn't have this property
                                                                                            //or the whole item. In any case, appendToModel should take care of it
                                                                                            //But it does much more instructions so we only call it if we have to
-                                createReceived(modelName, message.data.id)
+                                createReceived(modelName, message.data.id, message.data)
                                 debug.debugMsg("finished handling update message received on",modelName + "." + message.id)
                                 break;
 

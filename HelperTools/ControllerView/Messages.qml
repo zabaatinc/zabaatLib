@@ -90,14 +90,11 @@ Item {
         }
 
 
-        function handleUpdateReceived(model,id) {
+        function handleUpdateReceived(model,id,data) {
 //            console.log('updateReceived', model,id)
 
             //updatedModel, updatedId
             var time = new Date()
-            var data = controller.getById(model,id)
-//            console.log(JSON.stringify(data,null,2))
-
             lm.append({ type : "update",
                         _data : data,
                         id   : id,
@@ -105,11 +102,10 @@ Item {
                         model : model
                       })
         }
-        function handleCreateReceived(model,id)  {
+        function handleCreateReceived(model,id,data)  {
 //            console.log('createReceived', model,id)
 
             var time = new Date()
-            var data = controller.getById(model,id)
             lm.append({ type  : "create",
                         _data  : data,
                         id    : id,

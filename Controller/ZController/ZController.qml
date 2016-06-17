@@ -15,10 +15,10 @@ Item
     signal newModelAdded(string modelName, int count);
 
     /*! Update message was recevied (verb was update or updated) \hr*/
-    signal updateReceived(string updatedModel, string updatedId)
+    signal updateReceived(string updatedModel, string updatedId, var data)
 
     /*! Create message was received (verb was create or created) \hr*/
-    signal createReceived(string createdModel, string createdId)
+    signal createReceived(string createdModel, string createdId, var data)
 
 
     /*! A function to log debug messages. Can be null. We have an internal one by default.  \hr */
@@ -589,4 +589,15 @@ Item
    }
 
 
+   function removeById(lm, id) {
+        if(typeof lm === 'string')
+            lm = getModel(lm)
+
+        for(var i = 0; i < lm.count; ++i) {
+            var item = lm.get(i)
+            if(item.id === id)
+                return lm.remove(i)
+        }
+        return -1
+   }
 }
