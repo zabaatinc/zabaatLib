@@ -7,6 +7,10 @@ ZSkin {
     property alias font : text.font
     color : graphical.fill_Default
     border.color: graphical.borderColor
+    property bool paintedWidth : false
+    onPaintedWidthChanged: if(paintedWidth) {
+                                rootObject.width = logic.width = text.paintedWidth + 10
+                           }
 
     Text {
         id : text
@@ -19,16 +23,23 @@ ZSkin {
         color : graphical.text_Default
         text : logic ? logic.text : ""
         textFormat: Text.RichText
+        onPaintedWidthChanged: if(rootObject.paintedWidth) {
+                                   rootObject.width = logic.width = paintedWidth + 10
+                               }
     }
 
     states : ({ "default" :  { rootObject : { "border.width" : 0 ,
-
+                                               "paintedWidth" : false
                                               },
                                graphical : { "fill_Default" : "transparent" }
                   },
                  "fit" : {text : { "@scale" : function() { return text.paintedWidth > text.width ? (text.width - 5) / text.paintedWidth : 1}  }
 
-                  }
+                  },
+                  "paintedwidth" : { rootObject : { paintedWidth : true }
+
+                   }
+
 
 
               })
