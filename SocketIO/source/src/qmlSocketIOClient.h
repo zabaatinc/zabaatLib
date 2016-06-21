@@ -12,8 +12,9 @@
 #include <functional>
 #include <mutex>
 #include <cstdlib>
-#include <boost/function.hpp>
-#include <boost/any.hpp>
+#include <cmath>
+//#include <boost/function.hpp>
+//#include <boost/any.hpp>
 #include <QJSValue>
 #include <QJSValueIterator>
 #include <string>
@@ -83,7 +84,7 @@ public :
             }
 
             if(query.size() > 0){
-                Q_EMIT info(QString(BOOST_CURRENT_FUNCTION) + " connecting with " + query.size() + " params to:" + uri);
+//                Q_EMIT info(QString(BOOST_CURRENT_FUNCTION) + " connecting with " + query.size() + " params to:" + uri);
             }
         }
         else if(js.isString()) {
@@ -320,7 +321,7 @@ private:
             return cbId;
         }
         else {
-            Q_EMIT warning(QString(BOOST_CURRENT_FUNCTION) + " : socket is not connected " + url);
+            Q_EMIT warning("sailsReq : socket is not connected " + url);
         }
         return "";
     }
@@ -466,7 +467,7 @@ private:
                         return sio::null_message::create();
                 }
             }
-//            qDebug() << BOOST_CURRENT_FUNCTION <<" is string";
+            qDebug() << "transformJSValue's param is string";
             return sio::string_message::create(js.toString().toStdString());
         }
         else if(js.isNumber()){

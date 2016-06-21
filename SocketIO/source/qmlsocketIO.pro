@@ -46,6 +46,19 @@ android:{
     }
 }
 
+macx:{
+  INCLUDEPATH += /Users/Wolfy/boost_1_50_0_build/include
+  LIBS += "-L/Users/Wolfy/boost_1_50_0_build/lib"
+  LIBS  += -lboost_date_time -lboost_system -lboost_random
+}
+
+ios:{
+  INCLUDEPATH += /Users/Wolfy/iosBoostScript/ios/prefix/include
+  LIBS += "-L/Users/Wolfy/iosBoostScript/ios/prefix/lib"
+  LIBS  += -lboost_date_time -lboost_system -lboost_random
+}
+
+
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -54,6 +67,7 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 DISTFILES += \
+    main.qml \
     android/AndroidManifest.xml \
     android/gradle/wrapper/gradle-wrapper.jar \
     android/gradlew \
