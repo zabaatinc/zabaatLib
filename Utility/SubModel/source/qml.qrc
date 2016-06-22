@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Test_DataChanged.qml</file>
+        <file>Test_Main.qml</file>
+        <file>Test_Main_SimulatedData.qml</file>
+        <file>ZSubModel.qml</file>
+        <file>Test_Empty.qml</file>
+        <file>Test_Section.qml</file>
+        <file>Test_ModelCeption.qml</file>
+        <file>TestRunner.qml</file>
+    </qresource>
+</RCC>

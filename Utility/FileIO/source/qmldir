@@ -1,2 +1,4 @@
-module Zabaat.Utility
+module Zabaat.Utility.FileIO
 plugin zfileio
+classname zfileio
+typeinfo plugins.qmltypes
