@@ -1,0 +1,10 @@
+INSTRUCTIONS
+—————————————
+find the generated .app file.
+right click -> show package contents
+navigate to Contents/MacOS
+paste the .dylib files there
+
+
+Do not leave these hanging in the main plugin directory as IOS is DAF and will
+try to load them instead of the .a file it needs.

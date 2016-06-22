@@ -1,3 +1,4 @@
 module Zabaat.SocketIO
-plugin ./v100/qmlsocketIO
+plugin qmlsocketIO
+classname qmlsocketIO
 typeinfo plugins.qmltypes
