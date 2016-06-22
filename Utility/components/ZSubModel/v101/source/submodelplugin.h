@@ -7,7 +7,7 @@
 
 class submodelplugin : public QQmlExtensionPlugin {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "Zabaat")
+    Q_PLUGIN_METADATA(IID "Zabaat.Utility")
 
 public :
     void registerTypes(const char *uri) {

@@ -1,17 +1,20 @@
 TEMPLATE = lib
 TARGET = zfileio
-QT += qml quick
+QT += qml quick network
 CONFIG += qt plugin c++11
-
 TARGET = $$qtLibraryTarget($$TARGET)
-uri = Zabaat.Utility
+
+PLUGIN_CLASS_NAME = zfileio
+uri = Zabaat.Utility.FileIO
+
+
+OBJECTS_DIR = tmp
+MOC_DIR = tmp
 
 # Input
-SOURCES +=
-
-HEADERS += zfileio_plugin.h zpaths.h zfilerw.h progress.h zfiledownloader.h
-
+HEADERS += zpaths.h zfilerw.h progress.h zfiledownloader.h zfileio.h
 DISTFILES = qmldir
+
 
 !equals(_PRO_FILE_PWD_, $$OUT_PWD) {
     copy_qmldir.target = $$OUT_PWD/qmldir
@@ -28,3 +31,17 @@ unix {
     target.path = $$installPath
     INSTALLS += target qmldir
 }
+
+osx {
+   plugin.files = $$OUT_PWD/TARGET
+   plugin.path = Contents/Plugins
+   QMAKE_BUNDLE_DATA = plugin
+}
+
+ios:{
+    CONFIG += static
+    QMAKE_MOC_OPTIONS += -Muri=Zabaat.Utility.FileIO
+}
+
+
+

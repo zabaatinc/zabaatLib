@@ -1,9 +1,14 @@
 TEMPLATE    = lib
 #TEMPLATE    = app
 QT          += qml quick
-CONFIG      += c++11 no_keywords
+CONFIG      += qt c++11 no_keywords plugin
 RESOURCES   += qml.qrc
 TARGET      = qmlsocketIO
+TARGET      = $$qtLibraryTarget($$TARGET)
+uri = Zabaat.SocketIO
+
+OBJECTS_DIR = tmp
+MOC_DIR = tmp
 
 HEADERS += src/qmlSocketIOClient.h \
            $$PWD/socketio_module/src/sio_client.h  \
@@ -46,10 +51,15 @@ android:{
     }
 }
 
-macx:{
+osx {
   INCLUDEPATH += /Users/Wolfy/boost_1_50_0_build/include
   LIBS += "-L/Users/Wolfy/boost_1_50_0_build/lib"
   LIBS  += -lboost_date_time -lboost_system -lboost_random
+
+
+   plugin.files = $$OUT_PWD/TARGET
+   plugin.path = Contents/Plugins
+   QMAKE_BUNDLE_DATA = plugin
 }
 
 ios:{
