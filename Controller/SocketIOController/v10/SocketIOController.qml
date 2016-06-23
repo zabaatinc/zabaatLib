@@ -1,5 +1,5 @@
 import QtQuick 2.5
-import Zabaat.SocketIO.v100 1.0
+import Zabaat.SocketIO 1.0
 import "../../ZController"
 
 /*!
