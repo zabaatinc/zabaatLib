@@ -1,2 +1,3 @@
 module Zabaat.HelperTools
 ControllerView		1.0 ./ControllerView/ControllerView.qml
+CacheView			1.0 ./CacheView/CacheView.qml
