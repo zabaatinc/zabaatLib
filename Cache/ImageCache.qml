@@ -58,8 +58,31 @@ QtObject {
         return ""
     }
 
-    property var srcMap  : ({})
-    property var nameMap : ({})
+    function getMappedAndUnmapped(){
+        var mapped   = []
+        var unmapped = []
+
+        function a(s){
+            for(var n in nameMap){
+                if(nameMap[n] === s ){
+                    if(mapped.indexOf(s) === -1)
+                        return mapped.push(s)
+                    return
+                }
+            }
+            if(unmapped.indexOf(s) === -1)
+                unmapped.push(s)
+        }
+
+        for(var s in srcMap){
+            a(s)
+        }
+        return { mapped : mapped , unmapped : unmapped }
+    }
+
+    property var srcMap   : ({})
+    property var nameMap  : ({})
+//    property var unmapped : []          //these sources are not nameMapped
     property Item imgContainer : Item{
         id: imgContainer
         visible : false
@@ -103,19 +126,28 @@ QtObject {
             asynchronous: true
             onStatusChanged: {
                 if(status === Image.Ready) {
+                    var s = source.toString()
+
                     if(!srcMap)       srcMap = {}
                     if(!nameMap)      nameMap = {}
 
-                    srcMap[source] = source;
+                    srcMap[s] = s
                     if(name) {
-                        nameMap[name] = source;
-                        imgContainer.checkReqs(source,name);
-                        imageReady(source,name);
+//                        if(nameMap[name] && unmapped.indexOf(s) === -1) { //if it already exists!
+//                            unmapped.push(nameMap[name])
+//                        }
+
+                        nameMap[name] = s
+                        imgContainer.checkReqs(s,name);
+                        imageReady(s,name);
 //                        console.log("added to imgCache", name , '=', nameMap[name], imgContainer.children.length)
                     }
                     else {
-                        imgContainer.checkReqs(source,null);
-                        imageReady(source,"");
+//                         if(unmapped.indexOf(s) === -1)
+//                            unmapped.push(s)
+
+                        imgContainer.checkReqs(s,null);
+                        imageReady(s,"");
                     }
                 }
                 else if(status === Image.Error){
