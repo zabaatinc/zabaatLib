@@ -6,6 +6,8 @@
 #include "zpaths.h"
 #include "zfiledownloader.h"
 #include <qqml.h>
+#include <QFileInfo>
+#include <QList>
 
 class zfileio : public QQmlExtensionPlugin
 {

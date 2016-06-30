@@ -1,1 +1,1 @@
-qmlplugindump Zabaat.Utility.FileIO 1.0 /Zabaat/Utility/FileIO > /Zabaat/Utility/FileIO/plugins.qmltypes -notrelocatable
+qmlplugindump Zabaat.Utility.FileIO 1.0 /Zabaat/Utility/FileIO > Zabaat/Utility/FileIO/plugins.qmltypes -notrelocatable

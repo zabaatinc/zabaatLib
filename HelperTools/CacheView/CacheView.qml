@@ -6,16 +6,28 @@ import Zabaat.Utility.SubModel 1.1
 Item {
     property var cachePtr : null
     onCachePtrChanged: if(cachePtr){
-                           orig.clear()
-                           logic.models = []
+                           logic.clear()
                            logic.refresh()
+
+                           if(typeof cachePtr.cacheCleared === 'function'){
+//                                cachePtr.cacheCleared.connect(logic.clear)
+                           }
+
                        }
+
+    property string groupSeparator : "/"
+
 
 //    ImageCache { id : ic }
 
     QtObject {
         id : logic
         property var models : []
+
+        function clear(){
+            orig.clear()
+            logic.models = []
+        }
 
 
         property ListModel original : ListModel { id : orig; /*onCountChanged : logic.printLm(orig) */}
@@ -97,38 +109,53 @@ Item {
 
         function handleNew(src,name){
             refreshModels()
-            var mm = cachePtr.getMappedAndUnmapped()
-            var mapped = mm.mapped
-            var unmapped = mm.unmapped
+            var em       = extractModelName(name)
+            var sz = cachePtr.getSize ? cachePtr.getSize(name) : -1
+            if(src === ""){
+                orig.append({ url: src, name : em.name, modelName : em.mName, isMapped : false, size : sz  })
+            }
+            else {
+                //lets see if we have a name but not a src!
+                var mm       = cachePtr.getMappedAndUnmapped()
+                var mapped   = mm.mapped
+                var unmapped = mm.unmapped
 
-            var item = indexOf(orig,src,'url')
-            var em = extractModelName(name)
+                var item = indexOf(orig,src,'url')
+                var older = indexOfM(orig, [em.name, em.mName], ['name','modelName'])
+                if(older){
+                    if(older.url === "") {  //WOAh, we have older and there was no url found on it. So update our records.
+                        rightView.refresh()
+                        older.isMapped = true;  //DUh, we just got the src now, we already had the name.
+                        return older.url = src; //we dont need to go any fursther
+                    }
 
+                    older.isMapped = mapped.indexOf(older.url) !== -1
+                }
 
-            var older = indexOfM(orig, [em.name, em.mName], ['name','modelName'])
-            if(older){
-                older.isMapped = mapped.indexOf(older.url) !== -1
+                if(!item){
+                    orig.append({ url: src, name : em.name, modelName : em.mName, isMapped : mapped.indexOf(src) !== -1, size :sz })
+                }
+                else  { //we got name now , look for size?
+                    item.name = em.name
+                    item.modelName = em.mName
+                    item.isMapped = mapped.indexOf(src) !== -1
+                    item.size =sz
+                }
             }
 
-            if(!item){
-                orig.append({ url: src, name : em.name, modelName : em.mName, isMapped : mapped.indexOf(src) !== -1 })
-            }
-            else  {
-                item.name = em.name
-                item.modelName = em.mName
-                item.isMapped = mapped.indexOf(src) !== -1
-            }
+
+
             rightView.refresh()
         }
 
 
         function extractModelName(c){
-            if(typeof c === 'string' && c.indexOf("/") !== -1) {
-                var arr = c.split("/")
+            if(typeof c === 'string' && c.indexOf(groupSeparator) !== -1) {
+                var arr = c.split(groupSeparator)
                 var mName = arr[0]
 
                 arr.splice(0,1)
-                var name = arr.join("/")
+                var name = arr.join(groupSeparator)
                 return  { mName : mName , name : name}
             }
             return  { mName : "" , name : "" }
@@ -214,7 +241,7 @@ Item {
                 onAccepted: {
                     var g = groupBox.text
                     var u = urlBox.text
-                    var n = g !== "" ? g + "/" + nameBox.text : nameBox.text
+                    var n = g !== "" ? g + groupSeparator + nameBox.text : nameBox.text
 
                     urlBox.text = nameBox.text = ""
 
@@ -272,11 +299,31 @@ Item {
                         property string url  : m ? m.url  : ""
                         property string modelName : m ? m.modelName : ""
                         property bool isMapped: m ? m.isMapped : false
-                        text : del.modelName + '\t' + del.name + "<br>" + del.url
+                        property int size     : m && m.size ? m.size : -1
+
+                        property var str : del.size !== -1 ? del.modelName + '\t' + del.name + "<br>" + del.url + "<br>" + beautify(del.size) :
+                                                         del.modelName + '\t' + del.name + "<br>" + del.url
+
+                        text : str
                         onClicked: lv.currentIndex = index
                         color : lv.currentIndex === index ? "orange" : "white"
                         clip  : true
                         textColor: del.isMapped ? "black" : "red"
+
+                        function beautify(bytes){
+                            var k = 1024 //kilobytes
+                            var m = 1048576 //1024 * 1024 megabytes
+                            var g = 1073741824 //1024 * 1024 * 1024 gigabyes
+                            var t = 1099511627776 //1024 * 1024 * 1024 * 1024   terabytes
+
+                            if(bytes >= t)  return (bytes/t).toFixed(2) + " TB"
+                            if(bytes >= g)  return (bytes/g).toFixed(2) + " GB"
+                            if(bytes >= m)  return (bytes/m).toFixed(2) + " MB"
+                            if(bytes >= k)  return (bytes/k).toFixed(2) + " KB"
+
+                            return bytes + " Bytes"
+                        }
+
                     }
                     Rectangle  {
                         color : 'transparent'
@@ -296,8 +343,6 @@ Item {
                     anchors.centerIn: parent
                     width : parent.width * 0.75
                     height : parent.height * 0.75
-
-
                     fillMode : Image.PreserveAspectFit
 
                     Connections {
@@ -308,7 +353,10 @@ Item {
                         function a(){
                             if(lv.currentIndex  !== -1){
                                 var item = lv.model.get(lv.currentIndex)
-                                midImg.source = cachePtr.getBySourceWhenArrives(item.url, midImg, 'source')
+                                var s = item.modelName ? item.modelName + groupSeparator + item.name : item.name
+                                midImg.source = cachePtr.load(item.url,s, midImg, 'source')
+//                                console.log(JSON.stringify(item,null,2))
+
                             }
                         }
                     }

@@ -41,7 +41,9 @@ public:
     {
         QNetworkRequest request(url);
         QNetworkReply  *reply = manager.get(request);
-        timeList[url]         = progress(url, path);
+//        qDebug() << "harr";
+        timeList[url] = progress(url, path);
+//        qDebug() << "harr";
 
 
         connect(reply         , &QNetworkReply::downloadProgress,
@@ -68,7 +70,7 @@ public:
 
         activeDownloads.append(reply);
     }
-    Q_INVOKABLE void download(const QStringList &list, QString path = "")
+    Q_INVOKABLE void downloadMultiple(const QStringList &list, QString path = "")
     {
         if(path.length() != 0 && (path[path.length () -1] != '/' || path[path.length () -1] != '\\') )
         {
@@ -85,8 +87,8 @@ public:
     Q_INVOKABLE void upload(QString fileName, const QString &url, QString key = "file"){
         QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
-        if(fileName.indexOf("file:///") != -1)  fileName = fileName.replace ("file:///", "");
-        if(fileName.indexOf("qrc:///") != -1)   fileName = fileName.replace ("qrc:///", "");
+        if(fileName.indexOf("file:///") != -1)  fileName = fileName.replace ("file:///", ":");
+        if(fileName.indexOf("qrc:///") != -1)   fileName = fileName.replace ("qrc:///", ":");
 
 
         QFile *file = new QFile(fileName);
@@ -216,9 +218,9 @@ public:
 
 
 signals:
-    void downloadFailed         (QUrl url, QString fileName);
-    void downloadEnded          (QUrl url, QString fileName);
-    void downloadSaved          (QUrl url, QString fileName);
+    void downloadFailed         (QUrl url, QString fileName, qint64 bytesReceived, qint64 bytesTotal, QString reason);
+    void downloadEnded          (QUrl url, QString fileName, qint64 bytesReceived, qint64 bytesTotal);
+    void downloadSaved          (QUrl url, QString fileName, qint64 bytesReceived, qint64 bytesTotal);
     void downloadProgressChanged(QUrl url, qint64 bytesReceived, qint64 bytesTotal, qint64 elapsed, QString speed);
     void uploadStarted (QString file, QString url);
     void uploadFinished(QString file, QString url);
@@ -241,19 +243,21 @@ private slots:
 public slots:
     void downloadFinished (QNetworkReply *reply) {
         QUrl url = reply->url();
-        QString fileName = timeList[url].savePath == "" ? QFileInfo(url.path()).fileName() : timeList[url].savePath;
+        progress &p = timeList[url];
+
+        QString fileName = p.savePath == "" ? QFileInfo(url.path()).fileName() : p.savePath;
 //        std::cout << fileName.toStdString ().c_str () << " finished";
         if (reply->error())
         {
             fprintf(stderr, "Download of %s failed: %s\n",  url.toEncoded().constData(), qPrintable(reply->errorString()));
-            emit downloadFailed(url, fileName);
+            emit downloadFailed(url, fileName, p.received, p.total, reply->errorString());
         }
         else
         {
-            emit downloadEnded (url, fileName);
+            emit downloadEnded (url, fileName, p.received, p.total);
 
-            if(timeList[url].closeFile())
-                emit downloadSaved(url, fileName);
+            if(p.closeFile())
+                emit downloadSaved(url, fileName, p.received, p.total);
 
             timeList.remove(url);
         }

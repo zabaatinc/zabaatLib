@@ -15,6 +15,7 @@ Rectangle {
     property int  pageOffset     : 0      //use when we dont start on page 0!!
     property int  rows           : 4
     property int  columns        : 1
+    property real requestWhenRemaining : 1.5    //request when this much pages are left. YES, it is a REAL. It's smart.
     property int  requestDelay   : 100
     property bool requestOnStart : true
     property bool rerequestPages : false
@@ -27,24 +28,12 @@ Rectangle {
     property var delegate    : delegate
 
     //handlers
-    onPageRequested: logic.addUniqueToArr(logic.pagesRequested, page)
-    onPageReceived : logic.addUniqueToArr(logic.pagesReceived, page)
-    onReadyChanged : {
-        if(ready && requestOnStart) {
-               delayTimer.start()
-
-               if(rerequestPages || logic.pagesRequested.indexOf(pageOffset) === -1) {
-                   pageRequested(pageOffset)
-                   getPageFunc(pageOffset, gv.numElemsPerPage, function (msg){
-                       if(msg.data) {
-                           pageReceived(pageOffset, msg.data, false)
-                           logic.hasInit = true;
-                       }
-                   })
-               }
-        }
-        else {
-            logic.hasInit = true;
+    onPageRequested: logic.addUniqueToArr(logic.pagesRequested, page)  //redundant but using for safety
+    onPageReceived : logic.addUniqueToArr(logic.pagesReceived, page)   //redundant but using for safety
+    onReadyChanged : if(ready){
+        if(requestOnStart) {
+            delayTimer.start()
+            requestPage(pageOffset)
         }
     }
 
@@ -66,6 +55,33 @@ Rectangle {
         }
     }
 
+    //returns true if a request was performed, false if not. Requests may not be perfomed if we already have
+    //the said page! The prefunc runs before the call is made. This is to do any preparation. This is the function
+    //to call if you manually want to request a page. Will also change logic.hasInit = true if results were received
+    function requestPage(pg, cb, preFunc){
+        if(rerequestPages || logic.pagesReceived.indexOf(pg) === -1) {
+            logic.addUniqueToArr(logic.pagesRequested, pg)
+            pageRequested(pageOffset)
+
+            if(typeof preFunc === 'function')
+                preFunc(pg)
+
+            getPageFunc(pg, gv.numElemsPerPage, function (msg){
+                if(msg.data) {
+                    logic.addUniqueToArr(logic.pagesReceived, pg)
+                    pageReceived(pg, msg.data, false)
+                    if(typeof cb === 'function')
+                        cb(msg)
+
+                    if(msg && msg.data && !logic.hasInit) { //init it if we haven't already! This will trigger GetMoreIfNeeded
+                        logic.hasInit = true ;
+                    }
+                }
+            })
+            return true;
+        }
+        return false;
+    }
 
     QtObject {
         id : logic
@@ -189,7 +205,7 @@ Rectangle {
             property real adjustY             : 0
             property bool disableRequests     : false
             property int numElemsPerPage      : rows * columns
-            property int requestWhenRemaining : numElemsPerPage * 1.5
+            property int requestWhenRemaining : numElemsPerPage * rootObject.requestWhenRemaining
             property real preserveVelocity    : 0
 //            maximumFlickVelocity: 100000000000000000
 
@@ -214,28 +230,7 @@ Rectangle {
             function getMoreIfNeeded(override, debug){
 
                 function doReq(p, isBeginning, topIdx, debug){
-
-
-                    if(p !== -1) {
-                        if(rerequestPages || logic.pagesRequested.indexOf(p) === -1) {
-//                            console.log(debug)
-
-                            pageRequested(p);
-                            if(!isBeginning) {
-//                                console.log(gv.verticalVelocity, "pixels/sec")
-                                gv.preserveVelocity = gv.verticalVelocity
-                            }
-                            rootObject.getPageFunc(p, gv.numElemsPerPage, function(msg){
-                                if(msg && msg.data && rootObject) {
-                                    pageReceived(p, msg.data, isBeginning)
-                                }
-                            })
-                            return true;
-                        }
-//                        else
-//                            console.log('page', p , 'already exists')
-                    }
-                    return false;
+                    return p === -1 ? false : requestPage(p, null, function(){ var b = isBeginning; if(!b) gv.preserveVelocity = gv.verticalVelocity  })
                 }
 
 
@@ -254,11 +249,13 @@ Rectangle {
                     //determine whether to request next page or previous page (only ask for stuff before when upward is true?)
 //                    console.log(topIdx , "<",  requestWhenRemaining, topIdx < requestWhenRemaining, "\t\t", contentY)
                     if(pageOffset > 0 && topIdx  < requestWhenRemaining ) { //requirement for previous
+//                        console.log("ASKING FOR PAGE", currentPage - 1, debug)
                         startDelayTimer = doReq(currentPage - 1, true, topIdx, debug)
                     }
 
 //                    console.log(count , topIdx, requestWhenRemaining)
                     if(topIdx !== -1 && count - topIdx <= requestWhenRemaining) { //requirement for next
+//                        console.log("ASKING FOR PAGE", currentPage + 1, debug)
                         startDelayTimer =  doReq(currentPage + 1, false, topIdx, debug) || startDelayTimer
                     }
 

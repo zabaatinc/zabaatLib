@@ -21,23 +21,35 @@ class progress : public QObject
         QString     savePath;
 
 
-        ~progress()
-        {
+        ~progress() {
             if(filePtr != NULL && filePtr->isOpen())
                 filePtr->close();
 
             delete filePtr;
         }
 
-        progress(QUrl Url = QUrl(), QString saveTo = "", qint64 receivedBytes = 0, qint64 totalBytes = 0, QDateTime StartTime = QDateTime::currentDateTime()) : QObject(),
-                                                                                                                                               url(Url),
-                                                                                                                                               savePath(saveTo),
-                                                                                                                                               received(receivedBytes),
-                                                                                                                                               total(totalBytes),
-                                                                                                                                               startTime(StartTime),
-                                                                                                                                               filePtr(NULL) {}
+        progress(QUrl Url = QUrl(), QString saveTo = "", qint64 receivedBytes = 0, qint64 totalBytes = 0, QDateTime StartTime = QDateTime::currentDateTime()) : QObject()
+        {
+            url          =Url;
+            savePath    =saveTo;
+            received    =receivedBytes;
+            total       =totalBytes;
+            startTime   =StartTime;
+            filePtr     =NULL;
 
-        progress(const progress &rhs) : QObject(), url(rhs.url), savePath(rhs.savePath), received(rhs.received), total(rhs.total), startTime(rhs.startTime), filePtr(NULL) {}
+//            qDebug() << "SavePath @ " << savePath <<  " " << this;
+        }
+
+        progress(const progress &rhs) : QObject() {
+            url = rhs.url;
+            savePath = rhs.savePath;
+            received = rhs.received;
+            total = rhs.total;
+            startTime = rhs.startTime;
+            filePtr = NULL;
+
+//            qDebug() << "SavePath @ " << savePath <<  " " << this;
+        }
         progress& operator=(const progress &rhs)
         {
             url = rhs.url;
@@ -47,20 +59,22 @@ class progress : public QObject
             startTime = rhs.startTime;
             filePtr = NULL;
 
+//            qDebug() << "SavePath @ " << savePath <<  " " << this;
             return *this;
         }
 
         bool openFile(QString name = "")
         {
+//            qDebug() << "trying to open file " << name;
             if(name == "")
                 name = savePath != "" ?  savePath : QFileInfo(url.path()).fileName();
 
             if(name.indexOf("file:///") != -1){
-               name = name.replace ("file:///", "");
+               name = name.replace ("file:///", ":");
             }
 
             if(name.indexOf("qrc:///") != -1){
-                name = name.replace ("qrc:///", "");
+                name = name.replace ("qrc:///", ":");
             }
 
 
@@ -101,7 +115,7 @@ class progress : public QObject
 
             //qint64 elapsed = (QDateTime::currentDateTime() - startTime)/1000;
             received = r;
-            total = total;
+            total = t;
 
             double speed = r  / elapsed;
             QString unit;
