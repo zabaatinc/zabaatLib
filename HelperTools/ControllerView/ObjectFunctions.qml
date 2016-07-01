@@ -323,5 +323,40 @@ QtObject {
         return ""
     }
 
+    //sort of merge obj1 into obj2, arrays are pointers still.
+    function merge(obj1, obj2, cloneArrays){
+        if(!obj2)
+            return;
+
+        if(!obj1)
+            obj1 = {}
+
+        for(var o in obj2){
+            var o2 = obj2[o]
+            if(typeof o2 === 'object'){ //we only care bout the linkages!!
+
+                if(toString.call(o2) === '[object Array]') {    //o2 is array
+                    if(cloneArrays){
+                        obj1[o] = []
+                        for(var a = 0 ; a < o2.length ; ++a){
+                            obj1[o][a] = {}
+                            merge(obj1[o][a] , o2[a], cloneArrays)
+                        }
+                    }
+                    obj1[o] = o2
+                }
+                else {
+                    if(!obj1[o])
+                        obj1[o] = {}
+
+                    merge(obj1[o], obj2[o], cloneArrays)
+                }
+            }
+            else {
+                obj1[o] = o2
+            }
+        }
+    }
+
 
 }

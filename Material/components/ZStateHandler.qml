@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import "Lodash"
 //The purpose of this class is to manage the state of all components and
 //is the controller for the css like states (separated with "-") on every component.
 
@@ -15,7 +16,48 @@ import QtQuick 2.0
 pragma Singleton
 Item {
     id : rootObject
+
     function setState(target, state, statesPropertyName) {
+//        var s = state; console.time(s);
+
+        if(logic.isUndef(target) || logic.isUndef(state))
+            return false;
+
+        if(logic.isUndef(statesPropertyName))
+            statesPropertyName = "states"
+
+        //this is the object that holds all the state json
+        var statesObj = target ? target[statesPropertyName] : undefined
+        if(logic.isUndef(statesObj))
+            return false;
+
+        if(state === "")
+            state = 'default'
+        else if(state.indexOf('default') !== 0){
+            state = 'default-' + state
+        }
+
+        var obj = {}      //merge all states into this in order and then apply!
+        var sArr = state.split('-')
+        for(var i = 0; i < sArr.length; ++i){
+            var sItem = statesObj[sArr[i]]
+            logic.merge(obj, sItem);
+        }
+
+//        console.log(_.keys(obj))
+        logic.loadObj(target, obj)
+        //we have the obj now, now we just need to apply this thing on the target
+
+
+//        console.timeEnd(s)
+        return true;
+    }
+
+
+    function setState_old(target, state, statesPropertyName) {
+//        var s = state; console.time(s);
+
+
         if(logic.isUndef(target) || logic.isUndef(state))
             return false;
 
@@ -43,13 +85,21 @@ Item {
         }
 
         target.state = state;
-//        console.log("-------------------------------------")
+//        console.timeEnd(s);
         return true;
     }
 
-
     QtObject {
         id: logic
+        function loadObj(target, obj) {
+            if(obj) {
+                for(var k in obj) {
+                    if(!loadInnerProperty(target, k, obj[k] , target))
+                        console.log("could not find", k, "on", target)
+                }
+            }
+        }
+
         function loadState(target, state, statesPropertyName) {
             var statesObj = target ? target[statesPropertyName] : null
             if(isUndef(statesObj))
@@ -234,6 +284,42 @@ Item {
         function isFunction(obj) {
             return toString.call(obj) === '[object Function]';
         }
+
+
+        function merge(obj1, obj2, cloneArrays){
+            if(!obj2)
+                return;
+
+            if(!obj1)
+                obj1 = {}
+
+            for(var o in obj2){
+                var o2 = obj2[o]
+                if(typeof o2 === 'object'){ //we only care bout the linkages!!
+
+                    if(toString.call(o2) === '[object Array]') {    //o2 is array
+                        if(cloneArrays){
+                            obj1[o] = []
+                            for(var a = 0 ; a < o2.length ; ++a){
+                                obj1[o][a] = {}
+                                merge(obj1[o][a] , o2[a], cloneArrays)
+                            }
+                        }
+                        obj1[o] = o2
+                    }
+                    else {
+                        if(!obj1[o])
+                            obj1[o] = {}
+
+                        merge(obj1[o], obj2[o], cloneArrays)
+                    }
+                }
+                else {
+                    obj1[o] = o2
+                }
+            }
+        }
+
 
     }
 }

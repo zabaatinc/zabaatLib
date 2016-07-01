@@ -76,7 +76,7 @@ ZSkin {
 
 
     states : ({
-        "default" : { "rootObject": { "border.width" : 0,
+        "default" : { "rootObject": { "border" :{ width : 0 },
                                     "radius"       : 0,
                                     "@width"       : [parent,"width"],
                                     "@height"      : [parent,"height"],
@@ -84,19 +84,19 @@ ZSkin {
                                    } ,
                     textContainer : { rotation : 0 },
         },
-       "diamond" : { rootObject: { "border.width": 1,
+       "diamond" : { rootObject: { "border": { width :  1 } ,
                                    "radius": 5,
                                     rotation : 45
                                  },
                      textContainer : { rotation : -45 }
        },
-       "circle" : { rootObject: { "border.width": 1,
+       "circle" : { rootObject: { "border": { width :  1 } ,
                                    "@radius": [rootObject,"height", 0.5],
                                    "@width" : [rootObject,"height"],
                                    clip: true
                   }
         },
-        "raised" : { rootObject: {  "border.width": 1,
+        "raised" : { rootObject: {  "border": { width :  1 } ,
                                     radius: 5,
                    }
         }

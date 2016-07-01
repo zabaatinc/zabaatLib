@@ -228,17 +228,17 @@ Item {
         }
 
         function addBorderStates(){
-            cache.injectState("b0"  , "rootObject" , { "border.width" : 0  });
-            cache.injectState("b1"  , "rootObject" , { "border.width" : 1  });
-            cache.injectState("b2"  , "rootObject" , { "border.width" : 2  });
-            cache.injectState("b3"  , "rootObject" , { "border.width" : 3  });
-            cache.injectState("b4"  , "rootObject" , { "border.width" : 4  });
-            cache.injectState("b5"  , "rootObject" , { "border.width" : 5  });
-            cache.injectState("b6"  , "rootObject" , { "border.width" : 6  });
-            cache.injectState("b7"  , "rootObject" , { "border.width" : 7  });
-            cache.injectState("b8"  , "rootObject" , { "border.width" : 8  });
-            cache.injectState("b9"  , "rootObject" , { "border.width" : 9  });
-            cache.injectState("b10" , "rootObject" , { "border.width" : 10 });
+            cache.injectState("b0"  , "rootObject" , { "border": { "width" : 0   } });
+            cache.injectState("b1"  , "rootObject" , { "border": { "width" : 1   } });
+            cache.injectState("b2"  , "rootObject" , { "border": { "width" : 2   } });
+            cache.injectState("b3"  , "rootObject" , { "border": { "width" : 3   } });
+            cache.injectState("b4"  , "rootObject" , { "border": { "width" : 4   } });
+            cache.injectState("b5"  , "rootObject" , { "border": { "width" : 5   } });
+            cache.injectState("b6"  , "rootObject" , { "border": { "width" : 6   } });
+            cache.injectState("b7"  , "rootObject" , { "border": { "width" : 7   } });
+            cache.injectState("b8"  , "rootObject" , { "border": { "width" : 8   } });
+            cache.injectState("b9"  , "rootObject" , { "border": { "width" : 9   } });
+            cache.injectState("b10" , "rootObject" , { "border": { "width" : 10  } });
 
             cache.injectState("rounded" , "rootObject" , { "@radius" : [rootObject,"height",1/10] });
 
