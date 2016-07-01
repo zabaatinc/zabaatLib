@@ -32,7 +32,8 @@ ZSkin {
         horizontalAlignment: graphical.text_hAlignment
         verticalAlignment  : graphical.text_vAlignment
         color : graphical.text_Default
-        text  : logic.checked ? FA.check : ""
+        text  : logic.checked ? FAR.check : ""
+        textFormat: Text.RichText
     }
 
 

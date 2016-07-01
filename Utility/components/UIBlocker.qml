@@ -24,6 +24,7 @@ Item {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         font.pixelSize   : Math.min(width,height) * 1/8
+        textFormat : Text.RichText
 
         NumberAnimation {
             id : anim
