@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import "Lodash"
+//import "Lodash"
 //The purpose of this class is to manage the state of all components and
 //is the controller for the css like states (separated with "-") on every component.
 
