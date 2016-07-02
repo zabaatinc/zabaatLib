@@ -40,15 +40,14 @@ Item {
         }
 
 
-        l             = l || uncachedLoader
-        l.emitSignals = true;
-        l.args        = args;
-
-        //disable old current loader's signals
-        if(logic.curLoader) {
-            logic.curLoader.emitSignals = false;
+        if(src === "" || src === null || src === undefined){    //same as saying YO BRO EMPTY DIS UP
+            visibleArea.moveAllToCached()
+            return logic.loading = false;
         }
 
+
+        l             = l || uncachedLoader
+        l.args        = args;
         logic.curLoader = l
 
         if(l === uncachedLoader) {
@@ -100,9 +99,11 @@ Item {
                 id : loaderInstance
                 anchors.fill: parent
                 asynchronous: rootObject.asynchronous
-                property bool emitSignals : false
                 property var args : null;
                 onLoaded : if(item){
+                     if(parent === visibleArea)
+                        rootObject.loaded()
+
                     item.anchors.fill = loaderInstance
                     loadArgs()
                 }
@@ -131,9 +132,11 @@ Item {
                 id : uncachedLoader
                 anchors.fill: parent
                 asynchronous: rootObject.asynchronous
-                property bool emitSignals : false
                 property var args : null;
                 onLoaded : if(item){
+                    if(parent === visibleArea)
+                        rootObject.loaded()
+
                     item.anchors.fill = uncachedLoader
                     loadArgs()
                 }
