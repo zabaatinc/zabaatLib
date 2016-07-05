@@ -20,7 +20,7 @@ Item {
     property alias error               : input.error
     property alias changeOnlyOnAccept  : input.changeOnlyOnAccept
     property alias strictValidation    : input.strictValidation
-    property alias validationFunc      : input.validationFunc
+    property var validationFunc
     property alias setAcceptedTextFunc : input.setAcceptedTextFunc
 
     property alias logic         : logic
@@ -104,6 +104,7 @@ Item {
         height : logic.vertical   ? parent.height - label.height    : parent.height
         clip : true
 
+        validationFunc: rootObject.validationFunc
         onInputChanged: rootObject.inputChanged(text,oldText,acceptable);
         onAccepted    : rootObject.accepted(text, oldText);
         state : "ghost"
