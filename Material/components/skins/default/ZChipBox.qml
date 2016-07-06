@@ -45,8 +45,12 @@ ZSkin {
             onAccepted    : if(logic) {
                                 logic.text = text
                                 guiLogic.inputMode = false;
-
                             }
+            onActiveFocusChanged: if(!activeFocus) {    //so it works on mobile too!!
+                                      logic.text = text
+                                      guiLogic.inputMode = false;
+                                  }
+
             visible : guiLogic.inputMode
             Component.onCompleted: if(logic) {
                                        text = logic.text

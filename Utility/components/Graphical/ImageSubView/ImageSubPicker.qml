@@ -9,17 +9,36 @@ Item {
                                              cropRect.width/controls.width,
                                              cropRect.height/controls.height)
 
-    property alias source          : img.source
+    property alias source              : img.source
+    property color barColor            : "black"
+    property real barOpacity           : 0.9
 
-    property color barColor: "black"
-    property real barOpacity : 0.9
+    property bool  resizeEnabled        : true
+    property real  resizeMouseAreaScale : 3
+    property bool  preserveRatio        : true
+    property point ratio                : Qt.point(1,1);
+    property real  initialScale         : 1
+    property alias cache                : img.cache
 
-    property bool resizeEnabled        : true
-    property real resizeMouseAreaScale : 3
-    property bool preserveRatio        : true
-    property point ratio               : Qt.point(1,1);
+    onSourceChanged: {
+//        console.log("NEW SRC" , source)
+        logic.reset()
+        if(source){
+            logic.ratioChangeFunc()
+        }
+    }
 
     onRatioChanged: logic.ratioChangeFunc()
+
+    function setRect(rect){
+        if(!rect)
+            return
+
+        cropRect.x = rect.x * controls.width
+        cropRect.y = rect.y * controls.height
+        cropRect.width = rect.width * controls.width
+        cropRect.height = rect.height * controls.height
+    }
 
     QtObject {
         id : logic
@@ -65,8 +84,8 @@ Item {
 
         function ratioChangeFunc(){
             lowestRatio = lowerRatioToLowestTerms(ratio);
-            cropRect.width  = Qt.binding(function() { return maxSize.x  })
-            cropRect.height = Qt.binding(function() { return maxSize.y  })
+            cropRect.width  = Qt.binding(function() { return maxSize.x * initialScale  })
+            cropRect.height = Qt.binding(function() { return maxSize.y * initialScale })
         }
         function lowerRatioToLowestTerms(ratio){
             var w = ratio.x
@@ -83,6 +102,13 @@ Item {
             else
                 w = h = 1
             return Qt.point(w,h)
+        }
+
+
+        function reset(){
+            lowestRatio = Qt.point(1,1)
+            cropRect.x = cropRect.y = 0;
+            cropRect.width = cropRect.height = 300;
         }
     }
 
@@ -111,8 +137,8 @@ Item {
             Rectangle {
                 id : cropRect
                 color  : 'transparent'
-                x      : (parent.width - width)/2
-                y      : (parent.height - height)/2
+                x      : 0
+                y      : 0
                 width  : 300
                 height : 300
 

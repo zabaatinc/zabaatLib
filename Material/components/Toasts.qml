@@ -191,8 +191,8 @@ Item {
             newToast.blocking      = config.blocking || false
             newToast.state     = "f8"
 
-            newToast.w         = w || 0.5
-            newToast.h         = h || 0.5
+            newToast.w         = w || args.width || args.w ||  0.5
+            newToast.h         = h || args.height || args.h || 0.5
             newToast.z         = 999999
 
             //now load the inner loader!

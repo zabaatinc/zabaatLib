@@ -7,6 +7,7 @@ Item {
     //is in percentage of the image!
     property rect subRect : Qt.rect(0,0,1,1)    //full
     property alias source : img.source
+    property alias cache  : img.cache
     clip : true
 
     Image {

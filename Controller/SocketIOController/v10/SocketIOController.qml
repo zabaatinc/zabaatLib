@@ -524,7 +524,10 @@ ZController {
             //                    debug.debugMsg("finished handling update message received on", message.model + "." + message.id)
             //                    break;
 
-                        case "destroy" : console.log(socketHandler, "TODO : IMPLEMENT DESTROY"); break;
+                        case "destroy" : console.log(socketHandler, "TODO : IMPLEMENT DESTROY", JSON.stringify(message,null,2));
+
+
+                            break;
 
                     }
 
