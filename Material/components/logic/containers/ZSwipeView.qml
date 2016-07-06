@@ -78,7 +78,7 @@ ZObject {
                 var child = rootObject.children[i]
                 if(child &&
                    child !== priv &&
-                   child.objectName !== "styleLoader" &&
+                   child.objectName !== "styleLoader" && !child.dontKidnap &&
                    child.objectName !== "editModeLoader" && priv.indexOf(items,child) === -1 )
                 {
                     tbkidnapped.push(child)
@@ -138,8 +138,7 @@ ZObject {
     signal itemsAdded(var items, int startIdx, int endIdx, int count)
     signal itemRemoved(var idx)
 
-
-
+    function setHeaderBackground(color)   { return skinFunc(arguments.callee.name , color ) }
 
 
 

@@ -7,6 +7,13 @@ ZSkin {
     anchors.centerIn: parent
 
     property alias guiLogic : guiLogic
+    skinFunc : function(name, params) { //the logic may call this!!
+        var fn = guiLogic[name]
+        if(typeof fn === 'function')
+            return fn(params);
+        console.log(rootObject, 'has no skin function called', name)
+        return null;
+    }
 
     Connections {
         target : logic ? logic : null
@@ -64,7 +71,42 @@ ZSkin {
             }
         }
 
+        function setHeaderBackground(color) {
+            if(color) {
+                headerFillRect.clear()
+                if(toString.call(color) === '[object Array]'){
+                    var grad = gradientFactory.createObject(headerFillRect)
+                    grad.color1 = color[0]
+                    grad.color2 = color[1]
 
+
+                }
+                else {
+                    headerFillRect.color = color;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        property Component gradientFactory : Component {
+            id : gradientFactory
+            Rectangle {
+                id : gradDel
+                width  : parent.height
+                height : parent.width
+                anchors.centerIn: parent
+                rotation : 90
+
+                property color color1 : 'red'
+                property color color2 : 'blue'
+                gradient : Gradient{
+                    GradientStop { position: 1.0; color: gradDel.color1 }
+                    GradientStop { position: 0.0; color: gradDel.color2 }
+                }
+            }
+        }
     }
 
 
@@ -73,6 +115,21 @@ ZSkin {
         id : gui
         objectName  : "ZSwipeView.skin"
         anchors.fill: parent
+
+        Rectangle {
+            id: headerFillRect
+            anchors.fill: lvHeader
+            color : 'transparent'
+
+            function clear(){
+                for(var i = children.length - 1; i >= 0; i --){
+                    var child = children[i]
+                    child.destroy()
+                }
+                children = []
+            }
+
+        }
 
         ListView {
             id : lvHeader

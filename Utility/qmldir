@@ -13,4 +13,7 @@ GenericHeader			1.0 components/Loaders/GenericHeader/v10/GenericHeader.qml
 FancyLoader				1.0 components/Loaders/FancyLoader/FancyLoader.qml
 CachedLoader 			1.0 components/Loaders/CachedLoader/CachedLoader.qml
 ObjectEditor			1.0 components/ObjectEditor/v10/ObjectEditor.qml
+HorizontalGradient 		1.0 components/Graphical/HorizontalGradient.qml
+ImageSubView			1.0 components/Graphical/ImageSubView/ImageSubView.qml
+ImageSubPicker 			1.0 components/Graphical/ImageSubView/ImageSubPicker.qml
 Moment		  			1.0 functions/Moment/moment.js
