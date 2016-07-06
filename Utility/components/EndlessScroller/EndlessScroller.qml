@@ -11,14 +11,15 @@ Rectangle {
     signal pageReceived(int page, var data, bool isBeginning)
 
     //vars
-    readonly property bool ready : logic.ready && gui.ready
-    property int  pageOffset     : 0      //use when we dont start on page 0!!
-    property int  rows           : 4
-    property int  columns        : 1
-    property real requestWhenRemaining : 1.5    //request when this much pages are left. YES, it is a REAL. It's smart.
-    property int  requestDelay   : 100
-    property bool requestOnStart : true
-    property bool rerequestPages : false
+    readonly property bool ready            : logic.ready && gui.ready
+    property int  pageOffset                : 0      //use when we dont start on page 0!!
+    property int  rows                      : 4
+    property int  columns                   : 1
+    property real requestWhenPagesRemaining : 1.5    //request when this much pages are left. YES, it is a REAL. It's smart.
+    property real requestPageSize           : requestWhenPagesRemaining //request this amount of pages when a request is made!
+    property int  requestDelay              : 100
+    property bool requestOnStart            : true
+    property bool rerequestPages            : false
     property var  model
 
     //aliases
@@ -66,7 +67,7 @@ Rectangle {
             if(typeof preFunc === 'function')
                 preFunc(pg)
 
-            getPageFunc(pg, gv.numElemsPerPage, function (msg){
+            getPageFunc(pg, gv.numElemsPerPage * rootObject.requestPageSize, function (msg){
                 if(msg.data) {
                     logic.addUniqueToArr(logic.pagesReceived, pg)
                     pageReceived(pg, msg.data, false)
@@ -167,11 +168,11 @@ Rectangle {
 //                            pageOffset--
 //                        }
                     }
-                    else if(gv.preserveVelocity !== 0){
-                        //remember flick.y speed!
-                        gv.flick(0, -gv.preserveVelocity)
-                        gv.preserveVelocity = 0;
-                    }
+//                    else if(gv.preserveVelocity !== 0){
+//                        //remember flick.y speed!
+//                        gv.flick(0, -gv.preserveVelocity)
+//                        gv.preserveVelocity = 0;
+//                    }
 
 
                 }
@@ -205,7 +206,7 @@ Rectangle {
             property real adjustY             : 0
             property bool disableRequests     : false
             property int numElemsPerPage      : rows * columns
-            property int requestWhenRemaining : numElemsPerPage * rootObject.requestWhenRemaining
+            property int requestWhenRemaining : numElemsPerPage * rootObject.requestWhenPagesRemaining
             property real preserveVelocity    : 0
 //            maximumFlickVelocity: 100000000000000000
 
