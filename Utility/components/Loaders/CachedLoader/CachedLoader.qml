@@ -4,6 +4,8 @@
 import QtQuick 2.5
 Item {
     id : rootObject
+    property alias logic : logic
+    property alias gui : gui
 
     //this makes us cache components. next time when this loader will load a cached component, it will
     //be much faster.
@@ -41,6 +43,10 @@ Item {
 
 
         if(src === "" || src === null || src === undefined){    //same as saying YO BRO EMPTY DIS UP
+
+            logic.curLoader = null
+            logic.item = Qt.binding(logic.curLoaderItem)
+
             visibleArea.moveAllToCached()
             return logic.loading = false;
         }
@@ -50,7 +56,8 @@ Item {
         l.args        = args;
         logic.curLoader = l
 
-        if(l === uncachedLoader) {
+
+        if(l === uncachedLoader) {  //if its something uncached we are loading
             if(l[prop] != src){
                 //will load new!!
                 l[prop] = src;
@@ -63,13 +70,13 @@ Item {
             }
             else {
                 l.loadArgs()
-                rootObject.item = l.item    //update rootObject's item
+                logic.item = l.item    //update rootObject's item
             }
         }
         else {
             if(!forceReload) {
                 l.loadArgs()
-                rootObject.item = l.item    //update rootObject's item
+                logic.item = l.item    //update rootObject's item
             }
             else {
                 l.active = false;
@@ -91,9 +98,13 @@ Item {
         property var cacheMap : ({})
 
         property var  curLoader
-        property var  item      : curLoader ? curLoader.item : undefined
+        property var  item      : curLoaderItem()
         property int  status    : item && item.status  ? item.status  : Loader.Null
         property real progress  : item && item.progress? item.progress: 0
+
+        function curLoaderItem(){
+            return curLoader ? curLoader.item : undefined
+        }
 
         property Component loaderFactory : Component { id : loaderFactory; Loader {
                 id : loaderInstance
@@ -171,7 +182,7 @@ Item {
 
 
 
-
+        z : Number.MAX_VALUE
     }
 
 

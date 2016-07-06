@@ -14,7 +14,7 @@ ZSkin {
 
     QtObject {
         id : graphicalOverride
-        property real  barHeight     : 4
+        property real  barHeight     : 1
         property int label_hAlignment : Text.AlignHCenter
         property int label_vAlignment : Text.AlignVCenter
     }
@@ -147,16 +147,16 @@ ZSkin {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: height/2
-            color         : Colors.getContrastingColor(thickerBar.color,1.2)
+            color         : thickerBar.color
             focus : false
 
             Rectangle {
                 id : thickerBar
                 width : parent.width
-                height : graphicalOverride.barHeight ?  parent.height + 3 : 0      //the plus should be an odd number :)
+                height : graphicalOverride.barHeight ?  parent.height + 1 : 0      //the plus should be an odd number :)
 
                 anchors.verticalCenter: parent.verticalCenter
-                color : error.text === "" ?  graphical.fill_Focus : Colors.danger
+                color : error.text === "" ?  graphical.text_Default : Colors.danger
                 transform: Scale {
                     yScale : 1
                     xScale : !gui.inputState ? 0  : 1
@@ -192,7 +192,7 @@ ZSkin {
                                       } ,
                       graphical : { "fill_Default" : "transparent" } ,
                       "graphicalOverride" : {
-                        "barHeight" : 4,
+                        "barHeight" : 1,
                         label_hAlignment : Text.AlignHCenter,
                         label_vAlignment : Text.AlignVCenter
                        },
