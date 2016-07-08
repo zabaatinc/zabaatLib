@@ -23,4 +23,10 @@ Item {
     }
 
 
+//    Text {
+//         text : subRect.toString()
+//         color : 'red'
+//         anchors.centerIn: parent
+//    }
+
 }

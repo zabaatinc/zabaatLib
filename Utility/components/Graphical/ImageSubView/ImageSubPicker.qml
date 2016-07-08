@@ -4,10 +4,15 @@ import QtQuick 2.5
 Item {
     id : rootObject
     //is percentage of the image!!
-    readonly property rect subRect : Qt.rect(cropRect.x/controls.width,
-                                             cropRect.y/controls.height,
-                                             cropRect.width/controls.width,
-                                             cropRect.height/controls.height)
+    readonly property rect subRect : {
+        if(controls.width > 0 && controls.height > 0)
+            return Qt.rect(cropRect.x/controls.width,
+                           cropRect.y/controls.height,
+                           cropRect.width/controls.width,
+                           cropRect.height/controls.height)
+        return Qt.rect(0,0,1,1)
+
+    }
 
     property alias source              : img.source
     property color barColor            : "black"
@@ -106,9 +111,9 @@ Item {
 
 
         function reset(){
-            lowestRatio = Qt.point(1,1)
-            cropRect.x = cropRect.y = 0;
-            cropRect.width = cropRect.height = 300;
+//            lowestRatio = Qt.point(1,1)
+//            cropRect.x = cropRect.y = 0;
+//            cropRect.width = cropRect.height = 300;
         }
     }
 
@@ -262,7 +267,10 @@ Item {
 
     }
 
-
+//    Text {
+//         text : subRect.toString()
+//         color : 'red'
+//    }
 
 
 

@@ -70,13 +70,13 @@ Item {
             }
             else {
                 l.loadArgs()
-                logic.item = l.item    //update rootObject's item
+//                logic.item = l.item    //update rootObject's item
             }
         }
         else {
             if(!forceReload) {
                 l.loadArgs()
-                logic.item = l.item    //update rootObject's item
+//                logic.item = l.item    //update rootObject's item
             }
             else {
                 l.active = false;
