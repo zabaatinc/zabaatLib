@@ -32,7 +32,7 @@ Item {
 
 
         var i =0;
-//        var r = randPeople()
+        var r = randPeople()
 //        for(var i = 0 ; i < 1000; ++i){
 //            controller.addModel('people', { id : i, name : "Shahan" });
 //            controller.addModel('people', { id : i, children : r })
@@ -40,7 +40,8 @@ Item {
 //        }
 
         controller.addModel('people', { id : i, name : "Shahan" });
-        controller.addModel('people', { id : i, children : randPeople() })
+        controller.addModel('people', { id : i, children : r })
+        controller.addModel('people', { id : i, friends : r })
 
 
 //        controller.addModel("people",p)
