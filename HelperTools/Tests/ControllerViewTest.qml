@@ -31,13 +31,15 @@ Item {
 
 
 
+var i =0;
+//        for(var i = 0 ; i < 100; ++i){
+//            controller.addModel('people', { id : i, name : "Shahan" });
+//            controller.addModel('people', { id : i, children : randPeople() })
+//            controller.addModel('people', { id : i, children : randPeople() })
+//        }
 
-        for(var i = 0 ; i < 100; ++i){
-            controller.addModel('people', { id : i, name : "Shahan" });
-            controller.addModel('people', { id : i, children : randPeople() })
-            controller.addModel('people', { id : i, children : randPeople() })
-        }
-
+        controller.addModel('people', { id : i, name : "Shahan" });
+        controller.addModel('people', { id : i, children : randPeople() })
 
 
 //        controller.addModel("people",p)

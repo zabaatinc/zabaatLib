@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.5
 //Contains dynamically generated list models at runtime !!
 
 /*!

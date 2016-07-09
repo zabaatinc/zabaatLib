@@ -78,16 +78,24 @@ function updateItem(existingItem, obj, debugName){
 
 
             if(typeof newValue !== 'object'){   //is a simple object
-                console.log('updateItem::overwrite simple::',debugName,obj.id, "on", o)
+                console.log('updateItem::overwrite simple::',debugName,obj.id, "on", o, existingItem)
                 if(oldValue !== newValue)
                      existingItem[o] = newValue
             }
             else if(!isDef(oldValue)){  //we dont have an old lm, create it and append obj[o] to it??
-                console.log('updateItem::new listmodel::',debugName,obj.id, "on", o)
-                existingItem[o] = [] //newModelFunc('ZListModel.qml',existingItem)
-                if(newValue !== null){
-                    existingItem[o].append(obj[o])
+
+                console.log('updateItem::new listmodel::',debugName,obj.id, "on", o, JSON.stringify(newValue))
+                if(isArray(newValue) ){
+                    if(newValue.length > 0){
+                        existingItem[o] = [] //newModelFunc('ZListModel.qml',existingItem)
+                        existingItem[o].append(newValue)
+                    }
                 }
+                else {
+                    existingItem[o] = [] //newModelFunc('ZListModel.qml',existingItem)
+                    existingItem[o].append(newValue)
+                }
+
 
             }
             else {

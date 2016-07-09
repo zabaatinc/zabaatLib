@@ -58,7 +58,7 @@ Item {
         function addProperties(){
             if(obj){
                 var n = obj.toString().toLowerCase()
-                if(n.indexOf("modelnode") !== -1){
+                if(n.indexOf("modelnode") !== -1 || n.indexOf('modelobject') !== -1){
 //                    console.log(rootObject.objectName , 'adding obj')
                     addObj()
                 }
