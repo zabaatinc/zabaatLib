@@ -1,5 +1,6 @@
 module Zabaat.Controller
-ZController	   	    1.0 ./ZController/ZController.qml
+ZController	   	    1.0 ./ZController/v10/ZController.qml
+ZController	   	    1.1 ./ZController/v11/ZController.qml
 SocketIOController  0.9 ./SocketIOController09/ZController.qml
 SocketIOController  1.0 ./SocketIOController10/SocketIOController.qml
 XhrController 		1.0 ./XhrController/XhrController.qml
