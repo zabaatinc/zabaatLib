@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import Zabaat.SocketIO 1.0
-import Zabaat.Controller.ZController 1.1
+import Zabaat.Controller.ZController 1.0
 
 /*!
    \brief an extension of the ZController that uses SocketIO to communicate

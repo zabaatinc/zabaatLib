@@ -84,15 +84,20 @@ function updateItem(existingItem, obj, debugName){
             }
             else if(!isDef(oldValue)){  //we dont have an old lm, create it and append obj[o] to it??
 
-                console.log('updateItem::new listmodel::',debugName,obj.id, "on", o, JSON.stringify(newValue))
                 if(isArray(newValue) ){
                     if(newValue.length > 0){
+
                         existingItem[o] = [] //newModelFunc('ZListModel.qml',existingItem)
+                        console.log('updateItem::new listmodel::',debugName,obj.id, "on", o, existingItem[o], JSON.stringify(newValue))
+//                        existingItem[o].dynamicRoles = true;
                         existingItem[o].append(newValue)
                     }
                 }
                 else {
+
                     existingItem[o] = [] //newModelFunc('ZListModel.qml',existingItem)
+                    console.log('updateItem::new listmodel::',debugName,obj.id, "on", o, existingItem[o],JSON.stringify(newValue))
+//                    existingItem[o].dynamicRoles = true;
                     existingItem[o].append(newValue)
                 }
 

@@ -144,10 +144,28 @@ Item
                             rootObject.newModelAdded(name, ++priv.modelCount); //emit that a new model was added!
                             console.log("op on" , name, 'resulted in' , messageObject.count , 'elems & took', time , "ms")
                         }
+                        if(queue.length > 0){
+                            var obj = queue[0]
+                            queue.splice(0,1);
+//                            if(obj.name === 'user'){
+//                                var current = getById('user', obj.data.id)
+//                                console.log("--------------")
+//                                console.log("current:", JSON.stringify(current,null,2))
+//                                console.log("new:", obj.data)
+//                                for(var d in obj.data){
+//                                    console.log(d, JSON.stringify(obj.data[d]))
+//                                }
+//                                console.log("--------------")
+//                            }
+                            console.log("@@@@@@@@@@@@@@@@@@@@@@ QUEUE REQUEST ")
+                            worker.sendMessage(obj);
+                        }
+
                         break;
                 }
-
             }
+
+            property var queue : []
 
 
         }
@@ -239,11 +257,17 @@ Item
        }
 
        //send it off to the worker to add it!
-       worker.sendMessage({ type  : "add",
-                             lm     : lm,
-                             name   : modelName,
-                             data   : data,
-                             isNew  : isNew })
+       var obj = { type  : "add",
+           lm     : lm,
+           name   : modelName,
+           data   : data,
+           isNew  : isNew }
+
+       if(worker.queue.length === 0) {
+            worker.sendMessage(obj)
+       }
+       else
+           worker.queue.push(obj);
 
    }
 
