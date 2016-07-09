@@ -139,34 +139,85 @@ Item
                     case 'add' :
                         var time  = messageObject.time;
                         var name  = messageObject.name;
-                        if(messageObject.isNew) {
+                        var requests = messageObject.requests
+                        if(requests.length > 0){
+                            handleRequests(messageObject.requests)
+                        }
+                        else if(messageObject.isNew) {
                             priv.checkCallbacks(name)        //check if anything has requested this model!
                             rootObject.newModelAdded(name, ++priv.modelCount); //emit that a new model was added!
                             console.log("op on" , name, 'resulted in' , messageObject.count , 'elems & took', time , "ms")
                         }
-                        if(queue.length > 0){
-                            var obj = queue[0]
-                            queue.splice(0,1);
-//                            if(obj.name === 'user'){
-//                                var current = getById('user', obj.data.id)
-//                                console.log("--------------")
-//                                console.log("current:", JSON.stringify(current,null,2))
-//                                console.log("new:", obj.data)
-//                                for(var d in obj.data){
-//                                    console.log(d, JSON.stringify(obj.data[d]))
-//                                }
-//                                console.log("--------------")
-//                            }
-                            console.log("@@@@@@@@@@@@@@@@@@@@@@ QUEUE REQUEST ")
-                            worker.sendMessage(obj);
-                        }
-
                         break;
                 }
             }
 
-            property var queue : []
 
+            function handleRequests(requests){
+                function handleRequest(location, data){
+                    var arr = location.split("→");
+
+                    var modelName = arr[0]
+                    var obj = models[modelName]
+
+                    var traversalStr = modelName
+                    if(obj) {
+                        arr.splice(0,1);    //remove the first elem and now we can travel.
+                        for(var a = 0; a < arr.length; a++) {
+                            var info = arr[a].split(".")
+                            var idx  = info[0]
+                            var prop = info[1]
+
+
+                            obj = obj.get(idx);
+                            traversalStr += ".get(" + idx + ")";
+//                            if(modelName === 'user') console.log('@@@@@', obj)
+
+                            if(a !== arr.length - 1) {  //is not last , keep traversing on object
+                                obj = obj[prop]
+                                traversalStr += "." + prop;
+//                                if(modelName === 'user') console.log('@@@@@', obj)
+                            }
+                            else {
+//                                var lm = []//modelFactory.createObject(container);   //create new list here and now do a request :)
+                                obj[prop] = modelFactory.createObject(container);
+                                obj[prop].append({})
+                                obj[prop].remove(0);
+
+
+                                traversalStr += "." + prop + "= new lm";
+                                console.log(traversalStr)
+//                                console.log('@@@@@@ created', prop, "@", obj, obj[prop])
+//                                if(modelName === "user") console.log("@@@@@@" , models["user"].get(0).bookmarks)
+
+                                worker.sendMessage({ type : "add",
+                                                      lm            : obj[prop],
+                                                      location      : location,
+                                                      data          : data,
+                                                      isNew         : false,
+                                                      name          : modelName,
+                                                      syncModel     : models[modelName] })
+//                                var darr = isArray(data) ? data : [data]
+//                                for(var d in darr)
+//                                    obj[prop].append(darr[d])
+
+
+                            }
+                        }
+                    }
+
+
+
+
+
+                }
+
+
+                for(var i = 0; i < requests.length ; ++i){
+                    var r = requests[i]
+                    handleRequest(r.location, r.data);
+                }
+            }
 
         }
 
@@ -261,14 +312,11 @@ Item
            lm     : lm,
            name   : modelName,
            data   : data,
-           isNew  : isNew }
+           isNew  : isNew,
+           location : modelName
 
-       if(worker.queue.length === 0) {
-            worker.sendMessage(obj)
        }
-       else
-           worker.queue.push(obj);
-
+       worker.sendMessage(obj)
    }
 
 

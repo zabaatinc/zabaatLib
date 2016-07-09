@@ -24,7 +24,7 @@ WorkerScript.onMessage = function(msg) {
                 var time = +(new Date().getTime())
                 var count = msg.lm.count
 
-                appendToModel(msg.lm, msg.data, msg.name);
+                var requests = appendToModel(msg.lm, msg.data, msg.location);
 
                 //update vars
                 count = msg.lm.count - count;
@@ -32,13 +32,16 @@ WorkerScript.onMessage = function(msg) {
 
                 console.log("@@@@ SYNC ON @@@@" , msg.name)
                 msg.lm.sync();
+                if(msg.syncModel)
+                    msg.syncModel.sync();
                 console.log('@@@@ SAFE @@@@')
 
                 WorkerScript.sendMessage({type:'add',
                                             name         : msg.name,
                                             time         : time,
                                             count       : count,
-                                            isNew       : msg.isNew
+                                            isNew       : msg.isNew,
+                                            requests    : requests
                                             })
 
                 break;
@@ -48,29 +51,35 @@ WorkerScript.onMessage = function(msg) {
 
 
 /*! fn: SHOULD be moved to private. do not USE! \hr */
-function appendToModel(lm , data, debugName){  //returns new count
+function appendToModel(lm , data, location){  //returns new count
     var arr = isArray(data) ? data : [data]
+    var requests = []
     for(var i = 0; i < arr.length; i++) {
-        addObjectToModel(lm,arr[i], debugName)
+        var r = addObjectToModel(lm,arr[i], location)
+        if(r)
+            requests.push(r);
     }
+    return requests
 }
 
 
-function addObjectToModel(lm, obj, debugName) {
+function addObjectToModel(lm, obj, location) {
     if(obj && obj.id !== null && typeof obj.id !== 'undefined') {
 
-        var existingItem = getById(lm, obj.id);
-        if(!existingItem){  //data doesnt exist. append it.
-            console.log('addItem::', debugName , obj.id)
+        var existingIdx = getById(lm, obj.id, true);
+        if(existingIdx === -1){  //data doesnt exist. append it.
+//            console.log(lm, location, JSON.stringify(obj))
             lm.append(obj);
+            return null;
         }
         else {              //update existing
-            updateItem(existingItem, obj, debugName);
+            var existingItem = lm.get(existingIdx);
+            return updateItem(existingItem, obj, location + "→" + existingIdx);
         }
     }
 }
 
-function updateItem(existingItem, obj, debugName){
+function updateItem(existingItem, obj, location){
     for(var o in obj)  {
         if(o !== 'id') {
             var oldValue  = existingItem[o]
@@ -78,33 +87,35 @@ function updateItem(existingItem, obj, debugName){
 
 
             if(typeof newValue !== 'object'){   //is a simple object
-                console.log('updateItem::overwrite simple::',debugName,obj.id, "on", o, existingItem)
+
                 if(oldValue !== newValue)
                      existingItem[o] = newValue
             }
             else if(!isDef(oldValue)){  //we dont have an old lm, create it and append obj[o] to it??
 
-                if(isArray(newValue) ){
-                    if(newValue.length > 0){
 
-                        existingItem[o] = [] //newModelFunc('ZListModel.qml',existingItem)
-                        console.log('updateItem::new listmodel::',debugName,obj.id, "on", o, existingItem[o], JSON.stringify(newValue))
-//                        existingItem[o].dynamicRoles = true;
-                        existingItem[o].append(newValue)
-                    }
-                }
-                else {
+                return { location : location + "." + o, data : newValue }
+//                if(isArray(newValue) ){
+//                    if(newValue.length > 0){
 
-                    existingItem[o] = [] //newModelFunc('ZListModel.qml',existingItem)
-                    console.log('updateItem::new listmodel::',debugName,obj.id, "on", o, existingItem[o],JSON.stringify(newValue))
-//                    existingItem[o].dynamicRoles = true;
-                    existingItem[o].append(newValue)
-                }
+//                        existingItem[o] = [] //newModelFunc('ZListModel.qml',existingItem)
+
+////                        existingItem[o].dynamicRoles = true;
+//                        existingItem[o].append(newValue)
+//                    }
+//                }
+//                else {
+
+//                    existingItem[o] = [] //newModelFunc('ZListModel.qml',existingItem)
+
+////                    existingItem[o].dynamicRoles = true;
+//                    existingItem[o].append(newValue)
+//                }
 
 
             }
             else {
-                console.log('updateItem::deep copy::',debugName,obj.id, "_______")
+//                console.log('updateItem::deep copy::',debugName,obj.id, "_______")
                 deepCopy(existingItem[o],obj[o], existingItem, o,o )
             }
         }
