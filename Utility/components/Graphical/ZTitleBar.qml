@@ -70,6 +70,7 @@ Item {
         property string closeText : "X"
         property real   resizeAreaPx : 15
         property real   barSize : 30
+        property alias  border  : borderRect.border
 
         //mouse Areas
         Item {
@@ -318,6 +319,13 @@ Item {
 
         }
 
+        //borderRect
+        Rectangle {
+            id : borderRect
+            anchors.fill: parent
+            border.width: 2
+            color : 'transparent'
+        }
 
 
         Item {
