@@ -164,8 +164,6 @@ Item {
                 onPressed        : clickPos = mouse.y
                 onPositionChanged: {
                     var delta      = mouse.y - clickPos
-
-                    console.log(delta)
                     if(delta < 0 && winPtr.height <= minHeight)
                         delta = 0
 
@@ -262,7 +260,6 @@ Item {
                     id : connectActive
                     target : winPtr ? winPtr : null
                     onActiveChanged : {
-            //            console.log("ACTIVE CHANGED!!!", winPtr, winPtr.active)
                         if(winPtr.active)
                             focusAnimationContainer.playFocusAnimation()
                     }
