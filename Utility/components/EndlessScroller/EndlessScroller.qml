@@ -5,7 +5,7 @@ Rectangle {
     signal itemSelected(string id, var model, rect r);
     signal flickUp()
     signal flickDown()
-
+    signal finishedCustomHandling()
 
     signal pageRequested(int page)
     signal pageReceived(int page, var data, bool isBeginning)
@@ -54,6 +54,11 @@ Rectangle {
         if(item){
             itemSelected(item.uid, item, logic.getRect(index));
         }
+    }
+
+    function refresh(){
+        logic.pagesReceived = []
+        logic.pagesRequested = []
     }
 
     //returns true if a request was performed, false if not. Requests may not be perfomed if we already have
@@ -153,6 +158,7 @@ Rectangle {
                                 if(pageOffset > 0)
                                     pageOffset--
                                 gv.disableRequests = false;
+                                finishedCustomHandling()
                             }
                             else
                                 contentYAdjustmentTimer.begin(a)
@@ -192,6 +198,7 @@ Rectangle {
                         pageOffset--
 
                     gv.disableRequests = false;
+                    finishedCustomHandling()
                 }
                 function begin(adj){
 
