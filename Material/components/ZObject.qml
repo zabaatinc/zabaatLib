@@ -25,6 +25,9 @@ FocusScope {
     signal skinLoaded();
     Component.onDestruction: imDying(rootObject);
 
+    property string state
+//    onStateChanged: console.log(rootObject, "i state changed to", state)
+
 
     /*! This is important for ZEdit; should we ever bring that back \hr  */
     property var uniqueProperties : []      // ["msgbxoId" , "message"]

@@ -100,6 +100,7 @@ Item {
     property alias graphical      : graphical
     readonly property var injectState : cache.injectState
 
+
     Rectangle { id: rect ; anchors.fill : parent; color: logic ? Colors.get(logic.colors , "standard") : "white"; opacity: graphical.fill_Opacity; }
     Rectangle {
         id: borderRect ;
@@ -129,15 +130,15 @@ Item {
         property bool hasInit : false
 
         target          : logic ? logic : null
-        onStateChanged  : { stimer.begin(logic.state, logic.enabled)  }
-        onEnabledChanged: { stimer.begin(logic.state, logic.enabled); }
+        onStateChanged  : { rootObject.stateChangeOp(logic.state, logic.enabled)  }
+        onEnabledChanged: { rootObject.stateChangeOp(logic.state, logic.enabled); }
     }
     onStatesChanged: {
         if(logic){
             if(logic.hasOwnProperty('font'))    cache.addFontStates()
             if(logic.hasOwnProperty('knob'))    cache.addKnobStates()
 
-            stimer.begin(logic.state, logic.enabled)
+            rootObject.stateChangeOp(logic.state, logic.enabled)
         }
     }
     onLogicChanged: {
@@ -149,7 +150,7 @@ Item {
             if(rootObject.hasOwnProperty("knob"))
                 cache.addKnobStates()
 
-            stimer.begin(logic.state, logic.enabled)
+            rootObject.stateChangeOp(logic.state, logic.enabled)
         }
     }
 
@@ -159,6 +160,8 @@ Item {
         id : cache
         property string state  : ""
         property bool   enable : false
+        property bool   first  : true
+        property bool   initEmitted : false
 
         property bool fontsAdded   : false
         property bool bordersAdded : false
@@ -172,7 +175,7 @@ Item {
         }
 
         onReadyChanged : if(ready){
-                             stimer.begin(state,enable,true)
+                             rootObject.stateChangeOp(state,enable,true)
                          }
 
 
@@ -633,11 +636,15 @@ Item {
     //Automatically adds borderStates and fontStates if there is a font in the rootLevel Object!!
     //these states are - b1-b10 , f1-f10, fw1-fw10      //fw means font size is dependent on the Width instead of height of the component
     function stateChangeOp(state, enabled, force){
-//        console.log(rootObject, 'setting state to', state)
+//        console.log(rootObject, "statechangeOp")
+
         if(!force && state === cache.state && enabled === cache.enable)
             return;
 
+        if(state === "" && cache.first)
+            return;
 
+//        console.log(rootObject, 'setting state to', state)
         if(cache.ready) {
             rootObject.enabled = enabled;
             if(!enabled && logic.disableShowsGraphically) {
@@ -649,29 +656,19 @@ Item {
 
         cache.state  = state
         cache.enable = enabled
+        if(cache.first){
+            cache.first = false;        //tells us that we have init or loaded a different state other than default :D
+        }
+
+        if(!cache.initEmitted) {
+            initialized();
+            cache.initEmitted = true;
+        }
+
+
     }
 
-    Timer {
-         id : stimer
-         property string newstate : ""
-         property bool   newEnable : true
-         property bool   doForce   : false
-         interval : 5
-         onTriggered: {
-             rootObject.stateChangeOp(newstate,newEnable,doForce)
-              if(!conn.hasInit) {
-                  conn.hasInit = true;
-                  rootObject.initialized()
-              }
-         }
 
-         function begin(state,enabled,force){
-             newstate = state;
-             newEnable = enabled
-             doForce = force ? true : false
-             stimer.start()
-         }
-    }
 
 
 
