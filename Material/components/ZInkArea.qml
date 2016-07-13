@@ -11,12 +11,12 @@ Item {
     signal pressed(int x, int y, int buttons);
     signal clicked(int x, int y, int buttons);
     signal doubleClicked(int x, int y, int buttons);
-    readonly property alias containsMouse : ma.mouseIsIn
-    readonly property alias isPressed     : ma.isPressed
+    readonly property var containsMouse : !item ? false : item.containsMouse
+    readonly property var isPressed     : !item ? false : item.isPressed
     ////////////////////////////////////////////////////////////////////
 
     //Properties   //////////////////////////////////////////////////////////////////////
-    property alias acceptedButtons    : ma.acceptedButtons
+    property var   acceptedButtons    : Qt.AllButtons
     property color color : {
         if(target){
             if(target.inkColor)
@@ -31,10 +31,10 @@ Item {
     }
 
     property bool  inkDiesOutSide     : false               //Determines if ink auto dies
-    property alias inkSurvivalInterval: killTimer.interval  //after this value in milliseconds
+    property int   inkSurvivalInterval: 500                 //after this value in milliseconds
 
     property bool  allowDoubleClicks  : true                    //If we don't allow double clicks
-    property alias doubleClickInterval: clickWaitTimer.interval //we don't have to wait this amount
+    property int doubleClickInterval  : 200  //we don't have to wait this amount
     ///////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -48,119 +48,170 @@ Item {
        }
     }
     //////////////////////////////////////////////////////////////////////////////////////
+    readonly property var simulatePress   : item && item.functionPress   ? item.functionPress   : loader.functionPress
+    readonly property var simulateRelease : item && item.functionRelease ? item.functionRelease : loader.functionRelease
 
 
-    readonly property var simulatePress   : ma.functionPress
-    readonly property var simulateRelease : ma.functionRelease
+    //Opacity mask is only used if target has a radius && opacity has a value > 0
+    Loader  {
+        id : loader
+        anchors.fill   : parent
+        sourceComponent: parent.opacity > 0 ? inkCmp : noninkCmp
 
-
-    //Opacity mask is only used if target has a radius.
-    Rectangle {
-        id          : mask;
-        anchors.fill: parent;
-        radius      : parent.radius;
-        visible     : false;
-    }
-    ZInk {
-        id      : ink;
-        color   : rootObject.color
-        msArea  : ma;
-        visible : parent.radius > 0 ? false : true;
-    }
-    MouseArea {
-        id : ma
-        anchors.fill: parent
-        hoverEnabled: true
-        property bool isPressed : false;
-        property bool mouseIsIn : false;
-        property point coords : Qt.point(mouseX, mouseY)
-
-        function functionPress() {
-            ink.tap();
-            rootObject.pressed(coords.x,coords.y,pressedButtons);
-            isPressed = true;
+        function functionPress(){
+            rootObject.pressed(width/2,height/2,Qt.LeftButton)
         }
-        function functionRelease(hasMouse){
-            ink.lockMouse()
 
-            if(hasMouse === null || typeof hasMouse === 'undefined')
-                hasMouse = containsMouse
+        function functionRelease(){
+            rootObject.release(width/2,height/2,Qt.LeftButton)
+        }
+    }
 
-            if(hasMouse){
-                if(clickWaitTimer.running){
-                    clickWaitTimer.stop()
-                    ink.end("grow", rootObject.doubleClicked, coords.x, coords.y, pressedButtons);
+    property var item : loader && loader.item && loader.item.ma ? loader.item.ma : null
+
+    Component {
+        id : inkCmp
+        Item {
+            id : visibleInkSect
+            anchors.fill: parent
+            property var radius: rootObject && rootObject.radius ? rootObject.radius : 0
+            property alias ma : ma
+
+            Rectangle {
+                id          : mask;
+                anchors.fill: parent;
+                radius      : rootObject.radius;
+                visible     : false;
+            }
+            ZInk {
+                id      : ink;
+                color   : rootObject.color
+                msArea  : ma;
+                visible : rootObject.radius > 0 ? false : true;
+            }
+            MouseArea {
+                id : ma
+                anchors.fill: parent
+                hoverEnabled: true
+                property bool isPressed : false;
+                property bool mouseIsIn : false;
+                property point coords : Qt.point(mouseX, mouseY)
+
+                function functionPress() {
+//                    console.log("@ 1 @")
+                    ink.tap();
+                    rootObject.pressed(coords.x,coords.y,pressedButtons);
+                    isPressed = true;
                 }
-                else {
-                    if(allowDoubleClicks){
-                        clickWaitTimer.btn = pressedButtons
-                        clickWaitTimer.start()
+                function functionRelease(hasMouse){
+                    ink.lockMouse()
+
+                    if(hasMouse === null || typeof hasMouse === 'undefined')
+                        hasMouse = containsMouse
+
+                    if(hasMouse){
+                        if(clickWaitTimer.running){
+                            clickWaitTimer.stop()
+                            ink.end("grow", rootObject.doubleClicked, coords.x, coords.y, pressedButtons);
+                        }
+                        else {
+                            if(allowDoubleClicks){
+                                clickWaitTimer.btn = pressedButtons
+                                clickWaitTimer.start()
+                            }
+                            else {
+        //                        console.log("CHANGING")
+                                ink.end("grow",rootObject.clicked, coords.x,coords.y, pressedButtons);
+                            }
+                        }
                     }
                     else {
-//                        console.log("CHANGING")
-                        ink.end("grow",rootObject.clicked, coords.x,coords.y, pressedButtons);
+                        ink.end("shrink")
                     }
+                    isPressed = false;
+                }
+
+
+                onPressed : functionPress();
+                onReleased: functionRelease();
+                onEntered : mouseIsIn = true;
+                onExited  : mouseIsIn = false;
+                onCanceled: ink.end("shrink")
+                onMouseIsInChanged: if(inkDiesOutSide) {
+                                        if(!mouseIsIn)  killTimer.start()
+                                        else            killTimer.stop()
+                                    }
+            }
+
+            OpacityMask {
+                anchors.fill: mask
+                source      : ink
+                maskSource  : mask
+        //        opacity     : 0.5
+                visible     : parent.radius > 0 ? true : false;
+            }
+            Timer {
+                id : clickWaitTimer;  interval : rootObject.doubleClickInterval;  repeat: false;
+                property int btn : -1
+                property point coords : Qt.point(0,0)
+                onTriggered  : {
+                    ink.end("grow",rootObject.clicked, coords.x, coords.y, btn);
                 }
             }
-            else {
-                ink.end("shrink")
+            Timer { id : killTimer;  interval : rootObject.inkSurvivalInterval; repeat : false; onTriggered: ink.end("shrink"); }
+
+            Rectangle {     //just so we can have clear outlines
+                anchors.fill: parent
+                radius      : mask.radius
+                color       : "transparent"
+                visible     : false//radius > 0 && border.width > 0
+                border.width: {
+                    if(target){
+                        if(target.border && target.border.width)   return target.border.width
+                        else if(target.borderWidth)                return target.borderWidth
+                    }
+                    return 0;
+                }
+                border.color: {
+                    if(target){
+                        if(target.border && target.border.color)  return target.border.color
+                        else if(target.borderColor)               return target.borderColor
+                        else if(target.outlineColor)              return target.outlineColor
+                    }
+                    return "black"
+                }
+        //        Text {
+        //            anchors.fill: parent
+        //            text : parent.border.width
+        //        }
             }
-            isPressed = false;
+
+
         }
 
-
-        onPressed : functionPress();
-        onReleased: functionRelease();
-        onEntered : mouseIsIn = true;
-        onExited  : mouseIsIn = false;
-        onCanceled: ink.end("shrink")
-        onMouseIsInChanged: if(inkDiesOutSide) {
-                                if(!mouseIsIn)  killTimer.start()
-                                else            killTimer.stop()
-                            }
     }
 
-    OpacityMask {
-        anchors.fill: mask
-        source      : ink
-        maskSource  : mask
-//        opacity     : 0.5
-        visible     : parent.radius > 0 ? true : false;
-    }
-    Timer {
-        id : clickWaitTimer;  interval : 200;  repeat: false;
-        property int btn : -1
-        property point coords : Qt.point(0,0)
-        onTriggered  : {
-            ink.end("grow",rootObject.clicked, coords.x, coords.y, btn);
-        }
-    }
-    Timer { id : killTimer;  interval : 500; repeat : false; onTriggered: ink.end("shrink"); }
-
-    Rectangle {     //just so we can have clear outlines
-        anchors.fill: parent
-        radius      : mask.radius
-        color       : "transparent"
-        visible     : false//radius > 0 && border.width > 0
-        border.width: {
-            if(target){
-                if(target.border && target.border.width)   return target.border.width
-                else if(target.borderWidth)                return target.borderWidth
+    Component {
+        id: noninkCmp
+        Item {
+            id : invisibleInk
+            anchors.fill: parent
+            property alias ma : ma2
+            MouseArea {
+                id: ma2
+                anchors.fill: parent
+                hoverEnabled: true;
+                acceptedButtons: rootObject.acceptedButtons
+                onPressed : rootObject.pressed(mouseX,mouseY,pressedButtons)
+                onClicked : {
+                    rootObject.clicked(mouseX,mouseY,pressedButtons)
+                }
+                onDoubleClicked: rootObject.doubleClicked(mouseX,mouseY,pressedButtons)
             }
-            return 0;
+
         }
-        border.color: {
-            if(target){
-                if(target.border && target.border.color)  return target.border.color
-                else if(target.borderColor)               return target.borderColor
-                else if(target.outlineColor)              return target.outlineColor
-            }
-            return "black"
-        }
-//        Text {
-//            anchors.fill: parent
-//            text : parent.border.width
-//        }
     }
+
+
 
 }

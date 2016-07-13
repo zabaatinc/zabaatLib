@@ -516,6 +516,8 @@ Item {
                                   inkOpacity : 0.5
             })
 
+            cache.injectState("noink", "graphical" , { inkOpacity : 0 })
+
             cache.injectState("semitransparent", "graphical" , { "fill_Opacity" : 0.8  })
 
             cache.injectState("tcontrasting","graphical", {

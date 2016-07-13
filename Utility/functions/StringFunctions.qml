@@ -152,6 +152,10 @@ QtObject {
     function getNumbers(str){
         return str.replace(/[^\d.-]/g, '');
     }
+    function noNumbers(str){
+        return str.replace(/[0-9]/g, '');
+    }
+
     function isADecimalNumber(str){
         return str.match(/^\d*\.?\d*$/g);
     }
