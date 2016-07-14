@@ -1,4 +1,5 @@
 import QtWebKit 3.0
+//import QtWebView 1.1
 import QtQuick 2.5
 Item {
     id : rootObject
@@ -19,7 +20,7 @@ Item {
     QtObject {
         id : logic
         property string authUrl          : "https://www.facebook.com/dialog/oauth"
-        property string redirect_success : "http://studiiio.global/"
+        property string redirect_success : "http://studiiio.global/facebook"
         property string token
         property string expires
         property string fbhost           : "https://graph.facebook.com"
@@ -101,73 +102,87 @@ Item {
    }
 
 
+    Item {
+        width : parent.width
+        height : parent.height
+        anchors.centerIn: parent
+        WebView {
+            id : wv
+
+            anchors.fill: parent
+
+            url : logic.authUrl + "?client_id=" + appId +
+    //              "&client_secret=" + appSecret +
+                  "&redirect_uri=" + logic.redirect_success +
+                  "&display=iframe&response_type=token&scope=" + permissions.join(",")
+
+    //        interactive : false
 
 
-    WebView {
-        id : wv
-        anchors.fill: parent
-        url : logic.authUrl + "?client_id=" + appId +
-//              "&client_secret=" + appSecret +
-              "&redirect_uri=" + logic.redirect_success +
-              "&response_type=token&scope=" + permissions.join(",")
+            onUrlChanged: {
+//                wv.runJavaScript('document.body.style.zoom="200%"')
+                var u = url.toString()
+                console.log(u)
+                if(u.indexOf(logic.redirect_success) === 0) {
+                    //find access token
+    //                console.log(u)
+                    logic.token     = logic.getURLParameter('#access_token', u)
+                    logic.expires   = logic.getURLParameter('expires_in',u)
 
+                    if(appSecret) { //we can actually now use this token to request for a long lived token!
+                        var params = {
+                            client_id          : appId,
+                            client_secret      : appSecret ,
+                            grant_type         : "fb_exchange_token",
+                            fb_exchange_token : token
+                        }
 
-        onUrlChanged: {
-            var u = url.toString()
-            if(u.indexOf(logic.redirect_success) === 0) {
-                //find access token
-//                console.log(u)
-                logic.token     = logic.getURLParameter('#access_token', u)
-                logic.expires   = logic.getURLParameter('expires_in',u)
+                        publicFuncs.apiCall('GET','oauth/access_token', params,  function(msg){
+                                                    logic.token     = logic.getURLParameter('access_token', "?" + msg)
+                                                    logic.expires   = logic.getURLParameter('expires'  , "?" + msg)
+                                                    publicFuncs.me(function(response) {
+                                                                        if(response) {
+                                                                            logic.fbId = response.id
+                                                                            logic.name = response.name
+                                                                        }
+                                                                    })
 
-                if(appSecret) { //we can actually now use this token to request for a long lived token!
-                    var params = {
-                        client_id          : appId,
-                        client_secret      : appSecret ,
-                        grant_type         : "fb_exchange_token",
-                        fb_exchange_token : token
+                                                } , true)
+                    }
+                    else {
+
+                        publicFuncs.me(function(response) {
+                                            if(response) {
+                                                logic.fbId = response.id
+                                                logic.name = response.name
+                                            }
+                                        })
                     }
 
-                    publicFuncs.apiCall('GET','oauth/access_token', params,  function(msg){
-                                                logic.token     = logic.getURLParameter('access_token', "?" + msg)
-                                                logic.expires   = logic.getURLParameter('expires'  , "?" + msg)
-                                                publicFuncs.me(function(response) {
-                                                                    if(response) {
-                                                                        logic.fbId = response.id
-                                                                        logic.name = response.name
-                                                                    }
-                                                                })
+    //                console.log("access_token=", token, "expires", expires)
 
-                                            } , true)
+
+
                 }
-                else {
+            }
 
-                    publicFuncs.me(function(response) {
-                                        if(response) {
-                                            logic.fbId = response.id
-                                            logic.name = response.name
-                                        }
-                                    })
-                }
+            onLoadingChanged:  {
+                if(!loading)
+                    loadFinished()
+                else
+                    loadStarted(url)
 
-//                console.log("access_token=", token, "expires", expires)
-
-
-
+            }
+            Rectangle {
+                anchors.fill: parent
+                border.width: 1
+                color : 'transparent'
             }
         }
 
-        onLoadingChanged:  {
-            if(!loading)
-                loadFinished()
-            else
-                loadStarted(url)
-
-        }
-        Rectangle {
-            anchors.fill: parent
-            border.width: 1
-            color : 'transparent'
-        }
     }
+
+
+
+
 }

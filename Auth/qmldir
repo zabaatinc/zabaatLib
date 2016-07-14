@@ -1,3 +1,4 @@
 module Zabaat.Auth
-Facebook 1.0 Facebook.qml
+Facebook 1.0 Facebook/v10/Facebook.qml
+Facebook 1.1 Facebook/v11/Facebook.qml
 Google 1.0 Google.qml
