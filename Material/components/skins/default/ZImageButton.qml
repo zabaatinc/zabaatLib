@@ -72,7 +72,7 @@ ZSkin {
         onPressed:  if(logic)       logic.pressed(logic, x,y,buttons)
         onClicked:  if(logic)       logic.clicked(logic, x,y,buttons)
         onDoubleClicked : if(logic) logic.doubleClicked(logic, x,y,buttons)
-        opacity : graphical.inkOpacity * 0.5
+        opacity : graphical.inkOpacity
         onContainsMouseChanged : {
 //            if(graphical.state !== 'press')
 //                graphical.state = containsMouse ? "focus" : ""
