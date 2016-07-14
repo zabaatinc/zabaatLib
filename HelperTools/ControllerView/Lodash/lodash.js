@@ -9,7 +9,7 @@
  * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
  */
 
-   console.log("starting lodash.js")
+//   console.log("starting lodash.js")
   /** Used as a safe reference for `undefined` in pre-ES5 environments. */
   var undefined;
 

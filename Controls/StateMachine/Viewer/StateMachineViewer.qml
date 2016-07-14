@@ -226,6 +226,15 @@ Item {
         }
     }
 
+    //UI BLOCKER
+    Item {
+        anchors.fill: parent
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true;
+            enabled : rootObject.visible
+        }
+    }
 
     FancyLoader {   //This loads the STateITems!
         id          : loader
