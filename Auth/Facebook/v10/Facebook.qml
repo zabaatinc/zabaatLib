@@ -1,8 +1,10 @@
 import QtQuick 2.5
+import Qt.labs.settings 1.0
 Item {
     id : rootObject
     signal loadStarted(url url)
     signal loadFinished()
+    signal appCodeReceived(string code, string url);    //this is the code that fb gives us after we have authenticated with the app!
 
     property alias input        : inputVars
     property alias output       : outputVars
@@ -61,18 +63,25 @@ Item {
             item.input.redirectUrl     = Qt.binding(function() { return inputVars.redirectUrl } )
             item.input.permissions     = Qt.binding(function() { return inputVars.permissions } )
             item.input.fbhost          = Qt.binding(function() { return inputVars.fbhost      } )
-            item.input.readyFlag       = true;
+            item.input.appAuthenticatedKey = Qt.binding(function() { return inputVars.appAuthenticatedKey } )
+
+            item.input.readyFlag       = Qt.binding(function() { return inputVars.readyFlag } );
 
 //            console.log(typeof item.loadStarted, typeof item.loadFinished)
         }
 
         //connect the output vars
         Connections {
-            target          : webViewLoader.item && webViewLoader.item.output ? webViewLoader.item.output : null
-            onFbIdChanged   : outputVars.fbId    = webViewLoader.item.output.fbid   ;
-            onNameChanged   : outputVars.name    = webViewLoader.item.output.name   ;
-            onTokenChanged  : outputVars.token   = webViewLoader.item.output.token  ;
-            onExpiresChanged: outputVars.expires = webViewLoader.item.output.expires;
+            target            : webViewLoader.item && webViewLoader.item.output ? webViewLoader.item.output : null
+            onFbIdChanged     : outputVars.fbId     = webViewLoader.item.output.fbId   ;
+            onNameChanged     : outputVars.name     = webViewLoader.item.output.name   ;
+            onTokenChanged    : outputVars.token    = webViewLoader.item.output.token  ;
+            onExpiresChanged  : outputVars.expires  = webViewLoader.item.output.expires;
+            onAppAuthenticationChanged : {
+                output.appAuthentication = webViewLoader.item.output.appAuthentication;
+                //{ url : request.url, code : c }
+                rootObject.appCodeReceived(outputVars.appAuthentication.code, outputVars.appAuthentication.url)
+            }
         }
 
         //connect the signals

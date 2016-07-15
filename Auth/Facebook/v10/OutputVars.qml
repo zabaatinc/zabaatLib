@@ -7,4 +7,9 @@ QtObject {
     //user stuff
     property string fbId
     property string name
+    property var    appAuthentication   //holds the token and the redirect uri!
+
+//    property string appToken    //this is called code ! But we so fancy
+
+
 }

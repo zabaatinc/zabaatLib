@@ -15,7 +15,7 @@ Item {
          property InputVars  inputVars  : InputVars  { id : inputVars  }
          property OutputVars outputVars : OutputVars { id : outputVars }
          function getURLParameter(name,url) {
-           return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(url) || [null, ''])[1].replace(/\+/g, '%20')) || "cannot find " + name;
+           return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(url) || [null, ''])[1].replace(/\+/g, '%20')) || null;
          }
     }
 
@@ -83,16 +83,30 @@ Item {
    WebView {
        id : wv
        anchors.fill: parent
-       url : !input.readyFlag ? "" : input.authUrl + "?client_id=" + input.appId + "&redirect_uri=" + input.redirectUrl + "&display=touch&response_type=token&scope=" + input.permissions.join(",")
+       url : {
+           if(input.readyFlag){
+                return input.authUrl + "?client_id=" + input.appId + "&redirect_uri=" + input.redirectUrl + "&display=touch&response_type=token&scope=" + input.permissions.join(",")
+           }
+           return ""
+       }
+
+//       property var c : 0
        onUrlChanged: {
-//                wv.runJavaScript('document.body.style.zoom="200%"')
            var u = url.toString()
-//           console.log("URL IS", u)
-           if(u.indexOf(logic.redirect_success) === 0) {
+           if(u === "")
+               return;
+
+           if(u.indexOf(input.redirectUrl) === 0) {
                //find access token
 //                console.log(u)
-               output.token   = logic.getURLParameter('#access_token', u)
-               output.expires = logic.getURLParameter('expires_in',u)
+               var t = logic.getURLParameter('#access_token', u)
+               var e = logic.getURLParameter('expires_in',u)
+               if(t)
+                    output.token   = t
+               if(e)
+                    output.expires = e
+
+//               console.log("TOKEN", output.token, output.expires)
 
                if(input.appSecret) { //we can actually now use this token to request for a long lived token!
                    var params = {
@@ -102,6 +116,7 @@ Item {
                        fb_exchange_token  : output.token
                    }
 
+                   console.log("CALLING WITH APP SECRET")
                    publicFuncs.apiCall('GET','oauth/access_token', params,  function(msg){
                                                output.token    = logic.getURLParameter('access_token', "?" + msg)
                                                output.expires  = logic.getURLParameter('expires'     , "?" + msg)
@@ -128,9 +143,34 @@ Item {
        }
 
        onLoadingChanged:  {
-           if(!loading)     loadFinished()
-           else             loadStarted(url)
+           if(!loading)
+               loadFinished()
+           else  {
+                loadStarted(loadRequest.url)
+           }
        }
+
+       onNavigationRequested: {
+//            console.log(request.url)
+            var c = logic.getURLParameter(input.appAuthenticatedKey,request.url)
+            if(c){
+//                console.log("CANCELLED YOUR REQUEST GENERAL.FU!", request.url)
+                output.appAuthentication = { url : request.url.toString(), code : c }
+//                output.appToken = c;  ///YAYYYAYAYAYAYAYAYAY WE GOT THE APP CODE!!
+                request.action = WebView.IgnoreRequest
+            }
+       }
+
+       function statusMsg(i){
+           switch(i){
+                case WebView.LoadStartedStatus  : return "LoadStarted"
+                case WebView.LoadFailedStatus   : return "LoadFailed"
+                case WebView.LoadStoppedStatus  : return "LoadStopped"
+                case WebView.LoadSucceededStatus: return "LoadSucceeded"
+                default                         : return "LoadUnknown"
+           }
+       }
+
        Rectangle {
            anchors.fill: parent
            border.width: 1

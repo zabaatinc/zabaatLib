@@ -92,8 +92,7 @@ ZController {
     onSendGetModelRequest: {
         debug.debugMsg("<-- ZController.getModelRequest SIGNAL:", modelName)
 //            socketHandler.sailsGet(url,params,cb,headers)
-        socketHandler.sailsGet("/" + modelName + "/", null, function (obj)
-        {
+        socketHandler.sailsGet("/" + modelName + "/", null, function (obj) {
             debug.debugMsg("--> ZController.getModelRequest CALLBACK:", modelName)
             if(typeof obj === 'string'){
                 try
