@@ -1,5 +1,5 @@
-import QtWebKit 3.0
-//import QtWebView 1.1
+//import QtWebKit 3.0
+import QtWebView 1.1
 import QtQuick 2.5
 Item {
     id : rootObject
@@ -15,6 +15,7 @@ Item {
     property alias publicFuncs    : publicFuncs
     readonly property alias token : logic.token
     readonly property alias expires : logic.expires
+    property alias authUrl : logic.authUrl
 
 
     QtObject {
@@ -30,7 +31,7 @@ Item {
 
 
         function getURLParameter(name,url) {
-          return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(url) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+          return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(url) || [null, ''])[1].replace(/\+/g, '%20')) || "cannot find " + name;
         }
     }
 
@@ -102,85 +103,79 @@ Item {
    }
 
 
-    Item {
-        width : parent.width
-        height : parent.height
-        anchors.centerIn: parent
-        WebView {
-            id : wv
+   WebView {
+       id : wv
+       anchors.fill: parent
+       url : logic.authUrl + "?client_id=" + appId +
+//              "&client_secret=" + appSecret +
+             "&redirect_uri=" + logic.redirect_success +
+             "&display=touch&response_type=token&scope=" + permissions.join(",")
 
-            anchors.fill: parent
-
-            url : logic.authUrl + "?client_id=" + appId +
-    //              "&client_secret=" + appSecret +
-                  "&redirect_uri=" + logic.redirect_success +
-                  "&display=iframe&response_type=token&scope=" + permissions.join(",")
-
-    //        interactive : false
+//        interactive : false
 
 
-            onUrlChanged: {
+       onUrlChanged: {
 //                wv.runJavaScript('document.body.style.zoom="200%"')
-                var u = url.toString()
-                console.log(u)
-                if(u.indexOf(logic.redirect_success) === 0) {
-                    //find access token
-    //                console.log(u)
-                    logic.token     = logic.getURLParameter('#access_token', u)
-                    logic.expires   = logic.getURLParameter('expires_in',u)
+           var u = url.toString()
+           console.log(u)
+           if(u.indexOf(logic.redirect_success) === 0) {
+               //find access token
+//                console.log(u)
+               logic.token     = logic.getURLParameter('#access_token', u)
+//               logic.token     = logic.getURLParameter('code', u)
+               logic.expires   = logic.getURLParameter('expires_in',u)
 
-                    if(appSecret) { //we can actually now use this token to request for a long lived token!
-                        var params = {
-                            client_id          : appId,
-                            client_secret      : appSecret ,
-                            grant_type         : "fb_exchange_token",
-                            fb_exchange_token : token
-                        }
+               if(appSecret) { //we can actually now use this token to request for a long lived token!
+                   var params = {
+                       client_id          : appId,
+                       client_secret      : appSecret ,
+                       grant_type         : "fb_exchange_token",
+                       fb_exchange_token : token
+                   }
 
-                        publicFuncs.apiCall('GET','oauth/access_token', params,  function(msg){
-                                                    logic.token     = logic.getURLParameter('access_token', "?" + msg)
-                                                    logic.expires   = logic.getURLParameter('expires'  , "?" + msg)
-                                                    publicFuncs.me(function(response) {
-                                                                        if(response) {
-                                                                            logic.fbId = response.id
-                                                                            logic.name = response.name
-                                                                        }
-                                                                    })
+                   publicFuncs.apiCall('GET','oauth/access_token', params,  function(msg){
+                                               logic.token     = logic.getURLParameter('access_token', "?" + msg)
+                                               logic.expires   = logic.getURLParameter('expires'  , "?" + msg)
+                                               publicFuncs.me(function(response) {
+                                                                   if(response) {
+                                                                       logic.fbId = response.id
+                                                                       logic.name = response.name
+                                                                   }
+                                                               })
 
-                                                } , true)
-                    }
-                    else {
+                                           } , true)
+               }
+               else {
 
-                        publicFuncs.me(function(response) {
-                                            if(response) {
-                                                logic.fbId = response.id
-                                                logic.name = response.name
-                                            }
-                                        })
-                    }
+                   publicFuncs.me(function(response) {
+                                       if(response) {
+                                           logic.fbId = response.id
+                                           logic.name = response.name
+                                       }
+                                   })
+               }
 
-    //                console.log("access_token=", token, "expires", expires)
+//                console.log("access_token=", token, "expires", expires)
 
 
 
-                }
-            }
+           }
+       }
 
-            onLoadingChanged:  {
-                if(!loading)
-                    loadFinished()
-                else
-                    loadStarted(url)
+       onLoadingChanged:  {
+           if(!loading)
+               loadFinished()
+           else
+               loadStarted(url)
 
-            }
-            Rectangle {
-                anchors.fill: parent
-                border.width: 1
-                color : 'transparent'
-            }
-        }
+       }
+       Rectangle {
+           anchors.fill: parent
+           border.width: 1
+           color : 'transparent'
+       }
+   }
 
-    }
 
 
 
