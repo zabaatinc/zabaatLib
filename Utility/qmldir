@@ -17,5 +17,6 @@ HorizontalGradient 		1.0 components/Graphical/HorizontalGradient.qml
 ImageSubView			1.0 components/Graphical/ImageSubView/ImageSubView.qml
 ImageSubPicker 			1.0 components/Graphical/ImageSubView/ImageSubPicker.qml
 ZTitleBar 				1.0 components/Graphical/ZTitleBar.qml
+CheckeredGrid 			1.0 components/Graphical/CheckeredGrid.qml
 Line					1.0 components/Graphical/Line.qml
 Moment		  			1.0 functions/Moment/moment.js
