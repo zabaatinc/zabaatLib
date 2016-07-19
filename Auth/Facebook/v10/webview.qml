@@ -85,7 +85,9 @@ Item {
        anchors.fill: parent
        url : {
            if(input.readyFlag){
-                return input.authUrl + "?client_id=" + input.appId + "&redirect_uri=" + input.redirectUrl + "&display=touch&response_type=token&scope=" + input.permissions.join(",")
+                return input.authUrl + "?client_id=" + input.appId +
+                       "&display=touch&response_type=code&scope=" + input.permissions.join(",") +
+                        "&redirect_uri=" + input.redirectUrl
            }
            return ""
        }
@@ -96,48 +98,51 @@ Item {
            if(u === "")
                return;
 
+           //GREAT SUCESS MARIO!
            if(u.indexOf(input.redirectUrl) === 0) {
                //find access token
 //                console.log(u)
                var t = logic.getURLParameter('#access_token', u)
                var e = logic.getURLParameter('expires_in',u)
+               var c = logic.getURLParameter(input.appAuthenticatedKey,u);
                if(t)
                     output.token   = t
                if(e)
                     output.expires = e
+               if(c)
+                   output.appAuthentication = { url : u, code : c }
 
 //               console.log("TOKEN", output.token, output.expires)
+//               if(input.appSecret) { //we can actually now use this token to request for a long lived token!
+//                   var params = {
+//                       client_id          : input.appId,
+//                       client_secret      : input.appSecret ,
+//                       grant_type         : "fb_exchange_token",
+//                       fb_exchange_token  : output.token
+//                   }
 
-               if(input.appSecret) { //we can actually now use this token to request for a long lived token!
-                   var params = {
-                       client_id          : input.appId,
-                       client_secret      : input.appSecret ,
-                       grant_type         : "fb_exchange_token",
-                       fb_exchange_token  : output.token
-                   }
+//                   console.log("CALLING WITH APP SECRET")
+//                   publicFuncs.apiCall('GET','oauth/access_token', params,  function(msg){
+//                                               output.token    = logic.getURLParameter('access_token', "?" + msg)
+//                                               output.expires  = logic.getURLParameter('expires'     , "?" + msg)
+//                                               publicFuncs.me(function(response) {
+//                                                                   if(response) {
+//                                                                       output.fbId = response.id
+//                                                                       output.name = response.name
+//                                                                   }
+//                                                               })
 
-                   console.log("CALLING WITH APP SECRET")
-                   publicFuncs.apiCall('GET','oauth/access_token', params,  function(msg){
-                                               output.token    = logic.getURLParameter('access_token', "?" + msg)
-                                               output.expires  = logic.getURLParameter('expires'     , "?" + msg)
-                                               publicFuncs.me(function(response) {
-                                                                   if(response) {
-                                                                       output.fbId = response.id
-                                                                       output.name = response.name
-                                                                   }
-                                                               })
+//                                           } , true)
+//               }
+//               else {
 
-                                           } , true)
-               }
-               else {
-
-                   publicFuncs.me(function(response) {
-                                       if(response) {
-                                           output.fbId = response.id
-                                           output.name = response.name
-                                       }
-                                   })
-               }
+//                   publicFuncs.me(function(response) {
+//                                       if(response) {
+//                                           output.fbId = response.id
+//                                           output.name = response.name
+//                                       }
+//                                   })
+//               }
 
            }
        }
@@ -150,26 +155,26 @@ Item {
            }
        }
 
-       onNavigationRequested: {
-//            console.log(request.url)
-            var c = logic.getURLParameter(input.appAuthenticatedKey,request.url)
-            if(c){
-//                console.log("CANCELLED YOUR REQUEST GENERAL.FU!", request.url)
-                output.appAuthentication = { url : request.url.toString(), code : c }
-//                output.appToken = c;  ///YAYYYAYAYAYAYAYAYAY WE GOT THE APP CODE!!
-                request.action = WebView.IgnoreRequest
-            }
-       }
+//       onNavigationRequested: {
+////            console.log(request.url)
+//            var c = logic.getURLParameter(input.appAuthenticatedKey,request.url)
+//            if(c){
+////                console.log("CANCELLED YOUR REQUEST GENERAL.FU!", request.url)
+//                output.appAuthentication = { url : request.url.toString(), code : c }
+////                output.appToken = c;  ///YAYYYAYAYAYAYAYAYAY WE GOT THE APP CODE!!
+//                request.action = WebView.IgnoreRequest
+//            }
+//       }
 
-       function statusMsg(i){
-           switch(i){
-                case WebView.LoadStartedStatus  : return "LoadStarted"
-                case WebView.LoadFailedStatus   : return "LoadFailed"
-                case WebView.LoadStoppedStatus  : return "LoadStopped"
-                case WebView.LoadSucceededStatus: return "LoadSucceeded"
-                default                         : return "LoadUnknown"
-           }
-       }
+//       function statusMsg(i){
+//           switch(i){
+//                case WebView.LoadStartedStatus  : return "LoadStarted"
+//                case WebView.LoadFailedStatus   : return "LoadFailed"
+//                case WebView.LoadStoppedStatus  : return "LoadStopped"
+//                case WebView.LoadSucceededStatus: return "LoadSucceeded"
+//                default                         : return "LoadUnknown"
+//           }
+//       }
 
        Rectangle {
            anchors.fill: parent
