@@ -168,6 +168,10 @@ ZController {
     QtObject {
         id : priv
         property var cbObjects: ({})
+        function now(){
+            return +(new Date().getTime())
+        }
+
 
         function getSailsErr(msg){
             var err  = msg[0] && msg[0].err ? msg[0].err : msg[0]
@@ -322,15 +326,24 @@ ZController {
         }
 
         function cbHandlerFunc(response, callback, type,url, modelToUpdate){
+            var retTimes = { model : 0, callback : 0 }
+            var time
+
             if(response){
 //                console.log(JSON.stringify(response,null,2))
-                if(modelToUpdate && priv.errorCheck(response, type + 'req') && response.data)
+                if(modelToUpdate && priv.errorCheck(response, type + 'req') && response.data) {
+                    time = priv.now()
                     controller.addModel(modelToUpdate, response.data);
+                    retTimes.model = priv.now() - time;
+                }
 
                 if(typeof callback === 'function') {
+                    time = priv.now()
                     callback(response);
+                    retTimes.callback = priv.now() - time;
                 }
             }
+            return retTimes
         }
 
 
@@ -388,12 +401,14 @@ ZController {
                 if(cbObj) {
                     //emit signal that res was received!
                     resReceived(cbId, cbObj.type, cbObj.url, jsRes);
-                    var time = +(new Date().getTime())
-                    priv.cbHandlerFunc(jsRes,  cbObj.callback, cbObj.type, cbObj.url, cbObj.modelToUpdate)
-                    time = +(new Date().getTime()) - time
+                    var time = priv.now()
+                    var times = priv.cbHandlerFunc(jsRes,  cbObj.callback, cbObj.type, cbObj.url, cbObj.modelToUpdate)
+                    time = priv.now() - time
 
                     if(time > longTime) {
-                        console.warn("WARNING : handling response for ", cbObj.url, "took", (time/1000).toFixed(2), " seconds!!!!")
+                        console.warn("WARNING : handling response for ", cbObj.url, "took", (time/1000).toFixed(2), " seconds!!!! model:",
+                                      times.model/1000, " secs. callback:",times.callback/1000, " secs")
+
 //                        console.log("---------------------------------------")
 //                        console.trace()
 //                        console.log("---------------------------------------")
