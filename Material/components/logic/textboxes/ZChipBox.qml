@@ -54,6 +54,14 @@ ZObject {
         chips = arr;
     }
 
+    function addChip(str) {
+        var arr = chips
+        arr.push(str);
+        chips = null;
+        chips = arr;
+        refresh()
+    }
+
     function removeChip(idx){
         if(chips.length > idx && idx >= 0) {
             chips.splice(idx,1)
@@ -63,6 +71,10 @@ ZObject {
 
     function getInputMode(){
         return skinFunc('getInputMode')
+    }
+
+    function setInputMode(bool) {
+        return skinFunc('setInputMode',bool)
     }
 
 

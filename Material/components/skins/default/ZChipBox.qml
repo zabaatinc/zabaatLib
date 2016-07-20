@@ -33,6 +33,11 @@ ZSkin {
             return textBox.visible ?  1 : 0
         }
 
+        function setInputMode(val) {
+            inputMode = val;
+        }
+
+
     }
 
     Item {
