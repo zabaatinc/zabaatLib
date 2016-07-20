@@ -12,8 +12,11 @@ ZSkin {
     }
 
     border.color : graphical.borderColor
-    radius : 2
-    color        : logic && logic.checked ? graphical.fill_Default : Colors.standard
+    radius       : 2
+    color        : logic ? graphical.fill_Default : Colors.standard
+
+
+
 
     ZInkArea {
         anchors.fill: parent

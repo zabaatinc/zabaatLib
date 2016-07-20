@@ -13,8 +13,13 @@ ZSkin {
     focus : true
     activeFocusOnTab: true
 //    onActiveFocusChanged: console.log(rootObject, "focus=", activeFocus)
+    color : graphical["fill_" + graphicalState]
+    transparency: graphical.fill_Opacity
 
-    color           : graphical["fill_" + graphicalState]
+
+
+
+
     border.color    : graphical.borderColor
     anchors.centerIn: parent
     onLogicChanged  : if(logic) {

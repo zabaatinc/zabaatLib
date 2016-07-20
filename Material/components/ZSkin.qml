@@ -65,6 +65,7 @@ Item {
 
     /*! The background color. \b default : logic.colors.standard \hr */
     property alias color          : rect.color
+    property alias transparency   : rect.opacity
 
     /*! Alias to border \hr */
     property alias border         : borderRect.border
@@ -519,6 +520,15 @@ Item {
             cache.injectState("noink", "graphical" , { inkOpacity : 0 })
 
             cache.injectState("semitransparent", "graphical" , { "fill_Opacity" : 0.8  })
+            cache.injectState("o1", "graphical" , { "fill_Opacity" : 0.1  })
+            cache.injectState("o2", "graphical" , { "fill_Opacity" : 0.2  })
+            cache.injectState("o3", "graphical" , { "fill_Opacity" : 0.3  })
+            cache.injectState("o4", "graphical" , { "fill_Opacity" : 0.4  })
+            cache.injectState("o5", "graphical" , { "fill_Opacity" : 0.5  })
+            cache.injectState("o6", "graphical" , { "fill_Opacity" : 0.6  })
+            cache.injectState("o7", "graphical" , { "fill_Opacity" : 0.7  })
+            cache.injectState("o8", "graphical" , { "fill_Opacity" : 0.8  })
+            cache.injectState("o9", "graphical" , { "fill_Opacity" : 0.9  })
 
             cache.injectState("tcontrasting","graphical", {
                 "@text_Default": function() {return Colors.contrastingTextColor(graphical.fill_Default)},
