@@ -7,7 +7,8 @@ ZSkin {
     onLogicChanged: if(logic && textBox.text){
                         textBox.text = logic.text
                     }
-    color : graphical.fill_Default
+    color : "transparent"
+    border.width: 0
 
     skinFunc : function(name, params) {
         var fn = guiLogic[name]
@@ -15,6 +16,7 @@ ZSkin {
             return fn(params)
         return null;
     }
+    focus : false
 
 
     QtObject {
@@ -49,12 +51,15 @@ ZSkin {
             onActiveFocusChanged: if(!activeFocus) {    //so it works on mobile too!!
                                       logic.text = text
                                       guiLogic.inputMode = false;
+                                  } else {
+                                      guiLogic.inputMode = true;
                                   }
 
             visible : guiLogic.inputMode
             Component.onCompleted: if(logic) {
                                        text = logic.text
                                    }
+            focus : true
         }
 
         ListView {
@@ -70,7 +75,7 @@ ZSkin {
             spacing : 5
             delegate : ZChip {
                 id : delChip
-                height : lv.height * 3/4
+                height : lv.height /** 3/4*/
                 width  : lv.height * 2.5
                 anchors.verticalCenter: parent.verticalCenter
                 state  : logic ? logic.chipState : ""

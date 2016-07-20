@@ -63,7 +63,7 @@ Item {
         }
 
         function functionRelease(){
-            rootObject.release(width/2,height/2,Qt.LeftButton)
+            rootObject.clicked(width/2,height/2,Qt.LeftButton)
         }
     }
 

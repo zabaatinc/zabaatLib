@@ -9,6 +9,9 @@ Rectangle {
     width          : (diff.x * c + diff.y * s)
     height         : 10 //same as thickness
 
+    //added for convenience!
+    property alias start    : line.p1
+    property alias end      : line.p2
 
     property point p1       : Qt.point(0,0)
     property point p2       : Qt.point(5,0)
