@@ -18,6 +18,7 @@ Item {
     signal loaded();
 
     onSourceChanged                 : {
+//        console.log("SOURCE CHANGED TO", source);
         blocker.visible = true;
         logic.nextLoader.source          = source;
     }
@@ -26,7 +27,14 @@ Item {
         logic.nextLoader.sourceComponent = sourceComponent;
     }
 
+//    Component.onCompleted: creationTime = +(new Date().getTime())
+//    property var creationTime
     onLoaded : {
+//        if(objectName === "NavMachine.FancyLoader") {
+//            var time = +(new Date().getTime())
+//            console.log("@@@@@@@@@@@@@@@",rootObject, time - creationTime, "ms taken to load")
+//        }
+
         var newActive = logic.activeLoader === l1 ? l2 : l1
         var newNext   = newActive === l1 ? l2 : l1
 
@@ -83,10 +91,7 @@ Item {
             loader.finishedLoading();
         }
         function doTransition(from,to,transName){
-            if(!logic.isUndef(transName) || transName === "")
-                transName = transitionEffect
-
-            var transition = getTransition(transName);
+            var transition = transName === "" ? null : getTransition(transName)
             if(transition) {
 //                console.log("TRANS FOUND",transition)
                 transition.begin(from,to)
@@ -141,6 +146,12 @@ Item {
         color : 'black'
         opacity : 0.8
         visible : false
+//        onVisibleChanged:  {
+//            if(rootObject.objectName !== "LoginStateMachine.FancyLoader") {
+//                console.log(rootObject, "blocker.visible=", visible)
+//                console.trace()
+//            }
+//        }
         z : Number.MAX_VALUE
         MouseArea {
             anchors.fill: parent

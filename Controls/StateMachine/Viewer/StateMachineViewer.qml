@@ -23,6 +23,8 @@ Item {
     property var methodCallFunc : null  //provide this function. inputs(string fnName, var params).Should change modeObject in someway
                                                                                                //(should rarely change state!)
 
+    property alias status : loader.status
+
 //    ZFileOperations { id : file  }
     property var updateFunc : !methodCallFunc ? null : function(cb){
 
@@ -236,9 +238,11 @@ Item {
         }
     }
 
+
+
     FancyLoader {   //This loads the STateITems!
         id          : loader
-        objectName  : "FancyLoader"
+        objectName  : rootObject.objectName + ".FancyLoader"
 //        Component.onCompleted: console.log(this)
         anchors.top : parent.top
         width       : parent.width
@@ -258,6 +262,8 @@ Item {
         property alias modelObject : rootObject.modelObject
     }
 
+
+
     Text {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
@@ -270,6 +276,10 @@ Item {
     }
 
 
+
+
+    //if usesDefaultNavigation is on, a horizontal list will be auto created at the bottom
+    //to quickly transition to other states
     Loader {
         id : defaultNavigationLoader
         anchors.bottom: parent.bottom
