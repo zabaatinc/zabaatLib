@@ -5,6 +5,7 @@ import "helpers"
 
 ZSkin {
     id : rootObject
+    objectName : "ZChipSkin"
     property alias font    : text.font
     property alias guiVars : guiVars
     color          : graphical.fill_Empty
@@ -13,6 +14,7 @@ ZSkin {
                      }
     skinFunc : function(name, params) {
         var fn = guiLogic[name]
+//        console.log("Z C H I P " , fn, name)
         if(typeof fn === 'function')
             return fn(params)
         return null;

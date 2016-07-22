@@ -85,9 +85,29 @@ FocusScope {
             console.log.apply(this,arguments)
     }
 
+    /* Used when skinfunc is called and the skin has no skinFunc. This can happen on creation of the object! */
+    property var skinFuncQueue : []
+
+    function handleSkinQueue(){
+        if(skinFuncQueue ) {
+            for(var i = skinFuncQueue.length  -1 ; i >= 0; i--) {
+                var si = skinFuncQueue[i]
+                console.log("handleskinqueue and calling")
+                skinFunc(si.name, si.params);
+                skinFuncQueue.splice(i,1);
+            }
+        }
+    }
     function skinFunc(name, params) {
-        if(styleLoader && styleLoader.item && styleLoader.item.skinFunc)
+        if(styleLoader && styleLoader.item && typeof styleLoader.item.skinFunc === "function"){
+//            console.log("CALLING ITEM.SKINFUNC", rootObject, "name",name,"params",params)
             return styleLoader.item.skinFunc(name,params)
+        }
+        if(!skinFuncQueue)
+            skinFuncQueue = []
+
+//        console.log("added to skinQUeue", rootObject)
+        skinFuncQueue.splice(0,0,{name:name,params:params}) //keeps the requests in order
 //        console.log(rootObject, "'s selected skin", MaterialSettings.style.defaultSkin, " has no skinFunc defined")
         return null;
     }
@@ -104,14 +124,14 @@ FocusScope {
         id       : styleLoader
         objectName : "styleLoader"
         onLoaded : {
-            item.logic = rootObject
             item.initialized.connect(rootObject.skinLoaded)
+            item.skinFuncAdded.connect(rootObject.handleSkinQueue)
+            item.logic = rootObject
         }
         anchors.fill: parent
         focus       : true
 
     }
-
     Loader {
         id       : editModeLoader
         objectName : "editModeLoader"

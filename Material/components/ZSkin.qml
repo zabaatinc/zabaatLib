@@ -48,7 +48,8 @@ spill1 - spill9 : spill of the ink from the knob (low to high)
 Item {
     id : rootObject
 
-    signal initialized()
+    signal skinFuncAdded();
+    signal initialized();
 
     /*! The ZObject that has loaded this ZSkin as its skin \hr */
     property var    logic        : null         //the pointer to the parent logic itme
@@ -79,6 +80,10 @@ Item {
 
     */
     property var skinFunc : null
+    onSkinFuncChanged: if(typeof skinFunc === 'function') {
+//                           console.log("EMITTED SKIN FUNC CHANGE!", rootObject)
+                           skinFuncAdded();
+                       }
 
     /*! The container for colors that all ZObjects should use. The colors are the following:  \hr
         fill_Empty       : \b default : "transparent"

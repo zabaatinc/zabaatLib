@@ -1,5 +1,6 @@
 import Zabaat.Material 1.0
 ZObject {
+    id : rootObject
     objectName : "ZChip"
 
     property string text         : ""
@@ -11,6 +12,8 @@ ZObject {
     signal clicked()
     signal close()
 
-    function setColor(color) { return skinFunc(arguments.callee.name, {color:color})  }
+    function setColor(color) {
+        return skinFunc(arguments.callee.name, {color:color})
+    }
 
 }
