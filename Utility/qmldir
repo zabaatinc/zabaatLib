@@ -3,6 +3,7 @@ singleton Functions 	1.0 functions/Functions.qml
 singleton Chance 		1.0 functions/Chance/Chance.qml
 singleton _ 			1.0 functions/Lodash/Lodash.qml
 singleton Underscore 	1.0 functions/Underscore/Underscore.qml
+singleton JSONC		 	1.0 functions/JSONC/JSONC.qml
 UIBlocker 				1.0 components/UIBlocker.qml
 ZTracer	 				1.0 components/ZTracer.qml
 ArrangableList			1.0 components/ArrangableList/v10/ArrangableList.qml
