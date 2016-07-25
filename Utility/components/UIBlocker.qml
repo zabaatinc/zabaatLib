@@ -7,6 +7,7 @@ Item {
     property alias textColor : textThing.color
     property bool solidBackGround : false
     property alias animSpeed : anim.duration
+    property bool animated : true
 
     signal clicked()
     signal hovered()
@@ -33,7 +34,7 @@ Item {
             from : 0
             to : 360
             loops : Animation.Infinite
-            running: rootObject.visible
+            running: rootObject.visible && rootObject.animated
             duration : 1000
         }
     }
