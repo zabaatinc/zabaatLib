@@ -306,7 +306,7 @@ private:
             //create callback
             //return a UNIQUE ID for this call!!
             QString cbId = url + "/" +  QString::number(nextCbId++);
-//            msTimer cbTimer;
+            msTimer cbTimer;
             std::function<void (sio::message::list const&)> const& func  =
                     [=](const sio::message::list &list) mutable->void {
                 //WOAH BRO, WHY U EVEN DOING DIS!!
@@ -315,7 +315,10 @@ private:
 //                            QJSValue v = transformMessageToJs(list[i]);
 //                            args.push_back(v);
 //                        }
-//                        qDebug() <<  cbTimer.stop() << " ms taken for callback for" << url;
+                        int ms = cbTimer.stop();
+                        if(ms > 1000) {
+                            qDebug() <<  ms << " ms taken to receive callback for" << url;
+                        }
                         sailsResponse(url, list, cbId);
                     };
 
@@ -706,13 +709,15 @@ private:
 //        qDebug() << "server replied with" << list.size() << "elements";
         QVariantList var;
 
-//        msTimer conversion;
+        msTimer conversion;
         for(uint i = 0; i < list.size(); i++){
              //we have to figure out what it is that the server is trying to send, up in here!
              var.push_back(transformMessage(list[i]));
         }
 
-//        qDebug() << conversion.stop() << "ms taken for " << eventName;
+        int ms = conversion.stop();
+        if(ms > 200)
+            qDebug() << conversion.stop() << "ms taken for " << eventName;
 
 
         Q_EMIT serverResponse(eventName, var, cbId);
