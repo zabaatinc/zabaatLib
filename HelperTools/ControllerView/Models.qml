@@ -16,10 +16,14 @@ Item {
                              logic.init()
                          }
 
+//    Component.onCompleted: if(controller){
+//        logic.init()
+//    }
+
 
 
     Connections {
-        target : controller
+        target : controller ? controller : null
         onNewModelAdded : if(modelName){
 //            console.log("new model added", modelName, controller.models, count)
             logic.init();
