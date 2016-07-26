@@ -1,6 +1,6 @@
 import QtQuick 2.5
 //import Zabaat.Material 1.0  //remove dependecy later
-import Zabaat.Utility.Submodel 1.1
+import Zabaat.Utility.SubModel 1.1
 import QtQuick.Controls 1.4
 
 
@@ -19,7 +19,7 @@ Item {
     property real  delegateCellHeight            : lv.height * 0.1
     property var   blankDelegate                 : blankDelegate
 
-    readonly property int count_Original        : zsubOrig.sourceModel.count
+    readonly property int count_Original        : zsubOrig.sourceModel ?  zsubOrig.sourceModel.count : -1
     readonly property alias count_ZSubOrignal   : zsubOrig.count
     readonly property alias count_ZSubChanger   : zsubChanger.count
     readonly property alias subModel            : zsubChanger  //for deprecated suppoert
@@ -455,7 +455,7 @@ Item {
                     onLoaded : {
                         item.anchors.fill = delegateLoader
                         if(item.hasOwnProperty('model'))
-                            item.model = Qt.binding(function() { return lv.model.get(index) })
+                            item.model = Qt.binding(function() { return model })
                         if(item.hasOwnProperty('index'))
                             item.index = Qt.binding(function() { return index; })
                     }
@@ -538,7 +538,7 @@ Item {
                     onLoaded : {
                         item.anchors.fill = dragDelegate
                         if(item.hasOwnProperty('model'))
-                            item.model = Qt.binding(function() { return lv.model.get(index) })
+                            item.model = Qt.binding(function() { return model })
                         if(item.hasOwnProperty('index'))
                             item.index = Qt.binding(function() { return index; })
                     }
