@@ -28,6 +28,7 @@
 #include <map>
 #include <QQmlEngine>
 #include "mstimer.h"
+#include <cmath>
 
 //#include <rapidjson/rapidjson.h>
 
