@@ -13,7 +13,8 @@ QtObject {
 
     property string font1 : ""
     property string font2 : ""
-    readonly property string fa: "FontAwesome"
+    readonly property string fa   : "FontAwesome"   //these fonts come included :)
+    readonly property string rosa : 'rosacons'      //these fonts come included :D
 
     onLoadedChanged      : if(loaded) console.log("Fonts loaded:", getCustomFonts())
     Component.onCompleted: logic.log("Singleton Fonts is born")
@@ -70,8 +71,8 @@ QtObject {
         }
         Item {
             id : fontContainer
-            property var fonts       : [fontAwesome]
-            property int totalFonts  : 1
+            property var fonts       : [fontAwesome, rosacons]
+            property int totalFonts  : 2
             property int fontsLoaded : -1
             onFontsLoadedChanged: {
                 if(fontsLoaded !== -1 && fontsLoaded === totalFonts)
@@ -81,6 +82,11 @@ QtObject {
             FontLoader {
                 id     : fontAwesome
                 source : "FontAwesome.otf"
+            }
+
+            FontLoader {
+                id : rosacons
+                source : "rosacons.ttf"
             }
 
 

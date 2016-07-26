@@ -12,12 +12,15 @@ MOC_DIR     = tmp
 
 #Input
 HEADERS += src/qmlSocketIOClient.h \
+           src/mstimer.h  \
+           src/qmlsocketIO.h \
            $$PWD/socketio_module/src/sio_client.h  \
            $$PWD/socketio_module/src/sio_message.h \
            $$PWD/socketio_module/src/sio_socket.h  \
            $$PWD/socketio_module/src/internal/sio_client_impl.h \
-           $$PWD/socketio_module/src/internal/sio_packet.h \
-           src/qmlsocketIO.h
+           $$PWD/socketio_module/src/internal/sio_packet.h
+#    src/qmlsocketioclientstring.h
+
 
 SOURCES += $$PWD/socketio_module/src/sio_client.cpp \
            $$PWD/socketio_module/src/sio_socket.cpp \
