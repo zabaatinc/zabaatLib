@@ -297,6 +297,7 @@ Item {
             cache.injectState("font1"      , "font" , {"@family" : [Fonts,"font1"]}    )
             cache.injectState("font2"      , "font" , {"@family" : [Fonts,"font2"]}    )
             cache.injectState("fontfa"     , "font" , {"family": "FontAwesome"     }   )
+            cache.injectState("fontrosa"   , "font" , {"family": "rosacons"        }   )
 
 
             cache.injectState("f1"         , "font" , { "@pixelSize" : ["@parent","height",1]    })

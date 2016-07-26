@@ -27,6 +27,8 @@
 #include <QJsonDocument>
 #include <map>
 #include <QQmlEngine>
+#include "mstimer.h"
+#include <cmath>
 
 //#include <rapidjson/rapidjson.h>
 
@@ -304,14 +306,16 @@ private:
             //create callback
             //return a UNIQUE ID for this call!!
             QString cbId = url + "/" +  QString::number(nextCbId++);
+//            msTimer cbTimer;
             std::function<void (sio::message::list const&)> const& func  =
                     [=](const sio::message::list &list) mutable->void {
-                        QJSValueList args;
-                        for(uint i = 0; i < list.size(); i++){
-                            QJSValue v = transformMessageToJs(list[i]);
-                            args.push_back(v);
-                        }
-
+                //WOAH BRO, WHY U EVEN DOING DIS!!
+//                        QJSValueList args;
+//                        for(uint i = 0; i < list.size(); i++){
+//                            QJSValue v = transformMessageToJs(list[i]);
+//                            args.push_back(v);
+//                        }
+//                        qDebug() <<  cbTimer.stop() << " ms taken for callback for" << url;
                         sailsResponse(url, list, cbId);
                     };
 
@@ -536,6 +540,9 @@ private:
     }
 
 
+
+
+
     QVariant transformMessage(const sio::message::ptr &msg, uint depth = 0){    //turns any message::ptr object into something QML can read!
         auto flag = msg->get_flag();
         switch(flag){
@@ -591,8 +598,10 @@ private:
 //        qDebug() << "returning blank";
         return QVariant();
     }
-    QJSValue transformMessageToJs(const sio::message::ptr &msg, uint depth = 0){
+    QString transformMessageToJs(const sio::message::ptr &msg, uint depth = 0){
         auto flag = msg->get_flag();
+        QJSValue nullVal = QJSValue::NullValue;
+
         switch(flag){
             case sio::message::flag_array : {
                 QJsonArray arr;
@@ -608,19 +617,19 @@ private:
                 return QString::fromStdString(*bin);
             }
             case sio::message::flag_boolean : {
-                return msg->get_bool();
+                return msg->get_bool() ?  "true" : "false" ;
             }
             case sio::message::flag_double : {
-                return msg->get_double();
+                return QString::number(msg->get_double());
             }
             case sio::message::flag_integer : {
-                return (int)msg->get_int();
+                return QString::number((int)msg->get_int());
             }
             case sio::message::flag_string : {
                 return QString::fromStdString(msg->get_string());
             }
             case sio::message::flag_null : {
-                return QJSValue::NullValue;
+                return nullVal.toString();
             }
             case sio::message::flag_object: {
                 auto &map = msg->get_map();
@@ -642,7 +651,7 @@ private:
                 return QString(QJsonDocument(jsObject).toJson());
             }
         }
-        return QJSValue::NullValue;
+        return nullVal.toString();
     }
 
 
@@ -696,10 +705,16 @@ private:
     void sailsResponse(QString eventName, sio::message::list const &list, QString cbId){
 //        qDebug() << "server replied with" << list.size() << "elements";
         QVariantList var;
+
+//        msTimer conversion;
         for(uint i = 0; i < list.size(); i++){
              //we have to figure out what it is that the server is trying to send, up in here!
              var.push_back(transformMessage(list[i]));
         }
+
+//        qDebug() << conversion.stop() << "ms taken for " << eventName;
+
+
         Q_EMIT serverResponse(eventName, var, cbId);
     }
 
