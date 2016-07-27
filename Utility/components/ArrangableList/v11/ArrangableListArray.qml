@@ -28,6 +28,9 @@ Item {
     readonly property alias indexList           : logic.indexList
     readonly property alias indexListFiltered   : logic.indexListFiltered
 
+    readonly property var runFilterFunc         : logic.updateFiltered
+    readonly property var get                   : logic.get
+
 
     onFilterFuncChanged:  {
         logic.lastTouchedIdx = -1;
@@ -68,6 +71,11 @@ Item {
         onIndexListFilteredChanged: {
             logic.lastTouchedIdx = -1;
             logic.deselectAll()
+        }
+
+
+        function get(index) {
+            return !model ?  undefined : model[indexList[indexListFiltered[index]]]
         }
 
 
@@ -579,7 +587,7 @@ Item {
                     onLoaded : {
                         item.anchors.fill = dragDelegate
                         if(item.hasOwnProperty('model'))
-                            item.model = Qt.binding(function() { return model[index] })
+                            item.model = Qt.binding(function() { return logic.model[logic.indexList[logic.indexListFiltered[index]]] })
                         if(item.hasOwnProperty('index'))
                             item.index = Qt.binding(function() { return index; })
                     }

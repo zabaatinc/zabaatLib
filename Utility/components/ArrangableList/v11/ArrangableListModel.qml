@@ -36,6 +36,9 @@ Item {
     readonly property var deselectAll           : logic.deselectAll
     readonly property var moveSelectedTo        : logic.moveSelectedTo
     readonly property var resetState            : logic.resetState
+    readonly property var runFilterFunc         : zsubOrig.filterAll
+
+    readonly property var get                   : zsubChanger.get
 
     onActiveFocusChanged: if(activeFocus)
                               gui.forceActiveFocus()

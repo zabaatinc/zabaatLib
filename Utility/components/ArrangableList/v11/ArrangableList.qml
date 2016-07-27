@@ -20,6 +20,8 @@ Item {
     function resetState     ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function undos          ()            { return (loader.item && loader.item.logic) ? loader.item.logic[arguments.callee.name].apply(this,arguments) : []}
     function redos          ()            { return (loader.item && loader.item.logic) ? loader.item.logic[arguments.callee.name].apply(this,arguments) : []}
+    function runFilterFunc  ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
+    function get(idx)                     { return (loader.item) ? loader.item[arguments.callee.name].apply(this,arguments) : undefined }
 
 
 
@@ -29,6 +31,10 @@ Item {
     property var   delegate                      : simpleDelegate
     property real  delegateCellHeight            : height * 0.1
     property var   blankDelegate                 : blankDelegate
+
+    readonly property var selected : loader.item ? loader.item.logic.selected : {}
+    readonly property int selectedLen : loader.item ? loader.item.logic.selectedLen : 0
+
 
     Loader {
         id : loader
