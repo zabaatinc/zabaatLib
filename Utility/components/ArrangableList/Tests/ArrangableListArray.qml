@@ -1,13 +1,10 @@
 import QtQuick 2.5
-//import Zabaat.Material 1.0  //remove dependecy later
-import Zabaat.Utility.SubModel 1.1
 import QtQuick.Controls 1.4
-
-
+import Zabaat.Utility 1.0 //get underscore!
 Item {
     id : rootObject
-    property alias model                        : zsubOrig.sourceModel
-    property var   filterFunc                   : null
+    property alias model : logic.model
+    property var   filterFunc
     property alias lv                           : lv
     property alias logic                        : logic
     property alias gui                          : gui
@@ -19,12 +16,6 @@ Item {
     property real  delegateCellHeight            : lv.height * 0.1
     property var   blankDelegate                 : blankDelegate
 
-    readonly property int count_Original        : zsubOrig.sourceModel ?  zsubOrig.sourceModel.count : -1
-    readonly property alias count_ZSubOrignal   : zsubOrig.count
-    readonly property alias count_ZSubChanger   : zsubChanger.count
-    readonly property alias subModel            : zsubChanger  //for deprecated suppoert
-    readonly property alias subModelOrig        : zsubOrig
-
     readonly property var undo                  : logic.undo
     readonly property var redo                  : logic.redo
     readonly property var deselect              : logic.deselect
@@ -34,53 +25,76 @@ Item {
     readonly property var moveSelectedTo        : logic.moveSelectedTo
     readonly property var resetState            : logic.resetState
 
-    onActiveFocusChanged: if(activeFocus)
-                              gui.forceActiveFocus()
+
+    onModelChanged : {
+        if(model) {
+            logic.indexList = _.keys(model)    //get all the indices
+        }
+    }
+    onFilterFuncChanged:  {
+        if(model) {
+            logic.indexList = _.keys(model)    //get all the indices
+        }
+    }
+
 
     QtObject {
-        id: logic
+        id : logic
+        property var model
+        property var indexList
+        property var indexListFiltered
+        onIndexListFilteredChanged: {
+            logic.lastTouchedIdx = -1;
+            logic.deselectAll()
 
-        //undos and redos are basically
+            if(indexList && indexList.length > 0)
+                logic.states.push(_.clone(indexList))
+        }
+        onIndexListChanged: {
+            console.log("INDEXLISt=", indexList)
+            logic.resetState();
+            updateFiltered();
+//            logic.updateIndexListFiltered();
+            if(indexList && indexList.length > 0)
+                logic.states.push(_.clone(indexList))
+        }
+
+        function updateFiltered() {
+            if(typeof filterFunc === 'function') {
+                logic.indexListFiltered = _.filter(logic.indexList, function(a) {  //filter on the value (a is the index!)
+                    return filterFunc(model[a])
+                }).sort(function(a,b){ return a- b} )
+            }
+            else
+                indexListFiltered = _.clone(indexList).sort(function(a,b){ return a- b} )
+
+        }
+
+
+
+        //the display model is what gets shown. we can make changes to the ordering etc of this thing
+                                    //the values this array holds are indicies (to model). So this is like a pointer array!
+//        onDisplayModelChanged: if(modelFiltered) {
+//                                   if(!logic.states)
+//                                       logic.states = []
+
+////                                   logic.states.push(_.clone(displayModel))
+//                               }
+
+
         property var states         : []
+//        onStatesChanged: console.log("STATES", JSON.stringify(states))
+
         property int stateIdx       : 0   //left of stateIdx is undos, right of stateIdx is redos.
         property var selected       : ({})
         property int selectedLen    : 0
         property int lastTouchedIdx : -1
 
-        property ZSubModel zsubOrig    : ZSubModel {
-            id : zsubOrig
-            onSource_rowsInserted: {
-                //TODO
-//                console.log("TODO rowsInserted", start, end, count )
-                logic.resetState();
-            }
-            onSource_rowsRemoved:  {
-                //TODO
-//                console.log("TODO rowsRemoved", start, end , count)
-                logic.resetState();
-            }
-
-        }
-        property ZSubModel zsubChanger : ZSubModel {
-            id : zsubChanger
-            sourceModel : zsubOrig
-            filterFunc : rootObject.filterFunc
-            sortFuncAcceptsIndices: true
-            sortFunc : function(a,b){ return a - b }
-            onIndexListChanged: {
-                logic.lastTouchedIdx = -1;
-                logic.deselectAll()
-
-                if(sourceModel && sourceModel.indexList.length > 0)
-                    logic.states.push(logic.cloneArr(sourceModel.indexList))
-            }
-            onSourceModelChanged: {
-                logic.resetState();
-                if(sourceModel && sourceModel.indexList.length > 0)
-                    logic.states.push(logic.cloneArr(sourceModel.indexList))
-            }
-
-
+        function refreshView() {
+            indexList = _.clone(indexList)
+//            var tmp = indexListFiltered
+//            indexListFiltered = null;
+//            indexListFiltered = tmp;
         }
 
         function resetState(){
@@ -88,13 +102,9 @@ Item {
             logic.stateIdx = 0;
             logic.states   = [];
         }
-
-
-
         function isSelected(idx){
-            return typeof selected[idx] !== 'undefined'
+            return selected && selected[idx] !== undefined ?  true : false
         }
-
 
         function undos(){
             //get everything left of stateIdx
@@ -111,34 +121,14 @@ Item {
             }
             return arr;
         }
-
-
-        function newArray(start,end){
-            var arr = []
-            for(var i = start; i<= end;++i)
-                arr.push(i);
-            return arr;
-        }
-
         function isArray(obj){
             return toString.call(obj) === '[object Array]';
         }
-        function cloneArr(arr){
-            var narr =  []
-            for(var i = 0; i < arr.length; ++i)
-                narr.push(arr[i])
-            return narr;
-        }
         function indexOf(arr, element){
-            if(arr === null || typeof arr === 'undefined' || !isArray(arr))
+            if(arr === null || arr === undefined || !isArray(arr))
                 return -1;
 
-            for(var i = 0; i < arr.length; ++i){
-                if(arr[i] === element)
-                    return i;
-            }
-
-            return -1;
+            return _.indexOf(arr,element);
         }
         function moveArrayElem(arr, old_index, new_index) {
            if (new_index >= arr.length) {
@@ -151,9 +141,8 @@ Item {
            return arr; // for testing purposes
        }
 
-
         function deselect(idx, ctrlMod){    //shiftMod don't matta here
-            if(idx < 0 || idx >= zsubChanger.indexList.length || indexOf(selected, idx) !== -1)
+            if(idx < 0 || idx >= indexListFiltered.length || indexOf(selected, idx) !== -1)
                 return false;
 
             if(ctrlMod || selectedLen === 1){
@@ -173,29 +162,34 @@ Item {
             }
         }
         function select(idx, ctrlMod, shiftMod){
+            var failed = false;
             if(isArray(idx)){
-                var ns = {}
-                for(var i = 0; i < idx.length; ++i){
-                    var si = idx[i]
-                    if(si < 0 || si >= zsubChanger.indexList.length )
-                        return false;
+//                console.log(idx)
+                var newSelection = {}
+                _.each(idx, function(v){
+                    if(v < 0 || v >= indexListFiltered.length)
+                        return failed = true;
 
-                    ns[si] = zsubChanger.indexList[si]
-                }
-                selected = ns
+                    newSelection[v] = indexListFiltered[v]
+                })
+
+                if(failed)
+                    return false;
+
+                selected    = newSelection
                 selectedLen = idx.length;
                 return true;
             }
 
 
 
-            if(idx < 0 || idx >= zsubChanger.indexList.length || indexOf(selected, idx) !== -1)
+            if(idx < 0 || idx >= indexListFiltered.length || indexOf(selected, idx) !== -1)
                 return false;
 
 
             if(shiftMod) {  //this trumps ctrlMod & other types of clickers
 
-                ns = {}
+                newSelection = {}
                 if(logic.lastTouchedIdx !== -1){
                     //let's see if we need to go up for our selection or down
                     var start, end
@@ -209,8 +203,8 @@ Item {
                     }
                     else {
                         //both the same index, make sure we only select this thing
-                        ns[logic.lastTouchedIdx] = zsubChanger.indexList[logic.lastTouchedIdx]
-                        selected = ns;
+                        newSelection[logic.lastTouchedIdx] = indexListFiltered[logic.lastTouchedIdx]
+                        selected = newSelection;
                         selectedLen = 1;
                         return true;
                     }
@@ -218,9 +212,9 @@ Item {
 
                     var count = end - start + 1;
                     for(var i = start; i <= end; ++i){
-                        ns[i] = zsubChanger.indexList[i]
+                        newSelection[i] = indexListFiltered[i]
                     }
-                    selected = ns;
+                    selected = newSelection;
                     selectedLen = count;
                     return true;
                 }
@@ -229,43 +223,45 @@ Item {
                 }
             }
             else {
-                ns = ctrlMod && selected ? selected : {};
-                ns[idx] = zsubChanger.indexList[idx];
+                newSelection = ctrlMod && selected ? selected : {};
+                newSelection[idx] = indexListFiltered[idx];
 
-                selected = ns;
+                selected = newSelection;
                 selectedLen = ctrlMod ? selectedLen + 1 : 1
             }
 
             return true;
         }
-
         function isUndef(item){
             return item === null || typeof item === 'undefined'
         }
-
         function undo(){
             if(states.length > 0 && stateIdx > 0){
                 stateIdx--
                 var undoState = states[stateIdx]
-                zsubOrig.indexList = undoState
+                indexList = undoState
                 deselectAll()
+                refreshView()
             }
         }
         function redo(){
             if(states.length > 0 && stateIdx < states.length - 1) {
                 stateIdx++
                 var redoState = states[stateIdx]
-                zsubOrig.indexList = redoState
+                indexList = redoState
                 deselectAll()
+                refreshView()
             }
         }
         function selectAll(){
             var ns = {}
-            for(var i in zsubChanger.indexList){
-                ns[i] =zsubChanger.indexList[i]
-            }
+
+            _.each(indexListFiltered, function(v,k){
+                ns[k] = v
+            })
+
             selected = ns
-            selectedLen = zsubChanger.indexList.length;
+            selectedLen = indexListFiltered.length
         }
         function deselectAll(){
             selected = {}
@@ -274,22 +270,29 @@ Item {
         function moveSelectedTo(idx , destIdx){     //destIdx is normally BLANK! HARD CODE, USE @ UR OWN RISK!
             if(selected && selectedLen > 0){
 
-                var len   = zsubChanger.indexList.length
-                var begin = zsubChanger.indexList[0]        //the refIdx at the start of our list(zsubChanger)
-                var end   = zsubChanger.indexList[len -1]
+                var filteredList = logic.indexListFiltered
+
+                var len   = filteredList.length
+                var begin = filteredList[0]        //the refIdx at the start of our list(zsubChanger)
+                var end   = filteredList[len -1]
 //                var superBegin = zsubOrig.indexList[0]
 //                var superEnd   = zsubOrig.indexList[zsubOrig.indexList.length - 1]
                 var dest  = !isUndef(destIdx) ? destIdx :
-                                                idx <= 0 ? begin : idx >= len ? end : zsubChanger.indexList[idx]
+                                                idx <= 0 ? begin : idx >= len ? end : filteredList[idx]
 
                 if(selectedLen === 1){
                     //we only have one element. So this should be essy.
-                    var s = selectedFirst()
+                    var s = selectedFirst();
 
-                    zsubOrig.move(s,dest,1);
+                    //we dont actually have to move here. we can literally just swap the indices and it should be k.
+//                    console.log("swap", s , "and", dest)
+//                    console.log("swap", indexList[s] , "and", indexList[dest])
+                    var tmp = logic.indexList[dest]
+                    logic.indexList[dest] = logic.indexList[s];
+                    logic.indexList[s]    = tmp;
+
                     deselectAll()
                     logic.lastTouchedIdx = -1;
-
                 }
                 else {
                     //We have a list and selection in it, we want to move the selection to an
@@ -300,58 +303,64 @@ Item {
 
                     //step 1, rip out the selection array from the list
 //                    var il    = cloneArr(zsubOrig.indexList)
-                    dest = isUndef(destIdx) ? zsubChanger.indexList[idx]  : zsubOrig.indexList[destIdx]
-
+                    dest = isUndef(destIdx) ? filteredList[idx] : logic.indexList[destIdx]
+//                    console.log("dest idx is",dest, "SELECTED:", JSON.stringify(selected))
                     var movingArr = []
-                    var sar = []
-                    for(var a in selected){
-                        sar[a]  = selected[a]
-                        movingArr[a] = zsubOrig.indexList[selected[a]]
-                    }
-                    sar       = sar.filter(function(a) { return a !== null || typeof a !== 'undefined' ? true : false })
-                    movingArr = movingArr.filter(function(a) { return a !== null || typeof a !== 'undefined' ? true : false })
+                    var sar       = []
 
+                    _.each(selected, function(v,k){
+                        sar[k] = v
+                        movingArr[k] = logic.indexList[v]
+                    })
+
+                    sar = _.compact(sar);
+                    movingArr = _.compact(movingArr);
+
+//                    console.log("sar      ", sar)
+//                    console.log("movingArr", movingArr)
                     //we need the SAR array (to figure out our head & tail), essentially to figure out
                     //if we are moving up or down.
-                    var il = _.difference(zsubOrig.indexList, movingArr);
+                    var difference = _.difference(logic.indexList, movingArr);
 //                    console.log("remove", movingArr, "from", zsubOrig.indexList , "=", il)
 
 
                     //Figure out the head, tail
-                    var head   = sar[0]
-                    var tail   = sar[sar.length -1]
-                    destIdx    = indexOf(il, zsubOrig.indexList[dest])
+                    var head   = _.first(sar)
+                    var tail   = _.last(sar)
+                    destIdx    = _.indexOf(difference, logic.indexList[dest]) //indexOf(il, ptrList[dest])
 
+//                    console.log("move to", destIdx)
 
 //                    console.log("H:",head, "T:",tail, "\t\tDest:", dest, "@", destIdx)
                     //Subdivide the ilArr further @ dest.
                     //Place movingArr on left or right of it , depending on special conditions.
+//                    console.log("move", movingArr, "to", destIdx)
                     if(destIdx !== -1){
                         var left, right
 
                         if(head > dest) { //moving stuff up
 //                            console.log("moving stuff up")
-                            if(il.length === 1){
+                            if(difference.length === 1){
                                 left = []
-                                right = il;
+                                right = difference;
                             }
                             else {
-                                left = il.slice(0, destIdx);
-                                right = il.slice(destIdx, il.length);
+                                left = difference.slice(0, destIdx);
+                                right = difference.slice(destIdx, difference.length);
                             }
 //                            return console.log(left, movingArr, right)
                         }
                         else if(head < dest){    //moving stuff down
 //                            console.log("moving stuff down")
-                            if(tail < dest || il.length === 1){
+                            if(tail < dest || difference.length === 1){
 //                                console.log("case 1::\ttail<dest (", tail , "<", dest ,")"  , il)
-                                left  = il
+                                left  = difference
                                 right = []
                             }
                             else {
 //                                console.log("case 2")
-                                left = il.slice(0, destIdx);
-                                right = il.slice(destIdx, il.length);
+                                left = difference.slice(0, destIdx);
+                                right = difference.slice(destIdx, difference.length);
                             }
                         }
                         else {
@@ -360,27 +369,26 @@ Item {
                         }
 
 
-
 //                        console.log(left, movingArr, right)
-                        il = left.concat(movingArr).concat(right)
+                        difference = left.concat(movingArr).concat(right)
 ////                        select(newArray(dest, dest + selectedLen - 1))
-                        zsubOrig.indexList  = il;
+                        logic.indexList = filteredList  = difference;
                         deselectAll()
                         logic.lastTouchedIdx = -1;
                     }
-                    else {
-//                        console.log("DEST IDX is -1. Tried to find", dest, "in", il)
-                    }
+
                 }
 
                 //remove everything after stateIdx (if not last)
                 states.length = stateIdx + 1    //this will kill everything after the stateIdx
-                states.push(cloneArr(zsubOrig.indexList))
+                states.push(_.clone(logic.indexList))
                 stateIdx = states.length -1
+
+//                console.log(ptrList)
+
+                refreshView();  //refresh our view!
             }
         }
-
-
         function selectedFirst(){
             if(selected){
                 for(var s in selected)
@@ -388,10 +396,9 @@ Item {
             }
             return null;
         }
-
     }
     Item {
-        id: gui
+        id : gui
         anchors.fill: parent
         Component.onCompleted: gui.forceActiveFocus()
         property bool ctrlModifier : false
@@ -432,24 +439,23 @@ Item {
             anchors.fill: parent
             ListView {
                 id : lv
-                width : gui.width
-                height : gui.height
-                model : zsubChanger
-                delegate : Loader  {
+                anchors.fill: parent
+                model : logic.indexListFiltered
+                delegate: Loader {
                     id : delegateLoader
-                    width  : lv.width
+                    width : lv.width
                     height : delegateCellHeight
                     sourceComponent : dragDelegate.index !== index ? rootObject.delegate : rootObject.blankDelegate
-                    property int _index       : index
-                    property bool imADelegate : true
-                    property bool selected: logic.selected && typeof logic.selected[index] !== 'undefined' ? true : false
+//                    Component.onCompleted: console.log(index)
 
-                    onLoaded : {
+                    property int _index : index
+                    property bool imADelegate : true
+                    property bool selected : logic.isSelected(index) ? true : false
+
+                    onLoaded :  {
                         item.anchors.fill = delegateLoader
-                        if(item.hasOwnProperty('model'))
-                            item.model = Qt.binding(function() { return model })
-                        if(item.hasOwnProperty('index'))
-                            item.index = Qt.binding(function() { return index; })
+                        if(item.hasOwnProperty('model'))    item.model = Qt.binding(function() { return logic.model[logic.indexList[modelData]] })
+                        if(item.hasOwnProperty('index'))    item.index = Qt.binding(function() { return index;    })
                     }
 
                     Loader {
@@ -474,8 +480,8 @@ Item {
                         }
 
                     }
-
                 }
+
                 MouseArea {
                     id : dMsArea
                     anchors.fill: parent
@@ -490,7 +496,7 @@ Item {
                                 logic.lastTouchedIdx = idx;
 
                             return logic.selected && typeof logic.selected[idx] !== 'undefined' ? logic.deselect(idx, gui.ctrlModifier, gui.shiftModifier) :
-                                                                                                    logic.select(idx  , gui.ctrlModifier, gui.shiftModifier);
+                                                                                                  logic.select(idx  , gui.ctrlModifier, gui.shiftModifier);
                         }
                     }
 
@@ -500,7 +506,7 @@ Item {
                             var dTarget = dragDelegate.Drag.target
                             if(dTarget){
                                 var idx = dTarget.parent._index
-                                if(idx > -1 && idx < logic.zsubChanger.indexList.length){
+                                if(idx > -1 && idx < logic.indexListFiltered.length){
                                     logic.moveSelectedTo(idx);
                                 }
                             }
@@ -530,7 +536,7 @@ Item {
                     onLoaded : {
                         item.anchors.fill = dragDelegate
                         if(item.hasOwnProperty('model'))
-                            item.model = Qt.binding(function() { return model })
+                            item.model = Qt.binding(function() { return model[index] })
                         if(item.hasOwnProperty('index'))
                             item.index = Qt.binding(function() { return index; })
                     }
@@ -562,6 +568,8 @@ Item {
                 }
 
 
+
+
                 function getDelegateInstance(idx){
                     for(var i = 0; i < lv.contentItem.children.length; ++i) {
                         var child = lv.contentItem.children[i]
@@ -570,49 +578,45 @@ Item {
                     }
                     return null;
                 }
-
-            }
-
-        }
-
-
-        Component {
-            id : blankDelegate
-            Rectangle {
-                border.width: 1
-                color : 'transparent'
             }
         }
-        Component {
-            id : simpleDelegate
-            Rectangle {
-                border.width: 1
-                property int index
-                property var model
-                Text {
-                    anchors.fill: parent
-                    font.pixelSize: height * 1/3
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-//                    text             : parent.model ? JSON.stringify(parent.model) : "N/A"
-                    text             : parent.model ? parent.model.number : "N/A"
-                }
-            }
-        }
-        Component {
-            id : selectionDelegate
-            Rectangle {
-                color : selectionDelegateDefaultColor
-                opacity : 0.5
-            }
-        }
-
 
 
     }
 
 
 
+    Component {
+        id : blankDelegate
+        Rectangle {
+            border.width: 1
+            color : 'transparent'
+        }
+    }
+    Component {
+        id : simpleDelegate
+        Rectangle {
+            border.width: 1
+            property int index
+            property var model
+            Text {
+                anchors.fill: parent
+                font.pixelSize: height * 1/3
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+//                    text             : parent.model ? JSON.stringify(parent.model) : "N/A"
+                text : typeof parent.model === 'string' ? parent.model : "x_x"
+//                onTextChanged: console.log(text)
+            }
+        }
+    }
+    Component {
+        id : selectionDelegate
+        Rectangle {
+            color : selectionDelegateDefaultColor
+            opacity : 0.5
+        }
+    }
 
 
 }
