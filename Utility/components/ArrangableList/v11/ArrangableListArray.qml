@@ -3,7 +3,7 @@ import QtQuick.Controls 1.4
 import Zabaat.Utility 1.0 //get underscore!
 Item {
     id : rootObject
-    property alias model                        : logic.model
+    property alias model : logic.model
     property var   filterFunc
     property alias lv                           : lv
     property alias logic                        : logic
@@ -15,13 +15,6 @@ Item {
     property var   delegate                      : simpleDelegate
     property real  delegateCellHeight            : lv.height * 0.1
     property var   blankDelegate                 : blankDelegate
-
-//    readonly property int count_Original        : zsubOrig.sourceModel ?  zsubOrig.sourceModel.count : -1
-//    readonly property alias count_ZSubOrignal   : zsubOrig.count
-//    readonly property alias count_ZSubChanger   : zsubChanger.count
-//    readonly property alias subModel            : zsubChanger  //for deprecated suppoert
-//    readonly property alias subModelOrig        : zsubOrig
-
 
     readonly property var undo                  : logic.undo
     readonly property var redo                  : logic.redo
