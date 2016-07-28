@@ -16,6 +16,7 @@ Item {
 
     property alias defaultTransitionAnimation: loader.transitionEffect
     property alias defaultTransitionDuration : loader.transitionDuration
+    property alias loader :loader
 
     readonly property alias currentState : logic.currentState
     readonly property alias allStates    : logic.states

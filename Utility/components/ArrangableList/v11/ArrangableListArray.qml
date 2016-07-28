@@ -31,6 +31,7 @@ Item {
     readonly property var runFilterFunc         : logic.updateFiltered
     readonly property var get                   : logic.get
 
+    ///can be pass
     function refreshDelegate(opt_iteratee){
         var item = typeof opt_iteratee === 'function' ? lv.getDelegateInstanceFunc(opt_iteratee) : lv.getDelegateInstance(opt_iteratee);
         if(item) {
