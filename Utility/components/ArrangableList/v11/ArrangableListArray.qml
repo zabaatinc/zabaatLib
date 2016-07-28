@@ -34,9 +34,9 @@ Item {
     function refreshDelegate(opt_iteratee){
         var item = typeof opt_iteratee === 'function' ? lv.getDelegateInstanceFunc(opt_iteratee) : lv.getDelegateInstance(opt_iteratee);
         if(item) {
-//            console.log(item)
+            var idx = indexListFiltered[item._index]
             item.m = null
-            item.m = Qt.binding(function() { return logic.model[logic.indexList[item._index]] } )
+            item.m = Qt.binding(function() { return logic.model[logic.indexList[idx]] } )
         }
 
 
