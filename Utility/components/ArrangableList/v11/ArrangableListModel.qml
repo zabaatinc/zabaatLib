@@ -40,6 +40,10 @@ Item {
 
     readonly property var get                   : zsubChanger.get
 
+    function refreshDelegate(opt_iteratee){
+        //is always refreshed since this is a model, so do nothing nad laugh
+    }
+
     onActiveFocusChanged: if(activeFocus)
                               gui.forceActiveFocus()
 

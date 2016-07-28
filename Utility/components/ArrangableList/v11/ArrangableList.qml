@@ -12,8 +12,8 @@ Item {
 
     function undo           ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function redo           ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function deselect       ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function select         ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
+    function deselect       (idx)         { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
+    function select         (idx)         { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function selectAll      ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function deselectAll    ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function moveSelectedTo (idx,destIdx) { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
@@ -22,8 +22,19 @@ Item {
     function redos          ()            { return (loader.item && loader.item.logic) ? loader.item.logic[arguments.callee.name].apply(this,arguments) : []}
     function runFilterFunc  ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function get(idx)                     { return (loader.item) ? loader.item[arguments.callee.name].apply(this,arguments) : undefined }
-
-
+    function refreshDelegate(opt_iteratee){ return (loader.item) ? loader.item[arguments.callee.name].apply(this,arguments) : undefined }
+    function getSelected() {
+        var arr = []
+        if(selectedLen > 0 && selected) {
+            for(var s in selected) {
+                arr.push(model[selected[s]])
+            }
+        }
+        return arr;
+    }
+    function isSelected(idx) {
+        return selected && selected[idx] !== undefined && selected[idx] !== null ? true : false
+    }
 
     property var   selectionDelegate             : selectionDelegate
     property color selectionDelegateDefaultColor : "green"

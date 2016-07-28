@@ -31,6 +31,18 @@ Item {
     readonly property var runFilterFunc         : logic.updateFiltered
     readonly property var get                   : logic.get
 
+    function refreshDelegate(opt_iteratee){
+        var item = typeof opt_iteratee === 'function' ? lv.getDelegateInstanceFunc(opt_iteratee) : lv.getDelegateInstance(opt_iteratee);
+        if(item) {
+//            console.log(item)
+            item.m = null
+            item.m = Qt.binding(function() { return logic.model[logic.indexList[item._index]] } )
+        }
+
+
+    }
+
+
 
     onFilterFuncChanged:  {
         logic.lastTouchedIdx = -1;
@@ -494,18 +506,20 @@ Item {
                 model : logic.indexListFiltered
                 delegate: Loader {
                     id : delegateLoader
+                    objectName : "ArrangableListArray::delegateLoader"
                     width : lv.width
                     height : delegateCellHeight
                     sourceComponent : dragDelegate.index !== index ? rootObject.delegate : rootObject.blankDelegate
 //                    Component.onCompleted: console.log(index)
 
-                    property int _index : index
+                    property int _index       : index
                     property bool imADelegate : true
-                    property bool selected : logic.isSelected(index) ? true : false
+                    property bool selected    : logic.isSelected(index) ? true : false
+                    property var  m           : logic.model[logic.indexList[modelData]]
 
                     onLoaded :  {
                         item.anchors.fill = delegateLoader
-                        if(item.hasOwnProperty('model'))    item.model = Qt.binding(function() { return logic.model[logic.indexList[modelData]] })
+                        if(item.hasOwnProperty('model'))    item.model = Qt.binding(function() { return m         })
                         if(item.hasOwnProperty('index'))    item.index = Qt.binding(function() { return index;    })
                     }
 
@@ -619,6 +633,18 @@ Item {
                 }
 
 
+
+                function getDelegateInstanceFunc(func) {
+                    if(typeof func !== 'function')
+                        return null;
+
+                    for(var i = 0; i < lv.contentItem.children.length; ++i) {
+                        var child = lv.contentItem.children[i]
+                        if(child && child.imADelegate && func(child.m))
+                            return child;
+                    }
+                    return null;
+                }
 
 
                 function getDelegateInstance(idx){
