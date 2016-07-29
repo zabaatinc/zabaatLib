@@ -257,7 +257,7 @@ Item {
             if(states.length > 0 && stateIdx > 0){
                 stateIdx--
                 var undoState = states[stateIdx]
-                zsubOrig.indexList = undoState
+                zsubOrig.indexList = cloneArr(undoState)
                 deselectAll()
             }
         }
@@ -265,7 +265,7 @@ Item {
             if(states.length > 0 && stateIdx < states.length - 1) {
                 stateIdx++
                 var redoState = states[stateIdx]
-                zsubOrig.indexList = redoState
+                zsubOrig.indexList = cloneArr(redoState)
                 deselectAll()
             }
         }

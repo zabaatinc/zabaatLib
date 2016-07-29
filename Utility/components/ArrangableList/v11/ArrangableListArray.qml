@@ -57,28 +57,38 @@ Item {
         property var model
         property var indexList
         property var indexListFiltered
+        property var originalState
+        property var states         : []
+        property int stateIdx       : 0   //left of stateIdx is undos, right of stateIdx is redos.
+        property var selected       : ({})
+        property int selectedLen    : 0
+        property int lastTouchedIdx : -1
+        property bool indexListLock : false
+
+
+//        onStateIdxChanged: {
+////            console.log("IDX", stateIdx)
+//            _.each(states, function(v,k){
+//                if(k === stateIdx)
+//                    console.log(k+" >>> "+ v)
+//                else
+//                    console.log(k+"     "+v)
+//            })
+//            console.log("---------------------")
+//        }
         onModelChanged:  {
-//            console.log("model is now" , model)
             logic.resetState();
             if(model) {
-                logic.indexList = _.keys(model)    //get all the indices
+                originalState   = _.keys(model)
+                logic.indexList = _.clone(originalState)    //get all the indices
             }
         }
-        property bool indexListLock : false
         onIndexListChanged: {
-//            console.log("INDEXLISt=", indexList)
-//            logic.resetState();
-//            console.log("-----------")
-//            console.log("INDEXLIST =", JSON.stringify(indexList))
-//            console.trace()
             logic.lastTouchedIdx = -1;
             logic.deselectAll()
-
-//            logic.updateIndexListFiltered();
             if(!indexListLock && indexList && indexList.length > 0) {
                 addToStates(indexList)
             }
-//                logic.states.push(_.clone(indexList))
             updateFiltered();
         }
         onIndexListFilteredChanged: {
@@ -90,8 +100,6 @@ Item {
         function get(index) {
             return !model ?  undefined : model[indexList[indexListFiltered[index]]]
         }
-
-
         function updateFiltered() {
             if(typeof filterFunc === 'function') {
                 logic.indexListFiltered = _.filter(logic.indexList, function(a) {  //filter on the value (a is the index!)
@@ -103,50 +111,25 @@ Item {
                 indexListFiltered = _.clone(indexList).sort(function(a,b){ return a- b} )
 
         }
-
         function addToStates(arr) {
+            indexListLock = true;
+
             var s = states
             if(s === null || s === undefined)
                 s = []
             if(s.length > 0)
-                s.length = stateIdx + 1    //this will kill everything after the stateIdx
+                s.length = stateIdx + 1    //this will kill everything after the stateIdx (and we dont klill the first state evar)
 
             arr = arr  || indexList
+//            console.log("il", arr, "s", s)
             if(arr) {
                 s.push(_.clone(arr))
-                stateIdx = s.length -1
             }
             states = s
+            stateIdx = s.length -1
+
+            indexListLock = false;
         }
-
-
-
-        //the display model is what gets shown. we can make changes to the ordering etc of this thing
-                                    //the values this array holds are indicies (to model). So this is like a pointer array!
-//        onDisplayModelChanged: if(modelFiltered) {
-//                                   if(!logic.states)
-//                                       logic.states = []
-
-////                                   logic.states.push(_.clone(displayModel))
-//                               }
-
-
-        property var states         : []
-//        onStatesChanged:{
-//            console.log("@@@@@@@@@@@@@@@@@@")
-//            console.log(JSON.stringify(states))
-//            console.trace()
-//        }
-
-        property int stateIdx       : 0   //left of stateIdx is undos, right of stateIdx is redos.
-//        onStateIdxChanged: console.log("IDX", stateIdx)
-
-        property var selected       : ({})
-        property int selectedLen    : 0
-        property int lastTouchedIdx : -1
-
-
-
         function resetState(){
             logic.lastTouchedIdx = -1;
             logic.stateIdx = 0;
@@ -155,14 +138,50 @@ Item {
         function isSelected(idx){
             return selected && selected[idx] !== undefined ?  true : false
         }
+        function undo(){
+            if(states.length > 0 && stateIdx > 0){
+                indexListLock = true;
 
+                var undoState = _.clone(states[stateIdx - 1])
+                indexList = undoState
+                deselectAll()
+                stateIdx--
+//                refreshView(indexList)
+
+                indexListLock = false;
+            }
+//            else if(originalState) {
+//                indexListLock = true;
+
+//                indexList = originalState
+//                deselectAll()
+//                console.log("RESTORING ORIGINAL!!")
+////                refreshView(indexList)
+
+//                indexListLock = false;
+//            }
+
+        }
+        function redo(){
+            if(states.length > 0 && stateIdx < states.length - 1) {
+
+                indexListLock = true;
+
+
+                var redoState = _.clone(states[stateIdx+1])
+                indexList = redoState
+                deselectAll()
+                stateIdx++
+//                refreshView(indexList)
+
+                indexListLock = false;
+            }
+        }
         function undos(){
-            //get everything left of stateIdx
             var arr = []
             for(var i = 0; i < stateIdx; ++i){
                 arr.push(states[i])
             }
-//            console.log(JSON.stringify(arr,null,2))
             return arr;
         }
         function redos(){
@@ -191,7 +210,6 @@ Item {
            arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
            return arr; // for testing purposes
        }
-
         function deselect(idx, ctrlMod){    //shiftMod don't matta here
             if(idx < 0 || idx >= indexListFiltered.length || indexOf(selected, idx) !== -1)
                 return false;
@@ -285,34 +303,6 @@ Item {
         }
         function isUndef(item){
             return item === null || typeof item === 'undefined'
-        }
-        function undo(){
-            if(states.length > 0 && stateIdx > 0){
-
-                indexListLock = true;
-
-                stateIdx--
-                var undoState = states[stateIdx]
-                indexList = undoState
-                deselectAll()
-//                refreshView(indexList)
-
-                indexListLock = false;
-            }
-        }
-        function redo(){
-            if(states.length > 0 && stateIdx < states.length - 1) {
-
-                indexListLock = true;
-
-                stateIdx++
-                var redoState = states[stateIdx]
-                indexList = redoState
-                deselectAll()
-//                refreshView(indexList)
-
-                indexListLock = false;
-            }
         }
         function selectAll(){
             var ns = {}
