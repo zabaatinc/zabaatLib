@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.5
 import "Functions.js" as Functions
 //Contains dynamically generated list models at runtime !!
 
@@ -20,44 +20,18 @@ Item
     /*! Create message was received (verb was create or created) \hr*/
     signal createReceived(string createdModel, string createdId, var data)
 
-
-    /*! A function to log debug messages. Can be null. We have an internal one by default.  \hr */
-    property var externalDebugFunc         : null
-
-    /*! Determines whether or not to print debug messages \hr */
-    property bool debugMode                : true
-
-    /*! Alias to object with internal debug message printer function \hr */
-    property alias debug                   : _debug
-
     /*! The models we currently have \hr */
     property alias models                  : priv.models
 
     /*! Functions to transform specific models && model objects as they arrive. Determined by key. \hr */
     property var modelTransformerFunctions : ({})
-
-
-
     property alias modelCount : priv.modelCount
 
-
-    QtObject {
-        id : _debug
-        function debugMsg()
-        {
-            if(debugMode)
-            {
-                if(externalDebugFunc)   externalDebugFunc.apply(this,arguments)
-                else                    console.log.apply(this,arguments)
-            }
-        }
-
-        function bypass()
-        {
-            if(externalDebugFunc)       externalDebugFunc.apply(this,arguments)
-            else                        console.log.apply(this,arguments)
-        }
+    Item {
+        id : modelContainer
     }
+
+
     QtObject {
         id : priv
         property var models        : ({})
@@ -67,43 +41,45 @@ Item
 
         //Checks callbacks for newly received models or model pieces
         //If we got something like "customers/1" , it will check for "customers/1" as well as "customers"
+        function isUndef(item,prop){
+            if(item === null || typeof item === 'undefined')
+                return true;
 
+            prop = isArray(prop) ? prop : [prop]
+            for(var i = 0; i < prop.length; ++i){
+                var p = prop[i]
+                if(item[p] === null || typeof item[p] === 'undefined')
+                    return true;
+            }
+            return false;
+        }
+        function isDef(item) {
+            return !isUndef.apply(this,arguments);
+        }
         function checkCallbacks(modelName) {
             var tabStr = arguments.length == 2 ? arguments[1] : ""
-            debug.debugMsg(tabStr + "-------------------------------------------------")
-            debug.debugMsg(tabStr + "ZController.checkCallbacks(",modelName,")")
-            debug.debugMsg(tabStr + "-------------------------------------------------")
-
-            if(modelCbs[modelName])
-            {
+            if(modelCbs[modelName]) {
                 var matchStr = modelName
                 var id    = ""
-                if(modelName.indexOf("/") !== -1)
-                {
+                if(modelName.indexOf("/") !== -1) {
                     var arr = modelName.split("/")
                     matchStr = arr[0]
                     id       = arr[1]
 
                     //we should also check if something was wanting the root model here!
-                    debug.debugMsg(tabStr + "\tAlso check callbacks for", matchStr)
                     checkCallbacks(matchStr,tabStr + "\t\t")
                 }
 
-                debug.debugMsg(tabStr + "\t", modelCbs[modelName].length, "callback(s) found for", modelName)
-                for(var i = modelCbs[modelName].length - 1; i > -1; i--)
-                {
+                for(var i = modelCbs[modelName].length - 1; i > -1; i--) {
                     var obj  = modelCbs[modelName][i]._obj;
-
                     if(obj !== null)
                     {
                         var prop = modelCbs[modelName][i]._prop;
 
                         if(id == "")
                             obj[prop] = getModel(matchStr)
-                        else
-                        {
-                            for(var j = 0; j < getModel(matchStr).count; j++)
-                            {
+                        else {
+                            for(var j = 0; j < getModel(matchStr).count; j++) {
                                 if( getModel(matchStr).get(j).id && getModel(matchStr).get(j).id == id)
                                 {
                                     obj[prop] = getModel(matchStr).get(j)
@@ -116,14 +92,132 @@ Item
                 }
                 delete modelCbs[modelName]
             }
+        }
+        function appendToModel(lm, data) {
+            var arr = isArray(data) ? data : [data]
+            for(var i = 0; i < arr.length; i++) {
+                addObjectToModel(lm,arr[i])
+            }
+        }
+        function addObjectToModel(lm, obj) {
+//            console.log("data is", toString.call(obj))
+            if(obj && isDef(obj,"id")) {
+                var existingIdx = getById(lm, obj.id, true);
 
-            //also check if we had a query callback available for this model!
-//            checkQueryCallbacks(modelName, tabStr + "\t")
-            debug.debugMsg(tabStr + "ZController.checkCallbacks(",modelName,")   end")
+                if(existingIdx === -1){  //data doesnt exist. append it. EASY. otherwise, we got our work cut out fr us!
+                    lm.append(obj);
+                    return null;
+                }
+                else {              //update existing
+                    var existingItem = lm.get(existingIdx);
+                    updateItem(existingItem, obj);
+                }
+            }
         }
 
+        function updateItem(existingItem, obj, location){
+            for(var o in obj)  {
+                if(o !== 'id') {
+                    var oldValue  = existingItem[o]
+                    var newValue  = obj[o]
 
+                    if(typeof newValue !== 'object'){   //is a simple object
+                        if(oldValue !== newValue)
+                             existingItem[o] = newValue
+                    }
+                    else if(!isDef(oldValue)){  //we dont have an old lm, create it and append obj[o] to it??
+                        if(isArray(newValue) ){
+                            if(newValue.length > 0){
+                                existingItem[o] = Functions.getNewObject('ZListModel.qml', modelContainer)
+                                existingItem[o].append(newValue)
+                            }
+                        }
+                        else {  //its an object, so we don't need to make a new ListModel
+                            existingItem[o] = newValue
+                        }
+                    }
+                    else {
+                        deepCopy(existingItem[o],obj[o], existingItem, o,o )
+                    }
+                }
+            }
+        }
+        function deepCopy(obj1, obj2, prev, lvl1, lvl2)  {
 
+            if(typeof obj2 !== 'object')  {
+                //do equality check
+                if(obj1 !== obj2)
+                    obj1 = obj2
+
+                return
+            }
+
+            //if we got an update such that obj2 is now empty, we should do that. //TODO, check the else.
+            if(isArray(obj2) && obj2.length === 0){
+                if(obj1.toString().toLowerCase().indexOf('model') !== -1)
+                    obj1.clear()
+                else
+                    obj1 = []
+
+                return;
+            }
+
+            for(var o in obj2) {
+                var newVal = obj2[o]
+
+                if(isDef(newVal) && isDef(newVal.id)) {
+
+                    var elem = getById(obj1, newVal.id)  //this is TE 0
+                    if(!elem) {
+
+                        for(var p in newVal) {
+                            if(typeof newVal[p] !== 'object') {
+                                if(elem[p] !== newVal[p])
+                                    elem[p] = newVal[p]
+                            }
+                            else  {
+                                var ret = deepCopy(elem[p], newVal[p], elem, lvl1 + '/' + newVal.id + '/' + p, lvl2 + '/' + o + '/' + p)
+                            }
+                        }
+                    }
+                    else {
+
+                        if(obj1.count !== null && typeof obj1.count !== 'undefined') {
+                            obj1.append(newVal[o])
+                        }
+                        else {  //if the model doesn't even exist!!
+                            obj1 = [] //newModelFunc('ZListModel.qml',existingItem)
+                            obj1.append(obj2)
+
+                            return
+                        }
+                    }
+                }
+                else {       //overwrite stuffs!
+                     if(obj1.count !== null && typeof obj1.count !== 'undefined')
+                     {
+                         obj1.clear()
+                         obj1.append(obj2)
+                         return
+                     }
+                     else if(obj1.toString().toLowerCase().indexOf('modelobject') === -1 && !isArray(obj1) && typeof obj1 === 'object')
+                     {
+                         if(prev && prev[lvl1]){
+                             prev[lvl1] = obj2
+                             return
+                         }
+
+                     }
+                     else
+                     {
+                         if(obj1[o] !== newVal[o])
+                             obj1[o] = newVal[o]
+                     }
+                }
+
+            }
+
+        }
     }
 
 
@@ -161,77 +255,44 @@ Item
 
 
    /*! fn: Adds model with <name> and data <model> . Will add new model if it doesn't exist. Otherwise, will insert/update an existing model \hr */
-   function addModel(name, model, cb)  {
+   function addModel(name, data, cb)  {
        if(name === null || typeof name === 'undefined')
            return console.error("no name provided to ZController.addModel", name)
 
-//       console.log('addModel called', name, model)
-//       if(!isArray(model) && model.data){
-//            model = [model.data]
-//       }
-
-
-//       console.log("____________________", name ,"____________________________")
-//       console.log(JSON.stringify(model,null,2))
-//       console.log("________________________________________________")
-
        var tabStr = arguments.length == 3 ? arguments[2] : ""
-//       debug.debugMsg(tabStr + "-------------------------------------------------")
-//       debug.debugMsg(tabStr + "ZController.addModel(",name,",<model>)")
-//       debug.debugMsg(tabStr + "-------------------------------------------------")
-
        var modelName = name
        var id        = ""
 
        if(modelTransformerFunctions && modelTransformerFunctions[name]){
            //transform the data cause we got some hotshot model here that needs custom treatment!
-           console.log(rootObject, 'modelTransformerFunction(',name,',',model,")")
-           modelTransformerFunctions[name](model)
+           console.log(rootObject, 'modelTransformerFunction(',name,',',data,")")
+           modelTransformerFunctions[name](data)
        }
 
-
-
        //Lets first check if the name has '/'
-       if(name.indexOf('/') !== -1)
-       {
+       if(name.indexOf('/') !== -1) {
            var arr   = name.split("/")
            modelName = arr[0]
            id        = arr[1]
 
            //add an id field to this bro!!
-           if(!model.id)
-               model.id = id
+           if(!data.id)
+               data.id = id
        }
 
-       //only add if we DONT have this model in our models
-       if(!priv.models[modelName])
-       {
-//           console.log('creating new model ', modelName)
-           var lm = Functions.getNewObject("ZListModel.qml",null)
-           priv.models[modelName] = lm                                 //add this new model to our list
-           __appendToModel(modelName,model)
+       var lm = priv.models[modelName]
+       var isNew = !lm
 
+       if(!lm) {
+           priv.models[modelName] = lm = Functions.getNewObject("ZListModel.qml",modelContainer)
+           lm.objectName = modelName
+       }
 
-//           console.log(rootObject, "New model made",modelName)
-
-//           if(modelName === "workorders")
-//               __printObject(priv.models[modelName])
+       priv.appendToModel(lm,data)
+       if(isNew) {
            priv.checkCallbacks(modelName,tabStr + "\t")        //check if anything has requested this model!
            rootObject.newModelAdded(modelName, ++priv.modelCount); //emit that a new model was added!
        }
-       else
-       {
-//            console.log(modelName,"already exists.gonna append to it instead!")
-            debug.debugMsg(modelName,"already exists.gonna append to it instead!")
-//           console.log(modelName, "already exists. gonna append to it instead!", JSON.stringify(model))
-            __appendToModel(modelName,model)        //otherwise, we append to this already existing model
-       }
-       debug.debugMsg(tabStr + "ZController.addModel(",modelName,")   end")
-
-//       if(cb && typeof cb === 'function')
-//           cb()
-//       else
-//           console.log(rootObject, 'addModel has no cb')
    }
 
    /*! fn: Returns whether the passed in param is an array \hr */
@@ -239,251 +300,21 @@ Item
        return toString.call(obj) === '[object Array]'
    }
 
-   /*! fn: SHOULD be moved to private. do not USE! \hr */
-   function __appendToModel(name, data){
-       if(data === null) {
-           console.log('ZController --- data is null. nothing to be done')
-           return
-       }
-
-//       if(data.id !== null && typeof data.id !== 'undefined')    console.log('ZCONTROLLER - append to model',name, 'with id : ', data.id)
-
-       var tabStr = arguments.length == 3 ? arguments[2] : ""
-//       debug.debugMsg(tabStr + "-------------------------------------------------")
-//       debug.debugMsg(tabStr + "ZController.appendToModel(",name,",<data>)")
-//       debug.debugMsg(tabStr + "-------------------------------------------------")
-
-       //Let's see if we have this model
-       if(priv.models[name])
-       {
-           if(isArray(data)){  //check if array
-//               console.log(rootObject, "__appendToModel", "isArray", name)
-                for(var i = 0; i < data.length; i++) {
-                    __addData(name,data[i],i)
-                }
-           }
-           else {
-//               if(!data) {
-//                   console.log("BAD DATA @", name)
-//                   console.log("_____________________________________________")
-//                   console.trace()
-//                   console.log("_____________________________________________")
-//               }
-//               console.log(rootObject, 'appending data object to', name , priv.models[name].count)
-                __addData(name,data,'root')
-//               if(name === 'otherUsersOnPage'){
-//                   var test = priv.models[name].get(0).usernames
-//                   for(var t = 0 ; t < test.count; t++) {
-//                       console.log(t, test.get(t).username)
-//                   }
-//               }
-
-           }
-       }
-       else {
-//           console.log(name,"doesnt exist.gonna add it instead!")
-           addModel(name, data)     //let's add this model if we don't have it!
-       }
-       debug.debugMsg(tabStr + "ZController.appendToModel(",name,")   end")
-   }
-
-    /*! fn: SHOULD be moved to private. do not USE! \hr */
-   function __addData(name, data, it, tabStr)
-   {
-       if(!tabStr) tabStr = ""
-
-       if(data.id !== null && typeof data.id !== 'undefined'){  //this means that we got an object to append not an array of objects!!! hooray.
-           var modelPtr = priv.models[name]
-           var found    = false
-//           console.log(tabStr + "\tZController.addModel -- model",name,"found. We wish to add id:",data.id,"to it...")
-           debug.debugMsg(tabStr + "\tZController.addModel -- model",name,"found. We wish to add id:",data.id,"to it...")
-//           console.log(tabStr + "\tZController.addModel -- model",name,"found. We wish to add id:",data.id,"to it...")
-
-           //iterate over this model's list elements and change them according to the data?? or add to them according to the data!!
-           for(var i = 0; i < modelPtr.count; i++)
-           {
-               if( modelPtr.get(i).id !== null &&  modelPtr.get(i).id === data.id) {
-                   debug.debugMsg(tabStr + "\tZController.addModel", name, " -- id",data.id,"already exists. Modifying it...")
-                   var le = modelPtr.get(i)
-
-                   for(var d in data)
-                   {
-                       if(d !== 'id') {
-                           if(typeof data[d] !== 'object'){
-                               if(le[d] !== data[d])
-                                    le[d] = data[d]
-                           }
-                           else if(le[d] === null || typeof le[d] === 'undefined'){
-//                               console.log(rootObject, 'making new listmodel at', d)
-                               le[d] = Functions.getNewObject('ZListModel.qml',le)
-//                               console.log("FAT APPEND", data[d])
-
-                               if(data[d] !== null)       le[d].append(data[d])
-                               else                       le[d].append({})  //TODO DERP, investigate this change!!
-
-                           }
-                           else
-                           {
-                               debug.debugMsg("DEEP COPY", le[d], data[d], d, d, "", le)
-                               __deepCopy(le[d],data[d],d,d , "", le)
-                               debug.debugMsg("===================== deepCopy finished ========================")
-                           }
-                       }
-                   }
-
-                   found = true
-                   break
-               }
-           }
-
-           if(!found) {
-               debug.debugMsg(tabStr + "\tZController.addModel -- Adding to existing list model...",name, data.id, "was not found. Adding it")
-//               console.log(tabStr + "\tZController.addModel -- Adding to existing list model...",name, data.id, "was not found. Adding it")
-               modelPtr.append(data)
-//               if(name === 'items')
-//                  console.log('HEH appending this shit', priv.models[name].get(0), JSON.stringify(priv.models[name].get(0),null,2) )
-
-           }
-
-           //check if anything has requested this model!
-//           priv.checkCallbacks(name,tabStr + "\t")
-       }
-
-
-   }
-
-   //You have to do a SET EQUALS TO operation on a jsObject to get it to show updates in a model! dynamic linkages and such!
-   //This is because if you try to change inner things inside a jsObject, models won't let you do it by using get(0).propertyname = somevalue
-   //TODO, BRO PAL. If this gives you binding issues, perhaps investigate line 305 which is commented out.
-   function __deepCopy(obj1, obj2, lvl1, lvl2, tabStr, prev)
-   {
-       if(!tabStr)
-           tabStr = ""
-
-       debug.debugMsg(tabStr,'deepCopy(' + lvl1, ',' + lvl2 + ')')
-
-       if(typeof obj2 !== 'object')
-       {
-//           console.log(tabStr+ "\t", lvl1,'is no object. Updating')
-           debug.debugMsg(tabStr+ "\t", lvl1,'is no object. Updating')
-
-           //do equality check
-           if(obj1 !== obj2)
-               obj1 = obj2
-
-           return
-       }
-
-       //if we got an update such that obj2 is now empty, we should do that. //TODO, check the else.
-       if(isArray(obj2) && obj2.length === 0){
-           if(obj1.toString().toLowerCase().indexOf('model') !== -1)             obj1.clear()
-           else                                                                  obj1 = obj2
-       }
-       else{
-           for(var o in obj2) {
-               debug.debugMsg(tabStr + "\t",'examiming',lvl2,'/',o)
-
-               if(obj2[o] !== null && typeof obj2[o] !== 'undefined' && obj2[o].hasOwnProperty('id')) {
-                   debug.debugMsg(tabStr + "\t\tFinding", lvl2 + "/" + obj2[o].id)
-                   var elem = getById(obj1, obj2[o].id)  //this is TE 0
-                   if(elem !== null) {
-                       debug.debugMsg(tabStr + "\t\t\tFound")
-                       for(var p in obj2[o]) {
-                           /*if(elem[p].toString().indexOf('ModelObject') === -1 && !isArray(elem[p]) && typeof elem[p] === 'object'){
-
-    //                           console.log(p, 'is a normal Js Object')
-    //                           console.log(JSON.stringify(elem[p],null,2))
-
-                               if(elem[p])
-                                    elem[p] = obj2[o][p]
-
-                           }
-                           else */if(typeof obj2[o][p] !== 'object')
-                           {
-    //                           console.log(tabStr + "\t\t\t\t@@", lvl1,'/',obj2[o].id,'/',p,'=',obj2[o][p])
-                               debug.debugMsg(tabStr + "\t\t\t\t@@", lvl1,'/',obj2[o].id,'/',p,'=',obj2[o][p])
-
-                               //do equality check
-                               if(elem[p] !== obj2[o][p])      elem[p] = obj2[o][p]
-    //                           else                            console.log('skipping', lvl1 +'/'+obj2[o].id, 'since value is same')
-                           }
-                           else
-                           {
-    //                           console.log(tabStr + "\t\t\t\t", 'calling deepCpy on', lvl1 + '/' + obj2[o].id + '/' + p)
-                               debug.debugMsg(tabStr + "\t\t\t\t", 'calling deepCpy on', lvl1 + '/' + obj2[o].id + '/' + p)
-                               var ret = __deepCopy(elem[p], obj2[o][p], lvl1 + '/' + obj2[o].id + '/' + p, lvl2 + '/' + o + '/' + p, tabStr + "\t", elem)
-                           }
-                       }
-                   }
-                   else              {
-    //                   console.log(tabStr + "\t\t\tNot Found")
-                       debug.debugMsg(tabStr + "\t\t\tNot Found")
-                       if(!obj1.hasOwnProperty('count')) //if the model doesn't even exist!!
-                       {
-                           debug.debugMsg(tabStr + '\t\t\t\t', lvl1,'=', JSON.stringify(obj1,null,2))
-                           debug.debugMsg(tabStr + "\t\t\t\tno model found at",lvl1,"...creating and copying",lvl1,"into it")
-
-                           //console.log(JSON.stringify(obj1,null,2))
-                           obj1 = Functions.getNewObject("ZListModel.qml",null)
-                           obj1.append(obj2)
-                           //console.log(JSON.stringify(obj1,null,2))
-
-                           debug.debugMsg(tabStr + "\t\t\t\t\t", '===== end =====')
-                           return
-                       }
-                       else
-                       {
-                            debug.debugMsg(tabStr + "\t\t\t\tappending",obj2[o].id,'to',lvl1)
-                            obj1.append(obj2[o])
-                       }
-                   }
-               }
-               else {       //overwrite stuffs!
-                    debug.debugMsg(tabStr+ "\t\t\t",lvl2 + '/' + o, 'has no id.')
-                    if(obj1.hasOwnProperty('count'))
-                    {
-    //                    console.log(tabStr + "\t\t\t\t\t", 'Overwriting model at', lvl1, 'with', lvl2)
-                        debug.debugMsg(tabStr + "\t\t\t\t\t", 'Overwriting model at', lvl1, 'with', lvl2)
-                        debug.debugMsg(tabStr + "\t\t\t\t\t", '===== end =====')
-                        obj1.clear()
-                        obj1.append(obj2)
-                        return
-                    }
-                    else if(obj1.toString().indexOf('ModelObject') === -1 && !isArray(obj1) && typeof obj1 === 'object')
-                    {
-                        if(prev && prev[lvl1]){
-
-                            //one level
-    //                        for(o in obj2){
-    //                            if(obj2[o] !==)
-    //                        }
-
-                            prev[lvl1] = obj2
-                            return
-                        }
-    //                    console.log(rootObject, "PUFF JS OBJECTS SURVIVED", lvl1)
-                        return
-                    }
-                    else
-                    {
-    //                    console.log(tabStr + "\t\t\t\t\t", 'Setting', lvl1,'/',o,'=',obj2[o])
-                        debug.debugMsg(tabStr + "\t\t\t\t\t", 'Setting', lvl1,'/',o,'=',obj2[o])
-
-                        //equality check
-                        if(obj1[o] !== obj2[o])            obj1[o] = obj2[o]
-    //                    else                               console.log(lvl1 + '/' + o , 'is the same, so skipping it')
-                    }
-               }
-
-           }
-       }
-   }
-
 
    /*! fn: get item by <id> if it exists in model <lm>. lm can be a string name or a model. \hr */
-   function getById(lm, id)
-   {
-       return getByProperty(lm, 'id', id)
+   function getById(lm, id, giveIndex){
+       if(typeof lm === 'string')
+           lm = getModel(lm);
+
+       if(lm) {
+           for(var i = 0; i < lm.count; ++i)   {
+               var item = lm.get(i);
+               if(item.id === id){
+                   return giveIndex ? i : lm.get(i);
+               }
+           }
+       }
+       return giveIndex ? -1 : null;
    }
 
    /*! fn: if prop is an array, we will deal with it differently! We will recurse thru to find the item!
@@ -495,8 +326,7 @@ Item
        if(typeof lm === 'string')
             lm = getModel(lm)
 
-       if(lm !== null && typeof lm !== 'undefined')
-       {
+       if(lm !== null && typeof lm !== 'undefined') {
 //           console.log('getByProperty', prop, value)
 
            var thisProp = null
@@ -512,12 +342,6 @@ Item
                    if(typeof elem[thisProp] !== 'undefined' && elem[thisProp] !== null)
                    {
                         if((typeof prop === 'string' || prop.length === 1)){
-
-//                            if(changeFunc){
-//                                console.log('comparing', value, ' @@@@ ',  changeFunc(elem[thisProp])   )
-//                            }
-//                            console.log("COMPARING", elem[thisProp], value)
-
                             if(changeFunc && changeFunc(elem[thisProp]) === value)          return lm.get(i)
                             else if(elem[thisProp] === value)                               return lm.get(i)
                         }

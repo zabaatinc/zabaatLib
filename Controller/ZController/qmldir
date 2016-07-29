@@ -1,3 +1,4 @@
 module Zabaat.Controller.ZController
 ZController	 1.0 ./v10/ZController.qml
+ZControllerDebug	 1.0 ./v10/ZControllerDebug.qml
 ZController  1.1 ./v11/ZController.qml

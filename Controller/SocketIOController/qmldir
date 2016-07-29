@@ -1,3 +1,4 @@
 module Zabaat.Controller
-SocketIOController  0.9 ./v09/Client.qml
-SocketIOController  1.0 ./v10/SocketIOController.qml
+SocketIOController  	 0.9 ./v09/Client.qml
+SocketIOController  	 1.0 ./v10/SocketIOController.qml
+SocketIOControllerDebug  1.0 ./v10/SocketIOControllerDebug.qml

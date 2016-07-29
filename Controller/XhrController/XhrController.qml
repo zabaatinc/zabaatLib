@@ -6,7 +6,7 @@ import Zabaat.Utility 1.0
    \brief an extension of the ZController that uses Xhr requests to communicate.
    \inqmlmodule Zabaat.Controller 1.0 \hr
 */
-ZController {
+ZControllerDebug {
     id                          : controller
     debugMode                   : false
 //    externalDebugFunc           : socketHandler.externalDebugFunc

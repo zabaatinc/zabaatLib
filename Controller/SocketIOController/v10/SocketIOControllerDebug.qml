@@ -7,9 +7,11 @@ import Zabaat.Controller.ZController 1.0
    \inqmlmodule Zabaat.Controller 1.0 \hr
    \depends Zabaat.SocketIO.v100 1.0 \hr
 */
-ZController {
-    id : controller
-
+ZControllerDebug {
+    id                          : controller
+    debugMode                   : false
+//    externalDebugFunc           : socketHandler.externalDebugFunc
+//    modelTransformerFunctions   : ({ books : priv.transformBooks })
     /*! apparently never gets called \hr*/
     signal statusUpdate  (string status, int reconnectTimer)
     signal info(string msg);
@@ -207,7 +209,11 @@ ZController {
             return url;
         }
         function findInHistory(obj) {
-            for(var o in  controller.requestHistory) {
+            if(externalDebugFunc)
+                externalDebugFunc('ZClient.qml - findInHistory(obj)- FIX COMPARiSON')
+
+            for(var o in  controller.requestHistory)
+            {
                 if(JSON.stringify(obj) == JSON.stringify(controller.requestHistory[o])     )
                     return true
             }
@@ -313,6 +319,7 @@ ZController {
                 return item
         }
         function addEvent(url){
+//            console.log("ADDING EVENT", url)
             var uarr = url.toString().split("/")
             if(uarr.length > 0 && uarr[0] !== "")
                 socketHandler.addEvent(uarr[0])
@@ -323,6 +330,7 @@ ZController {
             var time
 
             if(response){
+//                console.log(JSON.stringify(response,null,2))
                 if(modelToUpdate && priv.errorCheck(response, type + 'req') && response.data) {
                     time = priv.now()
                     controller.addModel(modelToUpdate, response.data);
@@ -346,6 +354,9 @@ ZController {
         id : socketHandler
         onServerResponse: {
             var jsRes = priv.parseAndCheck(value,"",cbId)
+//            if(eventName.indexOf("user") === 0 && JSON.stringify(value).indexOf("572a76c905fdb1545abab84b") !== -1) {
+//                console.log(eventName, JSON.stringify(jsRes,null,2))
+//            }
 
             if(logic.isArray(jsRes))        jsRes = jsRes[0]
             if(jsRes.statusCode && !jsRes.statusCode === "200" && !jsRes.statusCode === "201")  {
@@ -378,6 +389,7 @@ ZController {
             var arr = eventName.split("/")
             var mName = arr[0] !== "" ? arr[0] : arr.length > 1 ? arr[1] : ""
 
+//            console.log(eventName)
             if(mName !== "")
                 logic.handleMessage(jsRes , mName)
             else
@@ -396,6 +408,10 @@ ZController {
                     if(time > longTime) {
                         console.warn("WARNING : handling response for ", cbObj.url, "took", (time/1000).toFixed(2), " seconds!!!! model:",
                                       times.model/1000, " secs. callback:",times.callback/1000, " secs")
+
+//                        console.log("---------------------------------------")
+//                        console.trace()
+//                        console.log("---------------------------------------")
                     }
                     resProcessed(cbId, time)
 
@@ -415,42 +431,78 @@ ZController {
                 return toString.call(obj) === '[object Array]'
             }
             function handleMessage(message , modelName, depth){
+
+//                console.log("handleMessage", modelName, JSON.stringify(message,null,2))
+//                console.log("----------------------------")
+//                console.log(JSON.stringify(message,null,2))
+//                console.log("----------------------------")
+
                 if(depth === null || typeof depth === 'undefined')
                     depth = 0
+
+//                if(depth === 0 && isArray(message) && message.length > 0 && message[0].body && message[0].body.data){
+//                    var item1 = message[0]
+//                    if(item1.body && item1.body.data)
+//                        return handleUserModel(item1.body.data, null, depth + 1)
+//                }
 
                 modelName = message && message.model ? message.model : modelName
 
                 if(message === null || typeof message === 'undefined'){
+//                    console.error("SocketIOController.handleUserModel: message is missing", message)
                     return;
                 }
 
                 if(message.data === null || typeof message.data === 'undefined'){
+//                    console.error("SocketIOController.handleUserModel: message.data is missing", message.data)
                     return;
                 }
 
+
                 if(isArray(message.data)){
+//                    console.log(JSON.stringify(message,null,2))
                     for(var d = 0; d < message.data.length; d++){
                         handleMessage({data:message.data[d] , verb:message.verb }, modelName, depth + 1)
                     }
                 }
                 else {
+//                    console.log("made it!!", JSON.stringify(message,null,2))
                     var verb = message.verb
+//                    console.log("this verb was received", verb, "on", modelName)
+            //        debug.bypass(JSON.stringify(message.data,null,2))
                     switch (verb) {
                         case "updated":
+                            debug.debugMsg("update message received on", modelName + "." + message.id)
                             if(typeof message.data.id === 'undefined')
                                 message.data.id = message.id
 
+//                            console.log("update message received on", modelName + "." + message.id )
+
                             controller.addModel(modelName, message.data)    //If one of the sets failed, that means that we either didn't have this property
                             updateReceived(modelName, message.data.id, message.data)
+                            debug.debugMsg("finished handling update message received on", modelName + "." + message.id)
                             break;
+
                         case "update":
+                                debug.debugMsg("update message received on", modelName + "." + message.id)
                                 if(typeof message.data.id === 'undefined')
                                     message.data.id = message.id
 
+//                                console.log("update message received on", modelName + "." + message.id )
+
+
                                 controller.addModel(modelName, message.data)    //If one of the sets failed, that means that we either didn't have this property
+                                /*if(message.model === 'deals') {
+                                    console.log("DATA=", JSON.stringify(message.data,null,2),
+                                                "ON MODEL=", JSON.stringify(_controller.getById("deals",message.data.id)    ))
+                                }      */                                   //or the whole item. In any case, appendToModel should take care of it
+                                                                                    //But it does much more instructions so we only call it if we have to
                                 updateReceived(modelName, message.data.id, message.data)
+                                debug.debugMsg("finished handling update message received on", modelName + "." + message.id)
                                 break;
+
                         case "create":
+                                debug.debugMsg("create message received on", modelName + "." + message.id)
                                 if(!message.data.id)
                                     message.data.id = message.id
 
@@ -458,9 +510,11 @@ ZController {
                                                                                            //or the whole item. In any case, appendToModel should take care of it
                                                                                            //But it does much more instructions so we only call it if we have to
                                 createReceived(modelName, message.data.id, message.data)
+                                debug.debugMsg("finished handling update message received on",modelName + "." + message.id)
                                 break;
 
                         case "created":
+                                debug.debugMsg("create message received on", modelName + "." + message.id)
                                 if(!message.data.id)
                                     message.data.id = message.id
 
@@ -468,10 +522,30 @@ ZController {
                                                                                            //or the whole item. In any case, appendToModel should take care of it
                                                                                            //But it does much more instructions so we only call it if we have to
                                 createReceived(modelName, message.data.id, message.data)
+                                debug.debugMsg("finished handling update message received on",modelName + "." + message.id)
                                 break;
+
+            //            case "created":
+            //                    debug.debugMsg("create message received on", message.model + "." + message.id)
+            //                    if(!message.data.id)
+            //                        message.data.id = message.id
+
+            //                    controller.addModel(message.model, message.data)   //If one of the sets failed, that means that we either didn't have this property
+            //                                                                               //or the whole item. In any case, appendToModel should take care of it
+            //                                                                               //But it does much more instructions so we only call it if we have to
+            //                    createReceived(message.model, message.data.id)
+
+            //                    debug.debugMsg("finished handling update message received on", message.model + "." + message.id)
+            //                    break;
+
                         case "destroy" : console.log(socketHandler, "TODO : IMPLEMENT DESTROY", JSON.stringify(message,null,2));
+
+
                             break;
+
                     }
+
+
                 }
             }
             function indexOf(arr,val){
@@ -484,8 +558,13 @@ ZController {
             }
         }
 
+//        onError   : { console.log("SocketIOController::error"  , message) ; controller.error(message);     }
+//        onWarning : { console.log("SocketIOController::warning", message) ; controller.warning(message);   }
+//        onInfo    : { console.log("SocketIOController::info"   , message) ; controller.info(message);      }
+
         onRegisteredEventsChanged: {
             socketHandler.addEvents(logic.defaultEvents)
+//            console.log(socketHandler.registeredEvents)
         }
     }
 }
