@@ -30,6 +30,15 @@ QtObject {
         return isArray(lm) ? hidden.hsArr(lm, compareFunc) : hidden.hs(lm, compareFunc)
     }
 
+    function insert(lmOrArr, index, value) {
+        if(isArray(lmOrArr)) {
+           lmOrArr.splice(index, 0 , value);
+        }
+        else {
+            lmOrArr.insert(index,value);
+        }
+    }
+
 
     property QtObject __hidden : QtObject {
         id : hidden
