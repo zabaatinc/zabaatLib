@@ -57,7 +57,6 @@ Item {
         property var model
         property var indexList
         property var indexListFiltered
-        property var originalState
         property var states         : []
         property int stateIdx       : 0   //left of stateIdx is undos, right of stateIdx is redos.
         property var selected       : ({})
@@ -79,8 +78,7 @@ Item {
         onModelChanged:  {
             logic.resetState();
             if(model) {
-                originalState   = _.keys(model)
-                logic.indexList = _.clone(originalState)    //get all the indices
+                logic.indexList= _.keys(model)
             }
         }
         onIndexListChanged: {
@@ -112,7 +110,7 @@ Item {
 
         }
         function addToStates(arr) {
-            indexListLock = true;
+//            indexListLock = true;
 
             var s = states
             if(s === null || s === undefined)
@@ -128,7 +126,7 @@ Item {
             states = s
             stateIdx = s.length -1
 
-            indexListLock = false;
+//            indexListLock = false;
         }
         function resetState(){
             logic.lastTouchedIdx = -1;
