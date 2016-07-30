@@ -4,6 +4,8 @@ Item {
     property string state : ""
     property alias border : infoRect.border
     property alias color  : infoRect.color
+    width : parent ? parent.width : 0
+    height : parent ? parent.height : 0
 
 
     Rectangle {
