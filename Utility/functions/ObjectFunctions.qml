@@ -68,7 +68,7 @@ QtObject {
         if(isUndef(obj, propStr))
             return false
 
-        if(propStr === "") {
+        if(!propStr) {
             try {
                 obj = isFunc ? Qt.binding(value) : value
             }catch(e) {
@@ -79,52 +79,9 @@ QtObject {
         }
 
 //            console.log(propStr)
-        var propArray = []
-
-        if(typeof propStr === "string"){
-            //turn this into a nice array that we can just walk over!!
-            //[1]foo.bar[0].green[0]
-
-            //first lets convert the []s into dots
-            while(propStr.indexOf("[") !== -1){
-                var startIdx = propStr.indexOf("[")
-                var endIdx   = propStr.indexOf("]")
-
-                if(startIdx +1  !== endIdx ){
-                    var varname = propStr.slice(startIdx+1, endIdx )
-                    propArray.push(varname)
-//                        console.log(varname)
-                    //remove the whole between [ and ]
-                }
-                propStr = propStr.replace(propStr.slice(startIdx, endIdx +1)  , "@")
-//                    console.log(propStr)
-            }
-
-            //now subdivide on "."
-            propStr            = propStr.split(".")
-            var propArrCounter = propArray.length - 1
-            for(var i = propStr.length - 1; i >= 0; i--){
-
-                while(propStr[i].indexOf("@") !== -1){
-                    varname = propStr[i]
-                    var idx = propStr[i].indexOf("@")
-                    if(idx !== -1){
-                        if(idx === 0){  //insert var before
-                            propStr[i] = varname.slice(1)
-                            propStr.splice(i,0, propArray[propArrCounter])
-                            propArrCounter--
-                        }
-                        else{           //insert var after (this is at the end)
-                           propStr[i] = varname.slice(0,-1)
-                           propStr.splice(i+1,0, propArray[propArrCounter])
-                           propArrCounter--
-                        }
-                    }
-                }
-            }
-        }
-        propArray = propStr
-//            console.log("end = > ", propArray)
+        var propStrType = toString.call(propStr)
+        var propArray = propStrType === '[object String]' ? propertyStringToArray(propStr) :
+                                        '[object Array]'  ? propStr : null;
 
         var currentPropsWalked = ""
         if(isDef(obj,propArray)){
@@ -132,10 +89,12 @@ QtObject {
             var objPtr = obj
             for(var p = 0; p < propArray.length; ++p){
                 var prop = propArray[p]
+                var isLastIteration = p === propArray.length -1
                 currentPropsWalked += currentPropsWalked === "" ? prop : "." + prop
-                if(isDef(objPtr[prop])){
 
-                    if(p !== propArray.length -1 ){
+
+                if(isDef(objPtr[prop])){
+                    if(!isLastIteration){
                         objPtr = objPtr[prop]
                     }
                     else {
@@ -145,75 +104,53 @@ QtObject {
                         }catch(e) {
                             console.log(rootObject, e, "unable to set", obj , ".", currentPropsWalked, 'to', value)
                             success = false;
-
                         }
                         return success;
                     }
                 }
                 else {
-                    return false
+                    //this property doesnt exist, we should create it!!
+                    //first let's determine if it's creatable. We must be inside an array or object!
+                    if(typeof objPtr === 'object'){ //should work for array as well, will create undefines in the middle
+
+                        if(!isLastIteration) {
+                            //read the property name, if its a number, kind of assume that it's array?
+                            objPtr[prop] = { }
+                            objPtr = objPtr[prop]
+                        }
+                        else {
+                            try {
+                                objPtr[prop] = isFunc ? Qt.binding(value) : value
+                            }catch(e) {
+                                console.log(rootObject, e, "unable to set", obj , ".", currentPropsWalked, 'to', value)
+                                success = false;
+                            }
+                            return success;
+                        }
+                    }
+                    else {
+                        console.error("Cannot create new property at" , currentPropsWalked)
+                        return false;
+                    }
                 }
             }
             return objPtr
+
+
         }
         else
             return false
     }
-
-
     function deepGet(obj, propStr){
         if(isUndef(obj, propStr))
-            return null
+            return undefined
 
         if(propStr === "")
             return obj
 
-//            console.log(propStr)
-        var propArray = []
-        if(typeof propStr === "string"){
-            //turn this into a nice array that we can just walk over!!
-            //[1]foo.bar[0].green[0]
-
-            //first lets convert the []s into dots
-            while(propStr.indexOf("[") !== -1){
-                var startIdx = propStr.indexOf("[")
-                var endIdx   = propStr.indexOf("]")
-
-                if(startIdx +1  !== endIdx ){
-                    var varname = propStr.slice(startIdx+1, endIdx )
-                    propArray.push(varname)
-//                        console.log(varname)
-                    //remove the whole between [ and ]
-                }
-                propStr = propStr.replace(propStr.slice(startIdx, endIdx +1)  , "@")
-//                    console.log(propStr)
-            }
-
-            //now subdivide on "."
-            propStr            = propStr.split(".")
-            var propArrCounter = propArray.length - 1
-            for(var i = propStr.length - 1; i >= 0; i--){
-
-                while(propStr[i].indexOf("@") !== -1){
-                    varname = propStr[i]
-                    var idx = propStr[i].indexOf("@")
-                    if(idx !== -1){
-                        if(idx === 0){  //insert var before
-                            propStr[i] = varname.slice(1)
-                            propStr.splice(i,0, propArray[propArrCounter])
-                            propArrCounter--
-                        }
-                        else{           //insert var after (this is at the end)
-                           propStr[i] = varname.slice(0,-1)
-                           propStr.splice(i+1,0, propArray[propArrCounter])
-                           propArrCounter--
-                        }
-                    }
-                }
-            }
-        }
-        propArray = propStr
-//            console.log("end = > ", propArray)
+        var propStrType = toString.call(propStr)
+        var propArray = propStrType === '[object String]' ? propertyStringToArray(propStr) :
+                                        '[object Array]'  ? propStr : null;
 
         if(isDef(obj,propArray)){
             //iterate!!
@@ -224,13 +161,60 @@ QtObject {
                     objPtr = objPtr[prop]
                 }
                 else
-                    return null
+                    return undefined
             }
             return objPtr
         }
         else
-            return null
+            return undefined
     }
+
+    //turn this into a nice array that we can just walk over!!
+    //[1]foo.bar[0].green[0]
+    function propertyStringToArray(propStr){
+        var propArray = []
+        if(typeof propStr === "string"){
+            //turn this into a nice array that we can just walk over!!
+            //[1]foo.bar[0].green[0]
+
+            //first lets convert the []s into dots
+            while(propStr.indexOf("[") !== -1){
+                var startIdx = propStr.indexOf("[")
+                var endIdx   = propStr.indexOf("]")
+
+                if(startIdx +1  !== endIdx ){
+                    var varname = propStr.slice(startIdx+1, endIdx )
+                    propArray.push(varname)
+                }
+                propStr = propStr.replace(propStr.slice(startIdx, endIdx +1)  , "@")
+            }
+
+            //now subdivide on "."
+            propStr            = propStr.split(".")
+            var propArrCounter = propArray.length - 1
+            for(var i = propStr.length - 1; i >= 0; i--){
+
+                while(propStr[i].indexOf("@") !== -1){
+                    varname = propStr[i]
+                    var idx = propStr[i].indexOf("@")
+                    if(idx !== -1){
+                        if(idx === 0){  //insert var before
+                            propStr[i] = varname.slice(1)
+                            propStr.splice(i,0, propArray[propArrCounter])
+                            propArrCounter--
+                        }
+                        else{           //insert var after (this is at the end)
+                           propStr[i] = varname.slice(0,-1)
+                           propStr.splice(i+1,0, propArray[propArrCounter])
+                           propArrCounter--
+                        }
+                    }
+                }
+            }
+        }
+        return propStr; //at this poiint its an array!
+    }
+
     function has(obj, propStr){
        if(isDef(deepGet(obj,propStr)))
            return true
