@@ -24,6 +24,17 @@ Item {
     }
 
 
+    Text {
+        anchors.centerIn: parent
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        text : "Left click anywhere to create parent & initing the viewmodel object. Left click on parents" +
+               "to destroy them. When parents reach 0 , the viewmodel should get destroyed. Number inside the" +
+               "green box is the number of parents that reference the viewmodel";
+        wrapMode: Text.WordWrap
+    }
+
+
 
     MouseArea {
         anchors.fill: parent
