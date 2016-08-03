@@ -6,24 +6,26 @@ Item {
     id : rootObject
 
     property var a
-    property var myArr : [{name:"shahan",hobbies:["a","b"]} ,
-                          {name:"brett" ,hobbies:["b","c"]}
+    property var myArr : [{name:"shahan",hobbies:["programming","b"]} ,
+                          {name:"brett" ,hobbies:["programming","c"]}
                          ]
 
     Component.onCompleted: {
         a = amFactory.createObject(rootObject);
         var f = function(){
             aText.text = a.length + "\n" + JSON.stringify(a.arr,null,2)
+            bText.text = JSON.stringify(a.__priv.maps,null,2)
         }
 
         a.arrChanged.connect(f)
         a.updated.connect(f);
         a.created.connect(f);
         a.deleted.connect(f);
+        a.mapsAdded.connect(f);
+        a.mapsDeleted.connect(f);
 
-
-
-        a.arr = myArr;
+        a.init(myArr, ['hobbies.0']);
+//        a.arr = myArr;
     }
 
     Text {
@@ -33,53 +35,50 @@ Item {
         anchors.margins: 5
     }
 
+    Text {
+        id: bText
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.margins: 5
+    }
+
 
 
 
     Column {
         width : parent.width
         height : parent.height * 0.2
-        Row  {
+        ZTextBox {
+            id : pathText
             width : parent.width
             height : parent.height /2
-            ZTextBox {
-                width : parent.width
-                height : parent.height
-                label : 'get(path)'
-                onAccepted: {
-                    var o = a.get(text)
-                    return typeof o === 'object' ? console.log(JSON.stringify(o)) : console.log(o)
-                }
-
-                state : "cliplabel"
+            label : 'get(path)'
+            onAccepted: {
+                var o = a.get(text)
+                return typeof o === 'object' ? console.log(JSON.stringify(o)) : console.log(o)
             }
+
+            state : "cliplabel"
         }
         Row  {
             width : parent.width
             height : parent.height /2
-            ZTextBox {
-                id : setPathText
-                width : parent.width * 0.325
-                height : parent.height
-                label : 'path'
-//                onAccepted: console.log(a.get(text))
-                state : "cliplabel"
-            }
             ZTextBox {
                 width : parent.width * 0.325
                 height : parent.height
                 label : 'value'
                 state : "cliplabel"
                 onAccepted: {
-                    a.set(setPathText.text, text);
+                    a.set(pathText.text, text);
                     console.log(JSON.stringify(a.arr))
                 }
             }
             ZButton {
                 width : parent.width * 0.25
                 height : parent.height
+                text : "Set to {name:'derp'}"
                 onClicked : {
-                    a.set("2",{name : 'derp' })
+                    a.set(pathText.text ,{name : 'derp' })
                 }
             }
         }
@@ -92,18 +91,18 @@ Item {
         ArrayModel {
             id : amDel
             onUpdated: {
-                console.log("UPDATE @", path);
-                console.log("OLD", JSON.stringify(oldValue))
-                console.log("NEW", JSON.stringify(value))
-                console.log("END UPDATE")
+//                console.log("UPDATE @", path);
+//                console.log("OLD", JSON.stringify(oldValue))
+//                console.log("NEW", JSON.stringify(value))
+//                console.log("END UPDATE")
             }
             onCreated: {
-                console.log("CREATE @", path);
-                console.log("NEW", JSON.stringify(value))
-                console.log("END CREATE")
+//                console.log("CREATE @", path);
+//                console.log("NEW", JSON.stringify(value))
+//                console.log("END CREATE")
             }
-
-
+            onMapsAdded  : console.log("mapEntryAdded @" ,mapName, group, index)
+            onMapsDeleted: console.log("mapEntryDeleted @" ,mapName, group, index)
         }
     }
 

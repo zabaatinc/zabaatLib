@@ -62,6 +62,12 @@ QtObject {
 
 
     function deepSet(obj, propStr, value) {
+
+        function newArrOrObj(keyName){
+            return isNaN(parseInt(keyName)) ? {} : []
+        }
+
+
         var success = true;
         var isFunc  = typeof value === 'function'
 
@@ -87,52 +93,62 @@ QtObject {
         if(isDef(obj,propArray)){
             //iterate!!
             var objPtr = obj
+            var prev   = null;
+
+            var advancePtr = function(key){
+                prev = objPtr;
+                objPtr = objPtr[key]
+            }
+
             for(var p = 0; p < propArray.length; ++p){
                 var prop = propArray[p]
                 var isLastIteration = p === propArray.length -1
+                var prevProp = p > 0 ? propArray[p-1] : null
+                var nextProp = isLastIteration ? null : propArray[p+1]
+
                 currentPropsWalked += currentPropsWalked === "" ? prop : "." + prop
 
 
-                if(isDef(objPtr[prop])){
-                    if(!isLastIteration){
-                        objPtr = objPtr[prop]
+                //if objPtr is not an object, we need to overwrite it with one in this case
+                if(typeof objPtr !== 'object'){
+//                    console.log(p,prop,'case1::objptr is not object')
+                    if(typeof prev === 'object' && prevProp) {
+                        prev[prevProp] = objPtr = newArrOrObj(prop)
                     }
                     else {
-
-                        try {
-                            objPtr[prop] = isFunc ? Qt.binding(value) : value
-                        }catch(e) {
-                            console.log(rootObject, e, "unable to set", obj , ".", currentPropsWalked, 'to', value)
-                            success = false;
-                        }
-                        return success;
-                    }
-                }
-                else {
-                    //this property doesnt exist, we should create it!!
-                    //first let's determine if it's creatable. We must be inside an array or object!
-                    if(typeof objPtr === 'object'){ //should work for array as well, will create undefines in the middle
-
-                        if(!isLastIteration) {
-                            //read the property name, if its a number, kind of assume that it's array?
-                            objPtr[prop] = { }
-                            objPtr = objPtr[prop]
-                        }
-                        else {
-                            try {
-                                objPtr[prop] = isFunc ? Qt.binding(value) : value
-                            }catch(e) {
-                                console.log(rootObject, e, "unable to set", obj , ".", currentPropsWalked, 'to', value)
-                                success = false;
-                            }
-                            return success;
-                        }
-                    }
-                    else {
-                        console.error("Cannot create new property at" , currentPropsWalked)
+                        console.error(rootObject, "Cannot create new property at" , currentPropsWalked)
                         return false;
                     }
                 }
+
+
+                //if objPtr[prop] is undef, we should try to add a new object or array
+                //depending on if prop is a number or a string
+                if(isUndef(objPtr[prop]) && nextProp){
+//                    console.log(p,prop,'case2::objptr.',prop, 'is undefined',prop, "not found on", prevProp, "creating")
+                    objPtr[prop] = newArrOrObj(nextProp)
+                }
+
+
+                //If this is the last iteration, just try to set the value onto objectPtr[prop]
+                if(!isLastIteration){
+//                    console.log(p,prop,'case3::advancePtr on', prop)
+                    advancePtr(prop)
+                }
+                else {
+//                    console.log(p,prop,'case4::set', prop)
+                    try {
+                        objPtr[prop] = isFunc ? Qt.binding(value) : value
+                    }catch(e) {
+                        console.error(rootObject, e, "unable to set", obj , ".", currentPropsWalked, 'to', value)
+                        success = false;
+                    }
+                    return success;
+                }
+
+
+
+
             }
             return objPtr
 
@@ -141,6 +157,7 @@ QtObject {
         else
             return false
     }
+
     function deepGet(obj, propStr){
         if(isUndef(obj, propStr))
             return undefined
@@ -172,6 +189,16 @@ QtObject {
     //turn this into a nice array that we can just walk over!!
     //[1]foo.bar[0].green[0]
     function propertyStringToArray(propStr){
+        function compactInPlace(arr){
+            for(var a = arr.length - 1; a >= 0; --a){
+                var entry = arr[a]
+                if(isUndef(entry) || entry.length === 0) {
+                    arr.splice(a,1)
+                }
+            }
+            return arr;
+        }
+
         var propArray = []
         if(typeof propStr === "string"){
             //turn this into a nice array that we can just walk over!!
@@ -212,7 +239,7 @@ QtObject {
                 }
             }
         }
-        return propStr; //at this poiint its an array!
+        return compactInPlace(propStr); //at this poiint its an array!
     }
 
     function has(obj, propStr){
