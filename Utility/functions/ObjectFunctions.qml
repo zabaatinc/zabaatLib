@@ -62,13 +62,19 @@ QtObject {
 
 
     function deepSet(obj, propStr, value) {
+
+        function newArrOrObj(keyName){
+            return isNaN(parseInt(keyName)) ? {} : []
+        }
+
+
         var success = true;
         var isFunc  = typeof value === 'function'
 
         if(isUndef(obj, propStr))
             return false
 
-        if(propStr === "") {
+        if(!propStr) {
             try {
                 obj = isFunc ? Qt.binding(value) : value
             }catch(e) {
@@ -79,141 +85,89 @@ QtObject {
         }
 
 //            console.log(propStr)
-        var propArray = []
-
-        if(typeof propStr === "string"){
-            //turn this into a nice array that we can just walk over!!
-            //[1]foo.bar[0].green[0]
-
-            //first lets convert the []s into dots
-            while(propStr.indexOf("[") !== -1){
-                var startIdx = propStr.indexOf("[")
-                var endIdx   = propStr.indexOf("]")
-
-                if(startIdx +1  !== endIdx ){
-                    var varname = propStr.slice(startIdx+1, endIdx )
-                    propArray.push(varname)
-//                        console.log(varname)
-                    //remove the whole between [ and ]
-                }
-                propStr = propStr.replace(propStr.slice(startIdx, endIdx +1)  , "@")
-//                    console.log(propStr)
-            }
-
-            //now subdivide on "."
-            propStr            = propStr.split(".")
-            var propArrCounter = propArray.length - 1
-            for(var i = propStr.length - 1; i >= 0; i--){
-
-                while(propStr[i].indexOf("@") !== -1){
-                    varname = propStr[i]
-                    var idx = propStr[i].indexOf("@")
-                    if(idx !== -1){
-                        if(idx === 0){  //insert var before
-                            propStr[i] = varname.slice(1)
-                            propStr.splice(i,0, propArray[propArrCounter])
-                            propArrCounter--
-                        }
-                        else{           //insert var after (this is at the end)
-                           propStr[i] = varname.slice(0,-1)
-                           propStr.splice(i+1,0, propArray[propArrCounter])
-                           propArrCounter--
-                        }
-                    }
-                }
-            }
-        }
-        propArray = propStr
-//            console.log("end = > ", propArray)
+        var propStrType = toString.call(propStr)
+        var propArray = propStrType === '[object String]' ? propertyStringToArray(propStr) :
+                                        '[object Array]'  ? propStr : null;
 
         var currentPropsWalked = ""
         if(isDef(obj,propArray)){
             //iterate!!
             var objPtr = obj
+            var prev   = null;
+
+            var advancePtr = function(key){
+                prev = objPtr;
+                objPtr = objPtr[key]
+            }
+
             for(var p = 0; p < propArray.length; ++p){
                 var prop = propArray[p]
-                currentPropsWalked += currentPropsWalked === "" ? prop : "." + prop
-                if(isDef(objPtr[prop])){
+                var isLastIteration = p === propArray.length -1
+                var prevProp = p > 0 ? propArray[p-1] : null
+                var nextProp = isLastIteration ? null : propArray[p+1]
 
-                    if(p !== propArray.length -1 ){
-                        objPtr = objPtr[prop]
+                currentPropsWalked += currentPropsWalked === "" ? prop : "." + prop
+
+
+                //if objPtr is not an object, we need to overwrite it with one in this case
+                if(typeof objPtr !== 'object'){
+//                    console.log(p,prop,'case1::objptr is not object')
+                    if(typeof prev === 'object' && prevProp) {
+                        prev[prevProp] = objPtr = newArrOrObj(prop)
                     }
                     else {
-
-                        try {
-                            objPtr[prop] = isFunc ? Qt.binding(value) : value
-                        }catch(e) {
-                            console.log(rootObject, e, "unable to set", obj , ".", currentPropsWalked, 'to', value)
-                            success = false;
-
-                        }
-                        return success;
+                        console.error(rootObject, "Cannot create new property at" , currentPropsWalked)
+                        return false;
                     }
                 }
-                else {
-                    return false
+
+
+                //if objPtr[prop] is undef, we should try to add a new object or array
+                //depending on if prop is a number or a string
+                if(isUndef(objPtr[prop]) && nextProp){
+//                    console.log(p,prop,'case2::objptr.',prop, 'is undefined',prop, "not found on", prevProp, "creating")
+                    objPtr[prop] = newArrOrObj(nextProp)
                 }
+
+
+                //If this is the last iteration, just try to set the value onto objectPtr[prop]
+                if(!isLastIteration){
+//                    console.log(p,prop,'case3::advancePtr on', prop)
+                    advancePtr(prop)
+                }
+                else {
+//                    console.log(p,prop,'case4::set', prop)
+                    try {
+                        objPtr[prop] = isFunc ? Qt.binding(value) : value
+                    }catch(e) {
+                        console.error(rootObject, e, "unable to set", obj , ".", currentPropsWalked, 'to', value)
+                        success = false;
+                    }
+                    return success;
+                }
+
+
+
+
             }
             return objPtr
+
+
         }
         else
             return false
     }
 
-
     function deepGet(obj, propStr){
         if(isUndef(obj, propStr))
-            return null
+            return undefined
 
         if(propStr === "")
             return obj
 
-//            console.log(propStr)
-        var propArray = []
-        if(typeof propStr === "string"){
-            //turn this into a nice array that we can just walk over!!
-            //[1]foo.bar[0].green[0]
-
-            //first lets convert the []s into dots
-            while(propStr.indexOf("[") !== -1){
-                var startIdx = propStr.indexOf("[")
-                var endIdx   = propStr.indexOf("]")
-
-                if(startIdx +1  !== endIdx ){
-                    var varname = propStr.slice(startIdx+1, endIdx )
-                    propArray.push(varname)
-//                        console.log(varname)
-                    //remove the whole between [ and ]
-                }
-                propStr = propStr.replace(propStr.slice(startIdx, endIdx +1)  , "@")
-//                    console.log(propStr)
-            }
-
-            //now subdivide on "."
-            propStr            = propStr.split(".")
-            var propArrCounter = propArray.length - 1
-            for(var i = propStr.length - 1; i >= 0; i--){
-
-                while(propStr[i].indexOf("@") !== -1){
-                    varname = propStr[i]
-                    var idx = propStr[i].indexOf("@")
-                    if(idx !== -1){
-                        if(idx === 0){  //insert var before
-                            propStr[i] = varname.slice(1)
-                            propStr.splice(i,0, propArray[propArrCounter])
-                            propArrCounter--
-                        }
-                        else{           //insert var after (this is at the end)
-                           propStr[i] = varname.slice(0,-1)
-                           propStr.splice(i+1,0, propArray[propArrCounter])
-                           propArrCounter--
-                        }
-                    }
-                }
-            }
-        }
-        propArray = propStr
-//            console.log("end = > ", propArray)
+        var propStrType = toString.call(propStr)
+        var propArray = propStrType === '[object String]' ? propertyStringToArray(propStr) :
+                                        '[object Array]'  ? propStr : null;
 
         if(isDef(obj,propArray)){
             //iterate!!
@@ -224,13 +178,70 @@ QtObject {
                     objPtr = objPtr[prop]
                 }
                 else
-                    return null
+                    return undefined
             }
             return objPtr
         }
         else
-            return null
+            return undefined
     }
+
+    //turn this into a nice array that we can just walk over!!
+    //[1]foo.bar[0].green[0]
+    function propertyStringToArray(propStr){
+        function compactInPlace(arr){
+            for(var a = arr.length - 1; a >= 0; --a){
+                var entry = arr[a]
+                if(isUndef(entry) || entry.length === 0) {
+                    arr.splice(a,1)
+                }
+            }
+            return arr;
+        }
+
+        var propArray = []
+        if(typeof propStr === "string"){
+            //turn this into a nice array that we can just walk over!!
+            //[1]foo.bar[0].green[0]
+
+            //first lets convert the []s into dots
+            while(propStr.indexOf("[") !== -1){
+                var startIdx = propStr.indexOf("[")
+                var endIdx   = propStr.indexOf("]")
+
+                if(startIdx +1  !== endIdx ){
+                    var varname = propStr.slice(startIdx+1, endIdx )
+                    propArray.push(varname)
+                }
+                propStr = propStr.replace(propStr.slice(startIdx, endIdx +1)  , "@")
+            }
+
+            //now subdivide on "."
+            propStr            = propStr.split(".")
+            var propArrCounter = propArray.length - 1
+            for(var i = propStr.length - 1; i >= 0; i--){
+
+                while(propStr[i].indexOf("@") !== -1){
+                    varname = propStr[i]
+                    var idx = propStr[i].indexOf("@")
+                    if(idx !== -1){
+                        if(idx === 0){  //insert var before
+                            propStr[i] = varname.slice(1)
+                            propStr.splice(i,0, propArray[propArrCounter])
+                            propArrCounter--
+                        }
+                        else{           //insert var after (this is at the end)
+                           propStr[i] = varname.slice(0,-1)
+                           propStr.splice(i+1,0, propArray[propArrCounter])
+                           propArrCounter--
+                        }
+                    }
+                }
+            }
+        }
+        return compactInPlace(propStr); //at this poiint its an array!
+    }
+
     function has(obj, propStr){
        if(isDef(deepGet(obj,propStr)))
            return true
