@@ -17,6 +17,8 @@ Item {
     readonly property alias count    : logic.count
     readonly property alias jsObj    : logic.js
     readonly property alias json     : logic.json
+    property point defaultToastSize  : Qt.point(0.5,0.5);
+
 
     property bool alwaysLog          : true
     property var logFunc             : null
@@ -191,8 +193,8 @@ Item {
             newToast.blocking      = config.blocking || false
             newToast.state     = "f8"
 
-            newToast.w         = w || args.width || args.w ||  0.5
-            newToast.h         = h || args.height || args.h || 0.5
+            newToast.w         = w || args.width || args.w ||  defaultToastSize.x
+            newToast.h         = h || args.height || args.h || defaultToastSize.y
             newToast.z         = 999999
 
             //now load the inner loader!
@@ -236,8 +238,8 @@ Item {
                 property string text   : ""
                 property var    args   : null
                 property var    lastActiveThing : null
-                property real w : 0.5
-                property real h : 0.5
+                property real w : rootObject.defaultToastSize.x
+                property real h : rootObject.defaultToastSize.y
 
                 Component.onDestruction: {
                     if(lastActiveThing && lastActiveThing.forceActiveFocus)
