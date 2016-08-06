@@ -1,6 +1,20 @@
 import QtQuick 2.5
 import "ArrayModelFactory.js" as AM
 import "Lodash"
+
+
+//COMMANDMENTS
+//1) If key doesn't exist, create it
+//2) If value type of update is different than original value type, error!
+//3) All arrays should have ids. Otherwise they are replaced on update
+//4) Partial updates all teh way thru (deep)
+//5) DELETE req only occurs on arrays with ids (root level or elsewhere)
+//6) PUT updates, POST adds
+//7) All server REST commands should be prepended by a version number. Each model should have versions.
+
+
+
+
 QtObject {
     id : rootObject
     property var arr
@@ -10,13 +24,15 @@ QtObject {
     signal deleted(string path);
     signal updated(string path, var oldValue, var value);
     signal created(string path, var value);
-    signal mapsAdded(string mapName, string group, int index);
+    signal mapsUpdated(string mapName, string group, int index);
+    signal mapsAdded  (string mapName, string group, int index);
     signal mapsDeleted(string mapName, string group, int index);
 //    signal mapsChanged(string mapName, string value, int index);
 
+    property alias priv : priv
 
-    onArrChanged : if(!arr)
-                       length = -1;
+//    onArrChanged : if(!arr)
+//                       length = -1;
 
 
 
@@ -30,11 +46,13 @@ QtObject {
         if(!arr)
             return;
 
-        priv.reset();
-        if(toString.call(mapKeys) === '[object Array]') {
-            if(_.indexOf(mapKeys,'id') === -1)
-                mapKeys.push('id')
+        reset();
+        if(mapKeys && toString.call(mapKeys) !== '[object Array]') {
+            mapKeys = [mapKeys]
         }
+
+        if(_.indexOf(mapKeys,'id') === -1)
+            mapKeys.push('id')
 
         //add pointers. Managing them is gonna be a chore but should improve our life hopefully!
 
@@ -110,14 +128,35 @@ QtObject {
     }
 
     function setById(id, path, value, onlyUpdate){
+        if(priv.isUndef(id))
+            return console.error("No id provided!")
+
         if(path){
-            if(path.charAt(0) !== ".")
+            //safety check!
+            var t = typeof path
+            if(t === 'object') {
+                if(value === undefined) {
+                    value = path;
+                    path = ""
+                }
+                else {
+                    return console.error("ArrayModel::setById:: HEY! You passed an object as path instead of string")
+                }
+            }
+            else if(t !== 'string')
+                return console.error("ArrayModel::setById:: HEY! You passed an object as path instead of string")
+
+            if(path.length > 0 && path.charAt(0) !== ".")
                 path = "." + path
         }
         else
             path = ""
 
-        var idx = findFirst(function(a){ return a.id === id } , true)
+
+        //make sure that this object has id !
+        value.id = id;
+
+        var idx = findFirst(function(a){ return a.id == id } , true)
         if(idx !== -1){
             set(idx + path, value, onlyUpdate);
         }
@@ -166,7 +205,6 @@ QtObject {
         if(propArr.length === 0)
             return ;
 
-        console.time('set')
         if(!arr)
             arr = []
 
@@ -187,6 +225,7 @@ QtObject {
             length++;
         }
         else {  //idx does exist, so it won't affect our length property!
+//            console.log("root item exists!", idx)
             var newValType  = toString.call(value);
             var existing = priv.deepGet(arr,propArr);
             existing = typeof existing === 'object' ? priv.clone(existing) : existing
@@ -250,11 +289,18 @@ QtObject {
 
 
 
-        console.timeEnd('set')
+//        console.timeEnd('set')
 
     }
 
 
+    //resets this to the default state!
+    function reset() {
+        arr = undefined
+        priv.mapKeys = undefined
+        priv.maps = { id: {} }
+        length = -1;
+    }
 
 
     property Item __priv : Item {
@@ -262,10 +308,10 @@ QtObject {
         property var mapKeys
         property var maps    : ({ id: {} }) //we always have an id map!
 
-        function reset() {
-            mapKeys = undefined
-            maps = { id: {} }
-        }
+//        function reset() {
+//            mapKeys = undefined
+//            maps = { id: {} }
+//        }
 
 
         function updateMaps(val, path) {
@@ -274,18 +320,24 @@ QtObject {
 
 
         function addItemToMaps(item) {
+//            console.log("addItemToMaps", JSON.stringify(item))
             _.each(mapKeys, function(m){
                 var val = priv.deepGet(item, m);
                 val = typeof val === 'object' ? JSON.stringify(val) : val   //this is bad , but we allow it for not smart cookies / ers.
+//                console.log("iterating over map", m, val)
                 if(isDef(val)) {
                     var map = priv.maps[m]
 
-                    if(!map[val])
+                    if(!map[val]) {
                         map[val] = [item];
-                    else if(_.indexOf(map[val],item) === -1)
+                        mapsAdded(m, val, map[val].length -1);   //since we added a dude, it's almost trivial to get the index here
+                    }
+                    else if(_.indexOf(map[val],item) === -1) {
                         map[val].push(item);
+                        mapsAdded(m, val, map[val].length -1);   //since we added a dude, it's almost trivial to get the index here
+                    }
 
-                    mapsAdded(m, val, map[val].length -1);   //since we added a dude, it's almost trivial to get the index here
+
                 }
             })
         }
@@ -348,7 +400,7 @@ QtObject {
                     obj = isFunc ? Qt.binding(value) : value
                 }catch(e) {
                     success = false;
-                    console.log(rootObject, e, "unable to set", obj, 'to', value)
+//                    console.log(rootObject, e, "unable to set", obj, 'to', value)
                 }
                 return success
             }
@@ -380,7 +432,7 @@ QtObject {
 
                     //if objPtr is not an object, we need to overwrite it with one in this case
                     if(typeof objPtr !== 'object'){
-                        console.log(p,prop,'case1::objptr is not object')
+//                        console.log(p,prop,'case1::objptr is not object')
                         if(typeof prev === 'object' && prevProp) {
                             prev[prevProp] = objPtr = newArrOrObj(prop)
                         }
@@ -394,22 +446,22 @@ QtObject {
                     //if objPtr[prop] is undef, we should try to add a new object or array
                     //depending on if prop is a number or a string
                     if(isUndef(objPtr[prop]) && nextProp){
-                        console.log(p,prop,'case2::objptr.',prop, 'is undefined',prop, "not found on", prevProp, "creating")
+//                        console.log(p,prop,'case2::objptr.',prop, 'is undefined',prop, "not found on", prevProp, "creating")
                         objPtr[prop] = newArrOrObj(nextProp)
                     }
 
 
                     //If this is the last iteration, just try to set the value onto objectPtr[prop]
                     if(!isLastIteration){
-                        console.log(p,prop,'case3::advancePtr on', prop)
+//                        console.log(p,prop,'case3::advancePtr on', prop)
                         advancePtr(prop)
                     }
                     else {
-                        console.log(p,prop,'case4::set', prop)
+//                        console.log(p,prop,'case4::set', prop)
                         try {
                             objPtr[prop] = isFunc ? Qt.binding(value) : value
                         }catch(e) {
-                            console.log(rootObject, e, "unable to set", obj , ".", currentPropsWalked, 'to', value)
+                            console.error(rootObject, e, "unable to set", obj , ".", currentPropsWalked, 'to', value)
                             success = false;
                         }
                         return success;
