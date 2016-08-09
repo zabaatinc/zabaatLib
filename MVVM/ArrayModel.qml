@@ -382,6 +382,7 @@ QtObject {
             }
             return true
         }
+
         function deepSet(obj, propStr, value) {
 
             function newArrOrObj(keyName){
