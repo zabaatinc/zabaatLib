@@ -144,7 +144,7 @@ ZabaatTest {
         ra.runUpdate(defaultObj);
 
         ra.del("0/hobbies/100")
-        console.log(JSON.stringify(ra.arr,null,2))
+
         compare(ra.length, 2);
         compare(ra.arr.length , 2);
         compare(ra.get("0/hobbies").length, 0)

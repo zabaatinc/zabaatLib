@@ -115,13 +115,14 @@ Item {
 
 
     function del(path) {
+//        console.log("DEL", path)
         var propArr = priv.getPathArray(path)
         if(!propArr || propArr.length === 0)
             return false;
 
+        var id  = propArr[0]
+        var idx = priv.findById(priv.arr, id, true)
         if(propArr.length === 1) {  //is on da root level!
-            var id  = propArr[0]
-            var idx = priv.findById(priv.arr, id, true)
             if(idx !== -1) {
                 priv.arr.splice(idx,1);
                 delete priv.idMap[id];
@@ -132,8 +133,16 @@ Item {
             return false;
         }
         else {
-            priv.deepDel(priv.arr, propArr);
+            var res = priv.deepDel(priv.arr, propArr);
+//            console.log("@@@  CALLED DEEP DEL", res)
+            if(res) {
+                deleted(path,idx);
+                return true;
+            }
+//            else
+//                console.log("DEEP DELTE RETURNED FALSE ON", path)
         }
+        return false;
     }
 
 
@@ -202,11 +211,9 @@ Item {
                 set : function(key,value){
                     var keyStr = key.toString()
                     var keyInt = parseInt(key)
+                    keyInt     = isNaN(keyInt) ? null : keyInt
                     var ptrType = toString.call(o.ptr)
                     var item
-
-
-
 
                     function __set(obj,newObj){
                         var updatedKeys = []
@@ -283,6 +290,23 @@ Item {
 
                     }
                     return false;
+                },
+                del : function(key) {
+//                    console.log("@@@ SPLICER FUNCTIOn")
+                    var ptrType = toString.call(o.ptr);
+
+                    //as per our commandments, we can only delete on arrays!
+                    //and more often than not, only if they have ids!!
+                    if(ptrType !== '[object Array]')
+                        return false;
+
+                    var idx = findByIdSoft(o.ptr, key, true);
+                    if(idx === -1) {
+                        return false;
+                    }
+
+                    o.ptr.splice(idx,1);
+                    return true;
                 }
             }
 
@@ -343,9 +367,9 @@ Item {
         }
 
 
+        //checks in the array indices if not found in id, if array doesnt have id field!
         function findByIdSoft(arr,id, returnIndex) {
             var badVal = returnIndex ? -1 : null
-            var keyStr = id.toString()
             var keyInt = parseInt(id)
             keyInt     = isNaN(keyInt) ? null : keyInt
             var thereAreIds = false;
@@ -464,7 +488,27 @@ Item {
             return retVal
         }
         function deepDel(item, pathArr){
-            //TODO
+            if(!pathArr || pathArr.length === 0)
+                return false;
+
+            var po = newPtrObject(item);
+            var rVal
+            var res = _.some(pathArr, function(prop, k) {
+                var isLast = k === pathArr.length - 1;
+                if(isLast) {
+                    rVal = po.del(prop);
+                    return !rVal ? 1 : 2
+                }
+                else {
+                    rVal = po.advance(prop)
+                    if(rVal === false || rVal === undefined) {
+                        console.error("no such property as", prop)
+                        return 1;
+                    }
+                }
+            })
+
+            return res === 1 ?  false : true;
         }
 
     }
