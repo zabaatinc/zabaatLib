@@ -87,7 +87,7 @@ Item {
         var ret =  priv.deepSet(priv.arr, propArr, data);
         if(ret && ret.type){
             if(ret.type === 'create') {
-                priv.emitCreatedRecursive(path,data);
+                priv.emitRecursive(path,data,'created');
                 return true;
             }
             else if(ret.type === 'createRoot'){
@@ -98,7 +98,7 @@ Item {
                     created(id,item )   //emit created at root level!
 
                 }
-                priv.emitCreatedRecursive(path,data);
+                priv.emitRecursive(path,data,'created');
                 priv.length++
                 return true;
             }
@@ -148,7 +148,11 @@ Item {
         if(propArr.length === 1) {  //is on da root level!
             var id  = propArr[0]
             var idx = priv.findById(priv.arr, id, true)
+
             if(idx !== -1) {
+                var item = priv.arr[idx]
+                priv.emitRecursive(id,item,'deleted')
+
                 priv.arr.splice(idx,1);
                 delete priv.idMap[id];
                 deleted(id);
@@ -158,8 +162,15 @@ Item {
             return false;
         }
         else {
+            var old = get(path);
+            if(old && typeof old === 'object')
+                old = priv.clone(old);
+
             var res = priv.deepDel(priv.arr, propArr);
             if(res) {
+                if(old)
+                    priv.emitRecursive(path,old,'deleted')
+
                 deleted(path);
                 return true;
             }
@@ -189,19 +200,25 @@ Item {
             return t1 !== t2 && (t1Complex || t2Complex) ? false : true
         }
 
-        function emitCreatedRecursive(path,data) {
-            if(typeof data === 'object') {
+        function emitRecursive(path,data, sigName) {
+            var dType = toString.call(data)
+            var isArr = dType === '[object Array]'
+            var isObj = dType === '[object Object]'
+            if(isArr || isObj) {
                 _.each(data, function(v,k) {
+                    if(isArr && isDef(v.id)) {
+                        k = v.id
+                    }
                     var p = path + "/" + k
-                    created(p,v)
+                    rootObject[sigName](p,v)
 
                     if(typeof v === 'object'){
-                        emitCreatedRecursive(p,v);
+                        emitRecursive(p,v,sigName);
                     }
                 })
             }
             else {
-                created(path,data);
+                rootObject[sigName](path,data);
             }
         }
 

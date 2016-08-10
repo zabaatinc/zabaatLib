@@ -174,20 +174,42 @@ ZabaatTest {
         ra.del("0")
         compare(ra.length, 1);
         compare(ra.arr.length , 1);
-        compare(typeof signals.deleted , "object");
-        compare(signals.deleted.length, 1);
+
+
+
+        var rc = _.reduce(signals.deleted, function(a,e){
+            a[e[0]] = true;
+            return a;
+        },{})
+
+        compare(rc["0"], true)
+        compare(rc["0/id"], true)
+        compare(rc["0/name"], true)
+        compare(rc["0/hobbies"], true)
+        compare(rc["0/hobbies/100"], true)
+        compare(rc["0/hobbies/100/id"], true)
+        compare(rc["0/hobbies/100/name"], true)
+
+        compare(signals.deleted.length, 7);
     }
 
     function test_12_deleteExisting() {
         ra.runUpdate(defaultObj);
-
         ra.del("0/hobbies/100")
 
         compare(ra.length, 2);
         compare(ra.arr.length , 2);
         compare(ra.get("0/hobbies").length, 0)
-        compare(typeof signals.deleted , "object");
-        compare(signals.deleted.length, 1);
+
+        var rc = _.reduce(signals.deleted, function(a,e){
+            a[e[0]] = true;
+            return a;
+        },{})
+
+        compare(rc["0/hobbies/100"], true)
+        compare(rc["0/hobbies/100/id"], true)
+        compare(rc["0/hobbies/100/name"], true)
+        compare(signals.deleted.length, 3);
     }
 
     function test_13_deleteRootNonExisting() {
