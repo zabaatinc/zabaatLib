@@ -12,9 +12,9 @@ import "Lodash"
 Item {
     id : rootObject
 
-    signal updated(string path, var data, var oldData, int index);
-    signal created(string path, var data, int index);
-    signal deleted(string path, int index);
+    signal updated(string path, var data, var oldData);
+    signal created(string path, var data);
+    signal deleted(string path);
 
     readonly property alias length : priv.length
     readonly property alias arr    : priv.arr
@@ -54,7 +54,7 @@ Item {
             _.each(priv.arr, function(v,k){
 //                console.log('iterating over array', priv.arr.length)
                 priv.addId(v.id, v);
-                created(v.id, v, k);
+                created(v.id, v);
             })
             priv.length = priv.arr.length;
         }
@@ -75,27 +75,52 @@ Item {
 
 
 
+
+
     function set(path, data) {
         var propArr = priv.getPathArray(path);
         if(!propArr || propArr.length === 0)
             return runUpdate(data);
 
+
+
         var ret =  priv.deepSet(priv.arr, propArr, data);
         if(ret && ret.type){
             if(ret.type === 'create') {
-                created(path, data, ret.index)
+                priv.emitCreatedRecursive(path,data);
                 return true;
             }
             else if(ret.type === 'createRoot'){
-                if(priv.isDef(data.id))
-                    priv.addId(data.id, priv.findById(priv.arr, data.id) )
+                var id = propArr[0]
+                if(id) {
+                    var item = priv.findById(priv.arr, id)
+                    priv.addId(id, item )
+                    created(id,item )   //emit created at root level!
 
-                created(path, data, ret.index);
+                }
+                priv.emitCreatedRecursive(path,data);
                 priv.length++
                 return true;
             }
             else if(ret.type === 'update') {
-                updated(propArr[0], data, ret.oldVal, ret.index)
+                if(ret.createdKeys) {
+//                    console.log("ret.createdKeys" , JSON.stringify(ret.createdKeys,null,2))
+                    _.each(ret.createdKeys, function(v,k){
+                        var p = path + "/" + k;
+//                        console.log("EMITTING CREATED", p, v)
+                        created(p,v)
+                    })
+                }
+
+                if(ret.updatedKeys) {
+//                    console.log("ELK", JSON.stringify(ret.updatedKeys, null,2))
+                    _.each(ret.updatedKeys, function(v,k){
+                        var p = path + "/" + k;
+                        updated(p,v.value, v.oldValue)
+                    })
+                }
+
+                updated(path, data, ret.oldVal)
                 return true;
             }
         }
@@ -120,13 +145,13 @@ Item {
         if(!propArr || propArr.length === 0)
             return false;
 
-        var id  = propArr[0]
-        var idx = priv.findById(priv.arr, id, true)
         if(propArr.length === 1) {  //is on da root level!
+            var id  = propArr[0]
+            var idx = priv.findById(priv.arr, id, true)
             if(idx !== -1) {
                 priv.arr.splice(idx,1);
                 delete priv.idMap[id];
-                deleted(id,idx);
+                deleted(id);
                 priv.length--;
                 return true;
             }
@@ -134,13 +159,10 @@ Item {
         }
         else {
             var res = priv.deepDel(priv.arr, propArr);
-//            console.log("@@@  CALLED DEEP DEL", res)
             if(res) {
-                deleted(path,idx);
+                deleted(path);
                 return true;
             }
-//            else
-//                console.log("DEEP DELTE RETURNED FALSE ON", path)
         }
         return false;
     }
@@ -167,6 +189,21 @@ Item {
             return t1 !== t2 && (t1Complex || t2Complex) ? false : true
         }
 
+        function emitCreatedRecursive(path,data) {
+            if(typeof data === 'object') {
+                _.each(data, function(v,k) {
+                    var p = path + "/" + k
+                    created(p,v)
+
+                    if(typeof v === 'object'){
+                        emitCreatedRecursive(p,v);
+                    }
+                })
+            }
+            else {
+                created(path,data);
+            }
+        }
 
 
 
@@ -216,12 +253,14 @@ Item {
                     var item
 
                     function __set(obj,newObj){
-                        var updatedKeys = []
-                        var createdKeys = []
+                        var updatedKeys
+                        var createdKeys
                         _.each(newObj,function(v,k){
                             var existing = obj[k]
                             if(!existing){
-                                createdKeys.push(k)
+                                if(!createdKeys)
+                                    createdKeys = {}
+                                createdKeys[k] = v
                                 obj[k] = v
                             }
                             else if(existing != v) {
@@ -233,7 +272,10 @@ Item {
                                 existing = existingIsComplex ? clone(existing) : existing
                                 var bad = existingType !== newType && (existingIsComplex || newIsComplex)
                                 if(!bad) {
-                                    updatedKeys.push(k)
+                                    if(!updatedKeys)
+                                        updatedKeys = {}
+
+                                    updatedKeys[k] = { value : v , oldValue : existing };
                                     obj[k] = v;
                                 }
                             }
@@ -252,11 +294,15 @@ Item {
 //                            console.log("PTR SET", key, JSON.stringify(value))
                             item = o.ptr[idx]
                             if(writeCompatible(item,value)) {
-                                if(typeof item === 'object')
-                                    __set(item,value);
+                                var retObj = { type : 'update', item : o.ptr[idx] }
+                                if(typeof item === 'object') {
+                                    var res =  __set(item,value);
+                                    retObj.createdKeys = res.created;
+                                    retObj.updatedKeys = res.updated;
+                                }
                                 else
                                     o.ptr[idx] = value;
-                                return { type : 'update', item : o.ptr[idx] }
+                                return retObj
                             }
                             else {
                                 console.log(item, "is not compatible with", value)
@@ -271,17 +317,22 @@ Item {
                                                                                                  null
 
                         if(!k){ //is a totally new key!
-                            o.ptr[k] = value;
-                            return { type : "create", item : o.ptr[k] }
+//                            console.log("EYYY, we should have made new key", k)
+                            o.ptr[key] = value;
+                            return { type : "create", item : o.ptr[key] }
                         }
                         else {
                             item = o.ptr[k]
+                            var retObj = { type : 'update', item : o.ptr[k] }
                             if(writeCompatible(item, value)) {
-                                if(typeof item === 'object')
-                                    __set(item,value);
+                                if(typeof item === 'object') {
+                                    var res = __set(item,value);
+                                    retObj.createdKeys = res.created;
+                                    retObj.updatedKeys = res.updated;
+                                }
                                 else
                                     o.ptr[k] = value;
-                                return { type : 'update', item : o.ptr[k] }
+                                return retObj
                             }
                             else {
                                 console.log(item, "is not compatible with", value)
@@ -424,9 +475,12 @@ Item {
             //set up pointer and prevPtr!
             var po = newPtrObject(item);
             var idx = item === priv.arr ? findById(priv.arr,pathArr[0],true) : null
+            //assign id to root!
             if(pathArr.length === 1 && isUndef(value.id) && item === priv.arr && toString.call(value) === '[object Object]') {
                 value.id = pathArr[0]
             }
+
+
 
 
             var newItem = false;
@@ -434,13 +488,11 @@ Item {
                 var prop = pathArr[p]
                 var isLast = p === pathArr.length - 1
                 if(isLast){
+//                    console.log(prop,value)
                     var ret = po.set(prop,value)
                     if(typeof ret === 'object'){
-                        ret.index = idx;
-                        if(p === 0 && ret.type === 'create') {
+                        if(newItem || (p === 0 && ret.type === 'create')) {  //we created new thing @ root!! WOOT!
                             ret.type = 'createRoot'
-//                            if(ret.item && typeof ret.item === 'object')
-//                                ret.item.id = pathArr[0]
                         }
 
                         return ret;
@@ -455,9 +507,7 @@ Item {
                             return false;
                         else {
                             if(isDef(newObj.id)) {
-                                idx = priv.arr.length - 1
                                 newItem = true;
-
                             }
                         }
                     }
@@ -466,7 +516,6 @@ Item {
 
             return false;
         }
-
         function deepGet(item, pathArr) {
             var po = newPtrObject(item)
             var retVal
@@ -493,22 +542,23 @@ Item {
 
             var po = newPtrObject(item);
             var rVal
-            var res = _.some(pathArr, function(prop, k) {
-                var isLast = k === pathArr.length - 1;
+
+            for(var i = 0; i < pathArr.length; ++i) {
+                var prop = pathArr[i]
+                var isLast = i === pathArr.length - 1;
                 if(isLast) {
-                    rVal = po.del(prop);
-                    return !rVal ? 1 : 2
+                    return po.del(prop);
                 }
                 else {
                     rVal = po.advance(prop)
                     if(rVal === false || rVal === undefined) {
                         console.error("no such property as", prop)
-                        return 1;
+                        return false;
                     }
                 }
-            })
+            }
 
-            return res === 1 ?  false : true;
+            return false;
         }
 
     }
