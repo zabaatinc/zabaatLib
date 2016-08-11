@@ -24,10 +24,6 @@ ZController {
     /*! A function that can display errors if XhrController encounters any. \b default : null \hr */
     property var    errHandler            : null   //works on postReqs
 
-    /*! Function that turns err to a Js Object. Is internally assigned. Shouldn't need to override this unless
-    something specific is needed. \hr */
-    property var    errToJsObj            : priv.getSailsError
-
     /*! Req history \hr */
     property var    requestHistory        : []
 
@@ -171,35 +167,6 @@ ZController {
         }
 
 
-        function getSailsErr(msg){
-            var err  = msg[0] && msg[0].err ? msg[0].err : msg[0]
-            if(msg[0] && msg[0].err){
-                if(typeof err === 'string') {
-                    return  { type:"legacy", code:"LEG", message : err  }
-                }
-                else
-                {
-                    err.type    = err.type ? err.type : "MISSING"
-                    err.code    = err.code ? err.code : "MISSING"
-                    err.message = err.msg  ? err.msg  : "MISSING"
-
-                    return  err
-                }
-            }
-            else if(err && err.raw) {
-                var ret         = {}
-                for(var r in err.raw)
-                    ret[r] = err.raw[r]
-
-                ret.code        = err.status
-                ret.message     = err.summary ? err.summary : err.error
-                ret.type        = err.error
-
-                return ret
-            }
-
-            return  { type:'unknown', code:'8125', message : 'shenanigans', originPtr: 'no pointer' }
-        }
         function correctifyUrl(url){
             if(url.charAt(0) !== "/") {
                 return "/" + url;
@@ -222,9 +189,19 @@ ZController {
             else                      e = response.err    ? response.err    : response.error
 
             if(e){
-                if(controller.errToJsObj && controller.errHandler){
-                    var errObj = controller.errToJsObj(response)
-                    errObj.origin = origin
+
+                if(controller.errHandler){
+                    var errObj = { origin : origin }
+
+                    if(typeof e === 'object') {
+                        for(var k in e) {
+                            errObj[k] = e[k]
+                        }
+                    }
+                    else {
+                        errObj["error"] = e;
+                    }
+
                     controller.errHandler(errObj)
                 }
                 else {
@@ -270,6 +247,7 @@ ZController {
             return response
         }
         function errorCheck(response, errDisplay){
+//            console.log("ERROR CHECK", JSON.stringify(response,null,2))
             if(response && (response.err || response.error) ) {
                 priv.handleError('ZClient.' + errDisplay + ' (server validation error)' , response)
                 return false
@@ -322,8 +300,10 @@ ZController {
             var retTimes = { model : 0, callback : 0 }
             var time
 
+//            console.log("CbHandler func", JSON.stringify(response,null,2))
+            var noerror = priv.errorCheck(response, type + 'req')
             if(response){
-                if(modelToUpdate && priv.errorCheck(response, type + 'req') && response.data) {
+                if(modelToUpdate && noerror && response.data) {
                     time = priv.now()
                     controller.addModel(modelToUpdate, response.data);
                     retTimes.model = priv.now() - time;
@@ -402,6 +382,10 @@ ZController {
 
                     delete priv.cbObjects[cbId]
                 }
+            }
+            else {
+                //should always check for errors no matta what
+                priv.errorCheck(jsRes)
             }
         }
 
