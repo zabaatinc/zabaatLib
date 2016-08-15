@@ -54,6 +54,18 @@ Item {
         logic.create(message,type,args,{blocking:true,duration:-1},wPerc,hPerc,item)
     }
 
+    function createComponent(componentOrPath, args, cb, wPerc,hPerc,contentItem){
+        logic.create("","ZToastComponent",{cmp:componentOrPath,args:args, cb : cb },{},wPerc, hPerc, contentItem)
+    }
+
+    function createComponentPermanent(componentOrPath, args, cb, wPerc,hPerc,contentItem){
+        logic.create("","ZToastComponent",{cmp:componentOrPath,args:args, cb : cb },{duration:-1},wPerc, hPerc, contentItem)
+    }
+
+    function createComponentPermanentBlocking(componentOrPath, args, cb, wPerc,hPerc,contentItem){
+        logic.create("","ZToastComponent",{cmp:componentOrPath,args:args, cb : cb },{blocking:true,duration:-1},wPerc, hPerc, contentItem)
+    }
+
     function error(strOrObj,title,args){
         var  obj = { err : strOrObj }
         if(args) {
@@ -119,6 +131,8 @@ Item {
 
         logic.create("","ZToastList",args,{blocking:true,duration:-1}, null, null, item)
     }
+
+
 
 
     property QtObject __private : QtObject {

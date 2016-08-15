@@ -18,16 +18,21 @@ ZSkin {
         id : guiLogic
         property real cellHeight : 0.2
         property int closeBtnPos : 0
+        property bool closeAnywhere : false
     }
 
     MouseArea {
         anchors.fill: parent
         drag.target: logic ? logic : null
         propagateComposedEvents: true
+        onClicked : if(guiLogic.closeAnywhere) {
+                        logic.attemptDestruction();
+                    }
     }
     Item {
         id : gui
         anchors.fill: parent
+
         Item {
             width : parent.width //- closeButton.anchors.rightMargin - closeButton.width
             height : closeButton.height
@@ -85,11 +90,11 @@ ZSkin {
                 horizontalAlignment: graphical.text_hAlignment
                 verticalAlignment  : graphical.text_vAlignment
                 font.family        : logic.font1
-                font.pixelSize     : height * 1/4
+//                font.pixelSize     : height * 1/4
                 text               : logic.text
                 color              : Colors.contrastingTextColor(rootObject.color)
                 textFormat         : Text.RichText
-                wrapMode: parent.dynamicScale ? Text.NoWrap : Text.WordWrap
+                wrapMode: Text.WordWrap
                 scale   : parent.dynamicScale ?  (paintedWidth > width ? width/paintedWidth : 1) : 1
             }
         }
@@ -236,7 +241,8 @@ ZSkin {
           "h37"  :  { "guiLogic" : { "cellHeight" : 0.37   }  } ,
           "h38"  :  { "guiLogic" : { "cellHeight" : 0.38   }  } ,
           "h39"  :  { "guiLogic" : { "cellHeight" : 0.39   }  } ,
-          "h40"  :  { "guiLogic" : { "cellHeight" : 0.40   }  }
+          "h40"  :  { "guiLogic" : { "cellHeight" : 0.40   }  } ,
+          "closeanywhere" : { "guiLogic" : { "closeAnywhere" : true   }  }
     })
 
 
