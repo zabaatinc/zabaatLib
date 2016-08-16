@@ -28,6 +28,7 @@ QtObject {
        so this is hardcoded here and we update it from within \l ApplicationWindow
      */
     property real pixelDensity: 4.46
+    onPixelDensityChanged: console.log("PIXELDENSITY",pixelDensity)
     property real multiplier  : 1.4 //default multiplier, but can be changed by user
 
     property real defaultWidth : 1920

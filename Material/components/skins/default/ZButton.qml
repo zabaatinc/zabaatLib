@@ -63,10 +63,10 @@ ZSkin {
     Item {
         id :  textContainer
         anchors.fill: parent
-        clip : true
+//        clip : true
 //        Text  {
 //            anchors.right: parent.left
-//            text : text.font.pixelSize + "/" + text.scale
+//            text : text.font.pixelSize + "/" + text.scale + " " + logic.state
 //        }
         Text {
             id : text
