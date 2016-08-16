@@ -44,15 +44,13 @@ Item {
             var sItem = statesObj[stateName]
             if(!sItem){ //check if it was a dynamic super cool ! state
                 sItem = logic.exclamExtractor(stateName,statesObj)
-//                console.log(stateName, "not found. looking in super cool ones!", sItem ? "found" : "not found")
+//                if(!sItem)
+//                    console.log(stateName, "not found in", logic.getDynamicStates(statesObj))
             }
 
             if(sItem)
                 logic.merge(obj, sItem);
         }
-
-//        if(obj.font && obj.font.pixelSize)
-//            console.log(target, obj.font.pixelSize)
 
         logic.loadObj(target, obj)
         //we have the obj now, now we just need to apply this thing on the target
@@ -187,7 +185,7 @@ Item {
 
                     }
                     else {
-                        console.error(root, "error at" , current)
+                        console.error(root, "error at" , current, arr)
                         break
                     }
                 }
@@ -355,7 +353,8 @@ Item {
                     continue
 
                 var earr = o.split("!")
-                if(earr.length === 2 || earr.length % 2 === 1) {    //has to be odd! or 2!
+                if(earr.length >= 2 ) {
+//                    console.log(earr, earr.length % 2)
                     var res = analyze(str,earr)
                     if(res.length > 0){
                          return replaceExclam(cloneObj(statesObj[o]), res)
@@ -388,6 +387,7 @@ Item {
             return newObj;
         }
 
+        //we are always passing this function a clone of obj so its safe to manipulate it!
         function replaceExclam(obj, args){
             if(!obj || !args || args.length === 0)
                 return obj;
@@ -395,15 +395,18 @@ Item {
             for(var o in obj){
                 var item = obj[o]
                 var type = typeof item
+//                console.log("REPLACE EXCLAM, ITERATING OVER!", o)
+//                printObj(item);
                 if(type === 'object'){  //keep going comrade!
+//                    console.log('deepr')
                     replaceExclam(item,args)
                 }
                 else if(type === 'function'){
                     //replace function with a function that calls the original!!!
-                    console.log("!!!! TODO ZSTATEHANDLER")
-//                    obj[o] = function() {
-//                        item.apply(this,args);
-//                    }
+//                    console.log("!!!! TODO ZSTATEHANDLER")
+                    obj[o] = function() {
+                        return item.apply(this,args);
+                    }
                 }
                 else if(type === 'string' && item.indexOf("!") !== -1){  //is a simple object !!
                     //replace all the !s with the args
@@ -431,48 +434,84 @@ Item {
         function analyze(str, arr){
             str     = str.toString();
             var res = []
+
+            //we need to consume the string as we parse it! Makes it much easier.
             for(var i = 0; i < arr.length - 1; i++){
                 var a = arr[i]
                 var b = arr[i+1]
+
                 var re
                 var idx
 
                 if(a !== "" && b !== ""){
+//                    console.log('case1 a=',a, 'b=', b)
                     var idxa = str.indexOf(a)
-                    var idxb = str.indexOf(b)
-
+                    var idxb = str.indexOf(b, idxa+1)   //since we want them not to return the same index
                     if(idxa !== -1 && idxb !== -1 && idxa < idxb){
                         re = str.match(a+"(.*)"+b);
                         if(re && re.length > 1){
                             re = re[1]
-                            if(!isNaN(re))
+                            if(!isNaN(re)) {
                                 res.push(re)
+
+                                //essentially remove until a and the ! cause we have consumed thoss
+                                str = str.slice(idxa + a.length + re.length);
+                            }
                         }
                     }
+                    else
+                        return []   //failure
                 }
                 if(a === ""){   //get b!
                     idx = str.indexOf(b)
                     if(idx !== -1){
                        re = str.substr(0,idx);
                        if(!isNaN(re)){
-                            res.push(re)
+                           res.push(re)
+                           str = str.slice(idx);    //cause we consumed A
                        }
                     }
                 }
                 else if(b === ""){
                     idx = str.indexOf(a)
                     if(idx !== -1){
-                        re = str.substr(idx+1)
+                        re = str.substr(idx + a.length)
                         if(!isNaN(re)) {
                             res.push(re)
+                            str = ""    //cause we're all out bro!
                         }
                     }
                 }
-            }
 
+            }
             return res;
         }
 
+
+
+        function printObj(obj, tabStr) {
+            tabStr = tabStr || ""
+            if(typeof obj !== 'object')
+                return console.log(tabStr + obj)
+
+            for(var o in obj){
+                var item = obj[o]
+                if(typeof item === 'object')
+                    printObj(item,tabStr + "\t")
+                console.log(tabStr + o,item)
+            }
+        }
+
+
+        function getDynamicStates(obj) {
+            var arr = []
+            for(var o in obj){
+                if(o.indexOf("!") !== -1)
+                    arr.push(o)
+            }
+
+            return arr;
+        }
 
     }
 }

@@ -47,6 +47,7 @@ spill1 - spill9 : spill of the ink from the knob (low to high)
 */
 Item {
     id : rootObject
+    property QtObject derp : QtObject { property var herp  }
 
     signal skinFuncAdded();
     signal initialized();
@@ -219,16 +220,24 @@ Item {
         function injectState(name, key, stateObject){    //makes sure we don't overwrite an existing state!
             if(states[name]){
                 if(has(states[name],key)){  //this key already exists!! don't overwrite special values!
-                    for(var s in stateObject){
-//                        console.log(key, s)
-                        if(!has(states[name][key],s) ){
-                            //do nothing
-                            states[name][key][s] = stateObject[s]
+                    var type = typeof stateObject
+                    if(type === 'object') {
+                        for(var s in stateObject){
+    //                        console.log(key, s)
+                            if(!has(states[name][key],s) ){
+                                //do nothing
+                                states[name][key][s] = stateObject[s]
+                            }
                         }
                     }
+                    else { //is flat object! just assign it!
+                        console.log("assigned flat object @" , name + "." + key, "=", stateObject)
+                        states[name][key] = stateObject
+                    }
                 }
-                else
+                else {
                     states[name][key] = stateObject
+                }
             }
             else {
                 var obj = {}
@@ -279,7 +288,9 @@ Item {
             cache.bordersAdded = true;
         }
 
-//        property var herp
+
+
+
         function addFontStates(){
 
             cache.injectState("default","font", { bold : false, italic : false, "@pixelSize":["@parent","height",1/4],
@@ -302,23 +313,10 @@ Item {
             cache.injectState("font2"      , "font" , {"@family" : [Fonts,"font2"]}    )
             cache.injectState("fontfa"     , "font" , {"family": "FontAwesome"     }   )
             cache.injectState("fontrosa"   , "font" , {"family": "rosacons"        }   )
+            cache.injectState("f!px"       , "font" , { "pixelSize" : "!" } )   //px is pixelSize
+            cache.injectState("f!pt"       , "font" , { "@pixelSize" : function(a)   { return Units.dp(a);  } })  //our version of pointSize m device independent, hurr hurr
+//            cache.injectState("!test!test!" , "derp" , { "@herp"      : function(a,b,c) { console.log("TEST TEST FUNC YAY", a,b,c)      } })
 
-
-            cache.injectState("f!px"       , "font" , { "pixelSize" : "!"  })
-//            cache.injectState("f18px"       , "font" , { "pixelSize" : 18  })
-//            cache.injectState("f32px"       , "font" , { "pixelSize" : 16  })
-//            cache.injectState("test!test!" , "herp", function(a,b){ console.log("HELLLLLLLLLOOOO",a,b); return a; })
-//            cache.injectState("f2px"       , "font" , { "pixelSize" : 2  })
-//            cache.injectState("f3px"       , "font" , { "pixelSize" : 2  })
-//            cache.injectState("f4px"       , "font" , { "pixelSize" : 2  })
-//            cache.injectState("f5px"       , "font" , { "pixelSize" : 2  })
-//            cache.injectState("f6px"       , "font" , { "pixelSize" : 2  })
-//            cache.injectState("f7px"       , "font" , { "pixelSize" : 2  })
-//            cache.injectState("f8px"       , "font" , { "pixelSize" : 2  })
-//            cache.injectState("f9px"       , "font" , { "pixelSize" : 2  })
-//            cache.injectState("f10px"       , "font" , { "pixelSize" : 2  })
-//            cache.injectState("f11px"       , "font" , { "pixelSize" : 2  })
-//            cache.injectState("f12px"       , "font" , { "pixelSize" : 2  })
 
             cache.injectState("f1"         , "font" , { "@pixelSize" : ["@parent","height",1]    })
             cache.injectState("f2"         , "font" , { "@pixelSize" : ["@parent","height",1/2]  })
