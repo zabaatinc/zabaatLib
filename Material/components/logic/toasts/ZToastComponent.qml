@@ -1,6 +1,7 @@
 import QtQuick 2.5
 import Zabaat.Material 1.0
-//Flexible Toast thbat can take any component and then displays it.
+//Flexible Toast thbat can take any component and then displays it. If the compoonent is made permanent,
+//should take care of its own destruction. Should have a signal called requestDestruction!
 Item {
     id : rootObject
     objectName : "ZToastComponent"
@@ -15,6 +16,9 @@ Item {
     property string title: ""
     property string text : ""
 
+    signal requestDestruction()
+    signal attemptingDestruction()
+
     onCmpChanged: {
         if(!cmp){
             loader.source = ""
@@ -24,8 +28,13 @@ Item {
             initTimer.start()
     }
 
+    property bool calledToDestroy: false
 
     function attemptDestruction(suppressSignal){
+        if(!rootObject || calledToDestroy)
+            return;
+
+        calledToDestroy = true;
         if(!suppressSignal)
             rootObject.attemptingDestruction()
         try{
@@ -45,7 +54,15 @@ Item {
         id : loader
         anchors.fill: this && parent ? parent: null
         onLoaded : if(item){
+
+            try {
+                item.requestDestruction.connect(attemptDestruction)
+            }
+            catch(e) {
+                console.error(cmp, "has no request destruction signal!")
+            }
             item.Component.destruction.connect(attemptDestruction)
+
             if(args) {
                 for(var a in args){
                     if(item.hasOwnProperty(a))

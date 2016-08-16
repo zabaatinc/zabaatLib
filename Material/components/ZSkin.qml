@@ -85,6 +85,8 @@ Item {
                            skinFuncAdded();
                        }
 
+
+
     /*! The container for colors that all ZObjects should use. The colors are the following:  \hr
         fill_Empty       : \b default : "transparent"
         fill_Default     : \b default : Colors.standard
@@ -276,6 +278,8 @@ Item {
 
             cache.bordersAdded = true;
         }
+
+//        property var herp
         function addFontStates(){
 
             cache.injectState("default","font", { bold : false, italic : false, "@pixelSize":["@parent","height",1/4],
@@ -299,6 +303,22 @@ Item {
             cache.injectState("fontfa"     , "font" , {"family": "FontAwesome"     }   )
             cache.injectState("fontrosa"   , "font" , {"family": "rosacons"        }   )
 
+
+            cache.injectState("f!px"       , "font" , { "pixelSize" : "!"  })
+//            cache.injectState("f18px"       , "font" , { "pixelSize" : 18  })
+//            cache.injectState("f32px"       , "font" , { "pixelSize" : 16  })
+//            cache.injectState("test!test!" , "herp", function(a,b){ console.log("HELLLLLLLLLOOOO",a,b); return a; })
+//            cache.injectState("f2px"       , "font" , { "pixelSize" : 2  })
+//            cache.injectState("f3px"       , "font" , { "pixelSize" : 2  })
+//            cache.injectState("f4px"       , "font" , { "pixelSize" : 2  })
+//            cache.injectState("f5px"       , "font" , { "pixelSize" : 2  })
+//            cache.injectState("f6px"       , "font" , { "pixelSize" : 2  })
+//            cache.injectState("f7px"       , "font" , { "pixelSize" : 2  })
+//            cache.injectState("f8px"       , "font" , { "pixelSize" : 2  })
+//            cache.injectState("f9px"       , "font" , { "pixelSize" : 2  })
+//            cache.injectState("f10px"       , "font" , { "pixelSize" : 2  })
+//            cache.injectState("f11px"       , "font" , { "pixelSize" : 2  })
+//            cache.injectState("f12px"       , "font" , { "pixelSize" : 2  })
 
             cache.injectState("f1"         , "font" , { "@pixelSize" : ["@parent","height",1]    })
             cache.injectState("f2"         , "font" , { "@pixelSize" : ["@parent","height",1/2]  })

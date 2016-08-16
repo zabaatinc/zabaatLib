@@ -31,6 +31,11 @@ Item
         id : modelContainer
     }
 
+    function newListModel(){
+        return Functions.getNewObject('ZListModel.qml', modelContainer)
+    }
+
+
 
     QtObject {
         id : priv
@@ -103,7 +108,6 @@ Item
 //            console.log("data is", toString.call(obj))
             if(obj && isDef(obj,"id")) {
                 var existingIdx = getById(lm, obj.id, true);
-
                 if(existingIdx === -1){  //data doesnt exist. append it. EASY. otherwise, we got our work cut out fr us!
                     lm.append(obj);
                     return null;
@@ -115,8 +119,13 @@ Item
             }
         }
 
+
+
         function updateItem(existingItem, obj, location){
             for(var o in obj)  {
+//                if(o === 'c_own'){
+//                    console.log(JSON.stringify(existingItem[o],null,2) , JSON.stringify(obj[o],null,2))
+//                }
                 if(o !== 'id') {
                     var oldValue  = existingItem[o]
                     var newValue  = obj[o]
@@ -127,8 +136,8 @@ Item
                     }
                     else if(!isDef(oldValue)){  //we dont have an old lm, create it and append obj[o] to it??
                         if(isArray(newValue) ){
+                            existingItem[o] = newListModel()//Functions.getNewObject('ZListModel.qml', modelContainer)
                             if(newValue.length > 0){
-                                existingItem[o] = Functions.getNewObject('ZListModel.qml', modelContainer)
                                 existingItem[o].append(newValue)
                             }
                         }

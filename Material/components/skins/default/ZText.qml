@@ -26,7 +26,12 @@ ZSkin {
         onPaintedWidthChanged: if(rootObject.paintedWidth) {
                                    rootObject.width = logic.width = paintedWidth + 10
                                }
+//        property real px : font.pixelSize
+//        onPxChanged : console.log(px, height * 1/4)
     }
+
+
+
 
     states : ({ "default" :  { rootObject : { "border.width" : 0 ,
                                                "paintedWidth" : false

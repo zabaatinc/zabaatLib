@@ -40,11 +40,20 @@ Item {
         var obj = {}      //merge all states into this in order and then apply!
         var sArr = state.split('-')
         for(var i = 0; i < sArr.length; ++i){
-            var sItem = statesObj[sArr[i]]
-            logic.merge(obj, sItem);
+            var stateName = sArr[i]
+            var sItem = statesObj[stateName]
+            if(!sItem){ //check if it was a dynamic super cool ! state
+                sItem = logic.exclamExtractor(stateName,statesObj)
+//                console.log(stateName, "not found. looking in super cool ones!", sItem ? "found" : "not found")
+            }
+
+            if(sItem)
+                logic.merge(obj, sItem);
         }
 
-//        console.log(_.keys(obj))
+//        if(obj.font && obj.font.pixelSize)
+//            console.log(target, obj.font.pixelSize)
+
         logic.loadObj(target, obj)
         //we have the obj now, now we just need to apply this thing on the target
 
@@ -115,7 +124,7 @@ Item {
                 }
             }
         }
-        function loadInnerProperty(target, prop, stateObject, rootObject){
+        function loadInnerProperty(target, prop, stateObject, rootObject, exclamationArgs){
             var obj = prop === "rootObject" ? target : deepGet(target,prop)
             if(obj) {
                 for(var key in stateObject) {
@@ -295,8 +304,27 @@ Item {
 
             for(var o in obj2){
                 var o2 = obj2[o]
-                if(typeof o2 === 'object'){ //we only care bout the linkages!!
 
+                var isBindStr  = o.charAt(0) === "@"
+                if(isBindStr){  //check to see if non bindstr exists & delete it!
+                    var nonBindStr = o.slice(1)
+                    if(obj1[nonBindStr]){
+                        delete obj1[nonBindStr]
+                    }
+                }
+                else {  //check to see if bindStr exists and delete it!
+                    var bindStr    = "@" + o
+                    if(obj1[bindStr]){
+                        delete obj1[bindStr]
+                    }
+                }
+
+                //we only want the latest in the case of something like pixelSize & @pixelSize , etc
+
+
+
+
+                if(typeof o2 === 'object'){ //we only care bout the linkages!!
                     if(toString.call(o2) === '[object Array]') {    //o2 is array
                         if(cloneArrays){
                             obj1[o] = []
@@ -318,6 +346,131 @@ Item {
                     obj1[o] = o2
                 }
             }
+        }
+
+
+        function exclamExtractor(str, statesObj){
+            for(var o in statesObj) {
+                if(o.length <=1  || o.indexOf("!") === -1)
+                    continue
+
+                var earr = o.split("!")
+                if(earr.length === 2 || earr.length % 2 === 1) {    //has to be odd! or 2!
+                    var res = analyze(str,earr)
+                    if(res.length > 0){
+                         return replaceExclam(cloneObj(statesObj[o]), res)
+                    }
+                }
+            }
+            return null;
+        }
+
+        function cloneObj(obj, newObj){
+            newObj = newObj || {}
+            for(var o in obj){
+                var item = obj[o]
+                var existing = newObj[o]
+                var type = toString.call(obj)
+                if(typeof item === '[object Object]'){ //go deeper
+                    if(!existing)
+                        existing = newObj[o] = {}
+                    return cloneObj(item,existing);
+                }
+                else if(typeof item === '[object Object]') { //go deeper
+                    if(!existing)
+                        existing = newObj[o] = []
+                    return cloneObj(item,existing);
+                }
+                else {  //functions are copied by ref & basic values are copied
+                    existing = newObj[o] = item;
+                }
+            }
+            return newObj;
+        }
+
+        function replaceExclam(obj, args){
+            if(!obj || !args || args.length === 0)
+                return obj;
+
+            for(var o in obj){
+                var item = obj[o]
+                var type = typeof item
+                if(type === 'object'){  //keep going comrade!
+                    replaceExclam(item,args)
+                }
+                else if(type === 'function'){
+                    //replace function with a function that calls the original!!!
+                    console.log("!!!! TODO ZSTATEHANDLER")
+//                    obj[o] = function() {
+//                        item.apply(this,args);
+//                    }
+                }
+                else if(type === 'string' && item.indexOf("!") !== -1){  //is a simple object !!
+                    //replace all the !s with the args
+                    for(var a = 0; a < args.length; ++a){
+                        var arg = args[a]
+
+//                        console.log('replaced ! in', o, "with", arg)
+                        obj[o] = item = item.replace("!",arg);  //replaces the first one
+                    }
+                }
+            }
+
+            return obj;
+        }
+
+
+        function replaceIndex(string, at, repl) {
+           return string.replace(/\S/g, function(match, i) {
+                if( i === at ) return repl;
+
+                return match;
+            });
+        }
+
+        function analyze(str, arr){
+            str     = str.toString();
+            var res = []
+            for(var i = 0; i < arr.length - 1; i++){
+                var a = arr[i]
+                var b = arr[i+1]
+                var re
+                var idx
+
+                if(a !== "" && b !== ""){
+                    var idxa = str.indexOf(a)
+                    var idxb = str.indexOf(b)
+
+                    if(idxa !== -1 && idxb !== -1 && idxa < idxb){
+                        re = str.match(a+"(.*)"+b);
+                        if(re && re.length > 1){
+                            re = re[1]
+                            if(!isNaN(re))
+                                res.push(re)
+                        }
+                    }
+                }
+                if(a === ""){   //get b!
+                    idx = str.indexOf(b)
+                    if(idx !== -1){
+                       re = str.substr(0,idx);
+                       if(!isNaN(re)){
+                            res.push(re)
+                       }
+                    }
+                }
+                else if(b === ""){
+                    idx = str.indexOf(a)
+                    if(idx !== -1){
+                        re = str.substr(idx+1)
+                        if(!isNaN(re)) {
+                            res.push(re)
+                        }
+                    }
+                }
+            }
+
+            return res;
         }
 
 

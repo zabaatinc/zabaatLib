@@ -171,7 +171,8 @@ ZSkin {
                 horizontalAlignment: graphical.text_hAlignment
                 color              : Colors.danger
                 text               : logic && logic.error ? logic.error : ""
-                font               : label.font
+                font.family        : label.font.family
+                font.pixelSize     : label.font.pixelSize * 3/4
                 width              : parent.width
                 height             : parent.height * 1/2
                 anchors.left       : parent.left
