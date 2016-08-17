@@ -7,7 +7,8 @@ Item {
 
     property var master : ["Zero", "One","Two","Three","Four","Five"]
     function f(a) {
-        return a.toLowerCase().indexOf('o')!== -1
+//        return _.indexOf(["Two","Four"],a) !== -1
+        return _.indexOf(["One","Three","Five"],a) !== -1
     }
     Row {
         width : parent.width
@@ -124,10 +125,18 @@ Item {
             anchors.bottom: parent.bottom
             text : "move to bottom"
             onClicked : {
-                var idx, lastIdx
-                idx = lastIdx = arrangable.model.length - 1
+                arrangable.moveToBottom();
+//                al.moveSelectedTo(Constants.adminTickets.length -1, Constants.adminTickets.length -1);
+            }
+        }
 
-                arrangable.moveSelectedTo(idx, lastIdx)
+        Button {
+            height : parent.height
+            anchors.bottom: parent.bottom
+            text : "move to top"
+            onClicked : {
+                arrangable.moveToTop();
+//                arrangable
 //                al.moveSelectedTo(Constants.adminTickets.length -1, Constants.adminTickets.length -1);
             }
         }

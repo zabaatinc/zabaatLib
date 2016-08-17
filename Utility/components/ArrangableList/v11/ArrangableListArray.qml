@@ -23,6 +23,8 @@ Item {
     readonly property var selectAll             : logic.selectAll
     readonly property var deselectAll           : logic.deselectAll
     readonly property var moveSelectedTo        : logic.moveSelectedTo
+    readonly property var moveToTop             : logic.moveToTop
+    readonly property var moveToBottom          : logic.moveToBottom
     readonly property var resetState            : logic.resetState
 
     readonly property alias indexList           : logic.indexList
@@ -39,9 +41,8 @@ Item {
             item.m = null
             item.m = Qt.binding(function() { return logic.model[logic.indexList[idx]] } )
         }
-
-
     }
+
 
 
 
@@ -317,6 +318,7 @@ Item {
             selectedLen = 0
         }
         function moveSelectedTo(idx , destIdx){     //destIdx is normally BLANK! HARD CODE, USE @ UR OWN RISK!
+//            console.log('move selected to', idx)
             if(selected && selectedLen > 0){
 
                 var list         = logic.indexList
@@ -439,14 +441,116 @@ Item {
             }
         }
         function selectedFirst(){
+            var min = Number.MAX_VALUE;
             if(selected){
                 for(var s in selected)
-                    return selected[s]
+                    min = Math.min(min, selected[s]);
+                return min;
+            }
+            return null;
+        }
+        function selectedFirstFilterIdx() {
+            var min = Number.MAX_VALUE;
+            if(selected) {
+                for(var s in selected)
+                    min = Math.min(min, s);
+                return min;
+            }
+            return null;
+        }
+
+        function selectedLast() {
+            var max = 0;
+            if(selected){
+                for(var s in selected)
+                    max = Math.max(max, selected[s]);
+                return max;
+            }
+            return null;
+        }
+        function selectedLastFilterIdx(){
+            var max = 0;
+            if(selected) {
+                for(var s in selected)
+                    max = Math.max(max, s);
+                return max;
             }
             return null;
         }
 
 
+        //moves all the selected to top and pushes everyuthing else down
+        function moveToTop() {
+            if(!selected && selectedLen <= 0)
+                return;
+
+            var list         = logic.indexList
+            var filteredList = logic.indexListFiltered
+
+            if(selectedLen === 1) {
+                var s      = selectedFirstFilterIdx();
+                var actual = list[selectedFirst()];
+                var filteredIdxFirst = filteredList[0]
+
+
+                if(s === filteredIdxFirst)
+                    return;
+
+                for(var i =s ; i >= 1 ; --i) {
+                    var filteredIdxPrev = filteredList[i-1]
+                    var filteredIdxThis = filteredList[i]
+
+//                    console.log("assigning", filteredIdxPrev, "to", filteredIdxThis)
+                    list[filteredIdxThis] = list[filteredIdxPrev];
+                }
+
+
+                list[filteredIdxFirst] = actual;
+                logic.indexList = list;
+//                console.log("finishing with", filteredIdxFirst, "to", actual, logic.indexList, logic.indexListFiltered)
+                deselectAll()
+                logic.lastTouchedIdx = -1;
+            }
+            else {
+                //its the same as moveSelectedTo
+                moveSelectedTo(0);
+            }
+        }
+        function moveToBottom() {
+            if(!selected && selectedLen <= 0)
+                return;
+
+            var list         = logic.indexList
+            var filteredList = logic.indexListFiltered
+
+
+            if(selectedLen === 1) {
+                var s      = selectedLastFilterIdx();
+                var actual = list[selectedLast()];
+                var filteredIdxLast = filteredList[filteredList.length - 1]
+
+
+                if(s === filteredIdxLast)
+                    return;
+
+                for(var i = s ; i < filteredList.length - 1; ++i) {
+                    var filteredIdxThis = filteredList[i]
+                    var filteredIdxNext = filteredList[i+1]
+
+                    list[filteredIdxThis] = list[filteredIdxNext];
+                }
+
+                list[filteredIdxLast] = actual;
+                logic.indexList = list;
+//                console.log("finishing with", filteredIdxFirst, "to", actual, logic.indexList, logic.indexListFiltered)
+                deselectAll()
+                logic.lastTouchedIdx = -1;
+            }
+            else {
+                //its the same as moveSelectedTo
+                moveSelectedTo(filteredList.length - 1);
+            }
+        }
 
     }
     Item {
