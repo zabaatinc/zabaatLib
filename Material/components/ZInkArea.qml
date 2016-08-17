@@ -203,9 +203,7 @@ Item {
                 hoverEnabled: true;
                 acceptedButtons: rootObject.acceptedButtons
                 onPressed : rootObject.pressed(mouseX,mouseY,pressedButtons)
-                onClicked : {
-                    rootObject.clicked(mouseX,mouseY,pressedButtons)
-                }
+                onClicked : rootObject.clicked(mouseX,mouseY,pressedButtons)
                 onDoubleClicked: rootObject.doubleClicked(mouseX,mouseY,pressedButtons)
             }
 

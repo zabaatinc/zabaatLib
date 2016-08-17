@@ -51,8 +51,8 @@ ZSkin {
         enabled : logic ? true : false;
         allowDoubleClicks: logic ? logic.allowDoubleClicks : false
         acceptedButtons: Qt.AllButtons
-        onPressed:  if(logic)       logic.pressed(logic, x,y,buttons)
-        onClicked:  if(logic)       logic.clicked(logic, x,y,buttons)
+        onPressed       : if(logic) logic.pressed(logic, x,y,buttons)
+        onClicked       : if(logic) logic.singleClicked(logic, x,y,buttons)
         onDoubleClicked : if(logic) logic.doubleClicked(logic, x,y,buttons)
         opacity : graphical.inkOpacity
         onContainsMouseChanged : {
@@ -109,7 +109,8 @@ ZSkin {
         "raised" : { rootObject: {  "border": { width :  1 } ,
                                     radius: 5,
                    }
-        }
+        },
+        "singleclickonly" : { logic : { allowDoubleClicks : false } }
     })
 
 

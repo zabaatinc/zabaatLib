@@ -4,6 +4,7 @@ ZObject{
     objectName : "ZButton"
     signal pressed(var self)
     signal clicked(var self, int x, int y, int button)
+    signal singleClicked(var self, int x,  int y, int button)
     signal doubleClicked(var self, int x , int y, int button)
 
     property bool containsMouse      : false
@@ -13,8 +14,16 @@ ZObject{
     debug                  : false
     onPressed              : log(self, "pressed")
     onClicked              : log(self, "clicked"      , x,  y,  button)
-    onDoubleClicked        : log(self, "doubleClicked", x,  y,  button)
+    onSingleClicked        : {
+        clicked(self,x,y,button)
+        log(self, "singleClicked", x,y,button)
+    }
+    onDoubleClicked        : {
+        clicked(self,x,y,button)
+        log(self, "doubleClicked", x,  y,  button)
+    }
     onContainsMouseChanged : log(this, "containsMouse", containsMouse )
+
 
 
     function getUnformattedText(rtfText){   //will remove all the stuff between < && >
