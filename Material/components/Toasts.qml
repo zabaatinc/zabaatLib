@@ -207,8 +207,11 @@ Item {
             newToast.blocking      = config.blocking || false
             newToast.state     = "f8"
 
-            newToast.w         = w || args.width || args.w ||  defaultToastSize.x
-            newToast.h         = h || args.height || args.h || defaultToastSize.y
+            var argsW = !args ? null : args.width ? args.width : args.w
+            var argsH = !args ? null : args.width ? args.height : args.h
+
+            newToast.w         = w || argsW ||  defaultToastSize.x
+            newToast.h         = h || argsH || defaultToastSize.y
             newToast.z         = 999999
 
             //now load the inner loader!

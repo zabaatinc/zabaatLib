@@ -20,7 +20,7 @@ Item {
     readonly property alias arr    : priv.arr
     property alias priv : priv
 
-    function reset(){
+    property var reset : function(){
         //emit deleted signals for existing items!
         if(priv.arr){
             _.each(priv.arr, function(v,k){
@@ -31,10 +31,9 @@ Item {
         priv.length = 0;
         priv.idMap  = {};
         priv.arr    = undefined;
+        return true;
     }
-
-
-    function runUpdate(data) {
+    property var runUpdate : function(data) {
         var type = toString.call(data);
         var isArr = type === '[object Array]'
         var isObj = type === '[object Object]'
@@ -72,12 +71,7 @@ Item {
         return false;
 
     }
-
-
-
-
-
-    function set(path, data) {
+    property var set : function(path, data) {
         var propArr = priv.getPathArray(path);
         if(!propArr || propArr.length === 0)
             return runUpdate(data);
@@ -128,18 +122,15 @@ Item {
         return false;
     }
 
-
     //If we are on an array, we should first look on the key 'id', then on index!
-    function get(path) {
+    property var get : function(path) {
         if(!priv.arr)
             return undefined;
 
         var propArr = priv.getPathArray(path);
         return !propArr ?  priv.arr : priv.deepGet(priv.arr, propArr);
     }
-
-
-    function del(path) {
+    property var del : function(path) {
 //        console.log("DEL", path)
         var propArr = priv.getPathArray(path)
         if(!propArr || propArr.length === 0)
@@ -177,9 +168,6 @@ Item {
         }
         return false;
     }
-
-
-
 
     QtObject {
         id : priv
@@ -339,6 +327,7 @@ Item {
                             return { type : "create", item : o.ptr[key] }
                         }
                         else {
+//                            console.log("EYY WE SHOULD UPDATE")
                             item = o.ptr[k]
                             var retObj = { type : 'update', item : o.ptr[k] }
                             if(writeCompatible(item, value)) {
@@ -346,9 +335,13 @@ Item {
                                     var res = __set(item,value);
                                     retObj.createdKeys = res.created;
                                     retObj.updatedKeys = res.updated;
+//                                    console.log(JSON.stringify(retObj,null,2))
                                 }
-                                else
-                                    o.ptr[k] = value;
+                                else {
+                                   var old = o.ptr[k]
+                                   o.ptr[k] = value;
+                                   retObj.oldVal = old;
+                                }
                                 return retObj
                             }
                             else {
@@ -511,6 +504,10 @@ Item {
                         if(newItem || (p === 0 && ret.type === 'create')) {  //we created new thing @ root!! WOOT!
                             ret.type = 'createRoot'
                         }
+
+//                        if(ret.type.indexOf('update') === -1) {
+////                            console.log('update',JSON.stringify(ret,null,2))
+//                        }
 
                         return ret;
                     }
