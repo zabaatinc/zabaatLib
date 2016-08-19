@@ -10,9 +10,9 @@ Item {
     property alias depth           : blackShader.depth
     property color shadowColor     : "black"
     onShadowColorChanged: {
-        blackShader.shadowR = shadowColor.r //+ 0.0001;
-        blackShader.shadowG = shadowColor.g //+ 0.0001;
-        blackShader.shadowB = shadowColor.b //+ 0.0001;
+        blackShader.shadowR = shadowColor.r + 0.0001;
+        blackShader.shadowG = shadowColor.g + 0.0001;
+        blackShader.shadowB = shadowColor.b + 0.0001;
     }
 
 
