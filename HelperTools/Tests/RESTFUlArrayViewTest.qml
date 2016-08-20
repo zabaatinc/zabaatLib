@@ -8,6 +8,7 @@ Item {
     id : rootObject
 
 
+
     //increments numbers recursively in object !
     property string lastStr : '{ "names":[{"id":11,"val":"Shahan"}] }'
     function incNumbers(obj, i){

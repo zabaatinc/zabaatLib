@@ -2,3 +2,4 @@ module Zabaat.MVVM
 GenericViewModelGenerator 1.0 GenericViewModelGenerator.qml
 ViewModel 				  1.0 ViewModel.qml
 RESTFULArray 		      1.0 RESTFULArray.qml
+ViewModelonArray		  1.0 ViewModelComponents/ViewModelonArray.qml

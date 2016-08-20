@@ -26,7 +26,16 @@ ZabaatTest {
 
     }
 
+    function reduceToMap(arr){
+        return _.reduce(arr, function(a,e){
+                    a[e[0]] = true;
+                    return a;
+        },{})
+    }
+
+
     function cleanup(){
+        ra.priv.debug = false;
         clearSignals()
     }
 
@@ -113,10 +122,7 @@ ZabaatTest {
         compare(toString.call(signals.created), '[object Array]' , "Should have generated created signals!")
         compare(signals.created.length, 3, "There should be 3 created signals, [2,2/name,2/id]")
 
-        var rc = _.reduce(signals.created, function(a,e){
-            a[e[0]] = true;
-            return a;
-        },{})
+        var rc = reduceToMap(signals.created)
 
         compare(rc["2"]     , true)
         compare(rc["2/name"], true)
@@ -137,10 +143,7 @@ ZabaatTest {
         compare(toString.call(signals.created), '[object Array]' , "Should have generated created signals!")
         compare(signals.created.length, 2, "There should be 2 created signals")
 
-        var rc = _.reduce(signals.created, function(a,e){
-            a[e[0]] = true;
-            return a;
-        },{})
+        var rc = reduceToMap(signals.created)
 
         compare(rc["2"] , true);
         compare(rc["2/name"],true);
@@ -156,25 +159,26 @@ ZabaatTest {
 
     function test_10_setDeeper_existingSimple(){
         ra.runUpdate(defaultObj);
+        clearSignals();
 
         ra.set("0/hobbies/100/name", "cherping" )
         compare(ra.get("0/hobbies/100/name"), "cherping")
 
-        var rc = _.reduce(signals.updated, function(a,e){
-            a[e[0]] = true;
-            return a;
-        },{})
 
-        compare(rc['0/hobbies/100/name'], true)
+        var rc = reduceToMap(signals.updated)
+
+        compare(rc['0/hobbies/100/name'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
         compare(signals.updated.length , 1 , "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
 
     }
 
     function test_10_setDeeper_existingComplex(){
         ra.runUpdate(defaultObj);
+        clearSignals();
 
         ra.set("0/hobbies/100", { level : "9000+" } )
-        compare(ra.get("0/hobbies/100/level"), "9000+")
+        compare(ra.get("0/hobbies/100/level"), "9000+" )
+        compare(signals.created.length , 1, "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
     }
 
     function test_11_deleteRoot() {
@@ -184,12 +188,10 @@ ZabaatTest {
         compare(ra.length, 1);
         compare(ra.arr.length , 1);
 
+        var ids = _.keys(ra.priv.idMap)
+        compare(ids.length, 1, 'there should only be one id:' + ids);
 
-
-        var rc = _.reduce(signals.deleted, function(a,e){
-            a[e[0]] = true;
-            return a;
-        },{})
+        var rc = reduceToMap(signals.deleted)
 
         compare(rc["0"], true)
         compare(rc["0/id"], true)
@@ -198,7 +200,6 @@ ZabaatTest {
         compare(rc["0/hobbies/100"], true)
         compare(rc["0/hobbies/100/id"], true)
         compare(rc["0/hobbies/100/name"], true)
-
         compare(signals.deleted.length, 7, "ACTUAL signals :" + JSON.stringify(signals.deleted,null,2));
     }
 
@@ -206,14 +207,14 @@ ZabaatTest {
         ra.runUpdate(defaultObj);
         ra.del("0/hobbies/100")
 
+        var ids = _.keys(ra.priv.idMap)
+        compare(ids.length, 2, 'there should still be 2 ids:' + ids);
+
         compare(ra.length, 2);
         compare(ra.arr.length , 2);
         compare(ra.get("0/hobbies").length, 0)
 
-        var rc = _.reduce(signals.deleted, function(a,e){
-            a[e[0]] = true;
-            return a;
-        },{})
+        var rc = reduceToMap(signals.deleted)
 
         compare(rc["0/hobbies/100"], true)
         compare(rc["0/hobbies/100/id"], true)
@@ -226,6 +227,9 @@ ZabaatTest {
 
         ra.del("2")
 
+        var ids = _.keys(ra.priv.idMap)
+        compare(ids.length, 2, 'there should still be 2 ids:' + ids);
+
         compare(ra.length, 2);
         compare(ra.arr.length , 2);
         compare(signals.deleted.length, 0);
@@ -234,11 +238,216 @@ ZabaatTest {
     function test_14_deleteDeeper_NonExisting() {
         ra.runUpdate(defaultObj);
 
+        var ids = _.keys(ra.priv.idMap)
+        compare(ids.length, 2, 'there should still be 2 ids:' + ids);
+
         ra.del("0/hobbies/0")
         compare(ra.length, 2);
         compare(ra.arr.length , 2);
         compare(ra.get("0/hobbies").length, 1)
         compare(signals.deleted.length, 0);
+    }
+
+
+    function test_15_runUpdate_simple(){
+        ra.runUpdate(defaultObj);
+        clearSignals();
+
+        var upd2 = ra.priv.clone(defaultObj)
+        upd2[0].name = "Wolfy"
+
+        //SANITY CHECK!
+        verify(defaultObj !== upd2)
+        verify(upd2 !== ra.priv.arr)
+
+
+        ra.runUpdate(upd2);
+        var rc = reduceToMap(signals.updated)
+
+        compare(rc['0/name'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+        compare(signals.updated.length , 1 , "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+
+    }
+
+    function test_16_runUpdate_complex(){
+        ra.runUpdate(defaultObj);
+        clearSignals();
+
+        var upd2 = ra.priv.clone(defaultObj)
+        upd2[0]  = { id: "0", name : "Wolf", hobbies : [{id:100,name:'jumping',level:60}] }
+
+        //SANITY CHECK!
+        verify(defaultObj !== upd2)
+        verify(upd2 !== ra.priv.arr)
+
+        ra.runUpdate(upd2);
+        var rc = reduceToMap(signals.updated)
+        var cc = reduceToMap(signals.created)
+
+        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+
+        compare(cc['0/hobbies/100/level'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+        compare(signals.created.length , 1 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+
+        compare(rc['0/name'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+        compare(rc['0/hobbies/100/name'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+        compare(signals.updated.length , 2 , "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+    }
+
+    function test_17_runUpdate_complex_deep(){
+        ra.runUpdate(defaultObj);
+        clearSignals();
+
+        var upd2 = ra.priv.clone(defaultObj)
+        upd2[0]  = { id: "0", name : "Wolf", hobbies : [{id:100,name:'jumping',level:60,medals:[{id:0,name:'gold' }]}] }
+
+        //SANITY CHECK!
+        verify(defaultObj !== upd2)
+        verify(upd2 !== ra.priv.arr)
+
+        ra.runUpdate(upd2);
+        var rc = reduceToMap(signals.updated)
+        var cc = reduceToMap(signals.created)
+
+        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+
+        compare(cc['0/hobbies/100/level'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+        compare(cc['0/hobbies/100/medals'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+        compare(signals.created.length , 2 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+
+        compare(rc['0/name'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+        compare(rc['0/hobbies/100/name'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+        compare(signals.updated.length , 2 , "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+    }
+
+    function test_18_create_unidedArray(){
+        ra.runUpdate(defaultObj);
+        clearSignals();
+
+        var upd2 = ra.priv.clone(defaultObj)
+        var aliases = ["Wolf","Wolfy","Bhalu"]
+        upd2[0]  = { id : 0, hobbies : [{id:100, aliases : aliases }] }
+
+        //SANITY CHECK!
+        verify(defaultObj !== upd2)
+        verify(upd2 !== ra.priv.arr)
+
+
+        ra.runUpdate(upd2);
+        var rc = reduceToMap(signals.updated)
+        var cc = reduceToMap(signals.created)
+
+        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+
+        compare(ra.get("0/hobbies/100/aliases") , aliases)
+
+        compare(cc['0/hobbies/100/aliases'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+        compare(signals.created.length , 1 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+
+        compare(signals.updated.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+    }
+
+    function test_19_replace_unidedArray(){
+        var upd2 = ra.priv.clone(defaultObj)
+        upd2[0]  = { id : 0, hobbies : [{id:100, aliases : ["Wolf","Wolfy","Bhalu"]}] }
+        ra.runUpdate(upd2);
+        clearSignals();
+
+        var aliases = ["Wolferio","Wolfy"]
+        upd2 = ra.priv.clone(defaultObj)
+        upd2[0]  = { id : 0, hobbies : [{id:100, aliases : aliases}] }
+
+
+        ra.runUpdate(upd2);
+
+        var rc = reduceToMap(signals.updated)
+        var cc = reduceToMap(signals.created)
+
+
+        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+
+        compare(ra.get("0/hobbies/100/aliases") , aliases)
+
+        compare(signals.created.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+
+        compare(rc['0/hobbies/100/aliases'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+        compare(signals.updated.length , 1 , "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+    }
+
+    function test_20_deleteIn_unidedArray(){
+        var upd2 = ra.priv.clone(defaultObj)
+        upd2[0]  = { id : 0, hobbies : [{id:100, aliases : ["Wolf","Wolfy","Bhalu"]}] }
+        ra.runUpdate(upd2);
+        clearSignals();
+
+
+//        ra.priv.debug = true;
+        ra.del('0/hobbies/100/aliases/0')
+
+        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+
+        var dc = reduceToMap(signals.deleted)
+        compare(signals.created.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+        compare(signals.updated.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+        compare(signals.deleted.length , 1 , "ACTUAL SIGNALS : " + JSON.stringify(signals.deleted,null,2))
+
+        compare(dc['0/hobbies/100/aliases/0'], true)
+
+        compare(ra.get("0/hobbies/100/aliases/0") , "Wolfy")
+        compare(ra.get("0/hobbies/100/aliases/1") , "Bhalu")
+    }
+
+    function test_21_set_unidedArray(){
+        var upd2 = ra.priv.clone(defaultObj)
+        upd2[0]  = { id : 0, hobbies : [{id:100, aliases : ["Wolf","Wolfy","Bhalu"]}] }
+        ra.runUpdate(upd2);
+        clearSignals();
+
+
+        ra.priv.debug = true;
+        var aliases = ["WolfMan","Wolfy","Bhalu"]
+        ra.set('0/hobbies/100/aliases', aliases)
+
+//        console.log(ra.get("0/hobbies/100/aliases"))
+
+        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+
+        var rc = reduceToMap(signals.updated)
+        compare(signals.created.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+        compare(signals.updated.length , 1 , "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+        compare(signals.deleted.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.deleted,null,2))
+
+        compare(ra.get("0/hobbies/100/aliases") , aliases)
+        compare(rc['0/hobbies/100/aliases'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+
+
+
+    }
+
+    function test_22_setIn_unidedArray(){
+        var upd2 = ra.priv.clone(defaultObj)
+        upd2[0]  = { id : 0, hobbies : [{id:100, aliases : ["Wolf","Wolfy","Bhalu"]}] }
+        ra.runUpdate(upd2);
+        clearSignals();
+
+
+//        ra.priv.debug = true;
+        ra.set('0/hobbies/100/aliases/0',"WolfMan")
+
+//        console.log(ra.get("0/hobbies/100/aliases"))
+
+        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+
+        var rc = reduceToMap(signals.updated)
+        compare(signals.created.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
+        compare(signals.updated.length , 1 , "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+        compare(signals.deleted.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.deleted,null,2))
+
+        compare(ra.get("0/hobbies/100/aliases/0") , "WolfMan")
+        compare(rc['0/hobbies/100/aliases/0'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+
+
+
     }
 
 

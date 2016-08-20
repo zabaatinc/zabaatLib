@@ -7,8 +7,8 @@ Item {
     property var m
     property int time    : m ? m.time : -1
     property var res     : m ? m.res  : undefined
-    property string path : m ? m.path : ""
-    property string type : m ? m.type : ""
+    property string path : m && m.path ? m.path : ""
+    property string type : m && m.type ? m.type : ""
 
     property alias showCursor : cursor.visible
 
@@ -19,7 +19,7 @@ Item {
         color : {
             switch(type) {
                 case 'set'   : return Qt.rgba(0,1,0.5);
-                case 'get'   : return Qt.rgba(1,0.1,0);
+                case 'get'   : return Qt.rgba(1,1,0);
                 case 'del'   : return Qt.rgba(1,0.1,0);
                 case 'reset' : return Qt.rgba(0.2,0.2,0.2);
                 default      : return Qt.rgba(0,0.5,1);

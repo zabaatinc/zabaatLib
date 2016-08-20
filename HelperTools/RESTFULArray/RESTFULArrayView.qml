@@ -2,6 +2,7 @@ import QtQuick 2.5
 import QtQuick.Controls 1.4
 import "Components"
 import "../ControllerView"
+import Zabaat.MVVM 1.0
 //Shows messages and data inside a restful array
 Item {
     id : rootObject
@@ -39,18 +40,21 @@ Item {
                 //replace factory functions
                 ra.reset = function() {
                     var timer = logic.timer();
-                    originalFunctions.reset();
-                    tab_log_model.append({time : timer.end(), type : "reset"})
+                    var res = originalFunctions.reset();
+                    tab_log_model.append({time : timer.end(), type : "reset", res : res})
                 }
                 ra.runUpdate = function(data) {
                     var timer = logic.timer();
-                    originalFunctions.runUpdate.apply(this,arguments);
-                    tab_log_model.append({time : timer.end(), type : "runUpdate", data : data })
+                    var res = originalFunctions.runUpdate.apply(this,arguments);
+                    var dataStr = JSON.stringify(data,null,2)
+                    tab_log_model.append({time : timer.end(), type : "runUpdate", data : dataStr, res : res })
                 }
                 ra.set = function(path, data) {
                     var timer = logic.timer();
                     var res = originalFunctions.set.apply(this,arguments);
-                    tab_log_model.append({time : timer.end(), type : "set", data : data, path : path, res : res })
+
+                    var dataStr = JSON.stringify(data,null,2)
+                    tab_log_model.append({time : timer.end(), type : "set", data : dataStr, path : path, res : res })
                 }
                 ra.get = function(path) {
                     var timer = logic.timer();
@@ -145,44 +149,44 @@ Item {
                 anchors.fill: parent
                 visible : guiLogic.selectedTab === 0
 
-                Connections {
-                    target : ptr_RESTFULArray ? ptr_RESTFULArray : null
-                    onCreated : {
-                        tab_data_listview.refreshModel()
-                    }
-                    onDeleted : {
-                        tab_data_listview.refreshModel()
+                ScrollView {
+                    width : tab_data.width * 0.3
+                    height : tab_data.height
+                    ListView {
+                        id : tab_data_listview
+                        width : tab_data.width * 0.3
+                        height : tab_data.height
+                        model : ViewModelonArray {
+                            id : vm
+                            ptr_RESTFULArray: rootObject.ptr_RESTFULArray
+                            path : ""
+                        }
+
+                        delegate : ObjTiny {
+                            width : ListView.view.width
+                            height : ListView.view.height * 0.1
+                            m : model
+                            onClicked: ListView.view.currentIndex = index;
+                            showCursor: ListView.view.currentIndex === index
+                        }
                     }
                 }
 
-                ListView {
-                    id : tab_data_listview
-                    width : parent.width * 0.3
-                    height : parent.height
-                    model : ptr_RESTFULArray ? ptr_RESTFULArray.priv.arr : null
 
-                    function refreshModel(){
-                        if(ptr_RESTFULArray){
-                            model = null;
-                            model =  ptr_RESTFULArray.priv.arr
+                ObjectBrowser {
+                    id    : tab_data_detailedlook
+                    width : parent.width * 0.7
+                    height: parent.height
+                    obj   : {
+                        if(tab_data_listview.currentItem && tab_data_listview.currentItem.m){
+                            var id = tab_data_listview.currentItem.m.id
+                            var r = originalFunctions.get(id);
+//                            console.log("REQUESTING ID", id, JSON.stringify(r))
+                            return r
                         }
                         return null;
                     }
 
-                    delegate : ObjTiny {
-                        width : ListView.view.width
-                        height : ListView.view.height * 0.1
-                        m : modelData
-                        onClicked: ListView.view.currentIndex = index;
-                        showCursor: ListView.view.currentIndex === index
-                    }
-                }
-
-                ObjectBrowser {
-                    id : tab_data_detailedlook
-                    width : parent.width * 0.7
-                    height : parent.height
-                    obj : tab_data_listview.currentItem ? tab_data_listview.currentItem.m : null
                 }
 
             }
@@ -205,19 +209,26 @@ Item {
                     onDeleted : tab_signals_model.append({type:'delete',path:path,at:new Date()})
                 }
 
-                ListView {
-                    id : tab_signals_listview
-                    width : parent.width * 0.3
-                    height : parent.height
-                    model : ListModel { id: tab_signals_model ; dynamicRoles : true }
-                    delegate : SignalTiny {
-                        width : ListView.view.width
-                        height : ListView.view.height * 0.1
-                        m : tab_signals_model.get(index)
-                        onClicked: ListView.view.currentIndex = index;
-                        showCursor: ListView.view.currentIndex === index
+                ScrollView {
+                    width : tab_signals.width * 0.3
+                    height : tab_signals.height
+                    ListView {
+                        id : tab_signals_listview
+                        width : tab_signals.width * 0.3
+                        height : tab_signals.height
+                        model : ListModel { id: tab_signals_model ; dynamicRoles : true }
+                        delegate : SignalTiny {
+                            width : ListView.view.width
+                            height : ListView.view.height * 0.1
+                            m : tab_signals_model.get(index)
+                            onClicked: ListView.view.currentIndex = index;
+                            showCursor: ListView.view.currentIndex === index
+                        }
                     }
                 }
+
+
+
                 SignalDetailed {
                     id : tab_signals_detailedlook
                     width : parent.width * 0.7
@@ -233,19 +244,25 @@ Item {
                 anchors.fill: parent
                 visible : guiLogic.selectedTab === 2
 
-                ListView {
-                    id : tab_log_listview
-                    width : parent.width * 0.3
-                    height : parent.height
-                    model : ListModel { id: tab_log_model ; dynamicRoles : true }
-                    delegate : LogTiny {
-                        width : ListView.view.width
-                        height : ListView.view.height * 0.1
-                        m : model
-                        onClicked: ListView.view.currentIndex = index;
-                        showCursor: ListView.view.currentIndex === index
+                ScrollView {
+                    width : tab_log.width * 0.3
+                    height : tab_log.height
+                    ListView {
+                        id : tab_log_listview
+                        width : tab_log.width * 0.3
+                        height : tab_log.height
+                        model : ListModel { id: tab_log_model ; dynamicRoles : true }
+                        delegate : LogTiny {
+                            width : ListView.view.width
+                            height : ListView.view.height * 0.1
+                            m : model
+                            onClicked: ListView.view.currentIndex = index;
+                            showCursor: ListView.view.currentIndex === index
+                        }
                     }
                 }
+
+
 
                 LogDetailed {
                     id : tab_log_detailedlook
