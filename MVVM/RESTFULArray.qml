@@ -58,6 +58,7 @@ Item {
 //                console.log('iterating over array', priv.arr.length)
                 priv.addId(v.id, v);
                 created(v.id, v);
+                priv.emitRecursive(v.id,v,'created');
             })
             priv.length = priv.arr.length;
         }

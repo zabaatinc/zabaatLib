@@ -450,7 +450,30 @@ ZabaatTest {
 
     }
 
+    function test_23_weird() {
+        var js = { id : 0, "names":[{"id":11,"val":"Shahan", list:[{id:10,derp:10}] }] }
+        ra.runUpdate(js);
+        clearSignals()
 
+        var js2 = { id : 0, "names":[{"id":11,"val":"Shahan", list:[{id:10,derp:12},{id:11,derp:11}] }] }
+
+        ra.priv.debug = true;
+        ra.runUpdate(js2);
+
+        var rc = reduceToMap(signals.updated)
+        var cc = reduceToMap(signals.created)
+
+        compare(signals.created.length, 1);
+        compare(signals.updated.length, 1);
+        compare(signals.deleted.length, 0);
+
+        compare(ra.get("0/names/11/list/10/derp"), 12)
+        compare(ra.get("0/names/11/list/11/derp"), 11)
+
+        compare(rc['0/names/11/list/10/derp'] , true)
+        compare(cc['0/names/11/list/11'] , true)
+
+    }
 
 
 

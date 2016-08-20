@@ -138,13 +138,29 @@ Item {
                 width: childrenRect.width
                 height : parent.height * 0.1
                 ZButton {
-                    text : "OK"
+                    text : "Set"
                     width : height * 2
                     height : parent.height
                     onClicked : {
                         try {
                             var obj = JSON.parse(popupDelText.text);
                             ra.set(textbox_path.text, obj);
+                            lastStr = popupDelText.text
+                            popupDel.requestDestruction()
+                        }catch(e){
+                            Toasts.create("error")
+                        }
+                    }
+                }
+
+                ZButton {
+                    text : "RootUpdate"
+                    width : height * 2
+                    height : parent.height
+                    onClicked : {
+                        try {
+                            var obj = JSON.parse(popupDelText.text);
+                            ra.runUpdate(obj);
                             lastStr = popupDelText.text
                             popupDel.requestDestruction()
                         }catch(e){
