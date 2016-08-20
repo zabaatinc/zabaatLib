@@ -159,6 +159,15 @@ ZabaatTest {
 
         ra.set("0/hobbies/100/name", "cherping" )
         compare(ra.get("0/hobbies/100/name"), "cherping")
+
+        var rc = _.reduce(signals.updated, function(a,e){
+            a[e[0]] = true;
+            return a;
+        },{})
+
+        compare(rc['0/hobbies/100/name'], true)
+        compare(signals.updated.length , 1 , "ACTUAL SIGNALS : " + JSON.stringify(signals.updated,null,2))
+
     }
 
     function test_10_setDeeper_existingComplex(){
@@ -190,7 +199,7 @@ ZabaatTest {
         compare(rc["0/hobbies/100/id"], true)
         compare(rc["0/hobbies/100/name"], true)
 
-        compare(signals.deleted.length, 7);
+        compare(signals.deleted.length, 7, "ACTUAL signals :" + JSON.stringify(signals.deleted,null,2));
     }
 
     function test_12_deleteExisting() {
@@ -231,6 +240,7 @@ ZabaatTest {
         compare(ra.get("0/hobbies").length, 1)
         compare(signals.deleted.length, 0);
     }
+
 
 
 

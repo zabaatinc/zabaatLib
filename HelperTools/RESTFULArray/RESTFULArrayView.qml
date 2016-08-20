@@ -1,13 +1,12 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
 import "Components"
+import "../ControllerView"
 //Shows messages and data inside a restful array
 Item {
     id : rootObject
     property var ptr_RESTFULArray;
     onPtr_RESTFULArrayChanged: ptrChangeTimer.start()
-
-
 
     QtObject {
         id : logic
@@ -72,12 +71,11 @@ Item {
                    set          =  ra.set       ;
                    get          =  ra.get       ;
                    del          =  ra.del       ;
-
-                   console.log('reset',typeof reset);
-                   console.log('runUpdate',typeof runUpdate);
-                   console.log('set',typeof set);
-                   console.log('get',typeof get);
-                   console.log('del',typeof del);
+//                   console.log('reset',typeof reset);
+//                   console.log('runUpdate',typeof runUpdate);
+//                   console.log('set',typeof set);
+//                   console.log('get',typeof get);
+//                   console.log('del',typeof del);
                }
             }
 
@@ -142,10 +140,51 @@ Item {
             width : parent.width
             height : parent.height - tabSelectorRow.height
             anchors.bottom: parent.bottom
-            Item {
+            SplitView {
                 id : tab_data
                 anchors.fill: parent
                 visible : guiLogic.selectedTab === 0
+
+                Connections {
+                    target : ptr_RESTFULArray ? ptr_RESTFULArray : null
+                    onCreated : {
+                        tab_data_listview.refreshModel()
+                    }
+                    onDeleted : {
+                        tab_data_listview.refreshModel()
+                    }
+                }
+
+                ListView {
+                    id : tab_data_listview
+                    width : parent.width * 0.3
+                    height : parent.height
+                    model : ptr_RESTFULArray ? ptr_RESTFULArray.priv.arr : null
+
+                    function refreshModel(){
+                        if(ptr_RESTFULArray){
+                            model = null;
+                            model =  ptr_RESTFULArray.priv.arr
+                        }
+                        return null;
+                    }
+
+                    delegate : ObjTiny {
+                        width : ListView.view.width
+                        height : ListView.view.height * 0.1
+                        m : modelData
+                        onClicked: ListView.view.currentIndex = index;
+                        showCursor: ListView.view.currentIndex === index
+                    }
+                }
+
+                ObjectBrowser {
+                    id : tab_data_detailedlook
+                    width : parent.width * 0.7
+                    height : parent.height
+                    obj : tab_data_listview.currentItem ? tab_data_listview.currentItem.m : null
+                }
+
             }
             SplitView {
                 id : tab_signals
@@ -154,8 +193,15 @@ Item {
 
                 Connections {
                     target    : ptr_RESTFULArray ? ptr_RESTFULArray : null
-                    onUpdated : tab_signals_model.append({type:'update',path:path,data:data, oldData:oldData,at:new Date()})
-                    onCreated : tab_signals_model.append({type:'create',path:path,data:data,at:new Date()})
+                    onUpdated : {
+                        var dataStr = JSON.stringify(data,null,2)
+                        var oldDataStr = JSON.stringify(oldData,null,2)
+                        tab_signals_model.append({type:'update',path:path,data:dataStr, oldData:oldDataStr,at:new Date()})
+                    }
+                    onCreated : {
+                        var dataStr = JSON.stringify(data,null,2)
+                        tab_signals_model.append({type:'create',path:path,data:dataStr,at:new Date()})
+                    }
                     onDeleted : tab_signals_model.append({type:'delete',path:path,at:new Date()})
                 }
 

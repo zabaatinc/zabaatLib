@@ -6,6 +6,7 @@ Rectangle {
     property string path : m ? m.path : ""
     property string type : m ? m.type : ""
     property var    at   : m ? m.at : null
+    property bool   isArrayItem : m  && m.isArrayItem ? true : false
     border.width: 1
     color : type === 'create' ? Qt.rgba(0,1,0.5) :
                                 type === 'update' ? Qt.rgba(0,0.5,1) : Qt.rgba(1,0.1,0);
@@ -47,7 +48,7 @@ Rectangle {
             anchors.margins: 5
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignRight
-            text : path
+            text : isArrayItem ? "[" + path + "]" : path
             font.pixelSize: height * 1/3
         }
     }

@@ -9,7 +9,7 @@ Item {
 
 
     //increments numbers recursively in object !
-    property string lastStr : ""
+    property string lastStr : '{ "names":[{"id":11,"val":"Shahan"}] }'
     function incNumbers(obj, i){
         i = i || 1;
 
@@ -46,13 +46,29 @@ Item {
         }
         ZButton {
             id : textbox_set_js
-            width : parent.width * 0.1
+            width : parent.width * 0.05
             height : parent.height
             onClicked : {
                 //Qt.Popup()
                 Toasts.createComponentPermanentBlocking(popupCmp,null,null,0.8,0.8)
             }
             text : "js"
+        }
+        ZButton {
+            id : textbox_set_js_dummy
+            width : parent.width * 0.05
+            height : parent.height
+            property int dummyId : 0
+            onClicked : {
+                //Qt.Popup()
+                var tx = textbox_path.text
+                var obj = { hater:Math.random() > 0.5 ? true : false }
+//                if(tx.split("/").length > 0)
+
+                ra.set(tx, obj);
+//                Toasts.createComponentPermanentBlocking(popupCmp,null,null,0.8,0.8)
+            }
+            text : "Dummy js"
         }
 
         ZButton {

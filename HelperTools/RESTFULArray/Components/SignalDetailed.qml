@@ -38,8 +38,9 @@ Item {
             id : createView
             width : parent.width
             height : visible ? parent.height - viewPath.height : 0
-            property var d : m ? m.data : null
-            property string dStr : typeof d === 'object' ? JSON.stringify(d,null,2) : d ? d : ""
+//            property var d : m ? m.data : null
+//            property string dStr : typeof d === 'object' ? JSON.stringify(d,null,2) : d ? d : ""
+            property string dStr : m ? m.data : ""
             visible : type === 'create'
             Text {
                 text : createView.dStr
@@ -53,10 +54,13 @@ Item {
             id : updateView
             width : parent.width
             height : visible ? parent.height - viewPath.height : 0
-            property var d : m ? m.data : null
-            property var od : m ? m.oldData : null
-            property string dStr  : typeof d === 'object'  ? JSON.stringify(d,null,2)  : d  ? d  : ""
-            property string odStr : typeof od === 'object' ? JSON.stringify(od,null,2) : od ? od : ""
+//            property var d : m ? m.data : null
+//            property var od : m ? m.oldData : null
+//            property string dStr  : typeof d === 'object'  ? JSON.stringify(d,null,2)  : d  ? d  : ""
+//            property string odStr : typeof od === 'object' ? JSON.stringify(od,null,2) : od ? od : ""
+
+            property string dStr  : m && m.data    ? m.data    : ""
+            property string odStr : m && m.oldData ? m.oldData : ""
 
             visible : type === 'update'
             Column {
