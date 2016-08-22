@@ -133,6 +133,35 @@ Item {
     }
 
 
+    function snackbar(text, args, cb, btnText){
+        if(!args)
+            args = {}
+
+        args.w        = args.w  || 1
+        args.h        = args.h  || 0.1
+        args.duration = args.duration || rootObject.defaultDuration
+        args.text     = text;
+        args.cb       = cb;
+        args.btnText  = args.btnText
+
+        logic.createSnack(text,"ZSnackbar",args);
+    }
+    function snackbarPermanent(text,args,cb,btnText){
+        if(!args)
+            args = {}
+
+        args.w        = args.w  || 1
+        args.h        = args.h  || 0.1
+        args.duration = -1
+        args.text     = text;
+        args.cb       = cb;
+        args.btnText  = args.btnText
+
+        logic.createSnack(text,"ZSnackbar",args);
+    }
+
+
+
 
 
     property QtObject __private : QtObject {
@@ -145,6 +174,49 @@ Item {
         property int count      : 0
         property var js         : null
         property string json    : ""
+
+        property var activeSnack
+        property var snackQueue : []    //only one snackbar may be visible at a time. So if there is one, we need to Q it!
+
+        function createSnack(msg,type,args,contentItem,fromHandleSnackQueue){
+            if((!activeSnack && snackQueue.length === 0) || fromHandleSnackQueue){
+                if(!contentItem) {
+                    if(!mgr.target || !mgr.target.activeWindow)
+                        return
+                    else {
+                        contentItem = mgr.target.activeWindow.contentItem
+                    }
+                }
+
+//                console.log(JSON.stringify(contentItem))
+                activeSnack              = snackBakery.createObject(contentItem);
+                activeSnack.anchors.fill = contentItem
+                activeSnack.state        = args.state || "";
+                activeSnack.w            = args.w
+                activeSnack.h            = args.h
+                activeSnack.args         = args;
+
+                //now load the inner loader!
+                type  = type || "ZSnackbar.qml"
+                if(type.indexOf('.qml') === -1)
+                    type = type + ".qml"
+                activeSnack.type    = type;
+
+                console.log("CREATIN SNACK", msg, args.w, args.h);
+                return activeSnack;
+            }
+            else {
+                snackQueue.push([msg,type,args,contentItem,true])
+            }
+        }
+
+        function handleSnackQueue(){
+            if(snackQueue.length > 0){
+                createSnack.apply(this,snackQueue[0]);
+                snackQueue.splice(0,1);
+            }
+        }
+
 
         function log(){
             if(debug){
@@ -205,7 +277,7 @@ Item {
             newToast.args          = args
             newToast.duration      = config.duration || rootObject.defaultDuration
             newToast.blocking      = config.blocking || false
-            newToast.state     = "f8"
+            newToast.state         = "f8"
 
             var argsW = !args ? null : args.width ? args.width : args.w
             var argsH = !args ? null : args.width ? args.height : args.h
@@ -309,6 +381,87 @@ Item {
                         item.requestDestruction.connect(toastInstance.destroy)
                     }
                 }
+
+            }
+        }
+
+        property Component snackBakery : Component {
+            id : snackBakery
+            Item {
+                id : snackInstance
+                property string type   : ""
+                property string path   : "logic/toasts/"
+                property var    args
+                property real w        : rootObject.defaultToastSize.x
+                property real h        : rootObject.defaultToastSize.y
+                property int   animDuration : 500
+
+                property string state  : ""
+                onStateChanged: setAnchors()
+                function setAnchors() {
+                    if(!state){
+                        snackLoader.anchors.bottom = snackInstance.bottom
+                        snackLoader.anchors.top = undefined
+                    }
+                    else {
+                        snackLoader.anchors.bottom = undefined
+                        snackLoader.anchors.top = snackInstance.top
+                    }
+                    //snackExitAnim.to = snackEntranceAnim.from = Qt.binding(function(){ return -snackLoader.height })
+                }
+
+
+                Component.onCompleted: setAnchors();
+                Component.onDestruction: logic.handleSnackQueue()
+                Loader {
+                    id :snackLoader
+                    width   : parent.width  * parent.w
+                    height  : parent.height * parent.h
+                    source   : snackInstance.type !== "" ? snackInstance.path + snackInstance.type : ""
+
+                    property real marg: 0
+                    onMargChanged: {
+                        if(!snackInstance.state)
+                            anchors.bottomMargin = marg;
+                        else
+                            anchors.topMargin = marg;
+                    }
+                    onLoaded : {
+                        if(snackInstance.args){
+                            for(var a in snackInstance.args){
+                                if(item.hasOwnProperty(a)){
+                                    if(a === 'duration' && snackInstance.args[a] !== -1)
+                                        item[a] = snackInstance.args[a] + snackInstance.animDuration
+                                    else
+                                        item[a] = snackInstance.args[a]
+                                }
+                            }
+                        }
+                        snackEntranceAnim.start()
+                        item.requestDestruction.connect(function(){snackExitAnim.start()})
+                    }
+                    NumberAnimation {
+                        id   : snackEntranceAnim
+
+                        target     : snackLoader
+                        properties : "marg"
+                        from       : -snackLoader.height
+                        to         : 0
+                        duration   : snackInstance.animDuration
+                    }
+                    NumberAnimation {
+                        id       : snackExitAnim
+                        onStopped  : snackInstance.destroy();
+
+                        target     : snackLoader
+                        properties : "marg"
+                        duration   : snackInstance.animDuration
+                        to         : -snackLoader.height
+                        from       : 0
+                    }
+                }
+
+
             }
         }
     }

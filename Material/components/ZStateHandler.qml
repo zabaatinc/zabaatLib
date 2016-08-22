@@ -19,7 +19,7 @@ Item {
 
     function setState(target, state, statesPropertyName) {
 //        var s = state; console.time(s);
-
+//        console.log("LOADING STATE", state, 'on', target)
         if(logic.isUndef(target) || logic.isUndef(state))
             return false;
 
@@ -51,6 +51,12 @@ Item {
             if(sItem)
                 logic.merge(obj, sItem);
         }
+
+//        if(sItem && sItem.font) {
+//            var g = sItem.font['@pixelSize']
+//            console.log(g[2],typeof g[2])
+////            console.log(sItem.font['@pixelSize'], target)
+//        }
 
         logic.loadObj(target, obj)
         //we have the obj now, now we just need to apply this thing on the target
@@ -197,8 +203,36 @@ Item {
                     obj[prop] = Qt.binding(value)
                 else if(isArray(value) && value.length > 1){
 //                    console.log(obj,prop,value)
-                    if(value.length > 2)
+                    if(value.length > 2) {
+                        //make sure value2 is a number!
+                        if(typeof value[2] === 'string') {
+                            var val = value[2]
+                            var arr
+                            if(val.indexOf("/") !== -1){
+                                arr = val.split("/")
+                                value[2] = arr[0] / arr[1]
+//                                console.log("!!", value[2])
+                            }
+                            else if(val.indexOf("+") !== -1){
+                                arr = val.split("+")
+                                value[2] = arr[0] + arr[1]
+                            }
+                            else if(val.indexOf("-") !== -1){
+                                arr = val.split("-")
+                                value[2] = arr[0] - arr[1]
+                            }
+                            else if(val.indexOf("*") !== -1){
+                                arr = val.split("*")
+                                value[2] = arr[0] * arr[1]
+                            }
+                            else {
+                                value[2] = parseFloat(value[2]);
+                            }
+
+                        }
+
                         obj[prop] = Qt.binding(function() { return value[0][value[1]] * value[2] } )
+                    }
                     else
                         obj[prop] = Qt.binding(function() { return value[0][value[1]] })
                 }
