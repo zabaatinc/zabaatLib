@@ -142,7 +142,9 @@ Item {
         args.duration = args.duration || rootObject.defaultDuration
         args.text     = text;
         args.cb       = cb;
-        args.btnText  = args.btnText
+
+        if(btnText !== undefined)
+            args.textButton  = btnText
 
         logic.createSnack(text,"ZSnackbar",args);
     }
@@ -155,7 +157,9 @@ Item {
         args.duration = -1
         args.text     = text;
         args.cb       = cb;
-        args.btnText  = args.btnText
+
+        if(btnText !== undefined)
+            args.textButton  = btnText
 
         logic.createSnack(text,"ZSnackbar",args);
     }
@@ -202,7 +206,7 @@ Item {
                     type = type + ".qml"
                 activeSnack.type    = type;
 
-                console.log("CREATIN SNACK", msg, args.w, args.h);
+//                console.log("CREATIN SNACK", msg, args.w, args.h);
                 return activeSnack;
             }
             else {
@@ -417,6 +421,7 @@ Item {
                     id :snackLoader
                     width   : parent.width  * parent.w
                     height  : parent.height * parent.h
+//                    anchors.horizontalCenter: parent.horizontalCenter
                     source   : snackInstance.type !== "" ? snackInstance.path + snackInstance.type : ""
 
                     property real marg: 0
