@@ -56,7 +56,7 @@ ZController {
     readonly property var   disconnect          : socketHandler.disconnect
 
     /*! reflects whether the controller is connected to the uri or not  \hr */
-    readonly property alias isConnected         : socketHandler.isConnected
+    property bool isConnected         : socketHandler.isConnected
 
     /*! reflects whether the controller is trying to re-establish a connection  \hr */
     readonly property alias reconnecting        : socketHandler.reconnecting
@@ -324,6 +324,19 @@ ZController {
     }
     ZSocketIO {
         id : socketHandler
+        onIsConnectedChanged: {
+            controller.isConnected = isConnected;
+        }
+        onReconnectingChanged : {
+            if(reconnecting ){
+               controller.isConnected = false;
+            }
+            else if(isConnected){
+                controller.isConnected = true;
+            }
+        }
+
+
         onServerResponse: {
             var jsRes = priv.parseAndCheck(value,"",cbId)
 

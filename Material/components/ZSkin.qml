@@ -276,6 +276,7 @@ Item {
             cache.injectState("square"   , "rootObject" , { "radius" : 0   });
             cache.injectState("circle"  , "rootObject" , { "@radius" : [rootObject,"height",1/2]  });
 
+            cache.injectState("bdisabled" , "graphical" , { "@borderColor" : [graphical,"disabled1"] });
             cache.injectState("baccent"   , "graphical" , { "@borderColor" : [Colors,"accent"] });
             cache.injectState("bdanger"   , "graphical" , { "@borderColor" : [Colors,"danger"] });
             cache.injectState("bwarning"  , "graphical" , { "@borderColor" : [Colors,"warning"] });
@@ -522,6 +523,13 @@ Item {
                 "@text_Focus"  : function() {return Colors.contrastingTextColor(graphical.fill_Focus)}
              })
 
+
+            cache.injectState("tdisabled","graphical", {
+                "@text_Default": [graphical,"disabled1"],
+                "@text_Press"  : [graphical,"disabled1"],
+                "@text_Focus"  : [graphical,"disabled2"],
+                "@borderColor" : [graphical,"disabled1"]
+            })
 
             cache.injectState("t1","graphical", {
                 "@text_Default": [Colors,"text1"],

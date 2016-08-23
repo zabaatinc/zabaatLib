@@ -1,5 +1,5 @@
 import QtQuick 2.0
-//import "Lodash"
+import "Lodash"
 //The purpose of this class is to manage the state of all components and
 //is the controller for the css like states (separated with "-") on every component.
 
@@ -16,6 +16,7 @@ import QtQuick 2.0
 pragma Singleton
 Item {
     id : rootObject
+    objectName : "ZStateHandler"
 
     function setState(target, state, statesPropertyName) {
 //        var s = state; console.time(s);
@@ -388,7 +389,7 @@ Item {
 
                 var earr = o.split("!")
                 if(earr.length >= 2 ) {
-//                    console.log(earr, earr.length % 2)
+//                    console.log(earr, earr.length % 2, 0, _.keys(statesObj))
                     var res = analyze(str,earr)
                     if(res.length > 0){
                          return replaceExclam(cloneObj(statesObj[o]), res)
@@ -398,33 +399,62 @@ Item {
             return null;
         }
 
+        function getType(obj){
+            var type = toString.call(obj)
+            if(type === '[object Object]'){
+                var objStr = obj.toString();
+                if(objStr.indexOf("_QMLTYPE_") !== -1 || objStr.indexOf("QObject") !== -1)
+                    return "[object QML]"
+                return type;
+            }
+            return type;
+        }
+
         function cloneObj(obj, newObj){
+
             newObj = newObj || {}
-            for(var o in obj){
-                var item = obj[o]
-                var existing = newObj[o]
-                var type = toString.call(obj)
-                if(typeof item === '[object Object]'){ //go deeper
-                    if(!existing)
-                        existing = newObj[o] = {}
-                    return cloneObj(item,existing);
-                }
-                else if(typeof item === '[object Object]') { //go deeper
-                    if(!existing)
-                        existing = newObj[o] = []
-                    return cloneObj(item,existing);
-                }
-                else {  //functions are copied by ref & basic values are copied
-                    existing = newObj[o] = item;
+            var type     = getType(obj);
+            if(type === '[object QML]'){
+                console.log("Tried to clone QML Item", obj)
+                return obj;
+            }
+
+            var isArr    = type === '[object Array]'
+            var isObj    = type === '[object Object]'
+            if(isArr || isObj){
+                for(var o in obj){
+                    var item = obj[o]
+                    var existing = newObj[o]
+                    var itemType = getType(item)
+
+                    if(itemType === '[object Object]'){ //go deeper
+                        if(!existing)
+                            existing = newObj[o] = {}
+                        newObj[o] = cloneObj(item,existing);
+                    }
+                    else if(itemType === '[object Array]') { //go deeper
+                        if(!existing)
+                            existing = newObj[o] = []
+                        newObj[o] = cloneObj(item,existing);
+                    }
+                    else {  //functions are copied by ref & basic values are copied
+                        existing = newObj[o] = item;
+                    }
                 }
             }
-            return newObj;
+
+            return obj;
         }
 
         //we are always passing this function a clone of obj so its safe to manipulate it!
         function replaceExclam(obj, args){
             if(!obj || !args || args.length === 0)
                 return obj;
+
+            if(getType(obj) === '[object QML]') {
+                console.warn("TRIED TO CHANGE all ! in a QML object. Ceased", obj)
+                return obj;
+            }
 
             for(var o in obj){
                 var item = obj[o]

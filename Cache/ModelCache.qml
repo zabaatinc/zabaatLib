@@ -3,8 +3,9 @@ import Zabaat.Utility.FileIO 1.0 as ZFO
 import Zabaat.Utility 1.0
 QtObject {
     id : rootObject
-    property url cacheDir            : paths.data
+    property string cacheDir            : paths.data
     property string specialDeleteKey : 'deleteQuee'
+    property alias paths : paths;
 
     //Function determines if b is newer than a
     property var determineNewerFunc : function(a, b){
@@ -59,7 +60,8 @@ QtObject {
 
         var isArr = toString.call(modelOrArr) === '[object Array]'
         var arr   = isArr? modelOrArr : Functions.object.listmodelToArray(modelOrArr) ;
-        file.writeFile(cacheDir,name,JSON.stringify(arr,null,2))
+        var res = file.writeFile(cacheDir,name,JSON.stringify(arr,null,2))
+        console.log("Wrote file", cacheDir + "/" + name, "=",res)
     }
     function loadCache(name,m){
         if(!m)

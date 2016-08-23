@@ -138,7 +138,7 @@ Item {
             args = {}
 
         args.w        = args.w  || 1
-        args.h        = args.h  || 0.1
+        args.h        = args.h  || 0.06
         args.duration = args.duration || rootObject.defaultDuration
         args.text     = text;
         args.cb       = cb;
@@ -153,7 +153,7 @@ Item {
             args = {}
 
         args.w        = args.w  || 1
-        args.h        = args.h  || 0.1
+        args.h        = args.h  || 0.06
         args.duration = -1
         args.text     = text;
         args.cb       = cb;
