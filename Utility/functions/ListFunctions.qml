@@ -12,9 +12,27 @@ QtObject {
         return giveMeIndex ? -1 : null;
     }
 
-    function isArray(obj){
-        return toString.call(obj) === '[object Array]';
+    function getFromList_v2(list,matchElemOrFunc,giveMeIndex){
+        var badVal = giveMeIndex ? -1 : null;
+        if(!list)
+            return;
+
+        var isFunc = typeof matchElemOrFunc === 'function'
+        for(var i = 0; i < list.count; ++i){
+            var item = list.get(i);
+            if(isFunc){
+                if(matchElemOrFunc(item))
+                   return giveMeIndex? i : item;
+            }
+            else {
+                if(item == matchElemOrFunc)
+                    return giveMeIndex? i : item;
+            }
+        }
+        return badVal
     }
+
+
 
 
     function quickSort (lm, compareFunc) {
@@ -361,6 +379,28 @@ QtObject {
     }
 
     //ARRAY RELATED
+    function getFromArray_v2(arr,matchElemOrFunc,giveMeIndex){
+        var badVal = giveMeIndex ? -1 : null;
+        if(!arr || !isArray(arr))
+            return;
+
+        var isFunc = typeof matchElemOrFunc === 'function'
+        for(var i = 0; i < arr.length; ++i){
+            var item = arr[i]
+            if(isFunc){
+                if(matchElemOrFunc(item))
+                   return giveMeIndex? i : item;
+            }
+            else {
+                if(item == matchElemOrFunc)
+                    return giveMeIndex? i : item;
+            }
+        }
+        return badVal
+    }
+    function isArray(obj){
+        return toString.call(obj) === '[object Array]';
+    }
     function getFromArray(arr,value,prop, giveMeIndex){
         if(!arr || !prop)
             return giveMeIndex ? -1 : null;
@@ -408,8 +448,6 @@ QtObject {
         }
         return true
     }
-
-
 
 
     function removeFirstThatMatches(list, killerFunc){

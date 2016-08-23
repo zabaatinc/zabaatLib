@@ -1,3 +1,6 @@
 module Zabaat.Cache
-ImageCache 1.0 ImageCache.qml
+depends Zabaat.Utility 1.0
+depends Zabaat.Utility.FileIO 1.0
+ImageCache 	   1.0 ImageCache.qml
 DiskImageCache 1.0 DiskImageCache.qml
+ModelCache	   1.0 ModelCache.qml
