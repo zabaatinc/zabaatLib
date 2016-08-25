@@ -8,12 +8,14 @@ Item {
 
     Component.onCompleted: console.log("singleton WindowManager is born!")
 
-    property bool loaded          : logic.mainWindow
+    property bool loaded          : logic.mainWindow ? true : false
     property var  activeWindow    : null
     property var  activeItem      : null
     readonly property alias count : logic.count
     readonly property alias jsObj : logic.js
     readonly property alias json  : logic.json
+    readonly property alias mainWindow : logic.mainWindow
+    readonly property alias logic : logic
 
     QtObject {
         id : logic

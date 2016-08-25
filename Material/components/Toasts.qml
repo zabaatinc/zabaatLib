@@ -185,10 +185,16 @@ Item {
         function createSnack(msg,type,args,contentItem,fromHandleSnackQueue){
             if((!activeSnack && snackQueue.length === 0) || fromHandleSnackQueue){
                 if(!contentItem) {
-                    if(!mgr.target || !mgr.target.activeWindow)
-                        return
-                    else {
+                    if(mgr.target && mgr.target.activeWindow) {
                         contentItem = mgr.target.activeWindow.contentItem
+//                        activeThing = mgr.target.activeWindow.activeFocusItem
+                    }
+                    else if(mgr.target.mainWindow) {
+                        contentItem = mgr.target.mainWindow.contentItem
+                    }
+                    else {
+                        console.error("NO PARENT FOUND TO MAKE SNACK IN!", mgr.target.mainWindow);
+                        return;
                     }
                 }
 
@@ -257,11 +263,16 @@ Item {
             var activeThing = null
 //            console.log(mgr, mgr.target, mgr.target.activeWindow )
             if(!contentItem) {
-                if(!mgr.target || !mgr.target.activeWindow)
-                    return
-                else {
+                if(mgr.target && mgr.target.activeWindow) {
                     contentItem = mgr.target.activeWindow.contentItem
-                    activeThing = mgr.target.activeWindow.activeFocusItem
+//                        activeThing = mgr.target.activeWindow.activeFocusItem
+                }
+                else if(mgr.target.mainWindow) {
+                    contentItem = mgr.target.mainWindow.contentItem
+                }
+                else {
+                    console.error("NO PARENT FOUND TO MAKE TOAST IN!", mgr.target.mainWindow);
+                    return;
                 }
             }
 
@@ -415,8 +426,12 @@ Item {
                 }
 
 
-                Component.onCompleted: setAnchors();
-                Component.onDestruction: logic.handleSnackQueue()
+                Component.onCompleted  : setAnchors();
+                Component.onDestruction: {
+                    if(logic.activeSnack === snackInstance)
+                        logic.activeSnack = null;
+                    logic.handleSnackQueue()
+                }
                 Loader {
                     id :snackLoader
                     width   : parent.width  * parent.w

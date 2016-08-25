@@ -328,7 +328,7 @@ ZController {
             controller.isConnected = isConnected;
         }
         onReconnectingChanged : {
-            if(reconnecting ){
+            if(socketHandler.reconnecting){
                controller.isConnected = false;
             }
             else if(isConnected){
