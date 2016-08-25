@@ -4,13 +4,15 @@ Item {
     id : rootObject
     property string title : ""
     objectName     : title
+    width          : 100
+    height         : 100
     implicitWidth  : Units.defaultWidth
     implicitHeight : Units.defaultHeight
 
     QtObject {
         id: logic
-        property real wMulti      : rootObject.width  / rootObject.implicitWidth
-        property real hMulti      : rootObject.height / rootObject.implicitHeight
+        property real wMulti : rootObject.width  / rootObject.implicitWidth
+        property real hMulti : rootObject.height / rootObject.implicitHeight
 
         //property real aspectRatio : wMulti / hMulti
     }
