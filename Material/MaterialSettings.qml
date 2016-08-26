@@ -8,22 +8,25 @@ Item {
     property alias font          : settings_Font
     property alias style         : settings_Style
     property alias units         : settings_Units
-    readonly property bool loaded: Fonts.loaded && Colors.loaded && Toasts.loaded && WindowManager.loaded
+    readonly property bool loaded: Fonts.loaded && Colors.loaded && Toasts.loaded && WindowManager.loaded && Units.loaded
 
     function init(mainWindow){
 //        console.log("MaterialSettings.init")
         if(!__privates.hasInit && mainWindow){
+            Units.pixelDensity = units.pixelDensity = Screen.pixelDensity
+            Units.multiplier   = units.scaleMulti
 
             Fonts.font1        = font.font1
             Fonts.font2        = font.font2
             Fonts.dir          = font.dir
             Colors.dir         = style.colorsPath
             Colors.defaultColorTheme = style.defaultColors
-            Units.pixelDensity = units.pixelDensity = Screen.pixelDensity
-            Units.multiplier   = units.scaleMulti
+
             WindowManager.init(mainWindow)
             Toasts.init(WindowManager);
 
+            Units.loaded = true;
+//            console.log("UNITS LOADED")
             __privates.hasInit = true
         }
     }

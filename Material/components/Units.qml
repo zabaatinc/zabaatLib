@@ -34,17 +34,31 @@ QtObject {
     property real defaultWidth : 1920
     property real defaultHeight : 1080
 
+    property bool loaded: false
+
     /*!
        This is the standard function to use for accessing device-independent pixels. You should use
        this anywhere you need to refer to distances on the screen.
      */
     function dp(number) {
-        return Math.round(number*((pixelDensity*25.4)/160)*multiplier);
+        if(!loaded) {
+            console.log("**********************************")
+            console.trace()
+            console.log("**********************************")
+        }
+
+        var res = Math.round(number*((pixelDensity*25.4)/160)*multiplier);
+        console.log("33333333333333  RESULT FOR" , number, "=", res, "px den",pixelDensity, "multi", multiplier)
+        return res;
     }
 
     function gu(number) {
         return number * gridUnit
     }
 
-    property int gridUnit: dp(64)
+    onLoadedChanged : if(loaded){
+        gridUnit = dp(64);
+    }
+
+    property int gridUnit: 0
 }

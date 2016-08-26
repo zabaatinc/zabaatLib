@@ -74,15 +74,22 @@ ZSkin {
             anchors.margins    : parent.height * 1/10
             horizontalAlignment: graphical.text_hAlignment
             verticalAlignment  : graphical.text_vAlignment
-            font.family        : logic.font1
-            font.pixelSize     : parent.height * 1/4
+            font.family        : Fonts.font1
             text               : logic.text
             color              : graphical["text_" + graphicalState]
             textFormat         : Text.RichText
 //            scale              : paintedWidth > width ? width / paintedWidth : 1
         }
 
+//        Text {
+//            anchors.right: parent.right
+//            anchors.top: parent.top
+//            text : text.font.pixelSize
+//        }
+
     }
+
+
 
 
     states : ({

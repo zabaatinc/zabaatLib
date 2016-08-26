@@ -432,12 +432,7 @@ ZSkin {
             }
         }
 
-//        Text {
-//            anchors.centerIn : parent
-//            text : lvHeader.width + "," + lvHeader.height
-//            font.pixelSize: parent.height * 1/20
-//            z : 10000
-//        }
+
     }
 
     Item  {

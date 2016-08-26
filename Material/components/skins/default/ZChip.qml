@@ -119,7 +119,7 @@ ZSkin {
                             verticalAlignment: Text.AlignVCenter
                             text : rootObject.logic ? rootObject.logic.label : ""
                             font.family:  Fonts.font1
-                            font.pixelSize: height * 0.6
+//                            font.pixelSize: height * 0.6
                             color : graphical.text_Press
                         }
                     }
@@ -171,7 +171,7 @@ ZSkin {
                 horizontalAlignment: graphical.text_hAlignment
                 verticalAlignment  : graphical.text_vAlignment
                 font.family        : Fonts.font1
-                font.pixelSize     : height * 1/4
+//                font.pixelSize     : height * 1/4
                 color              : graphical.text_Default
                 text               : logic ? logic.text : ""
                 textFormat         : Text.RichText

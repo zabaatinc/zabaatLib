@@ -19,15 +19,13 @@ ZSkin {
         horizontalAlignment: graphical.text_hAlignment
         verticalAlignment: graphical.text_vAlignment
         font.family: Fonts.font1
-        font.pixelSize: height * 1/4
+//        font.pixelSize: height * 1/4
         color : graphical.text_Default
         text : logic ? logic.text : ""
         textFormat: Text.RichText
         onPaintedWidthChanged: if(rootObject.paintedWidth) {
                                    rootObject.width = logic.width = paintedWidth + 10
                                }
-//        property real px : font.pixelSize
-//        onPxChanged : console.log(px, height * 1/4)
     }
 
 

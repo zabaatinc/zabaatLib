@@ -139,8 +139,22 @@ Item {
         property bool hasInit : false
 
         target          : logic ? logic : null
-        onStateChanged  : { rootObject.stateChangeOp(logic.state, logic.enabled)  }
-        onEnabledChanged: { rootObject.stateChangeOp(logic.state, logic.enabled); }
+        onStateChanged  : rootObject.stateChangeOp(logic.state, logic.enabled)
+//            if(rootObject.toString().indexOf("ZButton") !== -1) {
+//                conn.prevStates.push(logic.state);
+//                console.log('ZBUTTON', conn.prevStates)
+//            }
+//        }
+//        property var prevStates : []
+
+
+        onEnabledChanged: {
+            rootObject.stateChangeOp(logic.state, logic.enabled);
+            if(rootObject.toString().indexOf("ZButton") !== -1) {
+                conn.prevStates.push(logic.state);
+                console.log('ZBUTTON', conn.prevStates)
+            }
+        }
     }
     onStatesChanged: {
         if(logic){
@@ -159,6 +173,7 @@ Item {
             if(rootObject.hasOwnProperty("knob"))
                 cache.addKnobStates()
 
+//            console.log(rootObject, logic.state)
             rootObject.stateChangeOp(logic.state, logic.enabled)
         }
     }
