@@ -29,14 +29,27 @@ Item {
         property var src : colorRect
 //        onBorderWidthChanged: console.log(border.width,"/", colorRect.width, "=", borderWidth)
         fragmentShader : "
+            #ifdef GL_ES
+                precision mediump float;
+            #else
+            #   define lowp
+            #   define mediump
+            #   define highp
+            #endif // GL_ES
                 varying vec2 qt_TexCoord0;
                 uniform sampler2D src;
                 uniform lowp float qt_Opacity;
                 void main() {
-                    vec2 uv = abs(qt_TexCoord0.xy - 0.5) * 2;
-                    uv.x = abs(uv.x - 1);
+                    float zero = float(0);
+                    float one = float(1);
+                    vec2 uv = abs(qt_TexCoord0.xy - vec2(0.5,0.5)) * vec2(2,2);
+                    uv.x = abs(uv.x - one);
                     float diff = uv.x - uv.y;
-                    gl_FragColor = (diff >= 0 ? vec4(1) : vec4(0)) * qt_Opacity;
+                    vec4 v = vec4(0);
+                    if(diff > zero || diff == zero) {
+                        v = vec4(1);
+                    }
+                    gl_FragColor = v * qt_Opacity;
                 }"
     }
 
@@ -53,6 +66,13 @@ Item {
         property vector4d clr2  : Qt.vector4d(emptyColor.r, emptyColor.g, emptyColor.b, emptyColor.a)
         property real     value : rootObject.value
         fragmentShader : "
+            #ifdef GL_ES
+                precision mediump float;
+            #else
+            #   define lowp
+            #   define mediump
+            #   define highp
+            #endif // GL_ES
                 varying vec2 qt_TexCoord0;
                 uniform sampler2D src;
                 uniform lowp float qt_Opacity;
@@ -62,8 +82,14 @@ Item {
                 void main() {
                     lowp vec4 tex = texture2D(src, qt_TexCoord0);
                     vec4 c = tex;
-                    if(tex.a > 0){
-                        c = qt_TexCoord0.x > value ? clr2 : clr1;
+                    float zero = float(0);
+                    if(tex.a > zero){
+                        if(qt_TexCoord0.x > value){
+                            c = clr2;
+                        }
+                        else {
+                            c = clr1;
+                        }
                     }
                     gl_FragColor = c * qt_Opacity;
                 }"
