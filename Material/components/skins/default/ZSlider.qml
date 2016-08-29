@@ -14,6 +14,7 @@ M.ZSkin {
     property alias  bar                : bar
     property alias  knob               : knob
     property alias  valueContainer     : valueContainer
+    border.width: 0
 
     Connections {
         target        : logic ? logic : null

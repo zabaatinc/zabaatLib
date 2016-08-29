@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import Zabaat.Utility 1.0
+import Zabaat.Material 1.0
 Item {
     id : rootObject
 
@@ -43,5 +44,56 @@ Item {
 
     Keys.onUpPressed: line.thickness++
     Keys.onDownPressed: line.thickness--
+
+    Diamond {
+        id : diamond
+        anchors.centerIn: parent
+        width : parent.width/2
+        height : parent.height/2
+        color : 'yellow'
+        emptyColor: "transparent"
+        border.color: "red"
+        border.width : 1
+    }
+
+    Column {
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        width : 320
+        height  : 100
+        anchors.margins: 5
+        ZSlider {
+            value : 0
+            min : 0
+            max : 1
+            width : parent.width
+            height : parent.height/2
+            state : "default"
+            onValueChanged : diamond.value= value;
+            ZButton {
+                anchors.left: parent.right
+                text : "FILL STYLE"
+                width : parent.height
+                height : parent.height
+                onClicked : diamond.fillsVertically = !diamond.fillsVertically
+            }
+        }
+
+        ZSlider {
+            value : 1
+            min : 0
+            max : 20
+            width : parent.width
+            height : parent.height/2
+            onValueChanged : diamond.border.width = value;
+        }
+
+    }
+
+
+
+
+
+
 
 }
