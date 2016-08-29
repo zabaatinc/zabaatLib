@@ -98,7 +98,7 @@ Item {
                             }
                         }
                         else {
-                            if(qt_TexCoord0.y > (1 - value)){
+                            if(qt_TexCoord0.y > (1.0f - value)){
                                 c = clr1;
                             }
                             else {
@@ -140,8 +140,7 @@ Item {
                 uniform vec4 borderColor;
                 void main() {
                     lowp vec4 tex = texture2D(src, qt_TexCoord0);
-
-                    float alpha = 4 * tex.a;
+                    float alpha = 4.0f * tex.a;
                     float bx = borderRatio.x;
                     float by = borderRatio.y;
                     alpha -= texture2D(src, qt_TexCoord0 + vec2(bx  , 0.0f)).a;
@@ -149,7 +148,7 @@ Item {
                     alpha -= texture2D(src, qt_TexCoord0 + vec2(0.0f, by)).a;
                     alpha -= texture2D(src, qt_TexCoord0 + vec2(0.0f, -by)).a;
 
-                    if(alpha != 0) {
+                    if(alpha != 0.0f) {
                         tex = vec4(borderColor.rgb,alpha);
                     }
                     gl_FragColor = tex * qt_Opacity;
