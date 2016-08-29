@@ -48,7 +48,7 @@ QtObject {
         }
 
         var res = Math.round(number*((pixelDensity*25.4)/160)*multiplier);
-        console.log("33333333333333  RESULT FOR" , number, "=", res, "px den",pixelDensity, "multi", multiplier)
+//        console.log("33333333333333  RESULT FOR" , number, "=", res, "px den",pixelDensity, "multi", multiplier)
         return res;
     }
 

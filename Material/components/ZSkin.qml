@@ -146,15 +146,8 @@ Item {
 //            }
 //        }
 //        property var prevStates : []
+        onEnabledChanged: rootObject.stateChangeOp(logic.state, logic.enabled);
 
-
-        onEnabledChanged: {
-            rootObject.stateChangeOp(logic.state, logic.enabled);
-            if(rootObject.toString().indexOf("ZButton") !== -1) {
-                conn.prevStates.push(logic.state);
-                console.log('ZBUTTON', conn.prevStates)
-            }
-        }
     }
     onStatesChanged: {
         if(logic){
