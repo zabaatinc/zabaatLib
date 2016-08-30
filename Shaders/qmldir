@@ -1,4 +1,5 @@
 module Zabaat.Shaders
+AlphaMask		1.0 AlphaMask.qml
 Blur   		  	1.0 Blur.qml
 Contrast		1.0 Contrast.qml
 Effect 		    1.0 Effect.qml
@@ -10,3 +11,4 @@ RadialBlur		1.0 RadialBlur.qml
 DropShadow 		1.0 DropShadow.qml
 Bloom			1.0 Bloom.qml
 Wobbly			1.0 Wobbly.qml
+Outline			1.0 Outline.qml
