@@ -62,6 +62,7 @@ QtObject {
         var arr   = isArr? modelOrArr : Functions.object.listmodelToArray(modelOrArr) ;
         var res = file.writeFile(cacheDir,name,JSON.stringify(arr,null,2))
         console.log("Wrote file", cacheDir + "/" + name, "=",res)
+        return res;
     }
     function loadCache(name,m){
         if(!m)

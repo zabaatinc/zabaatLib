@@ -23,4 +23,22 @@ QtObject {
         })
     }
 
+    //returns the js object in "data" key or an error in "err" key if couldn't be parsed.
+    function readJSONFile_v2(source, callback) {
+        readFile(source, function(jsData) {
+            try {
+                var a = JSON.parse(jsData);
+                if(typeof callback === 'function')
+                    callback({data :a })
+            }
+            catch(e){
+                console.log("readJSONFile error from", source, jsData)
+                if(typeof callback === 'function')
+                    callback({err : "readJSONFile error from " + source + jsData })
+            }
+        })
+    }
+
+
+
 }
