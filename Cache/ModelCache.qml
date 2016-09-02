@@ -24,32 +24,46 @@ QtObject {
         return a.id == b.id
     }
 
-    //The function that adds value into list
-    property var createFunc: function(list,value){
+    //The function that adds value into list. The cb parameter is provided for long_running, non async functions.
+    //This function will call cb (if it is a function) when the task has completed!
+    property var createFunc: function(list,value,cb){
         if(Functions.list.isArray(list))
             list.push(value);
         else
             list.append(value);
+
+        if(typeof cb === 'function')
+            return cb();
     }
 
     //The function that udpates value at idx in list (or you can determine idx by value.id or something)
-    property var updateFunc: function(list,value,idx){
+    //The cb parameter is provided for long_running, non async functions.
+    //This function will call cb (if it is a function) when the task has completed!
+    property var updateFunc: function(list,value,idx, cb){
         if(Functions.list.isArray(list)){
             list[idx] = value;
         }
         else {
             list.set(idx,value);
         }
+
+        if(typeof cb === 'function')
+            return cb();
     }
 
     //The function that deletes idx in list (or you can determine idx by value.id or something)
-    property var deleteFunc: function(list,value,idx){
+    //The cb parameter is provided for long_running, non async functions.
+    //This function will call cb (if it is a function) when the task has completed!
+    property var deleteFunc: function(list,value,idx, cb){
         if(Functions.list.isArray(list)){
             list.splice(idx,1);
         }
         else {
             list.remove(idx);
         }
+
+        if(typeof cb === 'function')
+            return cb();
     }
 
 
@@ -64,7 +78,7 @@ QtObject {
         console.log("Wrote file", cacheDir + "/" + name, "=",res)
         return res;
     }
-    function loadCache(name,m){
+    function loadCache(name,m, cb){
         if(!m)
             return false;
 
@@ -72,23 +86,48 @@ QtObject {
         var f = file.readFile(fileLocation);
         try {
             var js = JSON.parse(f);
-            if( Functions.list.isArray(m) )
-                logic.sync(m, js);
-            else
-                logic.syncModel(m, js);
+            sync(m,js, cb);
             return m;
         }
         catch(e){
             return false;
         }
     }
+    function deleteCache(name) {
+        var fileLocation = cacheDir + "/" + name
+
+        //TODO FIX? Apparently this is not a function somehow. WUT M8?
+        return file.deleteFile(fileLocation);
+    }
+
+    //cb is called when we have synced!!
+    function sync(m, js, cb) {
+        if( Functions.list.isArray(m) )
+            logic.sync(m, js, cb);
+        else
+            logic.syncModel(m, js, cb);
+    }
 
     //returns a new array if none is provided!
 
     property Item logic : Item {
         id : logic
-        function sync(destArr, srcArr){
+        function sync(destArr, srcArr, cb){
             var addArr = []
+
+
+            var totalCbs = srcArr.length;
+            var cbCount  = 0;
+            var opCb     = function() {
+                ++cbCount;
+                if(cbCount >= totalCbs && typeof cb === 'function') {
+                    cb();
+                }
+            }
+
+
+
+
             _.each(srcArr,function(v){
                 var idx = Functions.list.getFromArray_v2(destArr,function(a){ return equalityFunc(a,v) },true)
                 if(idx !== -1) {
@@ -97,8 +136,8 @@ QtObject {
 
                     //if the src is newer && we determined  that src was deleted, call delete, otehrwise update
                     if(srcIsNewer){
-                        return determineDeletedFunc(v) ? deleteFunc(destArr,v,idx) :
-                                                         updateFunc(destArr,v,idx);
+                        return determineDeletedFunc(v) ? deleteFunc(destArr,v,idx,opCb) :
+                                                         updateFunc(destArr,v,idx,opCb);
                     }
                 }
                 else {  //we add all the stuff later because we dont want the performance to degrade on .getFromList_v2
@@ -108,11 +147,21 @@ QtObject {
 
             //add the stuff we didn't find!
             _.each(addArr,function(v){
-                createFunc(destArr,v);
+                createFunc(destArr,v,opCb);
             })
         }
-        function syncModel(destModel, srcArr){
+        function syncModel(destModel, srcArr, cb){
             var addArr = []
+
+            var totalCbs = srcArr.length;
+            var cbCount  = 0;
+            var opCb     = function() {
+                ++cbCount;
+                if(cbCount >= totalCbs && typeof cb === 'function') {
+                    cb();
+                }
+            }
+
             _.each(srcArr,function(v){
                 var idx = Functions.list.getFromList_v2(destModel,function(a){ return equalityFunc(a,v) },true)
                 if(idx !== -1) {
@@ -121,8 +170,8 @@ QtObject {
 
                     //if the src is newer && we determined  that src was deleted, call delete, otehrwise update
                     if(srcIsNewer){
-                        return determineDeletedFunc(v) ? deleteFunc(destModel,v,idx) :
-                                                         updateFunc(destModel,v,idx);
+                        return determineDeletedFunc(v) ? deleteFunc(destModel,v,idx,opCb) :
+                                                         updateFunc(destModel,v,idx,opCb);
                     }
                 }
                 else {  //we add all the stuff later because we dont want the performance to degrade on .getFromList_v2
@@ -132,7 +181,7 @@ QtObject {
 
             //add the stuff we didn't find!
             _.each(addArr,function(v){
-                createFunc(destModel,v);
+                createFunc(destModel,v,opCb);
             })
         }
 

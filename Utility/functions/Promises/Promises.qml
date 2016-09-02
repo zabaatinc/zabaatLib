@@ -10,6 +10,13 @@ QtObject {
         return new P.Promise(fn);
     }
 
+    function all(arr) {
+        if(!P.setTimeout)
+            P.setTimeout = priv.setTimeOut
+
+        return P.All(arr);
+    }
+
     Component.onCompleted: {
         P.setTimeout = priv.setTimeOut
     }
