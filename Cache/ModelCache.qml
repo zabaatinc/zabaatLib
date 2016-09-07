@@ -67,18 +67,50 @@ QtObject {
     }
 
 
-
-    function cacheModel(name,modelOrArr){
+    //name <string> : the name of the file to save into cacheDir
+    //modelOrArr <array/model> : the array/model whose contents are to be saved
+    //arr_only <optional array / 1 object> : array of items that is in line with equality func that tells us to only process these ids!
+    //opt_keys <optional array>            : array of keys to store, ignore the rest!
+    function cacheModel(name,modelOrArr,arr_only,opt_keys){
         if(!modelOrArr)
             return;
 
         var isArr = toString.call(modelOrArr) === '[object Array]'
         var arr   = isArr? modelOrArr : Functions.object.listmodelToArray(modelOrArr) ;
+
+        if(arr_only && typeof arr_only === 'object') {
+            arr_only = toString.call(arr_only) !== '[object Array]' ? [arr_only] : arr_only
+            arr = _.filter(arr, function(a) {
+
+                //iterates over arr_only and compares a & v using equalityFunc.
+                //False if nothing is equal to a in arr_only, meaning we will filter it :)
+                return  _.some(arr_only, function(v) {
+                    if(equalityFunc(a,v))
+                        return true;
+                })
+            })
+        }
+
+        opt_keys = typeof opt_keys === 'string' ? [opt_keys] : opt_keys
+        if(opt_keys && toString.call(opt_keys) === '[object Array]') {
+            arr = _.reduce(arr, function(a,v,k) {
+                a.push(_.pick(v,opt_keys));
+                return a;
+            }, [])
+        }
+
+
         var res = file.writeFile(cacheDir,name,JSON.stringify(arr,null,2))
         console.log("Wrote file", cacheDir + "/" + name, "=",res)
         return res;
     }
-    function loadCache(name,m, cb){
+
+
+    //name     <string>                    : the name of the cache file. This is loaded from cacheDir
+    //m        <array / listmodel>         : the list model / array to load this cache into
+    //cb       <optional function>         : is called when the loadCache operation finishes. Important if create,delete,update are async functions.
+    //arr_only <optional array / 1 object> : array of items that is in line with equality func that tells us to only process these ids!
+    function loadCache(name,m, cb, arr_only){
         if(!m)
             return false;
 
@@ -86,13 +118,15 @@ QtObject {
         var f = file.readFile(fileLocation);
         try {
             var js = JSON.parse(f);
-            sync(m,js, cb);
+            sync(m,js, cb, arr_only);
             return m;
         }
         catch(e){
             return false;
         }
     }
+
+    //name <string> : remove this cache file from our cacheDir
     function deleteCache(name) {
         var fileLocation = cacheDir + "/" + name
 
@@ -100,23 +134,36 @@ QtObject {
         return file.deleteFile(fileLocation);
     }
 
-    //cb is called when we have synced!!
-    function sync(m, js, cb) {
+
+
+    //m        <array / listmodel> : the list model / array to load this cache into
+    //js       <array>             : the array to sync m with. This is very similar to loadCache method but we dont load a file in this version.
+    //cb       <optional function> : is called when the loadCache operation finishes. Important if create,delete,update are async functions.
+    //arr_only <optional array/ 1 object>    : array of items that is in line with equality func that tells us to only process these ids!
+    function sync(m, js, cb, arr_only) {
         if( Functions.list.isArray(m) )
-            logic.sync(m, js, cb);
+            logic.sync(m, js, cb, arr_only);
         else
-            logic.syncModel(m, js, cb);
+            logic.syncModel(m, js, cb, arr_only);
     }
 
-    //returns a new array if none is provided!
+
 
     property Item logic : Item {
         id : logic
-        function sync(destArr, srcArr, cb){
+        function sync(destArr, srcArr, cb, arr_only){
             var addArr = []
 
+            var inclusionArrayValid = false;
+            if(arr_only && typeof arr_only === 'object') {
+                arr_only = toString.call(arr_only) !== '[object Array]' ? [arr_only] : arr_only
+                inclusionArrayValid = true;
+            }
 
             var totalCbs = srcArr.length;
+            if(totalCbs === 0)
+                return typeof cb === 'function' ? cb() : false;
+
             var cbCount  = 0;
             var opCb     = function() {
                 ++cbCount;
@@ -125,10 +172,16 @@ QtObject {
                 }
             }
 
-
-
-
             _.each(srcArr,function(v){
+
+                //if arr_only is valid and this v is not in it. then we dont need to care about this v.
+                if(inclusionArrayValid) {
+                    var includedIdx = Functions.list.getFromArray_v2(arr_only, function(a) { return equalityFunc(a,v) }, true)
+                    if(includedIdx === -1)
+                        return;
+                }
+
+
                 var idx = Functions.list.getFromArray_v2(destArr,function(a){ return equalityFunc(a,v) },true)
                 if(idx !== -1) {
                     var destItem = destArr[idx];
@@ -150,10 +203,19 @@ QtObject {
                 createFunc(destArr,v,opCb);
             })
         }
-        function syncModel(destModel, srcArr, cb){
+        function syncModel(destModel, srcArr, cb, arr_only){
             var addArr = []
 
+            var inclusionArrayValid = false;
+            if(arr_only && typeof arr_only === 'object') {
+                arr_only = toString.call(arr_only) !== '[object Array]' ? [arr_only] : arr_only
+                inclusionArrayValid = true;
+            }
+
             var totalCbs = srcArr.length;
+            if(totalCbs === 0)
+                return typeof cb === 'function' ? cb() : false;
+
             var cbCount  = 0;
             var opCb     = function() {
                 ++cbCount;
@@ -163,6 +225,14 @@ QtObject {
             }
 
             _.each(srcArr,function(v){
+
+                //if arr_only is valid and this v is not in it. then we dont need to care about this v.
+                if(inclusionArrayValid) {
+                    var includedIdx = Functions.list.getFromArray_v2(arr_only, function(a) { return equalityFunc(a,v) }, true)
+                    if(includedIdx === -1)
+                        return;
+                }
+
                 var idx = Functions.list.getFromList_v2(destModel,function(a){ return equalityFunc(a,v) },true)
                 if(idx !== -1) {
                     var destItem = destModel.get(idx);

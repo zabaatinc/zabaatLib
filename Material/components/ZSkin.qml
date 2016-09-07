@@ -256,30 +256,10 @@ Item {
         }
 
         function addBorderStates(){
-            cache.injectState("b0"  , "rootObject" , { "border": { "width" : 0   } });
-            cache.injectState("b1"  , "rootObject" , { "border": { "width" : 1   } });
-            cache.injectState("b2"  , "rootObject" , { "border": { "width" : 2   } });
-            cache.injectState("b3"  , "rootObject" , { "border": { "width" : 3   } });
-            cache.injectState("b4"  , "rootObject" , { "border": { "width" : 4   } });
-            cache.injectState("b5"  , "rootObject" , { "border": { "width" : 5   } });
-            cache.injectState("b6"  , "rootObject" , { "border": { "width" : 6   } });
-            cache.injectState("b7"  , "rootObject" , { "border": { "width" : 7   } });
-            cache.injectState("b8"  , "rootObject" , { "border": { "width" : 8   } });
-            cache.injectState("b9"  , "rootObject" , { "border": { "width" : 9   } });
-            cache.injectState("b10" , "rootObject" , { "border": { "width" : 10  } });
+            cache.injectState("b!"  , "rootObject" , { "border.width" : "!" })
 
-            cache.injectState("rounded" , "rootObject" , { "@radius" : [rootObject,"height",1/10] });
-
-            cache.injectState("rounded10", "rootObject" , { "@radius" : [rootObject,"height",1/10]  });
-            cache.injectState("rounded9" , "rootObject" , { "@radius" : [rootObject,"height",1/9]   });
-            cache.injectState("rounded8" , "rootObject" , { "@radius" : [rootObject,"height",1/8]   });
-            cache.injectState("rounded7" , "rootObject" , { "@radius" : [rootObject,"height",1/7]   });
-            cache.injectState("rounded6" , "rootObject" , { "@radius" : [rootObject,"height",1/6]   });
-            cache.injectState("rounded5" , "rootObject" , { "@radius" : [rootObject,"height",1/5]   });
-            cache.injectState("rounded4" , "rootObject" , { "@radius" : [rootObject,"height",1/4]   });
-            cache.injectState("rounded3" , "rootObject" , { "@radius" : [rootObject,"height",1/3]   });
-            cache.injectState("rounded25", "rootObject" , { "@radius" : [rootObject,"height",1/2.5] });
-            cache.injectState("rounded2" , "rootObject" , { "@radius" : [rootObject,"height",1/2]   });
+            cache.injectState("rounded" , "rootObject" , { "@radius" : [rootObject,"height",1/10]  });
+            cache.injectState("rounded!", "rootObject" , { "@radius" : [rootObject,"height","1/!"] });
 
             cache.injectState("square"   , "rootObject" , { "radius" : 0   });
             cache.injectState("circle"  , "rootObject" , { "@radius" : [rootObject,"height",1/2]  });
@@ -293,6 +273,10 @@ Item {
             cache.injectState("bstandard" , "graphical" , { "@borderColor" : [Colors,"standard"] });
             cache.injectState("bt1"       , "graphical" , { "@borderColor" : [Colors,"text1"] });
             cache.injectState("bt2"       , "graphical" , { "@borderColor" : [Colors,"text2"] });
+
+            cache.injectState("br!g!b!"   , "graphical",  { "@borderColor" : function(r,g,b)   { return Qt.rgba(r/255,g/255,b/255)       } });
+            cache.injectState("br!g!b!a!" , "graphical",  { "@borderColor" : function(r,g,b,a) { return Qt.rgba(r/255,g/255,b/255,a/255) } });
+
 
             cache.bordersAdded = true;
         }
