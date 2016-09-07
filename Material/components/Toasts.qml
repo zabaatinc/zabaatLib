@@ -348,8 +348,9 @@ Item {
                 Component.onDestruction: {
                     if(lastActiveThing && lastActiveThing.forceActiveFocus)
                         lastActiveThing.forceActiveFocus()
-                    else
-                        console.log("no last active thing hurrr", lastActiveThing)
+                    else {
+//                        console.log("Toasts::no last active thing hurrr to restore focus to", lastActiveThing)
+                    }
 
                     if(logic.map[objectName]){
                         delete logic.map[objectName]

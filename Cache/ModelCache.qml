@@ -152,7 +152,8 @@ QtObject {
     property Item logic : Item {
         id : logic
         function sync(destArr, srcArr, cb, arr_only){
-            var addArr = []
+            var addArr  = []
+            var procArr = []
 
             var inclusionArrayValid = false;
             if(arr_only && typeof arr_only === 'object') {
@@ -160,25 +161,22 @@ QtObject {
                 inclusionArrayValid = true;
             }
 
-            var totalCbs = srcArr.length;
-            if(totalCbs === 0)
+            if(srcArr.length <= 0) {
+//                console.log("ModelCache::src Arr length is 0. Done.")
                 return typeof cb === 'function' ? cb() : false;
-
-            var cbCount  = 0;
-            var opCb     = function() {
-                ++cbCount;
-                if(cbCount >= totalCbs && typeof cb === 'function') {
-                    cb();
-                }
             }
 
+
+            //iterate thru src array & isolate elements that we need to perform operations with. I.e, new elements not found in our model
+            //and elements that are newer in the srcArr
             _.each(srcArr,function(v){
 
                 //if arr_only is valid and this v is not in it. then we dont need to care about this v.
                 if(inclusionArrayValid) {
                     var includedIdx = Functions.list.getFromArray_v2(arr_only, function(a) { return equalityFunc(a,v) }, true)
-                    if(includedIdx === -1)
+                    if(includedIdx === -1) {
                         return;
+                    }
                 }
 
 
@@ -186,25 +184,55 @@ QtObject {
                 if(idx !== -1) {
                     var destItem = destArr[idx];
                     var srcIsNewer = determineNewerFunc(destItem,v);
-
-                    //if the src is newer && we determined  that src was deleted, call delete, otehrwise update
-                    if(srcIsNewer){
-                        return determineDeletedFunc(v) ? deleteFunc(destArr,v,idx,opCb) :
-                                                         updateFunc(destArr,v,idx,opCb);
-                    }
+                    if(srcIsNewer)
+                        procArr.push({v : v, i : idx });
                 }
                 else {  //we add all the stuff later because we dont want the performance to degrade on .getFromList_v2
                     addArr.push(v);
                 }
             })
 
+
+            //Set up callback stuff
+            var totalCbs = addArr.length + procArr.length;
+            var cbCount  = 0;
+
+            if(totalCbs <= 0) {
+//                console.log("ModelCache::total ops length is 0. Done.")
+                return typeof cb === 'function' ? cb() : false;
+            }
+
+            var opCb     = function() {
+                ++cbCount;
+//                console.log(cbCount, "/", totalCbs , "Called!")
+                if(cbCount >= totalCbs && typeof cb === 'function') {
+//                    console.log('!!!!!!!!!!!! modelCache::MAIN CALLBACK.' , cbCount +"/" + totalCbs)
+                    cb();
+                }
+            }
+
+
+
+            //proc the stuff we know we need to process,
+            //if the src is newer && we determined that src was deleted, call delete, otehrwise update
+            _.each(procArr, function(val) {
+                var v = val.v
+                var idx = val.i
+
+                return determineDeletedFunc(v) ? deleteFunc(destArr,v,idx,opCb) : updateFunc(destArr,v,idx,opCb);
+            })
+
+
             //add the stuff we didn't find!
             _.each(addArr,function(v){
                 createFunc(destArr,v,opCb);
             })
+
+
         }
         function syncModel(destModel, srcArr, cb, arr_only){
-            var addArr = []
+            var addArr  = []
+            var procArr = []
 
             var inclusionArrayValid = false;
             if(arr_only && typeof arr_only === 'object') {
@@ -212,17 +240,13 @@ QtObject {
                 inclusionArrayValid = true;
             }
 
-            var totalCbs = srcArr.length;
-            if(totalCbs === 0)
+            if(srcArr.length <= 0) {
+//                console.log("ModelCache::src Arr length is 0. Done.")
                 return typeof cb === 'function' ? cb() : false;
-
-            var cbCount  = 0;
-            var opCb     = function() {
-                ++cbCount;
-                if(cbCount >= totalCbs && typeof cb === 'function') {
-                    cb();
-                }
             }
+
+
+
 
             _.each(srcArr,function(v){
 
@@ -237,17 +261,41 @@ QtObject {
                 if(idx !== -1) {
                     var destItem = destModel.get(idx);
                     var srcIsNewer = determineNewerFunc(destItem,v);
-
-                    //if the src is newer && we determined  that src was deleted, call delete, otehrwise update
-                    if(srcIsNewer){
-                        return determineDeletedFunc(v) ? deleteFunc(destModel,v,idx,opCb) :
-                                                         updateFunc(destModel,v,idx,opCb);
-                    }
+                    if(srcIsNewer)
+                        procArr.push({v : v, i : idx });
                 }
                 else {  //we add all the stuff later because we dont want the performance to degrade on .getFromList_v2
                     addArr.push(v);
                 }
             })
+
+            var totalCbs = addArr.length + procArr.length;
+            var cbCount  = 0;
+
+            if(totalCbs <= 0) {
+//                console.log("ModelCache::total ops length is 0. Done.")
+                return typeof cb === 'function' ? cb() : false;
+            }
+
+
+            var opCb = function() {
+                ++cbCount;
+//                console.log(cbCount, "/", totalCbs , "Called!")
+                if(cbCount >= totalCbs && typeof cb === 'function') {
+//                    console.log('!!!!!!!!!!!! modelCache::MAIN CALLBACK.' , cbCount +"/" + totalCbs)
+                    cb();
+                }
+            }
+
+            //proc the stuff we know we need to process,
+            //if the src is newer && we determined that src was deleted, call delete, otehrwise update
+            _.each(procArr, function(val) {
+                var v = val.v
+                var idx = val.i
+
+                return determineDeletedFunc(v) ? deleteFunc(destModel,v,idx,opCb) : updateFunc(destModel,v,idx,opCb);
+            })
+
 
             //add the stuff we didn't find!
             _.each(addArr,function(v){

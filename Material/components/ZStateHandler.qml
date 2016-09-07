@@ -452,7 +452,7 @@ Item {
                 return obj;
 
             if(getType(obj) === '[object QML]') {
-                console.warn("TRIED TO CHANGE all ! in a QML object. Ceased", obj)
+//                console.warn("TRIED TO CHANGE all ! in a QML object. Ceased", obj)
                 return obj;
             }
 
