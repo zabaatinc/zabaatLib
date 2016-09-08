@@ -119,7 +119,7 @@ QtObject {
         try {
             var js = JSON.parse(f);
             sync(m,js, cb, arr_only);
-            return m;
+            return true;
         }
         catch(e){
             return false;
@@ -162,7 +162,7 @@ QtObject {
             }
 
             if(srcArr.length <= 0) {
-//                console.log("ModelCache::src Arr length is 0. Done.")
+                console.log("!!!!!!!!! MCache Done")
                 return typeof cb === 'function' ? cb() : false;
             }
 
@@ -187,7 +187,7 @@ QtObject {
                     if(srcIsNewer)
                         procArr.push({v : v, i : idx });
                 }
-                else {  //we add all the stuff later because we dont want the performance to degrade on .getFromList_v2
+                else if(!determineDeletedFunc(v)) {  //we add all the stuff later because we dont want the performance to degrade on .getFromList_v2
                     addArr.push(v);
                 }
             })
@@ -199,6 +199,7 @@ QtObject {
 
             if(totalCbs <= 0) {
 //                console.log("ModelCache::total ops length is 0. Done.")
+                console.log("!!!!!!!!! MCache Done")
                 return typeof cb === 'function' ? cb() : false;
             }
 
@@ -206,7 +207,7 @@ QtObject {
                 ++cbCount;
 //                console.log(cbCount, "/", totalCbs , "Called!")
                 if(cbCount >= totalCbs && typeof cb === 'function') {
-//                    console.log('!!!!!!!!!!!! modelCache::MAIN CALLBACK.' , cbCount +"/" + totalCbs)
+                    console.log("!!!!!!!!! MCache Done")
                     cb();
                 }
             }
@@ -241,7 +242,7 @@ QtObject {
             }
 
             if(srcArr.length <= 0) {
-//                console.log("ModelCache::src Arr length is 0. Done.")
+                console.log("!!!!!!!!! MCache Done")
                 return typeof cb === 'function' ? cb() : false;
             }
 
@@ -264,7 +265,7 @@ QtObject {
                     if(srcIsNewer)
                         procArr.push({v : v, i : idx });
                 }
-                else {  //we add all the stuff later because we dont want the performance to degrade on .getFromList_v2
+                else if(!determineDeletedFunc(v)) {  //we add all the stuff later because we dont want the performance to degrade on .getFromList_v2
                     addArr.push(v);
                 }
             })
@@ -273,7 +274,7 @@ QtObject {
             var cbCount  = 0;
 
             if(totalCbs <= 0) {
-//                console.log("ModelCache::total ops length is 0. Done.")
+                console.log("!!!!!!!!! MCache Done")
                 return typeof cb === 'function' ? cb() : false;
             }
 
@@ -282,7 +283,7 @@ QtObject {
                 ++cbCount;
 //                console.log(cbCount, "/", totalCbs , "Called!")
                 if(cbCount >= totalCbs && typeof cb === 'function') {
-//                    console.log('!!!!!!!!!!!! modelCache::MAIN CALLBACK.' , cbCount +"/" + totalCbs)
+                    console.log("!!!!!!!!! MCache Done")
                     cb();
                 }
             }

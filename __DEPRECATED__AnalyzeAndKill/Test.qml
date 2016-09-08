@@ -4,10 +4,14 @@ import QtQuick.Controls 1.4
 Item {
     id : rootObject
 
-    function f1(){
+    function f1(time, arg){
 //        console.log("f1")
+        if(!time || typeof time !== 'number')
+            time = 10
+
         return Promises.promise(function(f,r) {
-          Functions.time.setTimeOut(10, f, "happy")
+          console.log("ARG:", arg);
+          Functions.time.setTimeOut(time, f, "happy")
         })
 
     }
@@ -44,11 +48,12 @@ Item {
         Button {
             text : "all"
             onClicked : {
-                var p1 = f1();
-                var p2 = f2();
+                var p1 = f1(100,'promise 1');
+                var p2 = f1(500,'promise 2');
 
-                Promises.all([p1,p2]).then(function(val) {
-                    console.log("VALUE", JSON.stringify(val,null,2))
+
+                Promises.all([p1,p2]).then(function() {
+                    console.log("herp")
                 }).catch(function(err){
                     console.log("ERR REASON:", err)
                 }).finally(function(v) {

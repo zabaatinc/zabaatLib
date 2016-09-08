@@ -171,7 +171,7 @@ Item {
     property QtObject __private : QtObject {
         id : logic
         property var mainWindowPtr : null
-        property bool debug : true
+        property bool debug : false
         property int nextId : 0
 
         property var map        : ({})
