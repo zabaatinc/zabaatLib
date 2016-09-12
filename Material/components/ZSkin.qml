@@ -640,7 +640,7 @@ Item {
             return;
 
         if(state === "" && cache.first)
-            return;
+            return cache.first = false;
 
 //        console.log(rootObject, 'setting state to', state)
         if(cache.ready) {
