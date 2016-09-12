@@ -32,6 +32,64 @@ QtObject {
         return badVal
     }
 
+    function cloneListOrArray(item) {
+        if(!item || typeof item !== 'object')
+            return null;
+
+        var itemIsArray = isArray(item);
+        var len = itemIsArray ? item.length : item.count;
+        var obj = itemIsArray ? {}          : listGenerator.createObject(listContainer);
+
+        for(var i = 0; i < len; i++) {
+            var val = itemIsArray ? item[i] : item.get(i);
+            var rDerp
+
+            if(typeof val !== 'object'){
+                rDerp = itemIsArray ? obj.push(val) : obj.append(val);
+            }
+            else {
+                var newObj = cloneObject(val);
+                rDerp = itemIsArray ? obj.push(newObj) : obj.append(newObj);
+            }
+        }
+
+        return obj;
+    }
+
+
+    function cloneObject(obj, r) {
+        r = r || {}
+        function isQmlType(v) {
+            if(!v || !v.hasOwnProperty || !v.hasOwnProperty('objectName') || !v.hasOwnProperty('objectNameChanged'))
+                return false;
+            return true;
+        }
+
+        if(typeof obj !== 'object')
+            return obj;
+
+        _.each(obj, function(v,k) {
+            var type = toString.call(v);
+            if(type === '[object Array]') {
+                r[k] = [];
+                cloneObject(v, r[k]);
+            }
+            else if(isQmlType(v) ) {
+                //TODO, make better.
+                r[k] = v.toString();
+            }
+            else if(type === '[object Object]') {
+                r[k] = {}
+                cloneObject(v, r[k]);
+            }
+            else {
+                r[k] = v;
+            }
+        })
+
+        return r;
+    }
+
 
 
 
@@ -473,7 +531,7 @@ QtObject {
     }
 
 
-
-
+    property Component listGenerator : Component { id : listGenerator;  ListModel { dynamicRoles : true } }
+    property Item listContainer : Item { id : listContainer }
 
 }

@@ -67,6 +67,8 @@ QtObject {
     }
 
 
+
+
     //name <string> : the name of the file to save into cacheDir
     //modelOrArr <array/model> : the array/model whose contents are to be saved
     //arr_only <optional array / 1 object> : array of items that is in line with equality func that tells us to only process these ids!
@@ -114,27 +116,30 @@ QtObject {
         if(!m)
             return false;
 
-        var fileLocation = cacheDir + "/" + name
-        var f = file.readFile(fileLocation);
-        try {
-            var js = JSON.parse(f);
-            sync(m,js, cb, arr_only);
-            return true;
-        }
-        catch(e){
+        var js = loadFile(name);
+        if(!js)
             return false;
-        }
+
+        sync(m,js,cb,arr_only);
+        return true;
     }
 
     //name <string> : remove this cache file from our cacheDir
     function deleteCache(name) {
         var fileLocation = cacheDir + "/" + name
-
-        //TODO FIX? Apparently this is not a function somehow. WUT M8?
         return file.deleteFile(fileLocation);
     }
 
-
+    //loads the file as a js
+    function loadFile(name) {
+        var fileLocation = cacheDir + "/" + name
+        var f = file.readFile(fileLocation);
+        try {
+            return JSON.parse(f);
+        } catch(e) {
+            return false;
+        }
+    }
 
     //m        <array / listmodel> : the list model / array to load this cache into
     //js       <array>             : the array to sync m with. This is very similar to loadCache method but we dont load a file in this version.
@@ -147,10 +152,17 @@ QtObject {
             logic.syncModel(m, js, cb, arr_only);
     }
 
+    function cacheExists(name) {
+        var fileLocation = cacheDir + "/" + name
+        var r = file.readFile(fileLocation);
+        return r ? true : false;
+    }
+
 
 
     property Item logic : Item {
         id : logic
+
         function sync(destArr, srcArr, cb, arr_only){
             var addArr  = []
             var procArr = []
@@ -162,7 +174,7 @@ QtObject {
             }
 
             if(srcArr.length <= 0) {
-                console.log("!!!!!!!!! MCache Done")
+//                console.log("!!!!!!!!! MCache Done")
                 return typeof cb === 'function' ? cb() : false;
             }
 
@@ -184,10 +196,13 @@ QtObject {
                 if(idx !== -1) {
                     var destItem = destArr[idx];
                     var srcIsNewer = determineNewerFunc(destItem,v);
-                    if(srcIsNewer)
+//                    console.log("procThis:", srcIsNewer, "val:", JSON.stringify(v,null,2) , destItem.updatedAt, v.updatedAt)
+                    if(srcIsNewer) {
                         procArr.push({v : v, i : idx });
+                    }
                 }
                 else if(!determineDeletedFunc(v)) {  //we add all the stuff later because we dont want the performance to degrade on .getFromList_v2
+//                    console.log("AddThis:", JSON.stringify(v,null,2))
                     addArr.push(v);
                 }
             })
