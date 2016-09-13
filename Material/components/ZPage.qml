@@ -9,10 +9,12 @@ Item {
     implicitWidth  : Units.defaultWidth
     implicitHeight : Units.defaultHeight
 
+    property point scaleMultiplier : Qt.point(1,1);
+
     QtObject {
         id: logic
-        property real wMulti : rootObject.width  / rootObject.implicitWidth
-        property real hMulti : rootObject.height / rootObject.implicitHeight
+        property real wMulti : (rootObject.width  / rootObject.implicitWidth)   * scaleMultiplier.x
+        property real hMulti : (rootObject.height / rootObject.implicitHeight)  * scaleMultiplier.y
 
         //property real aspectRatio : wMulti / hMulti
     }

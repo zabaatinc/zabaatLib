@@ -199,57 +199,76 @@ Item {
             }
         }
         function set(obj, prop, value, bind, root){
-            if(bind) {
-                if(isFunction(value))
-                    obj[prop] = Qt.binding(value)
-                else if(isArray(value) && value.length > 1){
-//                    console.log(obj,prop,value)
-                    if(value.length > 2) {
-                        //make sure value2 is a number!
-                        if(typeof value[2] === 'string') {
-                            var val = value[2]
-                            var arr
-                            if(val.indexOf("/") !== -1){
-                                arr = val.split("/")
-                                value[2] = arr[0] / arr[1]
+
+            function containsOps(val) {
+                return val.indexOf('/') !== -1 || val.indexOf('+') !== -1 || val.indexOf('-') !== -1 || val.indexOf('*') !== -1
+            }
+
+            function evalExpr(val) {
+                var arr
+                var res = val;
+                if(val.indexOf("/") !== -1){
+                    arr = val.split("/")
+                    res = arr[0] / arr[1]
 //                                console.log("!!", value[2])
-                            }
-                            else if(val.indexOf("+") !== -1){
-                                arr = val.split("+")
-                                value[2] = arr[0] + arr[1]
-                            }
-                            else if(val.indexOf("-") !== -1){
-                                arr = val.split("-")
-                                value[2] = arr[0] - arr[1]
-                            }
-                            else if(val.indexOf("*") !== -1){
-                                arr = val.split("*")
-                                value[2] = arr[0] * arr[1]
-                            }
-                            else {
-                                value[2] = parseFloat(value[2]);
-                            }
-
-                        }
-
-                        obj[prop] = Qt.binding(function() { return value[0][value[1]] * value[2] } )
-                    }
-                    else
-                        obj[prop] = Qt.binding(function() { return value[0][value[1]] })
                 }
-                else if(typeof value === 'object'){
-                    if(value.modifier)
-                        obj[prop] = Qt.binding(function() { return value.key[value.value] * value.modifier} )
-                    else
-                        obj[prop] = Qt.binding(function() { return value.key[value.value] } )
+                else if(val.indexOf("+") !== -1){
+                    arr = val.split("+")
+                    res = arr[0] + arr[1]
+                }
+                else if(val.indexOf("-") !== -1){
+                    arr = val.split("-")
+                    res = arr[0] - arr[1]
+                }
+                else if(val.indexOf("*") !== -1){
+                    arr = val.split("*")
+                    res = arr[0] * arr[1]
                 }
                 else {
-                    console.error(root, "Incorrect format for binding!!", obj, prop, value, bind)
+                    res = parseFloat(value[2]);
                 }
+                return res;
+            }
+
+            if(!bind) {
+//                console.log(obj,prop,"=",value, typeof value)
+                if(typeof value === 'string' && typeof obj[prop] === 'number' && containsOps(value)) {
+                    try {
+                        obj[prop] = evalExpr(value);
+                    } catch(e) {
+                        obj[prop] = value;
+                    }
+                }
+                else {
+                    obj[prop] = value;
+                }
+                return;
+            }
+
+
+            if(isFunction(value))
+                obj[prop] = Qt.binding(value)
+            else if(isArray(value) && value.length > 1){
+//                    console.log(obj,prop,value)
+                if(value.length > 2) {
+                    //make sure value2 is a number!
+                    if(typeof value[2] === 'string') {
+                        value[2] = evalExpr(value[2]);
+                    }
+
+                    obj[prop] = Qt.binding(function() { return value[0][value[1]] * value[2] } )
+                }
+                else
+                    obj[prop] = Qt.binding(function() { return value[0][value[1]] })
+            }
+            else if(typeof value === 'object'){
+                if(value.modifier)
+                    obj[prop] = Qt.binding(function() { return value.key[value.value] * value.modifier} )
+                else
+                    obj[prop] = Qt.binding(function() { return value.key[value.value] } )
             }
             else {
-//                console.log(obj,prop,"=",value)
-                obj[prop] = value;
+                console.error(root, "Incorrect format for binding!!", obj, prop, value, bind)
             }
         }
 
