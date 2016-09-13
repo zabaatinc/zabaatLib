@@ -24,6 +24,11 @@ QtObject {
         return a.id == b.id
     }
 
+    //happens after determinedNewer. By default, newer is all we need to determine update so returns true.
+    property var determineUpdatedFunc : function(destElem,cacheElem) {
+        return true;
+    }
+
     //The function that adds value into list. The cb parameter is provided for long_running, non async functions.
     //This function will call cb (if it is a function) when the task has completed!
     property var createFunc: function(list,value,cb){
@@ -235,7 +240,12 @@ QtObject {
                 var v = val.v
                 var idx = val.i
 
-                return determineDeletedFunc(v) ? deleteFunc(destArr,v,idx,opCb) : updateFunc(destArr,v,idx,opCb);
+                if(determineDeletedFunc(v)) {
+                    return deleteFunc(destArr,v,idx,opCb)
+                }
+                if(determineUpdatedFunc(destArr[idx] , v)) {
+                    return updateFunc(destArr,v,idx,opCb);
+                }
             })
 
 
@@ -309,7 +319,12 @@ QtObject {
                 var v = val.v
                 var idx = val.i
 
-                return determineDeletedFunc(v) ? deleteFunc(destModel,v,idx,opCb) : updateFunc(destModel,v,idx,opCb);
+                if(determineDeletedFunc(v)) {
+                    return deleteFunc(destModel,v,idx,opCb)
+                }
+                if(determineUpdatedFunc(destModel.get(idx) , v)) {
+                    return updateFunc(destModel,v,idx,opCb);
+                }
             })
 
 
