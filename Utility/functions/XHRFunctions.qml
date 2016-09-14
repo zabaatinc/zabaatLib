@@ -74,11 +74,27 @@ QtObject  {
                     //now we can easily divide the string into 2 sections
                     host = url.substring(0,ind)
                     path = url.substring(ind2+1,url.length)
-
                 }
                 else {
-                    console.log("No PORT provided for", url)
-                    return null;
+                    if(protocol === 'http')
+                        port = 80;
+                    else if(protocol === 'https')
+                        port = 443;
+
+                    if(!port) {
+                        console.log("No PORT provided for", url)
+                        return null;
+                    }
+
+                    var slashInd = url.indexOf('/');
+                    if(slashInd !== -1) {
+                        host = url.substring(0,slashInd);
+                        path = url.substring(slashInd+1, url.length);
+                    }
+                    else {
+                        host = url;
+                        path = "";
+                    }
                 }
 
                 return {
@@ -88,12 +104,6 @@ QtObject  {
                     path : path,
                     method : method
                 }
-
-    //            console.log("protocl is", protocol)
-    //            console.log("port is", port)
-    //            console.log("uri is", uri)
-    //            console.log("path is", path)
-
             }
             return null;
         }
@@ -109,26 +119,12 @@ QtObject  {
                    if(uri.protocol === null || typeof uri.protocol === "undefined")   uri.protocol = "http"
                    if(uri.port     === null || typeof uri.port     === "undefined")   uri.port     = 80
                    if(uri.path     === null || typeof uri.path     === "undefined")   uri.path     = ""
-    //               if (!uri.host){uri.host = serverVars.hostName}
-    //               if(!uri.port){uri.port  = serverVars.port}
-    //               if(!uri.path){uri.path = ""}
                }
 
                if(uri.path.charAt(0) === "/")
                    uri.path = uri.path.slice(1);    //if you send in a "/Globals we remove the / for you!
 
-//               if (typeof data ==='object'){
-////                   console.log("data is an object", data);
-//                   var tempData = '?' //header request wants the ? before it starts processing params
-//                   for (var d in data){
-//                       var item = data[d]
-//                       var str = typeof item === 'object'  ? JSON.stringify(item) : item
-//                       tempData += d+'='+str+'&'
-//                   }
-//                   data = tempData.slice(0,tempData.length-1);
-//               }
 
-//               var source = uri.protocol + '://' + uri.host +":"+uri.port+ '/' + uri.path + data;
                var source = uri.protocol + '://' + uri.host +":"+uri.port+ '/' + uri.path;
                var dataJs = getDataJson(data);
 

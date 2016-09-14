@@ -219,7 +219,7 @@ QtObject {
 
             if(totalCbs <= 0) {
 //                console.log("ModelCache::total ops length is 0. Done.")
-                console.log("!!!!!!!!! MCache Done")
+//                console.log("!!!!!!!!! MCache Done")
                 return typeof cb === 'function' ? cb() : false;
             }
 
@@ -227,7 +227,7 @@ QtObject {
                 ++cbCount;
 //                console.log(cbCount, "/", totalCbs , "Called!")
                 if(cbCount >= totalCbs && typeof cb === 'function') {
-                    console.log("!!!!!!!!! MCache Done")
+//                    console.log("!!!!!!!!! MCache Done")
                     cb();
                 }
             }
@@ -245,6 +245,9 @@ QtObject {
                 }
                 if(determineUpdatedFunc(destArr[idx] , v)) {
                     return updateFunc(destArr,v,idx,opCb);
+                }
+                else if(typeof opCb === 'function') {
+                    opCb(); //so we make sure we do end up calling the cb @ the end!!!
                 }
             })
 
@@ -267,7 +270,7 @@ QtObject {
             }
 
             if(srcArr.length <= 0) {
-                console.log("!!!!!!!!! MCache Done")
+//                console.log("!!!!!!!!! MCache Done")
                 return typeof cb === 'function' ? cb() : false;
             }
 
@@ -299,7 +302,7 @@ QtObject {
             var cbCount  = 0;
 
             if(totalCbs <= 0) {
-                console.log("!!!!!!!!! MCache Done")
+//                console.log("!!!!!!!!! MCache Done")
                 return typeof cb === 'function' ? cb() : false;
             }
 
@@ -308,7 +311,7 @@ QtObject {
                 ++cbCount;
 //                console.log(cbCount, "/", totalCbs , "Called!")
                 if(cbCount >= totalCbs && typeof cb === 'function') {
-                    console.log("!!!!!!!!! MCache Done")
+//                    console.log("!!!!!!!!! MCache Done")
                     cb();
                 }
             }
@@ -324,6 +327,9 @@ QtObject {
                 }
                 if(determineUpdatedFunc(destModel.get(idx) , v)) {
                     return updateFunc(destModel,v,idx,opCb);
+                }
+                else if(typeof opCb === 'function') {
+                    opCb(); //so we make sure we do end up calling the cb @ the end!!!
                 }
             })
 
