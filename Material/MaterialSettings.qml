@@ -14,8 +14,9 @@ Item {
 //        console.log("MaterialSettings.init")
         if(!__privates.hasInit && mainWindow){
             Units.pixelDensity = units.pixelDensity = Screen.pixelDensity
-
             Units.multiplier   = units.scaleMulti
+
+            console.log("SCALE MULTI IS", units.scaleMulti)
 
             Fonts.font1        = font.font1
             Fonts.font2        = font.font2
@@ -53,8 +54,8 @@ Item {
 
     QtObject {
         id : settings_Units
-        property real pixelDensity : 4.3
-        property real scaleMulti   : 1.45
+        property real pixelDensity : 4.4
+        property real scaleMulti   : 1
         property real defaultWidth : 1920   //Pages are inited to this
         property real defaultHeight: 1080   //Pages are inited to this
 

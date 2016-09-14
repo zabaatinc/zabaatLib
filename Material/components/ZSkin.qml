@@ -307,7 +307,7 @@ Item {
             cache.injectState("fontfa"     , "font" , {"family": "FontAwesome"     }   )
             cache.injectState("fontrosa"   , "font" , {"family": "rosacons"        }   )
             cache.injectState("f!px"       , "font" , { "pixelSize" : "!" } )   //px is pixelSize
-            cache.injectState("f!pt"       , "font" , { "@pixelSize" : function(a)   { return Units.dp(a);  } })  //our version of pointSize m device independent, hurr hurr
+            cache.injectState("f!pt"       , "font" , { "@pixelSize" : function(a)   { return Units.dp(Units.ptSize * a);  } })  //our version of pointSize m device independent, hurr hurr
 //            cache.injectState("!test!test!" , "derp" , { "@herp"      : function(a,b,c) { console.log("TEST TEST FUNC YAY", a,b,c)      } })
 
 

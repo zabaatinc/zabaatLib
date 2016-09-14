@@ -16,8 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.4
-import QtQuick.Controls 1.4
-import QtQuick.Window 2.0
 
 pragma Singleton
 QtObject {
@@ -33,9 +31,10 @@ QtObject {
     onPixelDensityChanged: {
 //        var diagonal = Math.sqrt( Math.pow(Screen.width,2) + Math.pow(Screen.height,2) )
         console.log("PIXELDENSITY",pixelDensity )
+
     }
 
-    property real multiplier  : 2 //default multiplier, but can be changed by user
+    property real multiplier  : 1 //default multiplier, but can be changed by user
 
     property real defaultWidth : 1920
     property real defaultHeight : 1080
@@ -67,4 +66,16 @@ QtObject {
     }
 
     property int gridUnit: 0
+
+    readonly property real ptSize : dpCalc.paintedHeight
+    onPtSizeChanged               : console.log("1 pt is", ptSize , "pixels")
+
+    property Text dpCalcText : Text{
+        id : dpCalc
+        height : paintedHeight
+        font.pointSize : 1
+        text : "|"
+    }
+
+
 }
