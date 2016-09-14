@@ -36,10 +36,10 @@ QtObject {
 
     property real multiplier  : 1 //default multiplier, but can be changed by user
 
-    property real defaultWidth : 1920
+    property real defaultWidth  : 1920
     property real defaultHeight : 1080
-
     property bool loaded: false
+
 
     /*!
        This is the standard function to use for accessing device-independent pixels. You should use
@@ -52,9 +52,24 @@ QtObject {
             console.log("**********************************")
         }
 
+
         var res = (number*((pixelDensity*25.4)/160))*multiplier;
 //        console.log("33333333333333  RESULT FOR" , number, "=", res, "px den",pixelDensity, "multi", multiplier)
         return res;
+    }
+
+    function pt(p) {
+        //there are 72 pts      in 1 inch.
+        //there are 81.6 pixels in 1 inch
+
+        //when we say we want 10 points, that says
+        //we want 10/72 of an inch
+        //so if we multiply with dpi it will work?
+        return p/72 * (sampleText.paintedHeight * zabaatsConstant)
+    }
+
+    function pc(p) {    //1 pica
+        return pt(p * 12);
     }
 
     function gu(number) {
@@ -67,14 +82,16 @@ QtObject {
 
     property int gridUnit: 0
 
-    readonly property real ptSize : dpCalc.paintedHeight
-    onPtSizeChanged               : console.log("1 pt is", ptSize , "pixels")
 
-    property Text dpCalcText : Text{
-        id : dpCalc
-        height : paintedHeight
-        font.pointSize : 1
-        text : "|"
+    //on a 96 DPI screen, when we set 72 pt on Arial, we get a pixel size of 107.
+    //We can reverse engineer this to figure out the dpi of ANY screen!
+    property real zabaatsConstant : 96/107 //we figured
+    property Text sampleText : Text{
+        id : sampleText
+        font.pointSize : 72
+        font.family: "Arial"
+        visible : false
+        text : "I"
     }
 
 

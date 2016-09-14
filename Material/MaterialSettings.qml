@@ -15,6 +15,7 @@ Item {
         if(!__privates.hasInit && mainWindow){
             Units.pixelDensity = units.pixelDensity = Screen.pixelDensity
             Units.multiplier   = units.scaleMulti
+//            Units.dpi          = units.dpi;
 
             console.log("SCALE MULTI IS", units.scaleMulti)
 
