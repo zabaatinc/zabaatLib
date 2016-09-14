@@ -161,7 +161,14 @@ ZSkin {
                     yScale : 1
                     xScale : !gui.inputState ? 0  : 1
                     Behavior on xScale{ NumberAnimation { duration : 333}}
-                    origin.x : parent.width/2
+                    origin.x : {
+                        switch(input.horizontalAlignment){
+                            case Text.AlignHCenter : return parent.width/2
+                            case Text.AlignLeft    : return 0;
+                            case Text.AlignRight   : return parent.width
+                        }
+                        return 0
+                    }
                 }
                 focus : false
             }
