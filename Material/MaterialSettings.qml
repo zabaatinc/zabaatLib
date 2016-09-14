@@ -14,6 +14,7 @@ Item {
 //        console.log("MaterialSettings.init")
         if(!__privates.hasInit && mainWindow){
             Units.pixelDensity = units.pixelDensity = Screen.pixelDensity
+
             Units.multiplier   = units.scaleMulti
 
             Fonts.font1        = font.font1

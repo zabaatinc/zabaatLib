@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.4
+import QtQuick.Controls 1.4
+import QtQuick.Window 2.0
 
 pragma Singleton
 QtObject {
@@ -28,8 +30,12 @@ QtObject {
        so this is hardcoded here and we update it from within \l ApplicationWindow
      */
     property real pixelDensity: 4.46
-    onPixelDensityChanged: console.log("PIXELDENSITY",pixelDensity)
-    property real multiplier  : 1.4 //default multiplier, but can be changed by user
+    onPixelDensityChanged: {
+//        var diagonal = Math.sqrt( Math.pow(Screen.width,2) + Math.pow(Screen.height,2) )
+        console.log("PIXELDENSITY",pixelDensity )
+    }
+
+    property real multiplier  : 2 //default multiplier, but can be changed by user
 
     property real defaultWidth : 1920
     property real defaultHeight : 1080
@@ -47,7 +53,7 @@ QtObject {
             console.log("**********************************")
         }
 
-        var res = Math.round(number*((pixelDensity*25.4)/160)*multiplier);
+        var res = (number*((pixelDensity*25.4)/160))*multiplier;
 //        console.log("33333333333333  RESULT FOR" , number, "=", res, "px den",pixelDensity, "multi", multiplier)
         return res;
     }
