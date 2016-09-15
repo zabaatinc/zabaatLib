@@ -41,10 +41,8 @@ ZSkin {
                   },
                   "paintedwidth" : { rootObject : { paintedWidth : true }
 
-                   }
-
-
-
+                   },
+                  "wordwrap" : { text : { wrapMode : Text.WordWrap }}
               })
 
 
