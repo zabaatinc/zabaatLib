@@ -2,3 +2,5 @@ module Zabaat.HelperTools
 ControllerView		1.0 ./ControllerView/ControllerView.qml
 CacheView			1.0 ./CacheView/CacheView.qml
 RESTFULArrayView 	1.0 ./RESTFULArray/RESTFULArrayView.qml
+QueryBuilder		1.0 ./QueryBuilder/QueryBuilder.qml
+QueryViewer			1.0 ./QueryBuilder/QueryViewer.qml

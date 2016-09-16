@@ -2,42 +2,21 @@ import QtQuick 2.5
 import Zabaat.Utility 1.0
 import QtQuick.Controls 1.4
 import Zabaat.Material 1.0
+import Zabaat.HelperTools 1.0
 Item {
     id : rootObject
 
-    property real w : width / 4
-
-
-    Row {
-        width  : childrenRect.width
-        height : parent.height * 0.1
-        anchors.centerIn: parent
-
-        ZTextBox {
-            width : rootObject.w
-            height: parent.height
-            state : "tleft-cliplabel"
-            label : 'left'
-        }
-        ZTextBox {
-            width : rootObject.w
-            height: parent.height
-            label : 'center'
-            state : "cliplabel"
-        }
-        ZTextBox {
-            width : rootObject.w
-            height: parent.height
-            label : 'right'
-            state : 'tright-cliplabel'
-        }
+//    QueryViewer {
+//        id : qView
+//        anchors.fill: parent
+//        queryObj :  ({
+//            status: "A",
+//            $or   : [ { age: { $lt: 30 } }, { type: 1 } ]
+//          })
+//    }
+    QueryBuilder {
+        id : qb
+        anchors.fill: parent
     }
-
-
-
-
-
-
-
 
 }

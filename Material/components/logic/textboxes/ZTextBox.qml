@@ -11,9 +11,12 @@ ZObject {
     property string error              : ""
     property string label              : ""
     property bool   changeOnlyOnAccept : false
-    property var    validationFunc     : null
+    property var    validationFunc
     property bool   strictValidation   : false
-    property var    setAcceptedTextFunc: function(val) { text = val; }
+    property var    setAcceptedTextFunc: function(val) {
+                                            if(text !== val)
+                                                text = val;
+                                        }
 
     //so our text is validated upon startup!!
     onValidationFuncChanged: if(setTextFunc) setTextFunc(text, false, true)

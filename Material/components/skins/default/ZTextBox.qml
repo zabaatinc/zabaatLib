@@ -12,6 +12,9 @@ ZSkin {
     property alias gui  : gui
     readonly property alias isFocused : input.activeFocus
 
+
+
+
     skinFunc : function(name, params) { //the logic may call this!!
         var fn = guiLogic[name]
         if(typeof fn === 'function')
@@ -174,11 +177,11 @@ ZSkin {
                 anchors.fill       : parent
                 onAccepted         : if(logic && logic.setTextFunc && insync) {
                                          logic.setTextFunc(input.text , true);
-//                                         nextItemInFocusChain();
                                      }
 //                echoMode: !graphicalOverride.pw ? TextInput.Normal : TextInput.Password
                 onActiveFocusChanged : {
                     if(activeFocus && logic){
+
                         input.text = logic.text
                         insync = true;
                     }
