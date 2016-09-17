@@ -5,75 +5,108 @@ import QtQuick.Window 2.0
 import "../Lodash"
 Rectangle {
     id : rootObject
-    color : colors.info
-    height : Math.max(gui.height , cellHeight * 3);
+    color : color1
+
+    property color color1 : colors.standard
+    property color color2 : Qt.darker(colors.standard,1.2)
+
+    height : Math.max(gui.height + cellHeight, cellHeight * 3);
     property int minBtnWidth    : Screen.width * 0.025
     property int cellHeight     : Screen.height * 0.025
     property bool canBeDeleted  : false
     property var  availableVars
     border.width: 1
+    signal deleteMe();
+    signal changed();
 
     property var m : ({
         items   : [],
         mode    : "AND",
-        isGroup : true
+        isGroup : true,
     })
+
+
 
     QtObject {
         id : logic
-        property int uid : 0
+        function colorToHex(color){
+            //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+            function componentToHex(c) {
+                var hex = c.toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            }
+            var r = Math.floor(color.r * 255);
+            var g = Math.floor(color.g * 255);
+            var b = Math.floor(color.b * 255);
+
+            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        }
+
         function addGroup() {
             var group = {
                 isGroup : true,
                 mode    : "AND",
                 items   : [] ,
             }
-            group.uid = uid++;
-            console.log(_.keys(group) , _.values(group));
+            group.color = m.items.length % 2 === 0 ? colorToHex(color1) : colorToHex(color2);
+//            console.log(_.keys(group) , _.values(group));
 
             m.items.push(group);
-            lv.refresh();
+
+
+            changed();
+            listLoader.refresh();
         }
 
         function addRule(){
             var rule = {
-                isGroup : false,
                 key : "",
                 val : "",
                 op : "",
-                complete : false,
+                color   : colorToHex(colors.info)
             }
             m.items.push(rule);
-            lv.refresh();
+            changed();
+            listLoader.refresh();
         }
 
-        function deleteGroup(){
-            console.log(m.deleteFunc)
-//            console.log(JSON.stringify(m,null,2))
-            if(m.deleteFunc)
-                m.deleteFunc();
-
-            lv.refresh();
+        function deleteItem(idx){
+            if(m && m.items && m.items.length > idx) {
+                m.items.splice(idx,1);
+            }
+            changed();
+            listLoader.refresh();
         }
 
-        function investigate() {
+        function toMongoQuery(lines){
+            lines = lines || (m ? m.items : undefined)
+            if(!lines)
+                return {}
+
+            _.each(lines,function(v,k){
+                if(v.isGroup) {
+
+                }
+                else {  //is expr
+
+                }
+            })
+        }
+
+        function fromMongoQuery(obj){
 
         }
     }
-
     QtObject {
         id : guiWars
         property int depth     : 0
         property Colors colors : Colors { id : colors }
     }
 
-
-
     Item {
         id    : gui
         width : parent.width
         height: childrenRect.height
-
 
         Item {
             id     : topControls
@@ -90,9 +123,12 @@ Rectangle {
                     height : parent.height
                     text : "AND"
                     onClicked : {
-                        m.mode = text
-                        controls_groupMode_AND.colorFunc();
-                        controls_groupMode_OR.colorFunc();
+                        if(m.mode != text) {
+                            m.mode = text
+                            controls_groupMode_AND.colorFunc();
+                            controls_groupMode_OR.colorFunc();
+                            changed();
+                        }
                     }
                     color     : colorFunc();
                     function colorFunc(){
@@ -105,9 +141,12 @@ Rectangle {
                     height : parent.height
                     text : "OR"
                     onClicked : {
-                        m.mode = text
-                        controls_groupMode_AND.colorFunc();
-                        controls_groupMode_OR.colorFunc();
+                        if(m.mode != text) {
+                            m.mode = text
+                            controls_groupMode_AND.colorFunc();
+                            controls_groupMode_OR.colorFunc();
+                            changed();
+                        }
                     }
                     color     : colorFunc();
                     function colorFunc(){
@@ -143,61 +182,88 @@ Rectangle {
                     color     : colors.danger
                     textColor : 'white'
                     visible : canBeDeleted
-                    onClicked : logic.deleteGroup()
+                    onClicked : deleteMe();
                 }
 
 
             }
         }
-
-        ListView {
-            id : lv
+        Loader {
+            id : listLoader
             width : parent.width
-            height : lv.contentItem.childrenRect.height
-            model : m ? m.items : null
+            height: item ? item.height  : cellHeight
             anchors.top : topControls.bottom
             anchors.topMargin: cellHeight * 1/2
 
-            function refresh() {
-                model = null
-                model = Qt.binding(function() { return m ? m.items : null })
+            function refresh(){
+                sourceComponent = null;
+                sourceComponent =listCmp
             }
 
-            delegate: Item {
-                id : del
-                width          : lv.width
-                height         : delLoader.height
-                property var m : rootObject.m.items[index]
-                Loader {
-                    id : delLoader
-                    anchors.right: parent.right
-                    width : parent.width * 0.98
-                    height : delLoader.item ? delLoader.item.height : cellHeight
-                    source : parent.m.isGroup ? "QueryGroup.qml" : "QueryRule.qml"
-                    onLoaded : {
-                        item.anchors.fill  = null;
-                        item.anchors.right = delLoader.right
-                        item.width         = Qt.binding(function() { return delLoader.width  })
+            sourceComponent : listCmp
+            Component{
+                id : listCmp
+                ListView {
+                    id : lv
+                    width : rootObject.width
+                    height : lv.contentItem.childrenRect.height
+                    spacing : 5
+                    model : m ? m.items : null
+                    function refresh() {
+                        model = null
+                        model = m.items
 
-                        if(item.hasOwnProperty('canBeDeleted'))
-                            item.canBeDeleted  = true;
-
-                        var group = lv.model[index]
-                        console.log(_.keys(group) , _.values(group));
-                        item.m             = lv.model[index]
-                        item.color         = Qt.lighter(rootObject.color)
+                        if(!canBeDeleted)
+                            console.log(JSON.stringify(m,null,2))
                     }
-                }
-                z : index === lv.currentIndex ? Number.MAX_VALUE : 0
-            }
 
-            Text {
-                anchors.right: parent.right
-                text : parent.height + "," + lv.count
-                anchors.rightMargin: 20
+                    delegate: Item {
+                        id : del
+                        width          : lv.width
+                        height         : delLoader.height
+                        property var m : rootObject.m.items[index]
+                        property int _index : index
+                        Loader {
+                            id : delLoader
+                            anchors.right: parent.right
+                            anchors.rightMargin: parent.width * 0.005
+                            width : parent.width * 0.97
+                            height : delLoader.item ? delLoader.item.height : cellHeight
+                            source : parent.m.isGroup ? "QueryGroup.qml" : "QueryRule.qml"
+                            onLoaded : {
+                                item.anchors.fill  = null;
+                                item.anchors.right = delLoader.right
+                                item.width         = Qt.binding(function() { return delLoader.width  })
+
+                                if(item.hasOwnProperty("cellHeight"))
+                                    item.cellHeight    = cellHeight
+//                                if(!item.isGroup) {
+//                                    item.height = Qt.binding(function() { return cellHeight })
+//                                }
+
+
+                                item.availableVars = Qt.binding(function() { return rootObject.availableVars })
+                                if(typeof item.deleteMe === 'function') {
+                                    item.deleteMe.connect(function() { logic.deleteItem(index); })
+                                    if(item.hasOwnProperty('canBeDeleted'))
+                                        item.canBeDeleted  = true;
+                                }
+                                if(typeof item.changed === 'function') {
+                                    item.changed.connect(rootObject.changed);
+                                }
+
+                                item.m             = Qt.binding(function() { return del.m })
+                                item.color         = del.m && del.m.color ? del.m.color : rootObject.color
+                            }
+                        }
+                        z : index === lv.currentIndex ? Number.MAX_VALUE : 0
+                    }
+
+
+                }
+
             }
         }
-
     }
 
 

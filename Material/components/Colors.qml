@@ -125,7 +125,6 @@ QtObject {
             return hex.length == 1 ? "0" + hex : hex;
         }
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-
     }
     function hexToRgb(hex){
         //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
