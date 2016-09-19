@@ -4,6 +4,7 @@ import "../../CacheView"
 
 Rectangle {
     color : 'blue'
+    property color deleteColor : "#dd00ff"
     border.width: 1
     height : cellHeight * 1.25
     property int cellHeight : 200
@@ -122,12 +123,12 @@ Rectangle {
         height    : parent.height
         anchors.verticalCenter: parent.verticalCenter
         text      : "x Delete"
-        color     : colors.danger
+        color     : deleteColor;
         textColor : 'white'
         onClicked : deleteMe();
         anchors.right: parent.right
     }
 
-    Colors{ id : colors }
+
 
 }

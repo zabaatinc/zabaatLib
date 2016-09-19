@@ -1,15 +1,27 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
-import QtQuick.Controls.Styles 1.4
 import "Lodash"
 import "QueryBuilderComponents"
 import QtQuick.Window 2.0
-import "../ControllerView"
 //provides a nice gui to create query objects
 //
 Rectangle {
     id : rootObject
     height : mainGroup.height
+
+    //expose the vars inside mainGroup
+    property alias color1            : mainGroup.color1
+    property alias color2            : mainGroup.color2
+    property alias minBtnWidth       : mainGroup.minBtnWidth
+    property alias availableVars     : mainGroup.availableVars
+    readonly property alias mongoObj : mainGroup.mongoObj
+    property alias m                 : mainGroup.m
+    property var   colorsObj         : colors;
+
+    function fromMongoQuery(m) { return mainGroup.fromMongoObj(m) }
+    function toMongoQuery(m)   { return mainGroup.toMongoObj(m);  }
+
+    signal changed(var obj);
 
 
     ScrollView {
@@ -24,12 +36,13 @@ Rectangle {
             width : sv.viewport.width
             canBeDeleted : false
             availableVars : ["","Status","Name","Family","Tier"]
-
+            onChanged: rootObject.changed(mainGroup.m);
+            colorsObj : rootObject.colorsObj
         }
     }
 
 
-
+//was used for debugging purposes
     Window {
         width : Screen.width * 0.8
         height : Screen.height - 300
@@ -76,7 +89,16 @@ Rectangle {
             }
         }
 
+        Button {
+            text : "test weirtd"
+            onClicked : {
+                console.log("HERPO")
+                var qObj = { "a" : "b", "c" : "d", "$and" : [{"e": "f" }, {"g":"h"}] }
+                var l = mainGroup.fromMongoObj(qObj);
+                console.log(JSON.stringify(l,null,2))
+            }
 
+        }
     }
 
 

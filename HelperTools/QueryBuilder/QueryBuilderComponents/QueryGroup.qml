@@ -7,8 +7,13 @@ Rectangle {
     id : rootObject
     color : color1
 
-    property color color1 : colors.standard
-    property color color2 : Qt.darker(colors.standard,1.2)
+    property color color1     : colorsObj ? colorsObj.standard : "#ffffff";
+    property color color2     : Qt.darker(color1,1.2);
+    property color ruleColor  : colorsObj ? colorsObj.info     : "#ff00ff";
+    property color deleteColor: colorsObj ? colorsObj.danger   : "#dd0000";
+    property color addColor   : colorsObj ? colorsObj.success  : "#00dd55";
+
+    property var   colorsObj;
 
     height : Math.max(gui.height + cellHeight, cellHeight * 3);
     property int minBtnWidth    : Screen.width * 0.025
@@ -23,6 +28,7 @@ Rectangle {
         items   : [],
         mode    : "AND",
         isGroup : true,
+        color   : logic.colorToHex(colorsObj ? colorsObj.standard : "#ffffff")
     })
 
     property var mongoObj : toMongoObj();
@@ -34,10 +40,12 @@ Rectangle {
         if(!obj || typeof obj !== 'object')
             return null;
 
-
-
-
-        function processLine(obj) {
+        //processes lines and figures out if it it is a rule or a group
+        //and returns it accordingly.
+        //grp is an optional param but if provided, we will add the line
+        //to it. This will preserve our color coding of %2
+        function processLine(line, grp) {
+            grp = grp || {};
 
             function procOp(op){
                 switch(op) {
@@ -55,55 +63,81 @@ Rectangle {
 
             //THIS ASSUMES THAT WE ARE NOT DUMB ENOUGH TO PUT
             //"$and" and "$or" in the same object! DOE. COULD THAT HAPPEN?
-            var andItems = obj["$and"];
-            var orItems  = obj["$or"];
+            var andItems = line["$and"];
+            var orItems  = line["$or"];
             if(andItems || orItems) { //is grp
                 var groupKey = andItems ? "AND" : "OR"
-                var group = {
-                    items  : [],
-                    mode   : groupKey,
-                    isGroup: true
-                }
+                var group    = logic.addGroup(grp, {mode : groupKey });
 
                 var items = andItems || orItems;
                 _.each(items, function(v) {
-                     group.items.push(processLine(v));
+                    processLine(v,group);   //process line is already gonna add the item in group!
                 })
                 return group;
             }
             else {  //is an comparasion expression/rule , woot
-                var varname = _.keys(obj)[0];
-                var val     = obj[varname];
-                var op      = typeof val !== "object" ? "==" : procOp(_.keys(val)[0]);
-                val         = typeof val !== "object" ? val  : val[_.keys(val)[0]];
-//                var op      = typeof obj[varname] !== "object" ? "==" :
-                var rule    = { key : varname, op : op, val : val };
-                return rule;
+                var varname = _.keys(line)[0];
+                var val     = line[varname];
+
+                //get the first key in val by _.keys(val)[0] . There should onyl be
+                //one key in here anyway!!
+                var firstKey ;
+                if(val === null || val === undefined || typeof val !== 'object')
+                    firstKey = null;
+                else
+                    firstKey = _.keys(val)[0];
+
+
+                var op      = !firstKey ? "==" : procOp(firstKey);
+                val         = !firstKey ?  val : val[firstKey];
+
+                var ruleArgs  = { key : varname, op : op, val : val };
+                return logic.addRule(grp, ruleArgs);
             }
         }
 
 
-        //this means we got a mongoObj we did not generate,
-        //since we start with $and and $or. Always! We can convert this to an and!
-        var group = {
-            items  : [],
-            mode   : "AND",
-            isGroup: true
-        }
+        //lets see if we need to perform some ops on this obj before we can move on.
+        //mongo accepts queries like { a : b, c : d } but our queryBuilder interface
+        //always results in queries { $and : [{a:b},{c:d}] . So , we need to convert
+        //to our format.
+        var nobj
+        var extraKeys = _.keys(obj).filter(function(v,k) {
+            return ["$or","$and"].indexOf(v) === -1;
+        });
+        if(extraKeys.length > 0) {
+//            console.log("EXTRAKEYS!", extraKeys, extraKeys.length)
+            nobj = { "$and" : [] }  //root level is always an AND brohim!
 
-        var extraKeys = _.keys(obj).filter(function(v) { return ["$or","$and"].indexOf(v) === -1; });
-        if(extraKeys > 0) {
-            _.each(obj, function(v) {
-                group.items.push(processLine(v));
+            _.each(obj, function(v,k) {
+                var queryLine = {}
+                queryLine[k] = v;
+                nobj["$and"].push(queryLine);
             })
         }
-        else {
-            _.each(obj, function(v) {
-                group.items.push(processLine(v));
-            })
-        }
 
-        return group;
+        //let's see what we haf to iterate over!!
+        var o = nobj || obj;
+        o = logic.clone(o);   //for safety of further use of this object !
+
+        //first group thing is flat. remember.
+        var mainGroup = logic.addGroup({},true);
+//        console.log("MAINGROUP BEGIN", JSON.stringify(mainGroup,null,2))
+        _.each(o, function(v,k) {
+            if(_.isArray(v)) {
+                if(k === "$or")
+                    mainGroup.mode = "OR";
+
+                _.each(v, function(v2){
+                    processLine(v2, mainGroup);    //will give us a rule or a group to add!
+                })
+            }
+            else {
+                processLine(v, mainGroup);    //will give us a rule or a group to add!
+            }
+        })
+
+        return mainGroup;
     }
 
 
@@ -115,14 +149,12 @@ Rectangle {
             _.each(items, function(v,k) {
 
                 if(!_.isUndefined(v.op)) {  //we now know that this is a rule
-                    console.log("INFERED", JSON.stringify(v), "AS A RULE")
                     if(v.key !== "") {
                         var mongoRule = evalExpression(v.key,v.op,v.val);
                         acc.push(mongoRule);
                     }
                 }
                 else {  //we know that is a group so we need to recurse
-                    console.log("INFERED", JSON.stringify(v), "AS A GROUP")
                     acc.push(processGroup(v));
                 }
             })
@@ -156,6 +188,11 @@ Rectangle {
 
     QtObject {
         id : logic
+
+        function clone(obj){
+            return JSON.parse(JSON.stringify(obj));
+        }
+
         function colorToHex(color){
             //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
             function componentToHex(c) {
@@ -169,32 +206,46 @@ Rectangle {
             return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
         }
 
-        function addGroup() {
-            var group = {
-                isGroup : true,
-                mode    : "AND",
-                items   : [] ,
-            }
+        function addGroup(m, args) {
+            m = m || rootObject.m;
+            if(!m.items)
+                m.items = [];
+
+            var group = { isGroup : true }
+            group.mode  = args && args.mode ? args.mode : "AND";
+            group.items = args && args.items ? args.items : [];
             group.color = m.items.length % 2 === 0 ? colorToHex(color1) : colorToHex(color2);
-//            console.log(_.keys(group) , _.values(group));
 
             m.items.push(group);
 
+            if(m === rootObject.m) {
+                changed();
+                listLoader.refresh();
+            }
 
-            changed();
-            listLoader.refresh();
+            return group;
         }
 
-        function addRule(){
-            var rule = {
-                key : "",
-                val : "",
-                op : "",
-                color   : colorToHex(colors.info)
-            }
+        function addRule(m, args){
+            m = m || rootObject.m;
+
+            var rule = {   }
+            rule.key = args && args.key ? args.key : ""
+            rule.val = args && args.val ? args.val : ""
+            rule.op  = args && args.op  ? args.op  : ""
+
+
+            if(!m.items)
+                m.items = [];
+
             m.items.push(rule);
-            changed();
-            listLoader.refresh();
+
+            if(m === rootObject.m) {
+                changed();
+                listLoader.refresh();
+            }
+
+            return rule;
         }
 
         function deleteItem(idx){
@@ -205,29 +256,11 @@ Rectangle {
             listLoader.refresh();
         }
 
-        function toMongoQuery(lines){
-            lines = lines || (m ? m.items : undefined)
-            if(!lines)
-                return {}
 
-            _.each(lines,function(v,k){
-                if(v.isGroup) {
-
-                }
-                else {  //is expr
-
-                }
-            })
-        }
-
-        function fromMongoQuery(obj){
-
-        }
     }
     QtObject {
         id : guiWars
         property int depth     : 0
-        property Colors colors : Colors { id : colors }
     }
 
     Item {
@@ -239,6 +272,16 @@ Rectangle {
             id     : topControls
             width  : parent.width
             height : cellHeight
+
+            //udpate colors
+            Connections {
+                target : rootObject
+                onRuleColorChanged : {
+                    controls_groupMode_AND.colorFunc();
+                    controls_groupMode_OR.colorFunc();
+                }
+            }
+
             Row {
                 id : controls_groupMode
                 width : childrenRect.width
@@ -257,10 +300,11 @@ Rectangle {
                             changed();
                         }
                     }
-                    color     : colorFunc();
+                    color : colorFunc();
                     function colorFunc(){
-                         return color = m.mode === text ? colors.warning : colors.standard
+                         return color = m.mode === text ? ruleColor : color1
                     }
+
                 }
                 SimpleButton {
                     id : controls_groupMode_OR
@@ -277,7 +321,7 @@ Rectangle {
                     }
                     color     : colorFunc();
                     function colorFunc(){
-                         return color = m.mode === text ? colors.warning : colors.standard
+                         return color = m.mode === text ? ruleColor : color1
                     }
                 }
             }
@@ -290,7 +334,7 @@ Rectangle {
                     width : minBtnWidth * 2
                     height : parent.height
                     text      : "+ Add rule"
-                    color     : colors.success
+                    color     : addColor
                     textColor : 'white'
                     onClicked : logic.addRule()
                 }
@@ -298,7 +342,7 @@ Rectangle {
                     width : minBtnWidth * 2
                     height : parent.height
                     text      : "+ Add group"
-                    color     : colors.success
+                    color     : addColor
                     textColor : 'white'
                     onClicked : logic.addGroup()
                 }
@@ -306,7 +350,7 @@ Rectangle {
                     width : visible? minBtnWidth  *2 : 0
                     height : parent.height
                     text      : "x Delete"
-                    color     : colors.danger
+                    color     : deleteColor
                     textColor : 'white'
                     visible : canBeDeleted
                     onClicked : deleteMe();
@@ -339,9 +383,8 @@ Rectangle {
                     function refresh() {
                         model = null
                         model = m.items
-
-                        if(!canBeDeleted)
-                            console.log(JSON.stringify(m,null,2))
+//                        if(!canBeDeleted)
+//                            console.log(JSON.stringify(m,null,2))
                     }
 
                     delegate: Item {
@@ -379,8 +422,15 @@ Rectangle {
                                     item.changed.connect(rootObject.changed);
                                 }
 
+                                if(item.hasOwnProperty("colorsObj")) {  //is group cause our groups have that
+                                    item.colorsObj = Qt.binding(function() { return rootObject.colorsObj })
+                                }
+                                else {
+                                    item.color         = Qt.binding(function() { return rootObject.ruleColor   })
+                                    item.deleteColor   = Qt.binding(function() { return rootObject.deleteColor })
+                                }
+
                                 item.m             = Qt.binding(function() { return del.m })
-                                item.color         = del.m && del.m.color ? del.m.color : rootObject.color
                             }
                         }
                         z : index === lv.currentIndex ? Number.MAX_VALUE : 0
