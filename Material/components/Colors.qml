@@ -137,6 +137,53 @@ QtObject {
 
     }
 
+    //returns all colors as a js object. This means this dont get updated obviously, duh
+    function getAllAsJsObject() {
+        return {
+            accent   : accent  ,
+            danger   : danger  ,
+            warning  : warning ,
+            success  : success ,
+            info     : info    ,
+            standard : standard,
+            text1    : text1   ,
+            text2    : text2   ,
+            gray     : gray    ,
+            darker   : {
+                accent   : darker.accent  ,
+                danger   : darker.danger  ,
+                warning  : darker.warning ,
+                success  : darker.success ,
+                info     : darker.info    ,
+                standard : darker.standard,
+                text1    : darker.text1   ,
+                text2    : darker.text2   ,
+                gray     : darker.gray
+            },
+            lighter  : {
+                accent   : lighter.accent   ,
+                danger   : lighter.danger   ,
+                warning  : lighter.warning  ,
+                success  : lighter.success  ,
+                info     : lighter.info     ,
+                standard : lighter.standard ,
+                text1    : lighter.text1    ,
+                text2    : lighter.text2    ,
+                gray     : lighter.gray
+            },
+            contrasting : {
+                accent    : contrasting.accent   ,
+                danger    : contrasting.danger   ,
+                warning   : contrasting.warning  ,
+                success   : contrasting.success  ,
+                info      : contrasting.info     ,
+                standard  : contrasting.standard ,
+                text1     : contrasting.text1    ,
+                text2     : contrasting.text2    ,
+                gray      : contrasting.gray
+            }
+        }
+    }
 
 
     //For ease of use. So we don't have to remember the color names and call functions. happy times!!!!/////
@@ -148,7 +195,7 @@ QtObject {
     property color standard : get("standard")
     property color text1    : get("text1"   )
     property color text2    : get("text2"   )
-    property color gray     : Qt.rgba(0,0,0)
+    property color gray     : Qt.rgba(0.3,0.3,0.3)
 
     property SvgColors names : SvgColors {  }
 
