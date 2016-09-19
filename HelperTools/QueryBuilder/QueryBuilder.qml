@@ -36,17 +36,47 @@ Rectangle {
         visible : true
         x : -width
         y : 0
-        Text {
-            id : tx
-            width : parent.width
-            height : parent.height
-            text : JSON.stringify(mainGroup.m,null,2)
-            Connections {
-                target : mainGroup
-                onChanged : tx.text = JSON.stringify(mainGroup.m,null,2)
-                onMChanged : tx.text = JSON.stringify(mainGroup.m,null,2)
+
+        Row {
+            anchors.fill: parent
+            Text {
+                id : tx
+                width : parent.width/3
+                height : parent.height
+                text : JSON.stringify(mainGroup.m,null,2)
+                Connections {
+                    target : mainGroup
+                    onChanged  : tx.text = JSON.stringify(mainGroup.m,null,2)
+                    onMChanged : tx.text = JSON.stringify(mainGroup.m,null,2)
+                }
+            }
+
+            Text {
+                id : tx3
+                width : parent.width/3
+                height : parent.height
+                text : JSON.stringify(mainGroup.fromMongoObj(mainGroup.toMongoObj()) ,null ,2);
+                Connections {
+                    target : mainGroup
+                    onChanged  : tx3.text = JSON.stringify(mainGroup.fromMongoObj(mainGroup.toMongoObj()) ,null ,2);
+                    onMChanged : tx3.text = JSON.stringify(mainGroup.fromMongoObj(mainGroup.toMongoObj()) ,null ,2);
+                }
+            }
+
+            Text {
+                id : tx2
+                width : parent.width/3
+                height : parent.height
+                text : JSON.stringify(mainGroup.mongoObj,null,2)
+                Connections {
+                    target : mainGroup
+                    onChanged  : tx2.text = JSON.stringify(mainGroup.mongoObj,null,2)
+                    onMChanged : tx2.text = JSON.stringify(mainGroup.mongoObj,null,2)
+                }
             }
         }
+
+
     }
 
 
