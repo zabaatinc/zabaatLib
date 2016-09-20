@@ -38,13 +38,13 @@ Item {
                 onLoaded : item.model = Qt.binding(function() { return orig.model !== masterModel ? master[index] : masterModel.get(index) })
             }
 
-            model : masterModel
+            model : master
         }
         ArrangableList {
             id     : arrangable
             width  : parent.width/2
             height : parent.height
-            model  : masterModel
+            model  : master
 //            filterFunc: f
             readonly property var il : arrangable.indexList
             onIlChanged: {
@@ -189,6 +189,19 @@ Item {
 
             property int index
             property var model
+            Rectangle {
+                width : height
+                height : parent.height * 0.8
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 5
+                border.width: 1
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked : parent.color = Qt.rgba(Math.random(), Math.random(), Math.random());
+                }
+            }
+
             Text {
                 anchors.fill: parent
                 font.pixelSize: height * 1/3

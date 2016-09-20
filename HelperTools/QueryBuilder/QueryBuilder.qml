@@ -20,6 +20,18 @@ Rectangle {
 
     function fromMongoQuery(m) { return mainGroup.fromMongoObj(m) }
     function toMongoQuery(m)   { return mainGroup.toMongoObj(m);  }
+    function addRule(m,args) {
+        return mainGroup.logic.addRule(m,args);
+    }
+    function addGroup() {
+        return mainGroup.logic.addGroup(m,args);
+    }
+    function blankGroup() {
+        return mainGroup.blankM();
+    }
+    function refreshView() {
+        mainGroup.lv.refresh();
+    }
 
     signal changed(var obj);
 
@@ -95,9 +107,9 @@ Rectangle {
 //                console.log("HERPO")
 //                var qObj = { "a" : "b", "c" : "d", "$and" : [{"e": "f" }, {"g":"h"}] }
 //                var l = mainGroup.fromMongoObj(qObj);
+//                mainGroup.m = l;
 //                console.log(JSON.stringify(l,null,2))
 //            }
-
 //        }
 //    }
 

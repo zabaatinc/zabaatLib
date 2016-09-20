@@ -3,6 +3,7 @@ import QtQuick.Controls 1.4
 import "../../CacheView"
 
 Rectangle {
+    id : rootObject
     color : 'blue'
     property color deleteColor : "#dd00ff"
     border.width: 1
@@ -16,14 +17,23 @@ Rectangle {
     property var availableVars
     property bool hasInit : false
     property bool componentsReady : varsBox.ready && opsBox.ready && ti.ready
-    onMChanged: logic.init()
-    onComponentsReadyChanged: logic.init()
+    onMChanged: {
+        if(rootObject) {
+//            console.log("CALLING INIT FROM M CHANGE", JSON.stringify(m))
+            logic.init()
+        }
+    }
+    onComponentsReadyChanged: {
+        if(rootObject)
+            logic.init()
+    }
 
 
 
     QtObject {
         id : logic
         function init(){
+
             if(m && componentsReady) {
                 hasInit = false;
 

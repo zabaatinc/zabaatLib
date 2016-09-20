@@ -5,7 +5,7 @@ Item {
     property var filterFunc
     readonly property var lv    : loader.item ? loader.item.lv    : null
     readonly property var currentItem : lv ? lv.currentItem : null;
-    readonly property int currentIndex: lv ? lv.currentIndex : -1;
+    readonly property int currentIndex         : lv ? lv.currentIndex : -1;
     readonly property var logic : loader.item ? loader.item.logic : null
     readonly property var gui   : loader.item ? loader.item.gui   : null
 
@@ -39,6 +39,10 @@ Item {
     function isSelected(idx) {
         return selected && selected[idx] !== undefined && selected[idx] !== null ? true : false
     }
+    function setCurrentIdx(idx) {
+        if(lv)
+            lv.currentIndex = idx;
+    }
 
     property var   selectionDelegate             : selectionDelegate
     property color selectionDelegateDefaultColor : "green"
@@ -49,21 +53,26 @@ Item {
 
     readonly property var selected : loader.item ? loader.item.logic.selected : {}
     readonly property int selectedLen : loader.item ? loader.item.logic.selectedLen : 0
+    readonly property int count : lv ? lv.count : 0
 
 
     Loader {
         id : loader
         anchors.fill: parent
         Connections{
-            target         : rootObject
-            onModelChanged : loader.updateLoader()
+            target         : rootObject ? rootObject : null
+            onModelChanged : {
+                loader.updateLoader()
+            }
         }
 
-        Component.onCompleted:  loader.updateLoader();
+        Component.onCompleted: {
+            loader.updateLoader();
+        }
 
         function updateLoader() {
             if(!model){
-                loader.source = ""
+                return loader.source = ""
             }
             var type = toString.call(model)
             console.log("gonna call", type)

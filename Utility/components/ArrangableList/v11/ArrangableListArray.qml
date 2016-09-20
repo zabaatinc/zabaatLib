@@ -571,7 +571,7 @@ Item {
                     property int _index       : index
                     property bool imADelegate : true
                     property bool selected    : logic.isSelected(index) ? true : false
-                    property var  m           : logic.model[logic.indexList[modelData]]
+                    property var  m           : logic && logic.model && logic.indexList ? logic.model[logic.indexList[modelData]] : null
 
                     onLoaded :  {
                         item.anchors.fill = delegateLoader
@@ -610,10 +610,13 @@ Item {
                     preventStealing: false
                     drag.target: dragDelegate
                     drag.axis: lv.orientation === ListView.Vertical ?  Drag.YAxis : Drag.XAxis;
-//                    z : -1
-                    onClicked: {
+                    property bool pclick : false;
+                    z : Number.MAX_VALUE
+                    property bool p : false;
+                    onClicked : if(!p){
                         gui.forceActiveFocus()
                         var idx = lv.indexAt(mouseX, mouseY + lv.contentY)
+                        mouse.accepted = false;
                         if(idx !== -1){
                             if(!gui.ctrlModifier && !gui.shiftModifier)
                                 logic.lastTouchedIdx = idx;
@@ -621,7 +624,6 @@ Item {
                             return logic.selected && typeof logic.selected[idx] !== 'undefined' ? logic.deselect(idx, gui.ctrlModifier, gui.shiftModifier) :
                                                                                                   logic.select(idx  , gui.ctrlModifier, gui.shiftModifier);
                         }
-//                        mouse.accepted = false;
                     }
 
 

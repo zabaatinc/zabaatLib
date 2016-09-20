@@ -12,6 +12,8 @@ Rectangle {
     property color ruleColor  : colorsObj ? colorsObj.info     : "#ff00ff";
     property color deleteColor: colorsObj ? colorsObj.danger   : "#dd0000";
     property color addColor   : colorsObj ? colorsObj.success  : "#00dd55";
+    property alias logic : logic;
+    property alias lv    : lv;
 
     property var   colorsObj;
 
@@ -32,8 +34,19 @@ Rectangle {
     })
 
     property var mongoObj : toMongoObj();
-    onChanged: mongoObj = toMongoObj();
+    onChanged: {
+        mongoObj = toMongoObj();
+    }
 
+
+    function blankM() {
+        return {
+            items   : [],
+            mode    : "AND",
+            isGroup : true,
+            color   : logic.colorToHex(colorsObj ? colorsObj.standard : "#ffffff")
+        }
+    }
 
     function fromMongoObj(obj) {
         //create our list readable format from a mongoQuery
@@ -70,22 +83,22 @@ Rectangle {
                 var group    = logic.addGroup(grp, {mode : groupKey });
 
                 var items = andItems || orItems;
-                _.each(items, function(v) {
+                Lodash.each(items, function(v) {
                     processLine(v,group);   //process line is already gonna add the item in group!
                 })
                 return group;
             }
             else {  //is an comparasion expression/rule , woot
-                var varname = _.keys(line)[0];
+                var varname = Lodash.keys(line)[0];
                 var val     = line[varname];
 
-                //get the first key in val by _.keys(val)[0] . There should onyl be
+                //get the first key in val by Lodash.keys(val)[0] . There should onyl be
                 //one key in here anyway!!
                 var firstKey ;
                 if(val === null || val === undefined || typeof val !== 'object')
                     firstKey = null;
                 else
-                    firstKey = _.keys(val)[0];
+                    firstKey = Lodash.keys(val)[0];
 
 
                 var op      = !firstKey ? "==" : procOp(firstKey);
@@ -102,14 +115,14 @@ Rectangle {
         //always results in queries { $and : [{a:b},{c:d}] . So , we need to convert
         //to our format.
         var nobj
-        var extraKeys = _.keys(obj).filter(function(v,k) {
+        var extraKeys = Lodash.keys(obj).filter(function(v,k) {
             return ["$or","$and"].indexOf(v) === -1;
         });
         if(extraKeys.length > 0) {
 //            console.log("EXTRAKEYS!", extraKeys, extraKeys.length)
             nobj = { "$and" : [] }  //root level is always an AND brohim!
 
-            _.each(obj, function(v,k) {
+            Lodash.each(obj, function(v,k) {
                 var queryLine = {}
                 queryLine[k] = v;
                 nobj["$and"].push(queryLine);
@@ -123,12 +136,12 @@ Rectangle {
         //first group thing is flat. remember.
         var mainGroup = logic.addGroup({},true);
 //        console.log("MAINGROUP BEGIN", JSON.stringify(mainGroup,null,2))
-        _.each(o, function(v,k) {
-            if(_.isArray(v)) {
+        Lodash.each(o, function(v,k) {
+            if(Lodash.isArray(v)) {
                 if(k === "$or")
                     mainGroup.mode = "OR";
 
-                _.each(v, function(v2){
+                Lodash.each(v, function(v2){
                     processLine(v2, mainGroup);    //will give us a rule or a group to add!
                 })
             }
@@ -146,9 +159,9 @@ Rectangle {
         function processItems(items, acc) {
             acc = acc || [];
 
-            _.each(items, function(v,k) {
+            Lodash.each(items, function(v,k) {
 
-                if(!_.isUndefined(v.op)) {  //we now know that this is a rule
+                if(!Lodash.isUndefined(v.op)) {  //we now know that this is a rule
                     if(v.key !== "") {
                         var mongoRule = evalExpression(v.key,v.op,v.val);
                         acc.push(mongoRule);
@@ -220,7 +233,7 @@ Rectangle {
 
             if(m === rootObject.m) {
                 changed();
-                listLoader.refresh();
+                lv.refresh();
             }
 
             return group;
@@ -242,7 +255,7 @@ Rectangle {
 
             if(m === rootObject.m) {
                 changed();
-                listLoader.refresh();
+                lv.refresh();
             }
 
             return rule;
@@ -253,7 +266,7 @@ Rectangle {
                 m.items.splice(idx,1);
             }
             changed();
-            listLoader.refresh();
+            lv.refresh();
         }
 
 
@@ -268,6 +281,7 @@ Rectangle {
         width : parent.width
         height: childrenRect.height
 
+
         Item {
             id     : topControls
             width  : parent.width
@@ -280,7 +294,16 @@ Rectangle {
                     controls_groupMode_AND.colorFunc();
                     controls_groupMode_OR.colorFunc();
                 }
+                onColor1Changed : {
+                    controls_groupMode_AND.colorFunc();
+                    controls_groupMode_OR.colorFunc();
+                }
+                onMChanged : {
+                    controls_groupMode_AND.colorFunc();
+                    controls_groupMode_OR.colorFunc();
+                }
             }
+
 
             Row {
                 id : controls_groupMode
@@ -302,7 +325,7 @@ Rectangle {
                     }
                     color : colorFunc();
                     function colorFunc(){
-                         return color = m.mode === text ? ruleColor : color1
+                         return color = m && m.mode === text ? ruleColor : color1
                     }
 
                 }
@@ -321,7 +344,7 @@ Rectangle {
                     }
                     color     : colorFunc();
                     function colorFunc(){
-                         return color = m.mode === text ? ruleColor : color1
+                         return color = m && m.mode === text ? ruleColor : color1
                     }
                 }
             }
@@ -359,90 +382,104 @@ Rectangle {
 
             }
         }
-        Loader {
-            id : listLoader
+
+//        Rectangle {
+//            anchors.fill: lv
+//            color : 'purple'
+//            opacity : 0.5
+//            z : Number.MAX_VALUE
+//        }
+
+        SimpleListView {
+            id : lv
             width : parent.width
-            height: item ? item.height  : cellHeight
-            anchors.top : topControls.bottom
+//            height : contentItem.childrenRect.height
+
+            anchors.top      : topControls.bottom
             anchors.topMargin: cellHeight * 1/2
-
-            function refresh(){
-                sourceComponent = null;
-                sourceComponent =listCmp
+            spacing : 5
+            model : rootObject.m ? rootObject.m.items : null
+            minHeight : cellHeight
+            function refresh() {
+                model = null
+                model = rootObject.m ? rootObject.m.items : null;
             }
 
-            sourceComponent : listCmp
-            Component{
-                id : listCmp
-                ListView {
-                    id : lv
-                    width : rootObject.width
-                    height : lv.contentItem.childrenRect.height
-                    spacing : 5
-                    model : m ? m.items : null
-                    function refresh() {
-                        model = null
-                        model = m.items
-//                        if(!canBeDeleted)
-//                            console.log(JSON.stringify(m,null,2))
-                    }
+            delegate: Item {
+                id : del
+                width          : lv.width
+                height         : delLoader.height
+                property var m : rootObject && rootObject.m && rootObject.m.items ? rootObject.m.items[index] : null
+                property int _index : index
+                Loader {
+                    id : delLoader
+                    anchors.right: parent.right
+                    anchors.rightMargin: parent.width * 0.005
+                    width : parent.width * 0.97
+                    height : delLoader.item ? delLoader.item.height : cellHeight
+                    source : !parent.m ?  "" :
+                                         parent.m.isGroup ? "QueryGroup.qml" : "QueryRule.qml"
+                    onLoaded : {
+                        item.anchors.fill  = null;
+                        item.anchors.right = delLoader.right
+                        item.width         = Qt.binding(function() { return delLoader.width  })
 
-                    delegate: Item {
-                        id : del
-                        width          : lv.width
-                        height         : delLoader.height
-                        property var m : rootObject.m.items[index]
-                        property int _index : index
-                        Loader {
-                            id : delLoader
-                            anchors.right: parent.right
-                            anchors.rightMargin: parent.width * 0.005
-                            width : parent.width * 0.97
-                            height : delLoader.item ? delLoader.item.height : cellHeight
-                            source : parent.m.isGroup ? "QueryGroup.qml" : "QueryRule.qml"
-                            onLoaded : {
-                                item.anchors.fill  = null;
-                                item.anchors.right = delLoader.right
-                                item.width         = Qt.binding(function() { return delLoader.width  })
-
-                                if(item.hasOwnProperty("cellHeight"))
-                                    item.cellHeight    = cellHeight
-//                                if(!item.isGroup) {
-//                                    item.height = Qt.binding(function() { return cellHeight })
-//                                }
+                        if(item.hasOwnProperty("cellHeight"))
+                            item.cellHeight    = cellHeight
 
 
-                                item.availableVars = Qt.binding(function() { return rootObject.availableVars })
-                                if(typeof item.deleteMe === 'function') {
-                                    item.deleteMe.connect(function() { logic.deleteItem(index); })
-                                    if(item.hasOwnProperty('canBeDeleted'))
-                                        item.canBeDeleted  = true;
-                                }
-                                if(typeof item.changed === 'function') {
-                                    item.changed.connect(rootObject.changed);
-                                }
-
-                                if(item.hasOwnProperty("colorsObj")) {  //is group cause our groups have that
-                                    item.colorsObj = Qt.binding(function() { return rootObject.colorsObj })
-                                }
-                                else {
-                                    item.color         = Qt.binding(function() { return rootObject.ruleColor   })
-                                    item.deleteColor   = Qt.binding(function() { return rootObject.deleteColor })
-                                }
-
-                                item.m             = Qt.binding(function() { return del.m })
-                            }
+                        item.availableVars = Qt.binding(function() { return rootObject.availableVars })
+                        if(typeof item.deleteMe === 'function') {
+                            item.deleteMe.connect(function() { logic.deleteItem(index); })
+                            if(item.hasOwnProperty('canBeDeleted'))
+                                item.canBeDeleted  = true;
                         }
-                        z : index === lv.currentIndex ? Number.MAX_VALUE : 0
+                        if(typeof item.changed === 'function') {
+                            item.changed.connect(function() {
+//                                console.log("OH POOPERS CALLING CHANGED!!", JSON.stringify(item.m))
+                                rootObject.changed();
+                            });
+                        }
+
+                        if(item.hasOwnProperty("colorsObj")) {  //is group cause our groups have that
+                            item.colorsObj = Qt.binding(function() { return rootObject.colorsObj })
+                        }
+                        else {
+                            item.color         = Qt.binding(function() { return rootObject.ruleColor   })
+                            item.deleteColor   = Qt.binding(function() { return rootObject.deleteColor })
+                        }
+
+                        item.m             = Qt.binding(function() { return del.m })
                     }
-
-
                 }
+                z : index === lv.currentIndex ? Number.MAX_VALUE : 0
+
+//                        Text {
+//                            anchors.centerIn: parent
+//                            text : index
+//                            font.pointSize: 32
+//                        }
 
             }
+
+
         }
+
+
     }
 
+
+    Rectangle {
+       id : blocker
+       anchors.fill: parent
+       color : 'gray'
+       opacity : 0.5
+       MouseArea {
+           anchors.fill: parent
+           hoverEnabled: true
+       }
+       visible : !m
+    }
 
 
 

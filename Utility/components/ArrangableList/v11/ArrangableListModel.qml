@@ -107,7 +107,7 @@ Item {
         }
 
         function addToStates(arr) {
-            console.log("ADD TOP STATES CALLED",arr);
+//            console.log("ADD TOP STATES CALLED",arr);
             var s = states
             if(s === null || s === undefined)
                 s = []
@@ -592,6 +592,7 @@ Item {
                     onClicked: {
                         gui.forceActiveFocus()
                         var idx = lv.indexAt(mouseX, mouseY + lv.contentY)
+                        mouse.accepted = false;
                         if(idx !== -1){
                             if(!gui.ctrlModifier && !gui.shiftModifier)
                                 logic.lastTouchedIdx = idx;
@@ -599,6 +600,7 @@ Item {
                             return logic.selected && typeof logic.selected[idx] !== 'undefined' ? logic.deselect(idx, gui.ctrlModifier, gui.shiftModifier) :
                                                                                                     logic.select(idx  , gui.ctrlModifier, gui.shiftModifier);
                         }
+
                     }
 
                     property bool isDragging : drag.active
