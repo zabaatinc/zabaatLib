@@ -25,17 +25,27 @@ ZToastSimple{
                 var line = stack[s]
 
                 var a = line.split("@")
-                var name = a[0]
+                console.log(JSON.stringify(line,null,2), JSON.stringify(a,null,2))
+                if(a.length >= 2) {
+                    var name = a[0]
 
-                a = a[1].split(":")
+                    a = a[1].split(":")
 
-                var lineNum = a[a.length-1]
-                var fileName = a[a.length-2]
+                    var lineNum = a[a.length-1]
+                    var fileName = a[a.length-2]
 
-                if(name === "")
-                    name = "(anonymous)"
+                    if(name === "")
+                        name = "(anonymous)"
 
-                c.push({fn:name,line:lineNum,file:fileName})
+                    c.push({fn:name,line:lineNum,file:fileName})
+                }
+                else{
+                    c.push({fn:"unknown",line:line,file:""})
+                }
+
+
+
+
             }
 //            console.log(JSON.stringify(c,null,2))
             return c

@@ -6,8 +6,20 @@ Item {
 
 
     property var master : ["Zero", "One","Two","Three","Four","Five"]
+    property var masterModel : ListModel {
+        ListElement { text : "ZERO" }
+        ListElement { text : "ONE" }
+        ListElement { text : "TWO" }
+        ListElement { text : "THREE" }
+        ListElement { text : "FOUR" }
+        ListElement { text : "FIVE" }
+    }
+
     function f(a) {
 //        return _.indexOf(["Two","Four"],a) !== -1
+        if(typeof a === 'object') {
+            return _.indexOf(["One","Three","Five"],a.text) !== -1
+        }
         return _.indexOf(["One","Three","Five"],a) !== -1
     }
     Row {
@@ -21,10 +33,11 @@ Item {
             height   : parent.height
             delegate : Loader {
                 width : orig.width
-                height : arrangable.delegateCellHeight
-                sourceComponent: arrangable.delegate
-                onLoaded : item.model = Qt.binding(function() { return modelData })
+                height: arrangable.delegateCellHeight
+                sourceComponent: simpleDel
+                onLoaded : item.model = Qt.binding(function() { return orig.model !== masterModel ? master[index] : masterModel.get(index) })
             }
+
             model : master
         }
         ArrangableList {
@@ -38,6 +51,10 @@ Item {
                 textUndos.doUpdate()
                 textRedos.doUpdate()
             }
+
+            delegate : simpleDel
+
+
         }
     }
 
@@ -150,11 +167,49 @@ Item {
             }
         }
 
+        Button {
+            height : parent.height
+            anchors.bottom: parent.bottom
+            text : arrangable.model !== masterModel ? "Use LM" : "Use Arr"
+            onClicked : {
+
+                orig.model = arrangable.model = arrangable.model !== masterModel ? masterModel : master;
+            }
+        }
+
 
     }
 
 
 
+    Component {
+        id : simpleDel
+        Rectangle {
+            border.width: 1
+
+            property int index
+            property var model
+            Text {
+                anchors.fill: parent
+                font.pixelSize: height * 1/3
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+//                    text             : parent.model ? JSON.stringify(parent.model) : "N/A"
+                text : {
+                    if(!parent.model)
+                        return "N/A"
+                    else if(typeof parent.model === 'string')
+                        return parent.model
+                    else if(parent.model.text)
+                        return parent.model.text
+                    return ""
+
+                }
+
+//                onTextChanged: console.log(text)
+            }
+        }
+    }
 
 
 

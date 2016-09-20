@@ -4,6 +4,8 @@ Item {
     property var model
     property var filterFunc
     readonly property var lv    : loader.item ? loader.item.lv    : null
+    readonly property var currentItem : lv ? lv.currentItem : null;
+    readonly property int currentIndex: lv ? lv.currentIndex : -1;
     readonly property var logic : loader.item ? loader.item.logic : null
     readonly property var gui   : loader.item ? loader.item.gui   : null
 
@@ -64,7 +66,7 @@ Item {
                 loader.source = ""
             }
             var type = toString.call(model)
-//            console.log("gonna call", type)
+            console.log("gonna call", type)
             loader.source = type === '[object Array]' ?  "ArrangableListArray.qml": "ArrangableListModel.qml"
         }
 

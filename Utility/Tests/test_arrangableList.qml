@@ -1,4 +1,4 @@
-import Zabaat.Utility 1.0
+import Zabaat.Utility 1.1
 import QtQuick 2.5
 
 Row {

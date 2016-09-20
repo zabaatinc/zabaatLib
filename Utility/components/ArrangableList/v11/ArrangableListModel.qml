@@ -2,6 +2,7 @@ import QtQuick 2.5
 //import Zabaat.Material 1.0  //remove dependecy later
 import Zabaat.Utility.SubModel 1.1
 import QtQuick.Controls 1.4
+import Zabaat.Utility 1.0
 
 
 Item {
@@ -294,96 +295,60 @@ Item {
                 var dest  = !isUndef(destIdx) ? destIdx :
                                                 idx <= 0 ? begin : idx >= len ? end : zsubChanger.indexList[idx]
 
-                if(selectedLen === 1){
-                    //we only have one element. So this should be essy.
-                    var s = selectedFirst()
+                dest = isUndef(destIdx) ? zsubChanger.indexList[idx]  : zsubOrig.indexList[destIdx]
 
-                    zsubOrig.move(s,dest,1);
-                    deselectAll()
-                    logic.lastTouchedIdx = -1;
-
+                var movingArr = []
+                var sar = []
+                for(var a in selected){
+                    sar[a]  = selected[a]
+                    movingArr[a] = zsubOrig.indexList[selected[a]]
                 }
-                else {
-                    //We have a list and selection in it, we want to move the selection to an
-                    //index in the selection (idx). This is a relatively simple problem but what
-                    //makes it tougher is that we need to move stuff in zsubOrig.indexList ,
-                    //not the zsubChanger.indexList. And what makes this part harder is because of the filter
-                    //function. The subChanger doesn't always have the entire list visible to it.
+                sar       = sar.filter(function(a) { return a !== null || typeof a !== 'undefined' ? true : false })
+                movingArr = movingArr.filter(function(a) { return a !== null || typeof a !== 'undefined' ? true : false })
 
-                    //step 1, rip out the selection array from the list
-//                    var il    = cloneArr(zsubOrig.indexList)
-                    dest = isUndef(destIdx) ? zsubChanger.indexList[idx]  : zsubOrig.indexList[destIdx]
-
-                    var movingArr = []
-                    var sar = []
-                    for(var a in selected){
-                        sar[a]  = selected[a]
-                        movingArr[a] = zsubOrig.indexList[selected[a]]
-                    }
-                    sar       = sar.filter(function(a) { return a !== null || typeof a !== 'undefined' ? true : false })
-                    movingArr = movingArr.filter(function(a) { return a !== null || typeof a !== 'undefined' ? true : false })
-
-                    //we need the SAR array (to figure out our head & tail), essentially to figure out
-                    //if we are moving up or down.
-                    var il = _.difference(zsubOrig.indexList, movingArr);
+                //we need the SAR array (to figure out our head & tail), essentially to figure out
+                //if we are moving up or down.
+                var il = _.difference(zsubOrig.indexList, movingArr);
 //                    console.log("remove", movingArr, "from", zsubOrig.indexList , "=", il)
 
 
-                    //Figure out the head, tail
-                    var head   = sar[0]
-                    var tail   = sar[sar.length -1]
-                    destIdx    = indexOf(il, zsubOrig.indexList[dest])
+                //Figure out the head, tail
+                var head   = sar[0]
+                var tail   = sar[sar.length -1]
+                destIdx    = indexOf(il, zsubOrig.indexList[dest])
 
 
 //                    console.log("H:",head, "T:",tail, "\t\tDest:", dest, "@", destIdx)
-                    //Subdivide the ilArr further @ dest.
-                    //Place movingArr on left or right of it , depending on special conditions.
-                    if(destIdx !== -1){
-                        var left, right
+                //Subdivide the ilArr further @ dest.
+                //Place movingArr on left or right of it , depending on special conditions.
+                if(destIdx !== -1){
+                    var left, right
 
-                        if(head > dest) { //moving stuff up
+                    if(head > dest) { //moving stuff up
 //                            console.log("moving stuff up")
-                            if(il.length === 1){
-                                left = []
-                                right = il;
-                            }
-                            else {
-                                left = il.slice(0, destIdx);
-                                right = il.slice(destIdx, il.length);
-                            }
+                        left = il.slice(0, destIdx);
+                        right = il.slice(destIdx);
 //                            return console.log(left, movingArr, right)
-                        }
-                        else if(head < dest){    //moving stuff down
+                    }
+                    else if(head < dest){    //moving stuff down
 //                            console.log("moving stuff down")
-                            if(tail < dest || il.length === 1){
-//                                console.log("case 1::\ttail<dest (", tail , "<", dest ,")"  , il)
-                                left  = il
-                                right = []
-                            }
-                            else {
-//                                console.log("case 2")
-                                left = il.slice(0, destIdx);
-                                right = il.slice(destIdx, il.length);
-                            }
-                        }
-                        else {
-//                            console.log("head & dest are the same" , head , "===" , dest)
-                            return;
-                        }
-
-
-
-//                        console.log(left, movingArr, right)
-                        il = left.concat(movingArr).concat(right)
-////                        select(newArray(dest, dest + selectedLen - 1))
-                        zsubOrig.indexList  = il;
-                        deselectAll()
-                        logic.lastTouchedIdx = -1;
+                        left = il.slice(0, destIdx+1);
+                        right = il.slice(destIdx+1, il.length);
                     }
                     else {
-//                        console.log("DEST IDX is -1. Tried to find", dest, "in", il)
+//                            console.log("head & dest are the same" , head , "===" , dest)
+                        return;
                     }
+
+                    il = left.concat(movingArr).concat(right)
+                    zsubOrig.indexList  = il;
+                    deselectAll()
+                    logic.lastTouchedIdx = -1;
                 }
+                else {
+//                        console.log("DEST IDX is -1. Tried to find", dest, "in", il)
+                }
+//                }
 
                 //remove everything after stateIdx (if not last)
                 states.length = stateIdx + 1    //this will kill everything after the stateIdx

@@ -2,7 +2,7 @@ import QtQuick 2.5
 import QtQuick.Controls 1.4
 import "Lodash"
 import "QueryBuilderComponents"
-import QtQuick.Window 2.0
+//import QtQuick.Window 2.0
 //provides a nice gui to create query objects
 //
 Rectangle {
@@ -43,63 +43,63 @@ Rectangle {
 
 
 //was used for debugging purposes
-    Window {
-        width : Screen.width * 0.8
-        height : Screen.height - 300
-        visible : true
-        x : -width
-        y : 0
+//    Window {
+//        width : Screen.width * 0.8
+//        height : Screen.height - 300
+//        visible : true
+//        x : -width
+//        y : 0
 
-        Row {
-            anchors.fill: parent
-            Text {
-                id : tx
-                width : parent.width/3
-                height : parent.height
-                text : JSON.stringify(mainGroup.m,null,2)
-                Connections {
-                    target : mainGroup
-                    onChanged  : tx.text = JSON.stringify(mainGroup.m,null,2)
-                    onMChanged : tx.text = JSON.stringify(mainGroup.m,null,2)
-                }
-            }
+//        Row {
+//            anchors.fill: parent
+//            Text {
+//                id : tx
+//                width : parent.width/3
+//                height : parent.height
+//                text : JSON.stringify(mainGroup.m,null,2)
+//                Connections {
+//                    target : mainGroup
+//                    onChanged  : tx.text = JSON.stringify(mainGroup.m,null,2)
+//                    onMChanged : tx.text = JSON.stringify(mainGroup.m,null,2)
+//                }
+//            }
 
-            Text {
-                id : tx3
-                width : parent.width/3
-                height : parent.height
-                text : JSON.stringify(mainGroup.fromMongoObj(mainGroup.toMongoObj()) ,null ,2);
-                Connections {
-                    target : mainGroup
-                    onChanged  : tx3.text = JSON.stringify(mainGroup.fromMongoObj(mainGroup.toMongoObj()) ,null ,2);
-                    onMChanged : tx3.text = JSON.stringify(mainGroup.fromMongoObj(mainGroup.toMongoObj()) ,null ,2);
-                }
-            }
+//            Text {
+//                id : tx3
+//                width : parent.width/3
+//                height : parent.height
+//                text : JSON.stringify(mainGroup.fromMongoObj(mainGroup.toMongoObj()) ,null ,2);
+//                Connections {
+//                    target : mainGroup
+//                    onChanged  : tx3.text = JSON.stringify(mainGroup.fromMongoObj(mainGroup.toMongoObj()) ,null ,2);
+//                    onMChanged : tx3.text = JSON.stringify(mainGroup.fromMongoObj(mainGroup.toMongoObj()) ,null ,2);
+//                }
+//            }
 
-            Text {
-                id : tx2
-                width : parent.width/3
-                height : parent.height
-                text : JSON.stringify(mainGroup.mongoObj,null,2)
-                Connections {
-                    target : mainGroup
-                    onChanged  : tx2.text = JSON.stringify(mainGroup.mongoObj,null,2)
-                    onMChanged : tx2.text = JSON.stringify(mainGroup.mongoObj,null,2)
-                }
-            }
-        }
+//            Text {
+//                id : tx2
+//                width : parent.width/3
+//                height : parent.height
+//                text : JSON.stringify(mainGroup.mongoObj,null,2)
+//                Connections {
+//                    target : mainGroup
+//                    onChanged  : tx2.text = JSON.stringify(mainGroup.mongoObj,null,2)
+//                    onMChanged : tx2.text = JSON.stringify(mainGroup.mongoObj,null,2)
+//                }
+//            }
+//        }
 
-        Button {
-            text : "test weirtd"
-            onClicked : {
-                console.log("HERPO")
-                var qObj = { "a" : "b", "c" : "d", "$and" : [{"e": "f" }, {"g":"h"}] }
-                var l = mainGroup.fromMongoObj(qObj);
-                console.log(JSON.stringify(l,null,2))
-            }
+//        Button {
+//            text : "test weirtd"
+//            onClicked : {
+//                console.log("HERPO")
+//                var qObj = { "a" : "b", "c" : "d", "$and" : [{"e": "f" }, {"g":"h"}] }
+//                var l = mainGroup.fromMongoObj(qObj);
+//                console.log(JSON.stringify(l,null,2))
+//            }
 
-        }
-    }
+//        }
+//    }
 
 
 

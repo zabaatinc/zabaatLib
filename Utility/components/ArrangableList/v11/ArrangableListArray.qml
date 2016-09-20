@@ -332,106 +332,69 @@ Item {
                 var dest  = !isUndef(destIdx) ? destIdx :
                                                 idx <= 0 ? begin : idx >= len ? end : filteredList[idx]
 
-                if(selectedLen === 1){
-                    //we only have one element. So this should be essy.
-                    var s = selectedFirst();
+                //We have a list and selection in it, we want to move the selection to an
+                //index in the selection (idx). This is a relatively simple problem but what
+                //makes it tougher is that we need to move stuff in zsubOrig.indexList ,
+                //not the zsubChanger.indexList. And what makes this part harder is because of the filter
+                //function. The subChanger doesn't always have the entire list visible to it.
 
-                    //we dont actually have to move here. we can literally just swap the indices and it should be k.
-//                    console.log("swap", s , "and", dest)
-//                    console.log("swap", indexList[s] , "and", indexList[dest])
-                    var tmp = list[dest]
-                    list[dest] = list[s];
-                    list[s]    = tmp;
 
-                    deselectAll()
-                    logic.lastTouchedIdx = -1;
-
-                    logic.indexList = list
-
-                }
-                else {
-                    //We have a list and selection in it, we want to move the selection to an
-                    //index in the selection (idx). This is a relatively simple problem but what
-                    //makes it tougher is that we need to move stuff in zsubOrig.indexList ,
-                    //not the zsubChanger.indexList. And what makes this part harder is because of the filter
-                    //function. The subChanger doesn't always have the entire list visible to it.
-
-                    //step 1, rip out the selection array from the list
-//                    var il    = cloneArr(zsubOrig.indexList)
-                    dest = isUndef(destIdx) ? filteredList[idx] : logic.indexList[destIdx]
+                //step 1, rip out the selection array from the list
+                dest = isUndef(destIdx) ? filteredList[idx] : logic.indexList[destIdx]
 //                    console.log("dest idx is",dest, "SELECTED:", JSON.stringify(selected))
-                    var movingArr = []
-                    var sar       = []
+                var movingArr = []
+                var sar       = []
 
-                    _.each(selected, function(v,k){
-                        sar[k] = v
-                        movingArr[k] = logic.indexList[v]
-                    })
+                _.each(selected, function(v,k){
+                    sar[k] = v
+                    movingArr[k] = logic.indexList[v]
+                })
 
-                    sar = _.compact(sar);
-                    movingArr = _.compact(movingArr);
+                sar       = _.compact(sar);
+                movingArr = _.compact(movingArr);
 
 //                    console.log("sar      ", sar)
 //                    console.log("movingArr", movingArr)
-                    //we need the SAR array (to figure out our head & tail), essentially to figure out
-                    //if we are moving up or down.
-                    var difference = _.difference(logic.indexList, movingArr);
+                //we need the SAR array (to figure out our head & tail), essentially to figure out
+                //if we are moving up or down.
+                var difference = _.difference(logic.indexList, movingArr);
 //                    console.log("remove", movingArr, "from", zsubOrig.indexList , "=", il)
 
 
-                    //Figure out the head, tail
-                    var head   = _.first(sar)
-                    var tail   = _.last(sar)
-                    destIdx    = _.indexOf(difference, logic.indexList[dest]) //indexOf(il, ptrList[dest])
+                //Figure out the head, tail
+                var head   = parseInt(_.first(sar))
+                var tail   = parseInt(_.last(sar))
 
+                destIdx    = _.indexOf(difference, logic.indexList[dest]) //indexOf(il, ptrList[dest])
+//                    console.log("found", logic.indexList[dest], "@", destIdx, "in", difference);
+//                    console.log(destIdx, dest,logic.indexList[dest])
 //                    console.log("move to", destIdx)
-
 //                    console.log("H:",head, "T:",tail, "\t\tDest:", dest, "@", destIdx)
-                    //Subdivide the ilArr further @ dest.
-                    //Place movingArr on left or right of it , depending on special conditions.
-//                    console.log("move", movingArr, "to", destIdx)
-                    if(destIdx !== -1){
-                        var left, right
 
-                        if(head > dest) { //moving stuff up
-//                            console.log("moving stuff up")
-                            if(difference.length === 1){
-                                left = []
-                                right = difference;
-                            }
-                            else {
-                                left = difference.slice(0, destIdx);
-                                right = difference.slice(destIdx, difference.length);
-                            }
-//                            return console.log(left, movingArr, right)
-                        }
-                        else if(head < dest){    //moving stuff down
-//                            console.log("moving stuff down")
-                            if(tail < dest || difference.length === 1){
-//                                console.log("case 1::\ttail<dest (", tail , "<", dest ,")"  , il)
-                                left  = difference
-                                right = []
-                            }
-                            else {
-//                                console.log("case 2")
-                                left = difference.slice(0, destIdx);
-                                right = difference.slice(destIdx, difference.length);
-                            }
-                        }
-                        else {
+//                    console.log("head", head, 'tail', tail)
+                if(destIdx !== -1){
+                    var left, right
+                    if(head > dest) {   //going up
+//                             console.log("move", movingArr, "to", destIdx, "in", difference)
+                        left = difference.slice(0, destIdx);
+                        right = difference.slice(destIdx);
+                    }
+                    else if(head < dest){
+//                             console.log("move", movingArr, "to", destIdx+1, "in", difference)
+                        left = difference.slice(0, destIdx+1);
+                        right = difference.slice(destIdx+1);
+                    }
+                    else {
 //                            console.log("head & dest are the same" , head , "===" , dest)
-                            return;
-                        }
-
-
-//                        console.log(left, movingArr, right)
-                        difference = left.concat(movingArr).concat(right)
-////                        select(newArray(dest, dest + selectedLen - 1))
-                        logic.indexList = difference;
-                        deselectAll()
-                        logic.lastTouchedIdx = -1;
+                        return;
                     }
 
+//                        console.log(left, movingArr, right)
+                    difference = left.concat(movingArr).concat(right)
+////                        select(newArray(dest, dest + selectedLen - 1))
+                    logic.indexList = difference;
+                    deselectAll()
+                    logic.lastTouchedIdx = -1;
                 }
 
                 //remove everything after stateIdx (if not last)
@@ -646,6 +609,8 @@ Item {
                     propagateComposedEvents: true
                     preventStealing: false
                     drag.target: dragDelegate
+                    drag.axis: lv.orientation === ListView.Vertical ?  Drag.YAxis : Drag.XAxis;
+//                    z : -1
                     onClicked: {
                         gui.forceActiveFocus()
                         var idx = lv.indexAt(mouseX, mouseY + lv.contentY)
@@ -656,7 +621,10 @@ Item {
                             return logic.selected && typeof logic.selected[idx] !== 'undefined' ? logic.deselect(idx, gui.ctrlModifier, gui.shiftModifier) :
                                                                                                   logic.select(idx  , gui.ctrlModifier, gui.shiftModifier);
                         }
+//                        mouse.accepted = false;
                     }
+
+
 
                     property bool isDragging : drag.active
                     onIsDraggingChanged: {
@@ -689,8 +657,8 @@ Item {
                     height : delegateCellHeight
                     sourceComponent: index !== -1  ? rootObject.delegate : null
                     property int index : -1
-                    x : dMsArea.mouseX - width/2
-                    y : dMsArea.mouseY - height/2
+                    x : lv.orientation === ListView.Vertical ? 0 : dMsArea.mouseX - width/2
+                    y : lv.orientation === ListView.Horizontal ? 0 : dMsArea.mouseY - height/2
                     onLoaded : {
                         item.anchors.fill = dragDelegate
                         if(item.hasOwnProperty('model'))
