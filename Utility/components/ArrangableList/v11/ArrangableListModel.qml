@@ -80,17 +80,21 @@ Item {
             filterFunc : rootObject.filterFunc
             sortFuncAcceptsIndices: true
             sortFunc : function(a,b){ return a - b }
+            property var il
             onIndexListChanged: {
+//                console.log("IL CHNG", indexList)
+                if(il == indexList)
+                    return;
+
+                il = indexList;
+
                 logic.lastTouchedIdx = -1;
                 logic.deselectAll()
-
-                if(sourceModel && sourceModel.indexList.length > 0)
-                    logic.states.push(logic.cloneArr(sourceModel.indexList))
+                logic.addToStates(il);
             }
             onSourceModelChanged: {
                 logic.resetState();
-                if(sourceModel && sourceModel.indexList.length > 0)
-                    logic.states.push(logic.cloneArr(sourceModel.indexList))
+                logic.addToStates(sourceModel.indexList)
             }
 
 
@@ -100,6 +104,23 @@ Item {
             logic.lastTouchedIdx = -1;
             logic.stateIdx = 0;
             logic.states   = [];
+        }
+
+        function addToStates(arr) {
+            console.log("ADD TOP STATES CALLED",arr);
+            var s = states
+            if(s === null || s === undefined)
+                s = []
+            if(s.length > 0)
+                s.length = stateIdx + 1    //this will kill everything after the stateIdx (and we dont klill the first state evar)
+
+            arr = arr  || indexList
+//            console.log("il", arr, "s", s)
+            if(arr) {
+                s.push(_.clone(arr))
+            }
+            states = s
+            stateIdx = s.length -1
         }
 
 

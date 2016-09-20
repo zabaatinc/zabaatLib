@@ -38,13 +38,13 @@ Item {
                 onLoaded : item.model = Qt.binding(function() { return orig.model !== masterModel ? master[index] : masterModel.get(index) })
             }
 
-            model : master
+            model : masterModel
         }
         ArrangableList {
             id     : arrangable
             width  : parent.width/2
             height : parent.height
-            model  : master
+            model  : masterModel
 //            filterFunc: f
             readonly property var il : arrangable.indexList
             onIlChanged: {
