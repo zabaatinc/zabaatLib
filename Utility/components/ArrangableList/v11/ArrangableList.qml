@@ -43,6 +43,18 @@ Item {
         if(lv)
             lv.currentIndex = idx;
     }
+    function getDelegateInstance(idx) {
+        if(!lv)
+            return null;
+
+        var items = lv.contentItem.children;
+        for(var i = 0; i < items.length; ++i) {
+            var item = items[i]
+            if(item.imADelegate && item._index === idx)
+                return item;
+        }
+        return false;
+    }
 
     property var   selectionDelegate             : selectionDelegate
     property color selectionDelegateDefaultColor : "green"
