@@ -6,7 +6,9 @@ Repeater {
     property int minHeight
     height : Math.max(contentHeight, minHeight);
 
-    onCountChanged: evalYs();
+//    onModelChanged: evalYs();
+    onItemAdded  : evalYs("itemAdded");
+//    onItemRemoved: evalYs("itemRemoved"); //we dont really need this imo?
 
 
 //    onTChanged: evalYs();
@@ -14,6 +16,7 @@ Repeater {
 
 
     function evalYs(trigger) {
+//        console.log("CALLING EVALYS", trigger, count)
         if(count <= 0)
             return;
 
@@ -23,10 +26,12 @@ Repeater {
         for(var i = 0; i < count; ++i) {
             var item = itemAt(i);
             if(item) {
+//                console.log(item, item.height);
             //this line was not performant!! We dont need it in this case anyway since we reload the entire model
             //item.heightChanged.connect(function() { console.log("HCHG"); evalYs(); });
                 item.anchors.top       = rootObject.top;
                 item.anchors.topMargin = i === 0 ? 0 : runningY;
+//                item.y  = runningY;
                 runningY               += item.height + spacing;
             }
         }

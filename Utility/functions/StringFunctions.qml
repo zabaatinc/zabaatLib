@@ -111,7 +111,7 @@ QtObject {
 
         //special case "of", turn it to lowercase
         for(var a in arr){
-            var index = _.indexOf(specialCaseArray, arr[a].toLowerCase())
+            var index = Lodash.indexOf(specialCaseArray, arr[a].toLowerCase())
             if(index !== -1)
                 arr[a] = arr[a].toLowerCase()
         }

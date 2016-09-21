@@ -1,1 +1,2 @@
-singleton _ Lodash.qml
+singleton Lodash Lodash.qml
+singleton _ _.qml

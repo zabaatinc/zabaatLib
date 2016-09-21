@@ -87,11 +87,11 @@ QtObject {
 
         if(arr_only && typeof arr_only === 'object') {
             arr_only = toString.call(arr_only) !== '[object Array]' ? [arr_only] : arr_only
-            arr = _.filter(arr, function(a) {
+            arr = Lodash.filter(arr, function(a) {
 
                 //iterates over arr_only and compares a & v using equalityFunc.
                 //False if nothing is equal to a in arr_only, meaning we will filter it :)
-                return  _.some(arr_only, function(v) {
+                return  Lodash.some(arr_only, function(v) {
                     if(equalityFunc(a,v))
                         return true;
                 })
@@ -100,8 +100,8 @@ QtObject {
 
         opt_keys = typeof opt_keys === 'string' ? [opt_keys] : opt_keys
         if(opt_keys && toString.call(opt_keys) === '[object Array]') {
-            arr = _.reduce(arr, function(a,v,k) {
-                a.push(_.pick(v,opt_keys));
+            arr = Lodash.reduce(arr, function(a,v,k) {
+                a.push(Lodash.pick(v,opt_keys));
                 return a;
             }, [])
         }
@@ -186,7 +186,7 @@ QtObject {
 
             //iterate thru src array & isolate elements that we need to perform operations with. I.e, new elements not found in our model
             //and elements that are newer in the srcArr
-            _.each(srcArr,function(v){
+            Lodash.each(srcArr,function(v){
 
                 //if arr_only is valid and this v is not in it. then we dont need to care about this v.
                 if(inclusionArrayValid) {
@@ -236,7 +236,7 @@ QtObject {
 
             //proc the stuff we know we need to process,
             //if the src is newer && we determined that src was deleted, call delete, otehrwise update
-            _.each(procArr, function(val) {
+            Lodash.each(procArr, function(val) {
                 var v = val.v
                 var idx = val.i
 
@@ -253,7 +253,7 @@ QtObject {
 
 
             //add the stuff we didn't find!
-            _.each(addArr,function(v){
+            Lodash.each(addArr,function(v){
                 createFunc(destArr,v,opCb);
             })
 
@@ -277,7 +277,7 @@ QtObject {
 
 
 
-            _.each(srcArr,function(v){
+            Lodash.each(srcArr,function(v){
 
                 //if arr_only is valid and this v is not in it. then we dont need to care about this v.
                 if(inclusionArrayValid) {
@@ -318,7 +318,7 @@ QtObject {
 
             //proc the stuff we know we need to process,
             //if the src is newer && we determined that src was deleted, call delete, otehrwise update
-            _.each(procArr, function(val) {
+            Lodash.each(procArr, function(val) {
                 var v = val.v
                 var idx = val.i
 
@@ -335,7 +335,7 @@ QtObject {
 
 
             //add the stuff we didn't find!
-            _.each(addArr,function(v){
+            Lodash.each(addArr,function(v){
                 createFunc(destModel,v,opCb);
             })
         }

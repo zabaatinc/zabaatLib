@@ -27,7 +27,7 @@ Item {
     property var reset : function(){
         //emit deleted signals for existing items!
         if(priv.arr){
-            _.each(priv.arr, function(v,k){
+            Lodash.each(priv.arr, function(v,k){
                 deleted(v.id,k)
             })
         }
@@ -49,12 +49,12 @@ Item {
         //init it!
         if(!priv.arr) {
             var d = isArr ? data : [data]
-            priv.arr = _.filter(d, function(v){
+            priv.arr = Lodash.filter(d, function(v){
                 return priv.isDef(v.id)
             })
 
             //emit created messages!!!
-            _.each(priv.arr, function(v,k){
+            Lodash.each(priv.arr, function(v,k){
 //                console.log('iterating over array', priv.arr.length)
                 priv.addId(v.id, v);
                 created(v.id, v);
@@ -64,7 +64,7 @@ Item {
         }
 
         if(isArr){
-            _.each(data, function(v){
+            Lodash.each(data, function(v){
 //                console.log("SET", v.id, "TO", JSON.stringify(v,null,2))
 //                set(v.id, v);
                 if(v.id !== null && v.id !== undefined)
@@ -109,7 +109,7 @@ Item {
             else if(ret.type === 'update') {
                 if(ret.createdKeys) {
 //                    console.log("ret.createdKeys" , JSON.stringify(ret.createdKeys,null,2))
-                    _.each(ret.createdKeys, function(v,k){
+                    Lodash.each(ret.createdKeys, function(v,k){
                         var p = path + "/" + k;
 //                        console.log("EMITTING CREATED", p, v)
                         created(p,v)
@@ -119,7 +119,7 @@ Item {
 //                var updCount = 0;
                 if(ret.updatedKeys) {
 //                    console.log("ELK", JSON.stringify(ret.updatedKeys, null,2))
-                    _.each(ret.updatedKeys, function(v,k){
+                    Lodash.each(ret.updatedKeys, function(v,k){
                         var p = v.pathIsRoot? path :  path + "/" + k;
                         updated(p,v.value, v.oldValue)
 //                        updCount++
@@ -241,7 +241,7 @@ Item {
             var isObj = dType === '[object Object]'
             var emittedPaths = []
             if(isArr || isObj) {
-                _.each(data, function(v,k) {
+                Lodash.each(data, function(v,k) {
                     if(isArr && isDef(v.id)) {
                         k = v.id
                     }
@@ -338,7 +338,7 @@ Item {
                             return false;
                         }
 
-                        _.each(newObj,function(v,k){
+                        Lodash.each(newObj,function(v,k){
                             var existing      = obj[k]
 
                             var kId = k
@@ -391,7 +391,7 @@ Item {
                                 }
                             }
                         })
-//                        console.log("RETURNING SHTUFF" , _.keys(createdKeys), _.keys(updatedKeys))
+//                        console.log("RETURNING SHTUFF" , Lodash.keys(createdKeys), Lodash.keys(updatedKeys))
                         return {created : createdKeys, updated: updatedKeys };
                     }
 
@@ -672,7 +672,7 @@ Item {
             var po = newPtrObject(item)
             var retVal
 
-            _.some(pathArr, function(prop, k) {
+            Lodash.some(pathArr, function(prop, k) {
                 var isLast = k === pathArr.length -1
                 if(isLast ) {
                     if(po.advance(prop))

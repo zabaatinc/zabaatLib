@@ -48,7 +48,7 @@ QtObject {
                         continue
 
                     var val     = item[k]
-                    if(_.isUndefined(val)){
+                    if(Lodash.isUndefined(val)){
                         console.log(k, "is", val)
                         continue
                     }
@@ -62,7 +62,7 @@ QtObject {
                         obj[k] = toArray(val)
 //                    }
                     else
-                        obj[k] = _.clone(val)
+                        obj[k] = Lodash.clone(val)
 //                    }
 
                 }

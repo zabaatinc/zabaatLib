@@ -161,7 +161,7 @@ ZToastSimple{
                                 obj[k] = listmodelToArray(val)
         //                    }
                             else
-                                obj[k] = _.clone(val)
+                                obj[k] = Lodash.clone(val)
         //                    }
 
                         }

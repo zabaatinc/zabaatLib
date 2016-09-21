@@ -25,7 +25,7 @@ QtObject {
 
     function now(){
         var m = logic.create()
-        _.each(_.keys(m), function(a){
+        Lodash.each(Lodash.keys(m), function(a){
             console.log(a)
         })
         return m;

@@ -180,7 +180,7 @@ Item {
                 border.width: 1
                 property var lvPtr : parent.parent ? parent.parent : null
                 property var m : lvPtr && lvPtr.model ? lvPtr.model.get(index) : {error:"happens"}
-                property int ind : m && !_.isUndefined(m.__relatedIndex) ? m.__relatedIndex : index
+                property int ind : m && !Lodash.isUndefined(m.__relatedIndex) ? m.__relatedIndex : index
 //                onMChanged: if(m) console.log(JSON.stringify(m,null,2))
 
                 clip : true

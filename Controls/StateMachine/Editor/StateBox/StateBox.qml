@@ -254,7 +254,7 @@ Item {
                 origin                : rootObject
                 destination           : rootObject.getStateItemFunc && model.dest ? rootObject.getStateItemFunc(dest) : null
                 onRightClicked        : {
-                    var obj = _.clone(transitionsView.model.get(index))
+                    var obj = Lodash.clone(transitionsView.model.get(index))
                     obj.origin = logic.name
                     obj.toString = function() { return "statetransitionmodelobject" }
                     var coords = rootObject.mapToItem(null)

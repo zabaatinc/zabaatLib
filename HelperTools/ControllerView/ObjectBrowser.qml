@@ -21,7 +21,7 @@ Item {
 
         function addObj(){
             for(var p in obj){
-                if(_.indexOf(excludeList,p) !== -1 || p.indexOf("__") === 0)
+                if(Lodash.indexOf(excludeList,p) !== -1 || p.indexOf("__") === 0)
                     continue
 
                 var key  = p

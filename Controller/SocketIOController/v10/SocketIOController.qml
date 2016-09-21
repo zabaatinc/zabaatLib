@@ -336,7 +336,7 @@ ZController {
             }
         }
 
-
+        property int autoServerMsgId : -1   //messages sent from server without us asking are marked with negative cbId from us!
         onServerResponse: {
             var jsRes = priv.parseAndCheck(value,"",cbId)
 
@@ -371,7 +371,7 @@ ZController {
             var arr = eventName.split("/")
             var mName = arr[0] !== "" ? arr[0] : arr.length > 1 ? arr[1] : ""
 
-            if(mName !== "")
+            if(mName)
                 logic.handleMessage(jsRes , mName)
             else
                 console.log("bad model name!")
@@ -383,6 +383,8 @@ ZController {
                     //emit signal that res was received!
                     resReceived(cbId, cbObj.type, cbObj.url, jsRes);
                     var time = priv.now()
+
+                    //cbHandler func does err checking inside!
                     var times = priv.cbHandlerFunc(jsRes,  cbObj.callback, cbObj.type, cbObj.url, cbObj.modelToUpdate)
                     time = priv.now() - time
 
@@ -398,20 +400,26 @@ ZController {
             }
             else {
                 //should always check for errors no matta what
-                priv.errorCheck(jsRes)
+//                console.log("CbID was empty for", mName)
+                if(priv.errorCheck(jsRes)) {    //if we passed our errorCheck!
+                    var id = autoServerMsgId--;
+                    resReceived (id ,mName,"auto",jsRes); //we still got this thing, lets make sure we send it out.
+                    resProcessed(id, time);
+                }
             }
         }
 
 
         property QtObject logic : QtObject {
             id : logic
-            property var defaultEvents : ["message","prints"]   //todo, make prints outside
+            property var defaultEvents : ["message","prints","error","progress"]   //todo, make prints outside
 
 
             function isArray(obj) {
                 return toString.call(obj) === '[object Array]'
             }
             function handleMessage(message , modelName, depth){
+//                console.log("handleMEssage", message, modelName, depth)
                 if(depth === null || typeof depth === 'undefined')
                     depth = 0
 
@@ -468,6 +476,8 @@ ZController {
                                 break;
                         case "destroy" : console.log(socketHandler, "TODO : IMPLEMENT DESTROY", JSON.stringify(message,null,2));
                             break;
+
+
                     }
                 }
             }

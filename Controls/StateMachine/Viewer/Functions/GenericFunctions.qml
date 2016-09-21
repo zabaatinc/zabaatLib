@@ -95,7 +95,7 @@ QtObject {
                         obj[k] = toArray(val)
 //                    }
                     else
-                        obj[k] = _.clone(val)
+                        obj[k] = Lodash.clone(val)
 //                    }
 
                 }

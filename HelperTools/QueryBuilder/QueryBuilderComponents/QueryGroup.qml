@@ -32,7 +32,6 @@ Rectangle {
         isGroup : true,
         color   : logic.colorToHex(colorsObj ? colorsObj.standard : "#ffffff")
     })
-
     property var mongoObj : toMongoObj();
     onChanged: {
         mongoObj = toMongoObj();
@@ -155,7 +154,9 @@ Rectangle {
 
 
     //run through m and turn into a mongo query
-    function toMongoObj() {
+    function toMongoObj(m) {
+        m = m || rootObject.m;
+
         function processItems(items, acc) {
             acc = acc || [];
 
@@ -175,6 +176,9 @@ Rectangle {
             return acc;
         }
         function processGroup(grp) {
+            if(!grp)
+                return null;
+
             var q = {}
             var k =  grp.mode === "AND" ? "$and" : "$or";
             q[k] = processItems(grp.items, []);

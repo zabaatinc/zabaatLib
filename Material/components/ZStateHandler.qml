@@ -408,7 +408,7 @@ Item {
 
                 var earr = o.split("!")
                 if(earr.length >= 2 ) {
-//                    console.log(earr, earr.length % 2, 0, _.keys(statesObj))
+//                    console.log(earr, earr.length % 2, 0, Lodash.keys(statesObj))
                     var res = analyze(str,earr)
                     if(res.length > 0){
                          return replaceExclam(cloneObj(statesObj[o]), res)

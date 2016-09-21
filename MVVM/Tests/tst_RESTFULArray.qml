@@ -27,7 +27,7 @@ ZabaatTest {
     }
 
     function reduceToMap(arr){
-        return _.reduce(arr, function(a,e){
+        return Lodash.reduce(arr, function(a,e){
                     a[e[0]] = true;
                     return a;
         },{})
@@ -188,7 +188,7 @@ ZabaatTest {
         compare(ra.length, 1);
         compare(ra.arr.length , 1);
 
-        var ids = _.keys(ra.priv.idMap)
+        var ids = Lodash.keys(ra.priv.idMap)
         compare(ids.length, 1, 'there should only be one id:' + ids);
 
         var rc = reduceToMap(signals.deleted)
@@ -207,7 +207,7 @@ ZabaatTest {
         ra.runUpdate(defaultObj);
         ra.del("0/hobbies/100")
 
-        var ids = _.keys(ra.priv.idMap)
+        var ids = Lodash.keys(ra.priv.idMap)
         compare(ids.length, 2, 'there should still be 2 ids:' + ids);
 
         compare(ra.length, 2);
@@ -227,7 +227,7 @@ ZabaatTest {
 
         ra.del("2")
 
-        var ids = _.keys(ra.priv.idMap)
+        var ids = Lodash.keys(ra.priv.idMap)
         compare(ids.length, 2, 'there should still be 2 ids:' + ids);
 
         compare(ra.length, 2);
@@ -238,7 +238,7 @@ ZabaatTest {
     function test_14_deleteDeeper_NonExisting() {
         ra.runUpdate(defaultObj);
 
-        var ids = _.keys(ra.priv.idMap)
+        var ids = Lodash.keys(ra.priv.idMap)
         compare(ids.length, 2, 'there should still be 2 ids:' + ids);
 
         ra.del("0/hobbies/0")
@@ -284,7 +284,7 @@ ZabaatTest {
         var rc = reduceToMap(signals.updated)
         var cc = reduceToMap(signals.created)
 
-        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+        compare(Lodash.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
 
         compare(cc['0/hobbies/100/level'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
         compare(signals.created.length , 1 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
@@ -309,7 +309,7 @@ ZabaatTest {
         var rc = reduceToMap(signals.updated)
         var cc = reduceToMap(signals.created)
 
-        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+        compare(Lodash.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
 
         compare(cc['0/hobbies/100/level'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
         compare(cc['0/hobbies/100/medals'], true, "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
@@ -337,7 +337,7 @@ ZabaatTest {
         var rc = reduceToMap(signals.updated)
         var cc = reduceToMap(signals.created)
 
-        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+        compare(Lodash.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
 
         compare(ra.get("0/hobbies/100/aliases") , aliases)
 
@@ -364,7 +364,7 @@ ZabaatTest {
         var cc = reduceToMap(signals.created)
 
 
-        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+        compare(Lodash.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
 
         compare(ra.get("0/hobbies/100/aliases") , aliases)
 
@@ -384,7 +384,7 @@ ZabaatTest {
 //        ra.priv.debug = true;
         ra.del('0/hobbies/100/aliases/0')
 
-        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+        compare(Lodash.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
 
         var dc = reduceToMap(signals.deleted)
         compare(signals.created.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
@@ -410,7 +410,7 @@ ZabaatTest {
 
 //        console.log(ra.get("0/hobbies/100/aliases"))
 
-        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+        compare(Lodash.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
 
         var rc = reduceToMap(signals.updated)
         compare(signals.created.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))
@@ -436,7 +436,7 @@ ZabaatTest {
 
 //        console.log(ra.get("0/hobbies/100/aliases"))
 
-        compare(_.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
+        compare(Lodash.keys(ra.priv.idMap).length, 2 , "Should still be 2 ids!")
 
         var rc = reduceToMap(signals.updated)
         compare(signals.created.length , 0 , "ACTUAL SIGNALS : " + JSON.stringify(signals.created,null,2))

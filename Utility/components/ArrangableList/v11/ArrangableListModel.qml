@@ -117,7 +117,7 @@ Item {
             arr = arr  || indexList
 //            console.log("il", arr, "s", s)
             if(arr) {
-                s.push(_.clone(arr))
+                s.push(Lodash.clone(arr))
             }
             states = s
             stateIdx = s.length -1
@@ -329,7 +329,7 @@ Item {
 
                 //we need the SAR array (to figure out our head & tail), essentially to figure out
                 //if we are moving up or down.
-                var il = _.difference(zsubOrig.indexList, movingArr);
+                var il = Lodash.difference(zsubOrig.indexList, movingArr);
 //                    console.log("remove", movingArr, "from", zsubOrig.indexList , "=", il)
 
 

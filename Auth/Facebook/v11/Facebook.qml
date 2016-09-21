@@ -12,7 +12,7 @@ Item {
 //    Component.onCompleted: {
 //        Functions.file.readFile("http://connect.facebook.net/en_US/sdk.js",function(msg){
 //            console.log("READ FINISHED", msg.length);
-//            console.log(_.keys(msg));
+//            console.log(Lodash.keys(msg));
 //            try {
 //                fb = JSON.parse(msg);
 //            }

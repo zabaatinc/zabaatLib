@@ -16,11 +16,11 @@ Item {
     }
 
     function f(a) {
-//        return _.indexOf(["Two","Four"],a) !== -1
+//        return Lodash.indexOf(["Two","Four"],a) !== -1
         if(typeof a === 'object') {
-            return _.indexOf(["One","Three","Five"],a.text) !== -1
+            return Lodash.indexOf(["One","Three","Five"],a.text) !== -1
         }
-        return _.indexOf(["One","Three","Five"],a) !== -1
+        return Lodash.indexOf(["One","Three","Five"],a) !== -1
     }
     Row {
         width : parent.width
@@ -67,7 +67,7 @@ Item {
 
         function doUpdate() {
             var t = "Undos\n"
-            _.each(arrangable.undos() , function(v,k) {
+            Lodash.each(arrangable.undos() , function(v,k) {
                 t += JSON.stringify(v) + "\n"
             })
 
@@ -89,7 +89,7 @@ Item {
 
         function doUpdate() {
             var t = "Redos\n"
-            _.each(arrangable.redos() , function(v,k) {
+            Lodash.each(arrangable.redos() , function(v,k) {
                 t += JSON.stringify(v) + "\n"
             })
 
@@ -127,7 +127,7 @@ Item {
             text : "save"
             onClicked : {
                 var narr = []
-                _.each(arrangable.indexList, function(i,k){
+                Lodash.each(arrangable.indexList, function(i,k){
                     narr[k] = master[i]
                 })
                 console.log(narr, master)

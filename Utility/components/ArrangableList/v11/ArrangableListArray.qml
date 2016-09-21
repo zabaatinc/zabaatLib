@@ -68,7 +68,7 @@ Item {
 
 //        onStateIdxChanged: {
 ////            console.log("IDX", stateIdx)
-//            _.each(states, function(v,k){
+//            Lodash.each(states, function(v,k){
 //                if(k === stateIdx)
 //                    console.log(k+" >>> "+ v)
 //                else
@@ -79,7 +79,7 @@ Item {
         onModelChanged:  {
             logic.resetState();
             if(model) {
-                logic.indexList= _.keys(model)
+                logic.indexList= Lodash.keys(model)
             }
         }
         onIndexListChanged: {
@@ -101,13 +101,13 @@ Item {
         }
         function updateFiltered() {
             if(typeof filterFunc === 'function') {
-                logic.indexListFiltered = _.filter(logic.indexList, function(a) {  //filter on the value (a is the index!)
+                logic.indexListFiltered = Lodash.filter(logic.indexList, function(a) {  //filter on the value (a is the index!)
                     return filterFunc(model[indexList[a]])
                 }).sort(function(a,b){ return a- b} )
 //                console.log("update filtered!!??")
             }
             else
-                indexListFiltered = _.clone(indexList).sort(function(a,b){ return a- b} )
+                indexListFiltered = Lodash.clone(indexList).sort(function(a,b){ return a- b} )
 
         }
         function addToStates(arr) {
@@ -122,7 +122,7 @@ Item {
             arr = arr  || indexList
 //            console.log("il", arr, "s", s)
             if(arr) {
-                s.push(_.clone(arr))
+                s.push(Lodash.clone(arr))
             }
             states = s
             stateIdx = s.length -1
@@ -141,7 +141,7 @@ Item {
             if(states.length > 0 && stateIdx > 0){
                 indexListLock = true;
 
-                var undoState = _.clone(states[stateIdx - 1])
+                var undoState = Lodash.clone(states[stateIdx - 1])
                 indexList = undoState
                 deselectAll()
                 stateIdx--
@@ -167,7 +167,7 @@ Item {
                 indexListLock = true;
 
 
-                var redoState = _.clone(states[stateIdx+1])
+                var redoState = Lodash.clone(states[stateIdx+1])
                 indexList = redoState
                 deselectAll()
                 stateIdx++
@@ -197,7 +197,7 @@ Item {
             if(arr === null || arr === undefined || !isArray(arr))
                 return -1;
 
-            return _.indexOf(arr,element);
+            return Lodash.indexOf(arr,element);
         }
         function moveArrayElem(arr, old_index, new_index) {
            if (new_index >= arr.length) {
@@ -234,7 +234,7 @@ Item {
             if(isArray(idx)){
 //                console.log(idx)
                 var newSelection = {}
-                _.each(idx, function(v){
+                Lodash.each(idx, function(v){
                     if(v < 0 || v >= indexListFiltered.length)
                         return failed = true;
 
@@ -306,7 +306,7 @@ Item {
         function selectAll(){
             var ns = {}
 
-            _.each(indexListFiltered, function(v,k){
+            Lodash.each(indexListFiltered, function(v,k){
                 ns[k] = v
             })
 
@@ -345,27 +345,27 @@ Item {
                 var movingArr = []
                 var sar       = []
 
-                _.each(selected, function(v,k){
+                Lodash.each(selected, function(v,k){
                     sar[k] = v
                     movingArr[k] = logic.indexList[v]
                 })
 
-                sar       = _.compact(sar);
-                movingArr = _.compact(movingArr);
+                sar       = Lodash.compact(sar);
+                movingArr = Lodash.compact(movingArr);
 
 //                    console.log("sar      ", sar)
 //                    console.log("movingArr", movingArr)
                 //we need the SAR array (to figure out our head & tail), essentially to figure out
                 //if we are moving up or down.
-                var difference = _.difference(logic.indexList, movingArr);
+                var difference = Lodash.difference(logic.indexList, movingArr);
 //                    console.log("remove", movingArr, "from", zsubOrig.indexList , "=", il)
 
 
                 //Figure out the head, tail
-                var head   = parseInt(_.first(sar))
-                var tail   = parseInt(_.last(sar))
+                var head   = parseInt(Lodash.first(sar))
+                var tail   = parseInt(Lodash.last(sar))
 
-                destIdx    = _.indexOf(difference, logic.indexList[dest]) //indexOf(il, ptrList[dest])
+                destIdx    = Lodash.indexOf(difference, logic.indexList[dest]) //indexOf(il, ptrList[dest])
 //                    console.log("found", logic.indexList[dest], "@", destIdx, "in", difference);
 //                    console.log(destIdx, dest,logic.indexList[dest])
 //                    console.log("move to", destIdx)

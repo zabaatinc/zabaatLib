@@ -67,7 +67,7 @@ QtObject {
         obj.w   = obj.h * 3
         obj.id  = (maxId(logic.states) + 1).toString()
 
-        logic.states.append(_.clone(obj))
+        logic.states.append(Lodash.clone(obj))
         emitChange();
     }
     function deleteStateBox(item,x,y){
@@ -116,7 +116,7 @@ QtObject {
         var sModel = getState(source);
         var dModel = getState(destination)
         if(sModel && dModel){
-            var t = _.clone(defaultTransObject)
+            var t = Lodash.clone(defaultTransObject)
             t.dest = destination;
             sModel.transitions.append(t)
             emitChange();
@@ -142,7 +142,7 @@ QtObject {
         var idx = getTransition(originName, destinationName, oldName, true)
         if(idx !== -1){
             var sModel = getState(originName)
-            var t = _.clone(defaultTransObject)
+            var t = Lodash.clone(defaultTransObject)
             t.name = newName ? newName : oldName ? oldName : ""
             t.dest = destinationName;
             t.rules = rules;
@@ -288,7 +288,7 @@ QtObject {
             for(var t = 0; t < transitions.count; ++t){
                 var trans = transitions.get(t)
                 if(trans.dest === destinationName){
-                    if(_.isUndefined(friendlyName) || friendlyName === ""){
+                    if(Lodash.isUndefined(friendlyName) || friendlyName === ""){
                         return giveMeIndex ? t : trans
                     }
                     else if(trans.name === friendlyName){

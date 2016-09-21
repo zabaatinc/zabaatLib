@@ -286,7 +286,7 @@ QtObject {
             return sfunc(a,b)
         }
 
-        if(!_.isUndefined(lm))
+        if(!Lodash.isUndefined(lm))
             return -1;
 
         var isArr = isArray(lm);
@@ -315,7 +315,7 @@ QtObject {
         return -1;
     }
     function binarySearchInsert(lm, insertElement, compareFunc) {
-        if(!_.isUndefined(lm))
+        if(!Lodash.isUndefined(lm))
             return -1;
 
         var minIndex = 0;

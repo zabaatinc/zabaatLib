@@ -74,7 +74,7 @@ Item {
             if(item){
                 for(var a in args){
                      if(item.hasOwnProperty(a)){
-                         item[a] = _.clone(args[a])
+                         item[a] = Lodash.clone(args[a])
                      }
                 }
                 args = null;

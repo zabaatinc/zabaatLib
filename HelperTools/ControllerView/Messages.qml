@@ -117,14 +117,14 @@ Item {
         }
         function handleReqSent(id,type,url,params)  {
 //            console.log('req sent', id, type, url, params, Qt.formatTime(new Date()))
-            var arr   = _.compact(url.toString().split("/"))
+            var arr   = Lodash.compact(url.toString().split("/"))
             var model = arr[0]
             var fn    = arr[1]
             var time = new Date()
             var data = params
             var cbId = id
 
-            arr = _.compact(id.toString().split("/"))
+            arr = Lodash.compact(id.toString().split("/"))
             id = arr[arr.length -1]
 
             lm.append({ type    : "req",
@@ -143,7 +143,7 @@ Item {
         }
         function handleResReceived(id,type,url,res)  {
             //id,type,url,res
-            var arr   = _.compact(url.toString().split("/"))
+            var arr   = Lodash.compact(url.toString().split("/"))
             var model = arr[0]
             var fn    = arr[1]
             var time = new Date()
@@ -152,7 +152,7 @@ Item {
 
             var reqIdx =  findCbId(cbId)
 //            console.log("reqIdx is " , reqIdx)
-            arr = _.compact(id.toString().split("/"))
+            arr = Lodash.compact(id.toString().split("/"))
             id = arr[arr.length -1]
 
             lm.append({ type    : "res",
@@ -186,7 +186,7 @@ Item {
         function refreshModelFilters(){
             lv.currentIndex = -1
             modelFilters = null
-            modelFilters = _.flatten(['All'].concat(_.clone(controller.getAllModelNames())))
+            modelFilters = Lodash.flatten(['All'].concat(Lodash.clone(controller.getAllModelNames())))
         }
 
 

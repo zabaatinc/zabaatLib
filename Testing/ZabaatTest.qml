@@ -51,7 +51,7 @@ TestCase {
                 if(signals) {
 
                     //first let's create all the signals !
-                    _.each(sl.signals, function(sigName){
+                    Lodash.each(sl.signals, function(sigName){
                         if(!priv.signalMap)
                             priv.signalMap = {}
                         if(!priv.signalMap[sigName])
@@ -59,7 +59,7 @@ TestCase {
                     })
 
                     //now let's connect them all
-                    _.each(sl.signals, function(sigName){
+                    Lodash.each(sl.signals, function(sigName){
                         var f = function() {
                             var args = Array.prototype.slice.call(arguments);
                             priv.signalMap[sigName].push(args);

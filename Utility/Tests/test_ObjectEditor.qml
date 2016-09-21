@@ -130,9 +130,9 @@ Item {
 //            var temp = {}
 
 
-//            _.forEach(modelObj,function(v,k){
+//            Lodash.forEach(modelObj,function(v,k){
 //                var idx = k.indexOf("__")
-//                if(_.indexOf(excludeList, k) === -1 &&  idx === -1  ) {
+//                if(Lodash.indexOf(excludeList, k) === -1 &&  idx === -1  ) {
 
 //                    Object.defineProperty(temp , k, {
 
@@ -173,7 +173,7 @@ Item {
 //        var mo = jsObj //lm.get(0) ;
 ////        lm.setProperty(0,'location', { city : 'derp town' })
 //        mo.location.city = "Derp town"
-////        console.log(JSON.stringify(mo,null,2), _.keys(mo), Functions.object.getProperties(mo))
+////        console.log(JSON.stringify(mo,null,2), Lodash.keys(mo), Functions.object.getProperties(mo))
 
 
 //        var o = modelFactory(mo)

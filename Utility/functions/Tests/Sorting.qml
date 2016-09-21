@@ -39,9 +39,9 @@ Item {
         lm2.clear()
 
         var unsortedArr = generateRandArray(size,0 ,1000)
-        var clone  = _.clone(unsortedArr)
-        var clone2 = _.clone(unsortedArr)
-        var clone3 = _.clone(unsortedArr)
+        var clone  = Lodash.clone(unsortedArr)
+        var clone2 = Lodash.clone(unsortedArr)
+        var clone3 = Lodash.clone(unsortedArr)
         var cmpFunc = function(a,b) { return a.num - b.num }
 
 
@@ -84,8 +84,8 @@ Item {
             console.log(clone)
             console.log(clone2)
             console.log(clone3)
-            console.log(_.map(Functions.object.listmodelToArray(lm1) , function (a){ return a.num}) )
-            console.log(_.map(Functions.object.listmodelToArray(lm2) , function (a){ return a.num}))
+            console.log(Lodash.map(Functions.object.listmodelToArray(lm1) , function (a){ return a.num}) )
+            console.log(Lodash.map(Functions.object.listmodelToArray(lm2) , function (a){ return a.num}))
         }
     }
 

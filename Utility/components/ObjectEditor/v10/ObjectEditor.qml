@@ -113,7 +113,7 @@ Item {
             renameKeyTo = renameKeyTo || "name"
 
             for(var o in obj) {
-                var item = _.clone(obj[o])
+                var item = Lodash.clone(obj[o])
                 item[renameKeyTo] = o
                 arr.push(item)
             }
@@ -279,7 +279,7 @@ Item {
                     }
                     p = p.join(".")
 
-                    thisConf = _.at(configJs, p)
+                    thisConf = Lodash.at(configJs, p)
                     if(thisConf.length > 0)
                         thisConf = thisConf[0]
                     else
