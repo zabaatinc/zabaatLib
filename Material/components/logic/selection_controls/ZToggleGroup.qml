@@ -20,6 +20,7 @@ Item {
         else
             return lv.model.get(lv.currentIndex)
     }
+    property alias currentIndex    : lv.currentIndex
 
     function selectIdx(idx) {
         return lv.currentIndex = idx;
