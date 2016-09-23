@@ -21,6 +21,7 @@ Item {
             return lv.model.get(lv.currentIndex)
     }
     property alias currentIndex    : lv.currentIndex
+    property bool  disableShowsGraphically : true
 
     function selectIdx(idx) {
         return lv.currentIndex = idx;
@@ -52,6 +53,7 @@ Item {
             onClicked : lv.currentIndex = index;
             text      : modelData
             state     : lv.currentIndex === index ? stateActive : stateInactive
+            disableShowsGraphically: rootObject.disableShowsGraphically
         }
 //        visible : false
     }
