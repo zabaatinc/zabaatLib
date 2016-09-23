@@ -59,11 +59,11 @@ QtObject {
     //borrowed from https://github.com/papyros/qml-material/blob/develop/modules/Material/Theme.qml
     function isDarkColor(color) {
 //        console.log("isDarker",color)
-        var temp = Qt.darker(color, 1)
-//        var a = 1 - ( 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b);
-//        return temp.a > 0 && a >= 0.3
-        var a =  temp.r + temp.g + temp.b;
-        return temp.a > 0 && a < 1;
+        var temp = color//Qt.darker(color, 1)
+        var a = 1 - ( 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b);
+        return temp.a > 0 && a >= 0.3
+//        var a =  temp.r + temp.g + temp.b;
+//        return temp.a > 0 && a < 1.5;
     }
     function isLightColor(color){
         return !isDarkColor(color)
