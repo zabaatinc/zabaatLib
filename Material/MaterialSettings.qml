@@ -13,6 +13,9 @@ Item {
     function init(mainWindow){
 //        console.log("MaterialSettings.init")
         if(!__privates.hasInit && mainWindow){
+            units.mainWindowWidth  = Qt.binding(function() { return mainWindow.width });    //this is auto gonna change our units one
+            units.mainWindowHeight = Qt.binding(function() { return mainWindow.height});    //this is auto gonna change our units one
+
             Units.pixelDensity = units.pixelDensity = Screen.pixelDensity
             Units.multiplier   = units.scaleMulti
 //            Units.dpi          = units.dpi;
@@ -24,6 +27,7 @@ Item {
             Fonts.dir          = font.dir
             Colors.dir         = style.colorsPath
             Colors.defaultColorTheme = style.defaultColors
+
 
             WindowManager.init(mainWindow)
             Toasts.init(WindowManager);
@@ -59,11 +63,15 @@ Item {
         property real scaleMulti   : 1
         property real defaultWidth : 1920   //Pages are inited to this
         property real defaultHeight: 1080   //Pages are inited to this
+        property real mainWindowWidth : 1920
+        property real mainWindowHeight : 1080
 
         onPixelDensityChanged : Units.pixelDensity  = pixelDensity
         onScaleMultiChanged   : Units.multiplier    = scaleMulti
         onDefaultWidthChanged : Units.defaultWidth  = defaultWidth
         onDefaultHeightChanged: Units.defaultHeight = defaultHeight
+        onMainWindowWidthChanged : Units.mainWindowWidth = mainWindowWidth
+        onMainWindowHeightChanged : Units.mainWindowHeight = mainWindowHeight
     }
 
     QtObject {

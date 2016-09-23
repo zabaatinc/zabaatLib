@@ -38,6 +38,8 @@ QtObject {
 
     property real defaultWidth  : 1920
     property real defaultHeight : 1080
+    property real mainWindowWidth : 1920
+    property real mainWindowHeight : 1080
     property bool loaded: false
 
 

@@ -10,20 +10,22 @@ Item {
     implicitHeight : Units.defaultHeight
 
     property point scaleMultiplier : Qt.point(1,1);
+    property bool  absoluteMode    : true       //determines if we are calculating our hx,wx in mainWindow's w/h or this Item's!
 
     QtObject {
         id: logic
-        property real wMulti : (rootObject.width  / rootObject.implicitWidth)   * scaleMultiplier.x
-        property real hMulti : (rootObject.height / rootObject.implicitHeight)  * scaleMultiplier.y
+        property real wMulti    : (rootObject.width  / rootObject.implicitWidth)   * scaleMultiplier.x
+        property real hMulti    : (rootObject.height / rootObject.implicitHeight)  * scaleMultiplier.y
+        property real wMultiAbs : (Units.mainWindowWidth  / rootObject.implicitWidth)   * scaleMultiplier.x
+        property real hMultiAbs : (Units.mainWindowHeight / rootObject.implicitHeight)  * scaleMultiplier.y
 
         //property real aspectRatio : wMulti / hMulti
     }
 
-    function wx(px)        { return px * logic.wMulti }
-    function hx(px)        { return px * logic.hMulti }
+    function wx(px)        { return absoluteMode ? px * logic.wMultiAbs : px * logic.wMulti }
+    function hx(px)        { return absoluteMode ? px * logic.hMultiAbs : px * logic.hMulti }
     function point(w,h)    { return Qt.point(wx(w) , hx(h)) }
     function rect(x,y,w,h) { return Qt.rect(wx(x) , hx(y), wx(w), hx(h)) }
-
     function bindItem(item,x,y,w,h) {   //
         if(item) {
             if(x !== undefined)     item.x      = Qt.binding(function() { return wx(x) })
