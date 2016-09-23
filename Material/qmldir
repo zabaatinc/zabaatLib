@@ -26,6 +26,7 @@ ZText 						1.0 ./components/logic/textboxes/ZText.qml
 ZChip						1.0 ./components/logic/textboxes/ZChip.qml
 ZChipBox 					1.0 ./components/logic/textboxes/ZChipBox.qml
 ZRadialView					1.0 ./components/logic/lists/ZRadialView.qml
+ZRolodex					1.0 ./components/logic/lists/ZRolodex.qml
 ZCheckbox					1.0 ./components/logic/selection_controls/ZCheckbox.qml
 ZToggleGroup				1.0 ./components/logic/selection_controls/ZToggleGroup.qml
 ZTextBoxLabel 				1.0 ./components/logic/textboxes/ZTextBoxLabel.qml
