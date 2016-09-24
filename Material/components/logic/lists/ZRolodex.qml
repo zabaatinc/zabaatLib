@@ -60,19 +60,19 @@ Item {
         height : dh !== psize || orientation === ListView.Horizontal? rootObject.height: pSizeTotal
         model : logic.mapArr
 
+        property real spacingSize : (spacing * (count-1))
         property real psize : prefferedDelegateSize
-        property real fillW : rootObject.width /count + (spacing * (count-1))
-        property real fillH : rootObject.height/count + (spacing * (count-1))
-        property real pSizeTotal : psize * count + (spacing * (count - 1))
-        property real dw    : pSizeTotal > rootObject.width  && psize !== 0 ? fillW : psize
-        property real dh    : pSizeTotal > rootObject.height && psize !== 0 ? fillH : psize
-
+        property real fillW : rootObject.width /count + spacingSize
+        property real fillH : rootObject.height/count + spacingSize
+        property real pSizeTotal : psize * count + spacingSize
+        property real dw    : pSizeTotal > rootObject.width  || psize <= 0 ? fillW : psize
+        property real dh    : pSizeTotal > rootObject.height || psize <= 0 ? fillH : psize
         orientation : ListView.Horizontal
         interactive : false
         delegate : Loader {
             id : loaderInstance
-            width  : orientation === ListView.Horizontal ? lv.dw                : rootObject.width
-            height : orientation === ListView.Horizontal ? rootObject.height    : lv.dh
+            width  : rootObject.orientation === ListView.Vertical   ? rootObject.width   : lv.dw
+            height : rootObject.orientation === ListView.Horizontal ? rootObject.height  : lv.dh
             sourceComponent: rootObject.delegate
             property int _index : index
             property var m : logic.mapArr[index];
