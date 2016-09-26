@@ -88,7 +88,6 @@ Item {
     function dialog(title, text, cbAccept, cbCancel, args){
         dialogIn(title,text,cbAccept,cbCancel,args)
     }
-
     function dialogIn(title, text, cbAccept, cbCancel, args, item) {
         if(!args)
             args = {}
@@ -99,7 +98,6 @@ Item {
 
         logic.create(text,"ZToastDialog", args, {blocking:true,duration:-1} , null, null , item)
     }
-
     function dialogWithInput(title, text, cbAccept, cbCancel, args){
         dialogWithInputIn(title,text,cbAccept,cbCancel,args)
     }
@@ -119,7 +117,6 @@ Item {
     function listOptions(title, model, cbAccept, cbCancel, args){
         listOptionsIn(title,model,cbAccept,cbCancel,args)
     }
-
     function listOptionsIn(title, model, cbAccept, cbCancel, args, item){
         if(!args)
             args = {}
@@ -131,8 +128,6 @@ Item {
 
         logic.create("","ZToastList",args,{blocking:true,duration:-1}, null, null, item)
     }
-
-
     function snackbar(text, args, cb, btnText){
         if(!args)
             args = {}
@@ -179,6 +174,8 @@ Item {
         property var js         : null
         property string json    : ""
 
+        property real activeSnackY : 0;
+
         property var activeSnack
         property var snackQueue : []    //only one snackbar may be visible at a time. So if there is one, we need to Q it!
 
@@ -198,22 +195,60 @@ Item {
                     }
                 }
 
-//                console.log(JSON.stringify(contentItem))
-                activeSnack              = snackBakery.createObject(contentItem);
-                activeSnack.anchors.fill = contentItem
-                activeSnack.state        = args.state || "";
-                activeSnack.w            = args.w
-                activeSnack.h            = args.h
-                activeSnack.args         = args;
 
-                //now load the inner loader!
-                type  = type || "ZSnackbar.qml"
-                if(type.indexOf('.qml') === -1)
-                    type = type + ".qml"
-                activeSnack.type    = type;
+                //this is not very performant for some reason. so we have it off
+                if(false && mgr.target.mainItem && mgr.target.mainItem.parent === contentItem ) {
+                    var mainItem = mgr.target.mainItem;
 
-//                console.log("CREATIN SNACK", msg, args.w, args.h);
-                return activeSnack;
+                    //we want to create the snack in here and push the mgr.target.mainItem up!
+                    activeSnack              = snackBakery.createObject(contentItem);
+//                    activeSnack.anchors.top  = mainItem.bottom  //under the main item!
+                    activeSnack.state        = args.state || "";
+                    activeSnack.w            = args.w
+                    activeSnack.h            = args.h
+                    activeSnack.args         = args;
+
+                    activeSnack.width  = Qt.binding(function() { return contentItem.width })
+                    activeSnack.height = Qt.binding(function() { return contentItem.height })
+
+                    if(mainItem.anchors.fill !== null) {
+//                        console.log(">>>>> CHANGED MAINITEM ANCHORS")
+                        mainItem.anchors.fill = null;
+                        mainItem.anchors.left = contentItem.left
+                        mainItem.anchors.right = contentItem.right
+                        mainItem.anchors.top  = contentItem.top;
+                        mainItem.anchors.bottom = contentItem.bottom;
+                        mainItem.anchors.bottomMargin = Qt.binding(function() {
+                            return (0.06 * contentItem.height) + activeSnackY;
+                        })
+                    }
+
+
+
+                    //now load the inner loader!
+                    type  = type || "ZSnackbar.qml"
+                    if(type.indexOf('.qml') === -1)
+                        type = type + ".qml"
+                    activeSnack.type    = type;
+
+                    return activeSnack;
+                }
+                else {
+                    activeSnack              = snackBakery.createObject(contentItem);
+                    activeSnack.anchors.fill = contentItem
+                    activeSnack.state        = args.state || "";
+                    activeSnack.w            = args.w
+                    activeSnack.h            = args.h
+                    activeSnack.args         = args;
+
+                    //now load the inner loader!
+                    type  = type || "ZSnackbar.qml"
+                    if(type.indexOf('.qml') === -1)
+                        type = type + ".qml"
+                    activeSnack.type    = type;
+
+                    return activeSnack;
+                }
             }
             else {
                 snackQueue.push([msg,type,args,contentItem,true])
@@ -411,6 +446,8 @@ Item {
                 property real w        : rootObject.defaultToastSize.x
                 property real h        : rootObject.defaultToastSize.y
                 property int   animDuration : 500
+                property alias yMarg   : snackLoader.marg
+                onYMargChanged: logic.activeSnackY = yMarg;
 
                 property string state  : ""
                 onStateChanged: setAnchors()
@@ -473,7 +510,6 @@ Item {
                     NumberAnimation {
                         id       : snackExitAnim
                         onStopped  : snackInstance.destroy();
-
                         target     : snackLoader
                         properties : "marg"
                         duration   : snackInstance.animDuration
@@ -481,8 +517,6 @@ Item {
                         from       : 0
                     }
                 }
-
-
             }
         }
     }

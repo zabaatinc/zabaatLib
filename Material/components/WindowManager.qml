@@ -8,14 +8,15 @@ Item {
 
     Component.onCompleted: console.log("singleton WindowManager is born!")
 
-    property bool loaded          : logic.mainWindow ? true : false
-    property var  activeWindow    : null
-    property var  activeItem      : null
-    readonly property alias count : logic.count
-    readonly property alias jsObj : logic.js
-    readonly property alias json  : logic.json
+    property bool loaded               : logic.mainWindow ? true : false
+    property var  activeWindow         : null
+    property var  activeItem           : null
+    property var  mainItem             : null //snackbar uses this to make this item stretch up while snackbar is visible.
+    readonly property alias count      : logic.count
+    readonly property alias jsObj      : logic.js
+    readonly property alias json       : logic.json
     readonly property alias mainWindow : logic.mainWindow
-    readonly property alias logic : logic
+    readonly property alias logic      : logic
 
     QtObject {
         id : logic

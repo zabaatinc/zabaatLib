@@ -10,7 +10,7 @@ Item {
     property alias units         : settings_Units
     readonly property bool loaded: Fonts.loaded && Colors.loaded && Toasts.loaded && WindowManager.loaded && Units.loaded
 
-    function init(mainWindow){
+    function init(mainWindow, mainItem){
 //        console.log("MaterialSettings.init")
         if(!__privates.hasInit && mainWindow){
             units.mainWindowWidth  = Qt.binding(function() { return mainWindow.width });    //this is auto gonna change our units one
@@ -29,6 +29,7 @@ Item {
             Colors.defaultColorTheme = style.defaultColors
 
 
+            WindowManager.mainItem = mainItem;
             WindowManager.init(mainWindow)
             Toasts.init(WindowManager);
 
