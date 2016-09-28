@@ -79,22 +79,32 @@ Item{   //Essentially a list of loaders
                 anchors.fill: parent
                 source : logic.listDelegateSource()
                 property var args : delArgs
+                property bool loadingArgs: false;
                 onLoaded : {
                     item.anchors.fill = del
-                    loadArgs();
                     if(item && item.hasOwnProperty("model")){
                         item.model = lv.model.get(index);
                     }
+                    loadArgs();
                 }
                 onArgsChanged: loadArgs();
 
                 function loadArgs() {
-                    if(item && args) {
+                    if(item && args && !loadingArgs) {
+                        loadingArgs = true;
                         for(var a in args) {
                             if(item.hasOwnProperty(a)) {
-                                item[a] = args[a]
+                                try {
+                                    item[a] = args[a]
+                                }
+                                catch(e) {
+                                    console.error("error loading arg", a, "onto", item, "with val", args[a])
+                                }
+
+
                             }
                         }
+                        loadingArgs = false;
                     }
                 }
 
