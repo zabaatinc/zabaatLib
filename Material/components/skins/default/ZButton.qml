@@ -9,6 +9,7 @@ ZSkin {
 //    property alias graphical     : graphical
     property alias textContainer : textContainer
     property alias font          : text.font
+    property alias textItem      : text
 
     focus : true
     activeFocusOnTab: true
@@ -117,7 +118,14 @@ ZSkin {
                                     radius: 5,
                    }
         },
-        "singleclickonly" : { logic : { allowDoubleClicks : false } }
+        "singleclickonly" : { logic : { allowDoubleClicks : false } },
+        "fit" : { textItem : { "@scale" : function() {
+                                            var sx = textItem.paintedWidth  > textItem.width  ? width /textItem.paintedWidth - 0.1 : 1;
+                                            var sy = textItem.paintedHeight > textItem.height ? height/textItem.paintedHeight - 0.1 : 1;
+                                            return Math.min(sx,sy);
+                                          }
+                              }
+                }
     })
 
 
