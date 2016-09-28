@@ -11,6 +11,8 @@ Item{   //Essentially a list of loaders
     property alias   lv                      : lv
     property alias   section                 : lv.section
 
+    property var delArgs
+
 
     signal clicked(int index, var object);
 
@@ -76,13 +78,26 @@ Item{   //Essentially a list of loaders
                 id : del
                 anchors.fill: parent
                 source : logic.listDelegateSource()
+                property var args : delArgs
                 onLoaded : {
                     item.anchors.fill = del
+                    loadArgs();
                     if(item && item.hasOwnProperty("model")){
-    //                    console.log("ADDING a thing to the list", lv.model)
                         item.model = lv.model.get(index);
                     }
                 }
+                onArgsChanged: loadArgs();
+
+                function loadArgs() {
+                    if(item && args) {
+                        for(var a in args) {
+                            if(item.hasOwnProperty(a)) {
+                                item[a] = args[a]
+                            }
+                        }
+                    }
+                }
+
             }
         }
 
