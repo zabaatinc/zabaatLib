@@ -29,7 +29,7 @@ Item {
 
         function reset() {
             mapArr = []
-            if(!typeof groupFunc !== 'function')
+            if(!rootObject.model || typeof groupFunc !== 'function')
                 return;
 
             //Lodash.reduce()
@@ -59,6 +59,7 @@ Item {
         width  : dw !== psize || orientation === ListView.Vertical  ? rootObject.width : pSizeTotal
         height : dh !== psize || orientation === ListView.Horizontal? rootObject.height: pSizeTotal
         model : logic.mapArr
+//        onModelChanged: console.log("<<<<< ZROLODEX::NEW MODEL>>>>>", toString.call(model) , model ? model.length : 0, "items");
 
         property real spacingSize : (spacing * (count-1))
         property real psize : prefferedDelegateSize
@@ -93,12 +94,10 @@ Item {
 
                 var item = lv.itemAt(mouseX,mouseY);
                 if(item) {
-//                    console.log(item, JSON.stringify(logic.mapArr[item._index],null,2))
+                    console.log(item, JSON.stringify(logic.mapArr[item._index],null,2))
                     var pt    = mapToItem(item,mouseX,mouseY);
                     var percX = pt.x / item.width;
                     var percY = pt.y / item.height;
-//                    console.log("PERC", percX, percY)
-
                     var m = logic.mapArr[item._index];
                     //figure out the diff between start and len
                     var diff = m.len;
