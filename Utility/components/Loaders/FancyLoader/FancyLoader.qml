@@ -18,9 +18,9 @@ Item {
     signal loaded();
 
     onSourceChanged                 : {
-//        console.log("SOURCE CHANGED TO", source);
+        console.log(rootObject , "SOURCE CHANGED TO", source);
         blocker.visible = true;
-        logic.nextLoader.source          = source;
+        logic.nextLoader.source = source;
     }
     onSourceComponentChanged        : {
         blocker.visible = true;
@@ -75,20 +75,31 @@ Item {
         id : logic
         property var activeLoader  : l2
         property var nextLoader    : l1
-//        onActiveLoaderChanged: console.log("aL",activeLoader)
-//        onNextLoaderChanged  : console.log("nL",nextLoader)
+
+        function statusStr(str) {
+            if(str === Loader.Ready)            return "Loader.Ready"
+            else if(str === Loader.Loading)     return "Loader.Loading"
+            else if(str === Loader.Error)       return "Loader.error"
+            else if(str === Loader.Null)        return "Loader.Null"
+            else                                return str.toString();
+        }
 
         function assignArgs(loader){
             var item = loader ? loader.item : null
-            if(item){
-                for(var a in args){
-                     if(item.hasOwnProperty(a)){
-                         item[a] = Lodash.clone(args[a])
-                     }
-                }
+            if(item && args){
+                Lodash.each(args, function(v,k){
+                    if(item.hasOwnProperty(k))   {
+                        try {
+                            item[k] = v;
+                        }
+                        catch(e) {
+                            console.error(rootObject, "unable to assign", k, "to", v)
+                        }
+                    }
+                })
                 args = null;
+                loader.finishedLoading();
             }
-            loader.finishedLoading();
         }
         function doTransition(from,to,transName){
             var transition = transName === "" ? null : getTransition(transName)
@@ -114,14 +125,17 @@ Item {
         width : parent.width
         height : parent.height
         asynchronous: true
-        onLoaded         : if(!mutex) logic.assignArgs(l1)
+        onLoaded         : if(!mutex)
+                               logic.assignArgs(l1)
         onFinishedLoading: logic.doTransition(l2,l1,tempTrans)
-        z : logic.activeLoader === l1 ?  2 : 1
+        z                : logic.activeLoader === l1 ?  2 : 1
 
         signal finishedLoading()
         property string tempTrans;
         property bool mutex : false;
 //        Component.onCompleted: console.log(this)
+        onSourceChanged: console.log("l1 status = ", logic.statusStr(status), "source=",source);
+        onStatusChanged: console.log("l1 status = ", logic.statusStr(status), "source=",source);
     }
     Loader {
         id : l2
@@ -129,7 +143,8 @@ Item {
         width : parent.width
         height : parent.height
         asynchronous: true
-        onLoaded         : if(!mutex) logic.assignArgs(l2)
+        onLoaded         : if(!mutex)
+                               logic.assignArgs(l2)
         onFinishedLoading: logic.doTransition(l1,l2,tempTrans)
         z : logic.activeLoader === l2 ?  2 : 1
 
@@ -137,6 +152,8 @@ Item {
         property string tempTrans;
         property bool mutex : false;
 //        Component.onCompleted: console.log(this)
+        onSourceChanged: console.log("l2 status = ", logic.statusStr(status), "source=",source);
+        onStatusChanged: console.log("l2 status = ", logic.statusStr(status), "source=",source);
     }
 
 

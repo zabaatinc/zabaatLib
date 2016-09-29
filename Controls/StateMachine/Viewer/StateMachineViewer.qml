@@ -241,7 +241,7 @@ Item {
 
 
 
-    FancyLoader {   //This loads the STateITems!
+    Loader { //FANCY LAODER BUIGGED   //This loads the STateITems!
         id          : loader
         objectName  : rootObject.objectName + ".FancyLoader"
 //        Component.onCompleted: console.log(this)
@@ -249,6 +249,9 @@ Item {
         width       : parent.width
         height      : parent.height - defaultNavigationLoader.height
 //        transitionEffect: "rotateLeft"
+        property string transitionEffect : 'placeholder'    //placeholder
+        property int transitionDuration : 100               //placeholder
+
         onLoaded    : if(item){
 //                          console.log(rootObject, item.hasOwnProperty('model') , item.hasOwnProperty('stateMachinePtr'))
                           if(item.hasOwnProperty('model'))              item.model           = modelObject;
