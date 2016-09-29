@@ -1,6 +1,5 @@
 import QtQuick 2.5
 import Zabaat.Utility 1.0
-import QtGraphicalEffects 1.0
 import Zabaat.Material 1.0
 Item {
     id : rootObject
@@ -13,60 +12,98 @@ Item {
         console.log(dur, dur.humanize());
     }
 
-    ZSlider {
-        id : slider
+    Row {
         anchors.bottom: parent.bottom
-        value : 0
-        min : 0
-        max : 1
-        width : parent.width *0.5
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.margins: 32
+        width : parent.width
         height : parent.height * 0.1
-        anchors.bottomMargin: 32
+
+        ZSlider {
+            id : slider
+            value : 0
+            min : 0
+            max : 1
+            width : parent.width * 0.2
+            height : parent.height
+        }
+
+        ZSlider {
+            id : sliderArcLen
+            value : max
+            min : 0
+            max : 2 * Math.PI
+            width : parent.width * 0.2
+            height : parent.height
+        }
+
+        ZSlider {
+            id : sliderStart
+            value : min
+            min : 0
+            max : 2 * Math.PI
+            width : parent.width * 0.2
+            height : parent.height
+        }
+
+        ZSlider {
+            id : sliderThickness
+            value : min
+            min : 1
+            max : 20
+            width : parent.width * 0.2
+            height : parent.height
+            isInt: true
+        }
+
+
     }
 
 
     property color fillColor : 'red'
 
 
-    Item {
-        id : circ
-        property var d : Math.min(parent.width,parent.height)/2;
-        width : d
-        height : d
+    Canvas {
         anchors.centerIn: parent
+        property var d : Math.min(parent.width,parent.height)/2
+        width  : d
+        height : d
+        property real value      : slider.value
+        property real startAngle : sliderStart.value
+        property real arcLen     : sliderArcLen.value
+        property int thickness   : sliderThickness.value
+        property color color          : "green"
+        property color colorEmpty     : "gray"
 
-        Rectangle {
-            id : outerRing
-            anchors.fill: parent
-            radius : Math.max(width,height)/2
-            color : 'transparent'
-            border.width: 16
-            border.color: 'gray'
+        onArcLenChanged     : requestPaint();
+        onStartAngleChanged : requestPaint();
+        onThicknessChanged  : requestPaint();
+        onColorChanged      : requestPaint();
+        onColorEmptyChanged : requestPaint();
+        onValueChanged      : requestPaint();
+
+        onPaint: {
+            var ctx = getContext('2d')
+            ctx.clearRect(0,0,width,height);
+
+            var center     = Qt.point(width/2,height/2);
+            var radius     = Math.min(width -thickness, height -thickness)/2
+
+            ctx.beginPath();
+            ctx.arc(center.x, center.y, radius, startAngle, startAngle + arcLen);
+
+            ctx.lineWidth = thickness;
+            ctx.strokeStyle = colorEmpty;
+            ctx.stroke();
+
+//            ctx.moveTo(0,0);
+            ctx.beginPath();
+            ctx.arc(center.x, center.y, radius, startAngle, startAngle + (arcLen * value));
+            ctx.lineWidth   = thickness;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+
         }
-
-        Rectangle {
-            id : innerRing
-            anchors.fill: parent
-            radius : Math.max(width,height)/2
-            color : 'transparent'
-            border.width: Math.max(outerRing.border.width - 2 , 1);
-            border.color: Qt.darker(outerRing.border.color)
-            anchors.margins: (outerRing.border.width - border.width)/2
-
-            ConicalGradient {
-                source : innerRing
-                anchors.fill: parent
-                gradient : Gradient {
-                    GradientStop { position : 0.0         ; color : "white"}
-                    GradientStop { position : slider.value; color : "white"}
-                    GradientStop { position : slider.value+0.01; color :  'transparent'}
-                    GradientStop { position : 1           ; color : 'transparent'}
-                }
-            }
-        }
-
-
-
     }
 
 
