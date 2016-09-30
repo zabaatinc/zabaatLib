@@ -32,12 +32,12 @@ Item {
             label : "Freq"
         }
     }
-    Rectangle {
+    Image {
         id : frog
         width : parent.width
         height : parent.height
-//        source : "scenery.jpg"
-        color : 'purple'
+        source : "scenery.jpg"
+//        color : 'purple'
         anchors.horizontalCenter: parent.horizontalCenter
         MouseArea {
             anchors.fill: parent

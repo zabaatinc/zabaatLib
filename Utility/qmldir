@@ -23,6 +23,7 @@ ImageSubView			1.0 components/Graphical/ImageSubView/ImageSubView.qml
 ImageSubPicker 			1.0 components/Graphical/ImageSubView/ImageSubPicker.qml
 ZTitleBar 				1.0 components/Graphical/ZTitleBar.qml
 Circle	 				1.0 components/Graphical/Circle.qml
+CircularProgressBar	 	1.0 components/Graphical/CircularProgressBar.qml
 Diamond 				1.0 components/Graphical/Diamond.qml
 CheckeredGrid 			1.0 components/Graphical/CheckeredGrid.qml
 Line					1.0 components/Graphical/Line.qml
