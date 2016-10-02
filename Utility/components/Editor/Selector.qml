@@ -1,4 +1,5 @@
 import QtQuick 2.5
+import "functions.js" as Functions
 Item {
     id : selector
     objectName : "selector"
@@ -40,16 +41,16 @@ Item {
             return;
 
         var eArr = !except ? [] :
-                             priv.isArray(except) ? except : [except]
+                             Functions.isArray(except) ? except : [except]
 
         var deleteArr = [];
-        priv.each(selectedItems, function(v,k) {
-            if(priv.indexOf(eArr,v) === -1) {
+        Functions.each(selectedItems, function(v,k) {
+            if(Functions.indexOf(eArr,v) === -1) {
                 deleteArr.push(k)
             }
         })
 
-        priv.each(deleteArr, function(v,k){
+        Functions.each(deleteArr, function(v,k){
             delete selectedItems[v];
             count--;
         })
@@ -60,7 +61,7 @@ Item {
         if(!selectedItems)
             return;
 
-        priv.each(selectedItems, function(v,k) {
+        Functions.each(selectedItems, function(v,k) {
             v.destroy();
         })
     }
@@ -68,40 +69,7 @@ Item {
         return selectedItems && selectedItems[item.toString()] ? true : false
     }
 
-    QtObject {
-        id : priv
-        function each(collection, fn) {
-            if(typeof fn !== 'function' || typeof collection !== 'object')
-                return;
 
-            for(var k in collection){
-                if(fn(collection[k],k) === false)
-                    return;
-            }
-        }
-        function indexOf(arr,v) {
-            if(typeof arr !== 'object')
-                return -1;
-
-            for(var k in arr){
-                if(arr[k] == v)
-                    return k;
-            }
-            return -1;
-        }
-        function isArray(arr) {
-            return toString.call(arr) === "[object Array]"
-        }
-        function keys(collection) {
-            var arr = []
-            each(collection,function(v,k){
-                arr.push(k)
-            })
-            return arr;
-        }
-
-
-    }
     Rectangle {
         id : selectionRect
         border.width: 4
@@ -125,25 +93,11 @@ Item {
 
 
         function doUpdate() {
-            if(selector.count === 0) {
-                selectionRect.x = selectionRect.y = selectionRect.width = selectionRect.height = 0;
-                return;
-            }
+            if(selector.count === 0)
+                return Functions.copyProperties(selectionRect, Functions.rect());
 
-
-            var topLeft  = Qt.point(Number.MAX_VALUE,Number.MAX_VALUE);
-            var botRight = Qt.point(0,0);
-            priv.each(selector.selectedItems, function(v,k) {
-                topLeft.x  = Math.min(v.x, topLeft.x);
-                topLeft.y  = Math.min(v.y, topLeft.y);
-                botRight.x = Math.max(v.x + v.width, botRight.x);
-                botRight.y = Math.max(v.y + v.height, botRight.y);
-            })
-
-            selectionRect.x      = topLeft.x;
-            selectionRect.y      = topLeft.y;
-            selectionRect.width  = botRight.x - topLeft.x;
-            selectionRect.height = botRight.y - topLeft.y;
+            var boundingRect = Functions.boundingRect(selector.selectedItems);
+            return Functions.copyProperties(selectionRect, boundingRect);
         }
 
         readonly property bool dragging : selectorMa.drag.active
@@ -154,7 +108,7 @@ Item {
             //drag all the selected items
             if(dragging) {
                 var diff = coords.minus(prevCoords);
-                priv.each(selector.selectedItems, function(v) {
+                Functions.each(selector.selectedItems, function(v) {
                     v.x += diff.x;
                     v.y += diff.y;
                 })

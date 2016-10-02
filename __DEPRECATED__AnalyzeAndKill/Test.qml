@@ -24,6 +24,7 @@ Rectangle {
     Selector {
         id : selector
         anchors.fill: parent
+        z : Number.MAX_VALUE
     }
 
 
@@ -31,9 +32,15 @@ Rectangle {
     Component {
         id : rectFactory
         Rectangle {
+            id : rectInstance
             width : 64
             height : 64
             color : Colors.getRandomColor()
+//            MouseArea {
+//                anchors.fill: parent
+//                acceptedButtons: Qt.RightButton
+//                onClicked : parent.parent = compositor;
+//            }
         }
     }
 

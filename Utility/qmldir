@@ -28,3 +28,4 @@ Diamond 				1.0 components/Graphical/Diamond.qml
 CheckeredGrid 			1.0 components/Graphical/CheckeredGrid.qml
 Line					1.0 components/Graphical/Line.qml
 Selector 				1.0 components/Editor/Selector.qml
+Compositor 				1.0 components/Editor/Compositor.qml
