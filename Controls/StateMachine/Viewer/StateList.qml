@@ -104,14 +104,13 @@ Item{   //Essentially a list of loaders
 
                             }
                         }
+                        args = null;
                         loadingArgs = false;
                     }
                 }
 
             }
         }
-
-
     }
 
 

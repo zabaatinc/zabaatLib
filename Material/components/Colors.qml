@@ -58,12 +58,8 @@ QtObject {
 
     //borrowed from https://github.com/papyros/qml-material/blob/develop/modules/Material/Theme.qml
     function isDarkColor(color) {
-//        console.log("isDarker",color)
-        var temp = color//Qt.darker(color, 1)
-        var a = 1 - ( 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b);
-        return temp.a > 0 && a >= 0.3
-//        var a =  temp.r + temp.g + temp.b;
-//        return temp.a > 0 && a < 1.5;
+        var a = (0.299 * color.r + 0.587 * color.g + 0.114 * color.b);
+        return a < 0.49;
     }
     function isLightColor(color){
         return !isDarkColor(color)
@@ -272,14 +268,14 @@ QtObject {
             lighter.text1    = Qt.binding(function() { return Qt.lighter(text1   ) } )
             lighter.text2    = Qt.binding(function() { return Qt.lighter(text2   ) } )
 
-            contrasting.accent   = Qt.binding(function() { return getContrastingColor(accent )  } )
-            contrasting.danger   = Qt.binding(function() { return getContrastingColor(danger )  } )
-            contrasting.warning  = Qt.binding(function() { return getContrastingColor(warning)  } )
-            contrasting.success  = Qt.binding(function() { return getContrastingColor(success)  } )
-            contrasting.info     = Qt.binding(function() { return getContrastingColor(info   )  } )
-            contrasting.standard = Qt.binding(function() { return getContrastingColor(standard) } )
-            contrasting.text1    = Qt.binding(function() { return getContrastingColor(text1   ) } )
-            contrasting.text2    = Qt.binding(function() { return getContrastingColor(text2   ) } )
+            contrasting.accent   = Qt.binding(function() { return getContrastingColor(accent  ,1.2)  } )
+            contrasting.danger   = Qt.binding(function() { return getContrastingColor(danger  ,1.2)  } )
+            contrasting.warning  = Qt.binding(function() { return getContrastingColor(warning ,1.2)  } )
+            contrasting.success  = Qt.binding(function() { return getContrastingColor(success ,1.2)  } )
+            contrasting.info     = Qt.binding(function() { return getContrastingColor(info    ,1.2)  } )
+            contrasting.standard = Qt.binding(function() { return getContrastingColor(standard,1.2) } )
+            contrasting.text1    = Qt.binding(function() { return getContrastingColor(text1   ,1.2) } )
+            contrasting.text2    = Qt.binding(function() { return getContrastingColor(text2   ,1.2) } )
         }
 
         function isColorName(str){

@@ -47,15 +47,18 @@ Item
         //Checks callbacks for newly received models or model pieces
         //If we got something like "customers/1" , it will check for "customers/1" as well as "customers"
         function isUndef(item,prop){
-            if(item === null || typeof item === 'undefined')
+            if(item === null || item === undefined)
                 return true;
 
-            prop = isArray(prop) ? prop : [prop]
-            for(var i = 0; i < prop.length; ++i){
-                var p = prop[i]
-                if(item[p] === null || typeof item[p] === 'undefined')
-                    return true;
+            if(prop) {
+                prop = isArray(prop) ? prop : [prop]
+                for(var i = 0; i < prop.length; ++i){
+                    var p = prop[i]
+                    if(item[p] === null || item[p] === undefined)
+                        return true;
+                }
             }
+
             return false;
         }
         function isDef(item) {
@@ -123,36 +126,34 @@ Item
 
         function updateItem(existingItem, obj, location){
             for(var o in obj)  {
-//                if(o === 'c_own'){
-//                    console.log(JSON.stringify(existingItem[o],null,2) , JSON.stringify(obj[o],null,2))
-//                }
-                if(o !== 'id') {
-                    var oldValue  = existingItem[o]
-                    var newValue  = obj[o]
+                if(o === 'id')
+                    continue;
 
-                    if(typeof newValue !== 'object'){   //is a simple object
-                        if(oldValue !== newValue)
-                             existingItem[o] = newValue
-                    }
-                    else if(!isDef(oldValue)){  //we dont have an old lm, create it and append obj[o] to it??
-                        if(isArray(newValue) ){
-                            existingItem[o] = newListModel()//Functions.getNewObject('ZListModel.qml', modelContainer)
-                            if(newValue.length > 0){
-                                existingItem[o].append(newValue)
-                            }
-                        }
-                        else {  //its an object, so we don't need to make a new ListModel
-                            existingItem[o] = newValue
+                var oldValue  = existingItem[o];
+                var newValue  = obj[o];
+                if(typeof newValue !== 'object'){   //is a simple object
+                    if(oldValue !== newValue)
+                         existingItem[o] = newValue
+                }
+                else if(isUndef(oldValue)){  //we dont have an old lm, create it and append obj[o] to it??
+                    if(isArray(newValue) ){
+                        existingItem[o] = newListModel()//Functions.getNewObject('ZListModel.qml', modelContainer)
+                        if(newValue.length > 0){
+                            existingItem[o].append(newValue)
                         }
                     }
-                    else {
-                        deepCopy(existingItem[o],obj[o], existingItem, o,o )
+                    else {  //its an object, so we don't need to make a new ListModel
+                        existingItem[o] = newValue
                     }
                 }
+                else {
+                    deepCopy(existingItem[o],obj[o], existingItem, o,o )
+                }
+
             }
         }
         function deepCopy(obj1, obj2, prev, lvl1, lvl2)  {
-
+//            console.log(obj1, obj2, prev, lvl1, lvl2)
             if(typeof obj2 !== 'object')  {
                 //do equality check
                 if(obj1 !== obj2)
@@ -174,11 +175,9 @@ Item
             for(var o in obj2) {
                 var newVal = obj2[o]
 
-                if(isDef(newVal) && isDef(newVal.id)) {
-
+                if(isDef(newVal,"id")) {
                     var elem = getById(obj1, newVal.id)  //this is TE 0
-                    if(!elem) {
-
+                    if(elem) {
                         for(var p in newVal) {
                             if(typeof newVal[p] !== 'object') {
                                 if(elem[p] !== newVal[p])
@@ -190,35 +189,30 @@ Item
                         }
                     }
                     else {
-
-                        if(obj1.count !== null && typeof obj1.count !== 'undefined') {
+                        if(isDef(obj1,"count")) {
                             obj1.append(newVal[o])
                         }
                         else {  //if the model doesn't even exist!!
                             obj1 = [] //newModelFunc('ZListModel.qml',existingItem)
                             obj1.append(obj2)
-
                             return
                         }
                     }
                 }
                 else {       //overwrite stuffs!
-                     if(obj1.count !== null && typeof obj1.count !== 'undefined')
-                     {
+                     if(obj1.count !== null && typeof obj1.count !== 'undefined') {
                          obj1.clear()
                          obj1.append(obj2)
                          return
                      }
-                     else if(obj1.toString().toLowerCase().indexOf('modelobject') === -1 && !isArray(obj1) && typeof obj1 === 'object')
-                     {
+                     else if(obj1.toString().toLowerCase().indexOf('modelobject') === -1 && !isArray(obj1) && typeof obj1 === 'object'){
                          if(prev && prev[lvl1]){
                              prev[lvl1] = obj2
                              return
                          }
 
                      }
-                     else
-                     {
+                     else {
                          if(obj1[o] !== newVal[o])
                              obj1[o] = newVal[o]
                      }
