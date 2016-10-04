@@ -1,4 +1,4 @@
 module Zabaat.MVVM
-RESTFULArray 		          1.0 v10/RESTFULArray.qml
+singleton RestArrayCreator 	  1.0 v10/RestArrayCreator.qml
 singleton RestArrayController 1.0 v10/RestArrayController.qml
 

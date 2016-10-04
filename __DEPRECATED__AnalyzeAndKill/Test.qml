@@ -18,7 +18,10 @@ Rectangle {
             { id : 999, name : "Pika"  , pets : [{ id : 99, name : "woof"} ,{ id : 100 , name : "fu"}]}
         ]
 
-        RestArrayController.newArray("test",o);
+        var arr = RestArrayCreator.create(o);
+        console.log(JSON.stringify(arr,null,2))
+
+//        RestArrayController.newArray("test",o);
 
 //        var co = convertToCool(o);
 ////        console.log(JSON.stringify(co,null,2))
@@ -147,11 +150,6 @@ Rectangle {
 
         return r;
     }
-
-    RESTFULArray {
-
-    }
-
 
 
 
