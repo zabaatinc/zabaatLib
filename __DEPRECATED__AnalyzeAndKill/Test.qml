@@ -2,6 +2,8 @@ import QtQuick 2.5
 import Zabaat.Utility 1.0
 import Zabaat.Material 1.0
 import Zabaat.Shaders 1.0 as Fx
+import Zabaat.MVVM 1.0
+
 Rectangle {
     id : rootObject
     objectName : "test.qml"
@@ -16,12 +18,14 @@ Rectangle {
             { id : 999, name : "Pika"  , pets : [{ id : 99, name : "woof"} ,{ id : 100 , name : "fu"}]}
         ]
 
-        var co = convertToCool(o);
-//        console.log(JSON.stringify(co,null,2))
-        console.log(co._path, JSON.stringify(co._map));
-//        Lodash.each(co,function(v,k){
-//            console.log(k)   ;
-//        })
+        RestArrayController.newArray("test",o);
+
+//        var co = convertToCool(o);
+////        console.log(JSON.stringify(co,null,2))
+//        console.log(co._path, JSON.stringify(co._map));
+////        Lodash.each(co,function(v,k){
+////            console.log(k)   ;
+////        })
     }
 
 
@@ -30,8 +34,6 @@ Rectangle {
         var k = val && val.id !== null && val.id !== undefined ? val.id : key;
         return path ? path + "/" + k : k;
     }
-
-
     function convertToCool(obj) {
         if(Lodash.isArray(obj))
             return convertToCoolArray(obj);
@@ -39,7 +41,6 @@ Rectangle {
             return convertToCoolObject(obj);
         return obj;
     }
-
     function attachProperties(i, path) {
         var map   = {hurr :'durr'}
         var _path = path || "";
@@ -65,19 +66,16 @@ Rectangle {
                                 }
                               })
     }
-
     function blankObject(path) {
         var obj = {};
         attachProperties(obj,path);
         return obj;
     }
-
     function blankArray(path) {
         var arr = [];
         attachProperties(arr,path);
         return arr;
     }
-
     function convertToCoolArray(arr,ret,path) {
         ret  = ret || blankArray(path);
         path = path || ""
@@ -100,7 +98,6 @@ Rectangle {
 
         return ret;
     }
-
     function convertToCoolObject(obj,ret, path) {
         ret = ret || {}
         path = path || ""
@@ -124,7 +121,6 @@ Rectangle {
 
         return ret;
     }
-
     function descriptor(val, name, unwritable) {
         var _value = val;
         var _name  = name;
@@ -152,41 +148,11 @@ Rectangle {
         return r;
     }
 
+    RESTFULArray {
+
+    }
 
 
-//    Keys.onPressed: {
-//        if(event.key === Qt.Key_Plus){
-//            var r = rectFactory.createObject(rootObject)
-//            r.x = Math.random() * rootObject.width
-//            r.y = Math.random() * rootObject.height
-//        }
-//        else if(event.key == Qt.Key_Delete) {
-//            selector.deleteSelection();
-//        }
-//    }
-
-//    Selector {
-//        id : selector
-//        anchors.fill: parent
-//        z : Number.MAX_VALUE
-//    }
-
-
-
-//    Component {
-//        id : rectFactory
-//        Rectangle {
-//            id : rectInstance
-//            width : 64
-//            height : 64
-//            color : Colors.getRandomColor()
-////            MouseArea {
-////                anchors.fill: parent
-////                acceptedButtons: Qt.RightButton
-////                onClicked : parent.parent = compositor;
-////            }
-//        }
-//    }
 
 
 
