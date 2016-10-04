@@ -8,41 +8,185 @@ Rectangle {
     color : 'lightyellow'
     Component.onCompleted: {
         forceActiveFocus();
+
+        var o = [
+            { id : 420, name : "Shahan", pets : [{ id : 99, name : "woof"} ,{ id : 100 , name : "fu"}]} ,
+            { id : 666, name : "Fahad" , pets : [{ id : 99, name : "woof"} ,{ id : 100 , name : "fu"}]} ,
+            { id : 786, name : "Brett" , pets : [{ id : 99, name : "woof"} ,{ id : 100 , name : "fu"}]} ,
+            { id : 999, name : "Pika"  , pets : [{ id : 99, name : "woof"} ,{ id : 100 , name : "fu"}]}
+        ]
+
+        var co = convertToCool(o);
+//        console.log(JSON.stringify(co,null,2))
+        console.log(co._path, JSON.stringify(co._map));
+//        Lodash.each(co,function(v,k){
+//            console.log(k)   ;
+//        })
     }
 
-    Keys.onPressed: {
-        if(event.key === Qt.Key_Plus){
-            var r = rectFactory.createObject(rootObject)
-            r.x = Math.random() * rootObject.width
-            r.y = Math.random() * rootObject.height
+
+
+    function getPath(path,key,val) {
+        var k = val && val.id !== null && val.id !== undefined ? val.id : key;
+        return path ? path + "/" + k : k;
+    }
+
+
+    function convertToCool(obj) {
+        if(Lodash.isArray(obj))
+            return convertToCoolArray(obj);
+        else if(Lodash.isObject(obj))
+            return convertToCoolObject(obj);
+        return obj;
+    }
+
+    function attachProperties(i, path) {
+        var map   = {hurr :'durr'}
+        var _path = path || "";
+        Object.defineProperty(i, "_path", {
+                                enumerable : true,
+                                get : function() { return _path; },
+                                set : function () {}
+                              });
+        Object.defineProperty(i, "_map", {
+                                enumerable : true,
+                                get : function(key) {
+                                    if(!key)
+                                        return map ;
+                                    return map[key];
+                                } ,
+                                set : function(val) {
+                                    if(typeof val !== 'object')
+                                        return;
+
+                                     for(var k in val) {
+                                        map[k] = val;
+                                     }
+                                }
+                              })
+    }
+
+    function blankObject(path) {
+        var obj = {};
+        attachProperties(obj,path);
+        return obj;
+    }
+
+    function blankArray(path) {
+        var arr = [];
+        attachProperties(arr,path);
+        return arr;
+    }
+
+    function convertToCoolArray(arr,ret,path) {
+        ret  = ret || blankArray(path);
+        path = path || ""
+        if(!Lodash.isArray(arr))
+            return ret;
+
+        Lodash.each(arr, function(v,k) {
+            var p = getPath(path,k,v);
+            if(Lodash.isArray(v)) {
+                ret[k] = convertToCoolArray(v,blankArray(p),p)
+            }
+            else if(Lodash.isObject(v)) {
+                ret[k] = convertToCoolObject(v,blankObject(p),p)
+            }
+            else {
+                var readonly = k === 'id';
+                Object.defineProperty(ret,k,descriptor(v, p, readonly));
+            }
+        })
+
+        return ret;
+    }
+
+    function convertToCoolObject(obj,ret, path) {
+        ret = ret || {}
+        path = path || ""
+        if(!Lodash.isObject(obj))
+            return ret;
+
+        Lodash.each(obj, function(v,k) {
+            var p = getPath(path,k,v);
+            if(Lodash.isArray(v)) {
+                ret[k] = convertToCoolArray(v,blankArray(p),p)
+            }
+            else if(Lodash.isObject(v)) {
+                ret[k] = convertToCoolObject(v,blankObject(p),p)
+            }
+            else {
+                var readonly = k === 'id';
+                Object.defineProperty(ret,k,descriptor(v, p, readonly));
+            }
+        })
+
+
+        return ret;
+    }
+
+    function descriptor(val, name, unwritable) {
+        var _value = val;
+        var _name  = name;
+
+        var r = {
+            enumerable : true,
+            get        : function() {
+//                console.log(_name, "=", _value);
+                return _value;
+            }
         }
-        else if(event.key == Qt.Key_Delete) {
-            selector.deleteSelection();
-        }
+        r.set = unwritable ? function() { console.error("cannot write to readonly property", _name ) ;} :
+                             function(val, noUpdate) {
+                                if(val != _value) {
+                                    var oldVal = _value;
+                                    _value = val;
+                                    if(!noUpdate) {
+                                        //EMIT UPDATE MSG;
+                                        console.log("updated", _name , "to", _value, "from", oldVal);
+                                    }
+                                }
+
+                            }
+
+        return r;
     }
 
-    Selector {
-        id : selector
-        anchors.fill: parent
-        z : Number.MAX_VALUE
-    }
+
+
+//    Keys.onPressed: {
+//        if(event.key === Qt.Key_Plus){
+//            var r = rectFactory.createObject(rootObject)
+//            r.x = Math.random() * rootObject.width
+//            r.y = Math.random() * rootObject.height
+//        }
+//        else if(event.key == Qt.Key_Delete) {
+//            selector.deleteSelection();
+//        }
+//    }
+
+//    Selector {
+//        id : selector
+//        anchors.fill: parent
+//        z : Number.MAX_VALUE
+//    }
 
 
 
-    Component {
-        id : rectFactory
-        Rectangle {
-            id : rectInstance
-            width : 64
-            height : 64
-            color : Colors.getRandomColor()
-//            MouseArea {
-//                anchors.fill: parent
-//                acceptedButtons: Qt.RightButton
-//                onClicked : parent.parent = compositor;
-//            }
-        }
-    }
+//    Component {
+//        id : rectFactory
+//        Rectangle {
+//            id : rectInstance
+//            width : 64
+//            height : 64
+//            color : Colors.getRandomColor()
+////            MouseArea {
+////                anchors.fill: parent
+////                acceptedButtons: Qt.RightButton
+////                onClicked : parent.parent = compositor;
+////            }
+//        }
+//    }
 
 
 
