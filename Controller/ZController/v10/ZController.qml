@@ -180,41 +180,41 @@ Item
                     if(elem) {
                         for(var p in newVal) {
                             if(typeof newVal[p] !== 'object') {
-                                if(elem[p] !== newVal[p])
+                                if(elem[p] !== newVal[p])   //update property
                                     elem[p] = newVal[p]
                             }
                             else  {
+                                //do a deepCopy
                                 var ret = deepCopy(elem[p], newVal[p], elem, lvl1 + '/' + newVal.id + '/' + p, lvl2 + '/' + o + '/' + p)
                             }
                         }
                     }
                     else {
                         if(isDef(obj1,"count")) {
-                            obj1.append(newVal[o])
+                            return obj1.append(obj2)
                         }
                         else {  //if the model doesn't even exist!!
                             obj1 = [] //newModelFunc('ZListModel.qml',existingItem)
-                            obj1.append(obj2)
-                            return
+                            return obj1.append(obj2)
                         }
                     }
                 }
-                else {       //overwrite stuffs!
-                     if(obj1.count !== null && typeof obj1.count !== 'undefined') {
+                else {       //overwrite stuffs! THERES NO ID!
+                     if(obj1.count !== null && obj1.count !== undefined){   //OVERWRITE THE ENTIRE LIST MODEL!
                          obj1.clear()
-                         obj1.append(obj2)
-                         return
-                     }
-                     else if(obj1.toString().toLowerCase().indexOf('modelobject') === -1 && !isArray(obj1) && typeof obj1 === 'object'){
-                         if(prev && prev[lvl1]){
-                             prev[lvl1] = obj2
-                             return
-                         }
+                         return obj1.append(obj2)
 
                      }
+                     else if(obj1.toString().toLowerCase().indexOf('modelobject') === -1 && !isArray(obj1) && typeof obj1 === 'object'){
+//                         console.log("REPLACE ENTIRE OBJECT")
+                         if(prev && prev[lvl1]){
+                             return prev[lvl1] = obj2
+                         }
+                     }
                      else {
-                         if(obj1[o] !== newVal[o])
-                             obj1[o] = newVal[o]
+//                         console.log("UPDTE PROPERTY")
+                         if(obj1[o] !== newVal)
+                             obj1[o] = newVal
                      }
                 }
 
