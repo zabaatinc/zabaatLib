@@ -19,6 +19,13 @@ QtObject {
         return date.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
     }
 
+    function mstimer() {
+        var r = { start : +(new Date().getTime()) }
+        r.stop = function() {
+            return (+new Date().getTime()) - r.start;
+        }
+        return r;
+    }
 
 
     function setTimeOut(ms, fn, args) {
