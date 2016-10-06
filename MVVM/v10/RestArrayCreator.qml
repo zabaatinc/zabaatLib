@@ -69,9 +69,9 @@ QtObject {
             function getDescriptor(val , path, isReadOnly) {
 
                 var _value = val;
-                var _path  = path;
+                var _path  = path.toString();
 
-                var r = { enumerable : true }
+                var r = { enumerable : true, configurable : true }
                 r.get =  function() {  return _value; }
                 r.set = isReadOnly ? function() { console.error("cannot write to readonly property", _path ) ;} :
                                      function(val, noUpdate) {
@@ -80,93 +80,80 @@ QtObject {
                                         var signals = this._signals;
 
                                         if(val != _value) {
+
                                             var oldVal = _value;
 
                                             var currentType = { isArray : Lodash.isArray(_value) , isObject : Lodash.isObject(_value) }
                                             var newType     = { isArray : Lodash.isArray(val)    , isObject : Lodash.isObject(val) }
 
-                                            if(!currentType.isArray && !currentType.isObject) {
+                                            if(!currentType.isArray && !currentType.isObject) { //simplest case
                                                 signals.beforePropertyUpdated(_path,val,_value);
-                                                if(!newType.isArray && !newType.isObject) { //simplest case!
-                                                    _value = val;
-                                                }
-                                                else { //new thing is a complex object
-                                                    if(newType.isArray) {
-                                                        _value = priv.createArray(val,_path,signals,idProperty);
-                                                    }
-                                                    else {
-                                                        _value = priv.createObject(val,_path,signals,idProperty);
-                                                    }
-                                                }
+                                                _value = priv.convert(val,_path,signals,idProperty);
                                                 signals.propertyUpdated(_path,_value,oldVal);
                                             }
-                                            else {
-                                                if(currentType.isArray) {   //we are assigning to an array!
-
-                                                    if(newType.isArray) {   //cool our types match!
-                                                        //check if arrays are ided
-                                                        var ided = helpers.arrayIsIded(_value) && helpers.arrayIsIded(val,idProperty);
-                                                        if(!ided){
-                                                            //since we replace the whole array, there's a good chance
-                                                            //that we killed elements. so let's figure that out
-                                                            Lodash.eachRight(_value, function(v,k){
-                                                                var p = getPath(path,k,null,idProperty)
-                                                                if(k >= val.length) { //kill
-                                                                    //TODO , WILL NOT LET US REMOVE SHIT! LENGTH IS READONLY
-                                                                    if(typeof _value[k]._kill === 'function'){
-                                                                        _value[k]._kill();
-                                                                    }
-                                                                    else {
-                                                                       signals.beforePropertyDeleted(p);
-                                                                        //TODO CONTINUE HERE! DOESNT LET US DELETE
-
-                                                                       signals.propertyDeleted(p);
-                                                                    }
-                                                                }
-                                                                else {      //update
-
-                                                                    _value[k] = priv.convert(val[k],p,signals,idProperty)
-                                                                }
-                                                            })
-
-
-                                                        }
-                                                        else {
-                                                            Lodash.each(val, function(v,k){
-                                                                _value.push(v); //our custom push function should handle it!
-                                                            })
-                                                        }
-                                                    }
-                                                    else {
-                                                        //TODO
-
-                                                    }
-                                                }
-                                                else {  //we are assigning to an object!
-
-                                                    if(newType.isArray) {
-                                                        _value._kill();
-                                                    }
-                                                    else {
-                                                        //TYPES MATCH, we just need to update this object. go thru all the keys and assign them if they exist!
-                                                        Lodash.each(val, function(v,k){
-                                                            var p = helpers.getPath(_path,k,v,idProperty);
-                                                            if(_value.hasOwnProperty(k)){
-                                                                //since our _value[k] exists, it will run this function on _value[k].
-                                                                _value[k] = v;
+                                            else if(currentType.isArray && newType.isArray) {
+                                                var ided = helpers.arrayIsIded(_value) && helpers.arrayIsIded(val,idProperty);
+                                                if(!ided){
+                                                    //since we replace the whole array, there's a good chance
+                                                    //that we killed elements. so let's figure that out
+                                                    if(_value.length > val.length) {
+                                                        Lodash.eachRight(_value, function(v,k){
+                                                            var p = getPath(path,k,null,idProperty)
+                                                            if(k >= val.length) { //kill
+                                                               signals.beforePropertyDeleted(p);
+                                                               _value.length = k;   //remove item teehee!
+                                                               signals.lengthChanged(_value.length);
+                                                               signals.propertyDeleted(p);
                                                             }
-                                                            else{
-                                                                //create this new thing!
-                                                                //emit that a new thing was created
-                                                                signals.beforePropertyCreated(p,v);
-                                                                var r = priv.convert(v, p, signals, idProperty);
-                                                                Object.defineProperty(_value, k, helpers.getDescriptor(r, p))
-                                                                signals.propertyCreated(p,v);
+                                                            else {      //update
+                                                                _value[k] = priv.convert(val[k],p,signals,idProperty)
                                                             }
                                                         })
                                                     }
+                                                    else {
+                                                        Lodash.eachRight(val, function(v,k) {
+                                                            var p = getPath(path,k,null,idProperty)
+                                                            _value[k] = priv.convert(val[k],p,signals,idProperty)
+                                                        })
+                                                    }
+                                                }
+                                                else {
+                                                    Lodash.each(val, function(v,k){
+                                                        _value.push(v); //our custom push function should handle it!
+                                                    })
                                                 }
                                             }
+                                            else if(currentType.isObject && newType.isObject) {
+                                                Lodash.each(val, function(v,k){
+                                                    var p = helpers.getPath(_path,k,v,idProperty);
+                                                    if(_value.hasOwnProperty(k)){
+                                                        //since our _value[k] exists, it will run this function on _value[k].
+                                                        _value[k] = v;
+                                                    }
+                                                    else{
+                                                        //create this new thing!
+                                                        //emit that a new thing was created
+                                                        signals.beforePropertyCreated(p,v);
+                                                        var r = priv.convert(v, p, signals, idProperty);
+                                                        Object.defineProperty(_value, k, helpers.getDescriptor(r, p))
+                                                        signals.propertyCreated(p,v);
+                                                    }
+                                                })
+                                            }
+                                            else {
+                                                //different types, say we deleted old path. and created new object in its place!
+                                                //similar to the very first if, but instead of updates, it says deletes and creates
+                                                //since we will be releasing memory!
+                                                signals.beforePropertyDeleted(_path)
+                                                signals.beforePropertyCreated(_path,val)
+
+                                                //since our _value[k] exists, it will run this function on _value[k].
+                                                _value = priv.convert(val, _path, signals, idProperty);
+
+                                                signals.propertyDeleted(_path)
+                                                signals.propertyCreated(_path,val)
+                                            }
+
                                         }
                                     }
 
@@ -187,8 +174,9 @@ QtObject {
             function getDescriptorNonEnumerable(value) {
                 var _value = value;
                 return {
+                    configurable : true,
                     enumerable : false,
-                    value: _value
+                    value : _value
                 }
             }
 
@@ -229,7 +217,7 @@ QtObject {
                     }
 
                     Object.defineProperty(js, 'push', {
-                                            enumerable : true,
+                                            enumerable : false,
                                             value : f
                                           })
                 }
@@ -250,28 +238,9 @@ QtObject {
 
             //attaches properties to js that are valid for both arrays and objects
             function attachPropertiesGeneric(js,path,signals,idProperty) {
-
-                //generates delete notifications!
-                function kill() {
-                    var self = this;
-                    self._signals.beforePropertyDeleted(self._path);
-                    if(Lodash.isArray(self) || Lodash.isObject(self)){
-                        Lodash.each(self, function(v,k){
-                            if(typeof v._kill === 'function'){
-                                v._kill();
-                            }
-                        })
-//                        delete self;
-                    }
-                    self._signals.propertyDeleted(self._path);
-                }
-
                 Object.defineProperty(js,"_signals"   , helpers.getDescriptorNonEnumerable(signals));
                 Object.defineProperty(js,"_path"      , helpers.getDescriptorNonEnumerable(path));
                 Object.defineProperty(js,"_idProperty", helpers.getDescriptorNonEnumerable(idProperty))
-                Object.defineProperty(js,"_kill"      , helpers.getDescriptorNonEnumerable(kill))
-
-//                console.log("ASSIGNING generic to", path, js._idProperty);
             }
 
         }
@@ -298,6 +267,7 @@ QtObject {
                 }
 
                 if(k !== idProperty)
+
                     signals.propertyCreated(p,v)
             }
 
@@ -364,16 +334,6 @@ QtObject {
             }
 
             return  {
-                rowAdded : function(path,data,index) {
-                    var pr = prints(path,data,index);
-                    if(pr.p || pr.d)
-                        debugOptions.batchCreateMsg.push("RA::row added"+" "+ pr.p +" "+ pr.d)
-                },
-                rowRemoved : function(path,data,index) {
-                    var pr = prints(path,data,index);
-                    if(pr.p || pr.d)
-                        debugOptions.batchDeleteMsg.push("RA::row added"+" "+ pr.p +" "+ pr.d+" "+ pr.od)
-                },
                 lengthChanged         : function(path,len)  {
                     var pr = prints(path,len);
                     if(pr.p)

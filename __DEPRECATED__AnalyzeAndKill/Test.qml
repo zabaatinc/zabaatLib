@@ -14,7 +14,7 @@ Rectangle {
         var o = [
             { id : 420,
               name : "Shahan",
-              hobbies : ["programming", "fapping", "sleeping"],
+              hobbies : ['a',{'b':'battling'},'c'],
               pets : [{ id : 99, name : "woof"} ,
                       { id : 100 , name : "fu"}]
 
@@ -26,73 +26,20 @@ Rectangle {
 
 //        var ms = Functions.time.mstimer()
         RestArrayCreator.debugOptions.showPaths   = true;
-        RestArrayCreator.debugOptions.showData    = false;
-        RestArrayCreator.debugOptions.showOldData = false;
+        RestArrayCreator.debugOptions.showData    = true;
+        RestArrayCreator.debugOptions.showOldData = true;
         var arr = RestArrayCreator.create(o);
 
-//        var partialUpdate = { id : 99, name : "wooferino ", type : "dogi" };
-//        arr[0].pets = [partialUpdate];
+        arr[0].name = "wolf"
+        arr[0].hobbies = ["derp","herp"];
 
-        arr[0].hobbies = ["coding","masterbaition"];
 
         console.log("DELETES\n", RestArrayCreator.debugOptions.batchDeleteMsg.join('\n'),'\n____')
         console.log("UPDATES\n", RestArrayCreator.debugOptions.batchUpdateMsg.join('\n'),'\n____')
+//        console.log(JSON.stringify(arr[0],null,2))
 
-
-        console.log(JSON.stringify(arr[0],null,2))
-
-//        var arr = RestArrayCreator.create();
-//        arr.push(o[1]);
-
-
-//        RestArrayController.newArray("test",o);
-
-//        var co = convertToCool(o);
-////        console.log(JSON.stringify(co,null,2))
-//        console.log(co._path, JSON.stringify(co._map));
-//        Lodash.each(co,function(v,k){
-//            console.log(k)   ;
-//        })
     }
 
-//    Rectangle {
-//        id : rect
-//        color : 'red'
-//        width: 64
-//        height : width
-//        property point coords : Qt.point(x,y);
-//        property real avg     : -1
-
-//        property var sum : 0;
-//        property int itr : 0;
-
-//        onCoordsChanged:  {
-//            var n = 100000
-//            var ms = Functions.time.mstimer();
-//            Lodash.times(n, function() {
-//                herpDerpSignal('shenanigans', rect);
-//            })
-////            var timeTaken = n / ms.stop();
-//            sum += ms.stop();
-//            itr += 1;
-//            avg = sum / itr;
-//        }
-
-//        MouseArea {
-//            anchors.fill: parent
-//            drag.target: parent
-//        }
-//        Text {
-//            id : tx
-//            anchors.centerIn: parent
-//            text : rect.avg.toFixed(1) + " ms"
-//        }
-//    }
-
-//    signal herpDerpSignal(string herr, var item);
-//    onHerpDerpSignal: if(herr === 'shenanigans') {
-////                        tx.text = +tx.text + 1
-//                      }
 
     Text {
         id : fpsText
