@@ -8,8 +8,19 @@ QtObject {
     property alias debugOptions : debugOptions;
 
     //defaults to array construction!
+//  js      -> optional . Converts an object or array to special version.
+//  path    -> optional . The start of the array (used when an element uses the methods inside signals object).
+//  signals -> optional . Should be an object that has these properties or default will be chosen.
+//    {lengthChanged         : function(path,len)
+//     propertyUpdated       : function(path,data,oldData)
+//     propertyCreated       : function(path,data)
+//     propertyDeleted       : function(path)
+//     beforePropertyUpdated : function(path,data,oldData)
+//     beforePropertyCreated : function(path,data)
+//     beforePropertyDeleted : function(path)  }
+//  idProperty -> The name of the id property inside js that determines element uniqueness. default:"id"
     function create(js, path, signals, idProperty) {
-        signals    = signals    || priv.standardSignalsPackage();
+        signals    = signals    || debugOptions.standardSignalsPackage();
         idProperty = idProperty || "id";
 
 
@@ -27,10 +38,96 @@ QtObject {
             property bool showData  : true
             property bool showOldData : true
 
-            property var batchCreateMsg: []
-            property var batchUpdateMsg: []
-            property var batchDeleteMsg: []
+            property var batchBeforeCreateMsg: []
+            property var batchBeforeUpdateMsg: []
+            property var batchBeforeDeleteMsg: []
+            property var batchCreateMsg      : []
+            property var batchUpdateMsg      : []
+            property var batchDeleteMsg      : []
 
+            function clearBatches(){
+                batchBeforeCreateMsg =  []
+                batchBeforeUpdateMsg =  []
+                batchBeforeDeleteMsg =  []
+                batchCreateMsg       =  []
+                batchUpdateMsg       =  []
+                batchDeleteMsg       =  []
+            }
+            function standardSignalsPackage() {
+                function prints(path,data,oldData){
+                    var p  = path     && debugOptions.showPaths   ? path                              : "";
+                    var d  = data     && debugOptions.showData    ? "= "    + JSON.stringify(data)    : "";
+                    var od = oldData  && debugOptions.showOldData ? "from " + JSON.stringify(oldData) : "";
+                    return { p:p, d:d, od:od }
+                }
+                function now() {
+                    return new Date();
+                }
+
+                return  {
+                    lengthChanged : function(path,len)  {
+                        var pr = prints(path,len);
+                        if(pr.p) {
+                            var msg = "lenChanged:"+" "+ pr.p +" "+ pr.d+" "+ pr.od
+                            debugOptions.batchUpdateMsg.push({msg:msg,time:now()})
+                        }
+                    } ,
+                    propertyUpdated : function(path,data,oldData){
+                        var pr = prints(path,data,oldData);
+                        if(pr.p || pr.d || pr.od){
+                            debugOptions.batchUpdateMsg.push({msg:pr.p+" "+ pr.d+" "+ pr.od,time:now()});
+                        }
+                    } ,
+                    propertyCreated  : function(path,data) {
+                        var pr = prints(path,data);
+                        if(pr.p || pr.d || pr.od)
+                            debugOptions.batchCreateMsg.push({msg:pr.p+" "+ pr.d,time:now()});
+                    } ,
+                    propertyDeleted  : function(path) {
+                        var pr = prints(path);
+                        if(pr.p || pr.d || pr.od)
+                            debugOptions.batchDeleteMsg.push({msg:pr.p,time:now()})
+                    } ,
+                    beforePropertyUpdated : function(path,data,oldData){
+                        var pr = prints(path,data,oldData);
+                        if(pr.p || pr.d || pr.od)
+                            debugOptions.batchBeforeUpdateMsg.push({msg:pr.p +" "+ pr.d +" "+ pr.od,time:now()});
+                    } ,
+                    beforePropertyCreated : function(path,data) {
+                        var pr = prints(path,data);
+                            if(pr.p || pr.d || pr.od)
+                        debugOptions.batchBeforeCreateMsg.push({msg:pr.p +" "+ pr.d,time:now()});
+                    } ,
+                    beforePropertyDeleted : function(path)  {
+                        var pr = prints(path);
+                        if(pr.p || pr.d || pr.od)
+                            debugOptions.batchBeforeDeleteMsg.push({msg:pr.p,time:now()})
+                    }
+                }
+            }
+            function all(){
+
+                function doReduce(arr,name){
+                    return Lodash.reduce(arr, function(a,e){
+                        a.push({msg:name + "->" + e.msg, time : e.time })
+                        return a;
+                    }, [])
+                }
+
+                var arr = [].concat(doReduce(batchBeforeCreateMsg, "beforeCreate"))
+                            .concat(doReduce(batchBeforeDeleteMsg, "beforeDelete"))
+                            .concat(doReduce(batchBeforeUpdateMsg, "beforeUpdate"))
+                            .concat(doReduce(batchCreateMsg      , "create"))
+                            .concat(doReduce(batchUpdateMsg      , "update"))
+                            .concat(doReduce(batchDeleteMsg      , "delete"))
+                            .sort(function(a,b){ return a.time - b.time })
+
+                return Lodash.reduce(arr, function(a,e){
+                    a.push(e.msg);
+                    return a;
+                }, [])
+
+            }
         }
 
         QtObject {
@@ -325,52 +422,6 @@ QtObject {
 
 
 
-        function standardSignalsPackage() {
-            function prints(path,data,oldData){
-                var p  = path     && debugOptions.showPaths   ? path                              : "";
-                var d  = data     && debugOptions.showData    ? "= "    +JSON.stringify(data)     : "";
-                var od = oldData  && debugOptions.showOldData ? "from " + JSON.stringify(oldData) : "";
-                return { p:p, d:d, od:od }
-            }
-
-            return  {
-                lengthChanged         : function(path,len)  {
-                    var pr = prints(path,len);
-                    if(pr.p)
-                        debugOptions.batchUpdateMsg.push("lenChanged:"+" "+ pr.p +" "+ pr.d+" "+ pr.od)
-                } ,
-                propertyUpdated       : function(path,data,oldData){
-                    var pr = prints(path,data,oldData);
-                    if(pr.p || pr.d || pr.od)
-                        debugOptions.batchUpdateMsg.push("Updated:"+" "+ pr.p+" "+ pr.d+" "+ pr.od);
-                } ,
-                propertyCreated       : function(path,data)        {
-                    var pr = prints(path,data);
-                    if(pr.p || pr.d || pr.od)
-                        debugOptions.batchCreateMsg.push("Created:"+" "+ pr.p+" "+ pr.d);
-                } ,
-                propertyDeleted       : function(path)             {
-                    var pr = prints(path);
-                    if(pr.p || pr.d || pr.od)
-                        debugOptions.batchDeleteMsg.push("Deleted:"+" "+ pr.p)
-                } ,
-                beforePropertyUpdated : function(path,data,oldData){
-                    var pr = prints(path,data,oldData);
-                    if(pr.p || pr.d || pr.od)
-                        debugOptions.batchUpdateMsg.push("beforeUpdated:"+" "+ pr.p +" "+ pr.d +" "+ pr.od);
-                } ,
-                beforePropertyCreated : function(path,data) {
-                    var pr = prints(path,data);
-                        if(pr.p || pr.d || pr.od)
-                    debugOptions.batchCreateMsg.push("beforeCreated:" + pr.p +" "+ pr.d);
-                } ,
-                beforePropertyDeleted : function(path)  {
-                    var pr = prints(path);
-                    if(pr.p || pr.d || pr.od)
-                        debugOptions.batchDeleteMsg.push("beforeDeleted:"+" "+ pr.p)
-                }
-            }
-        }
 
 
     }

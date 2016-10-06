@@ -34,9 +34,8 @@ Rectangle {
         arr[0].hobbies = ["derp","herp"];
 
 
-        console.log("DELETES\n", RestArrayCreator.debugOptions.batchDeleteMsg.join('\n'),'\n____')
-        console.log("UPDATES\n", RestArrayCreator.debugOptions.batchUpdateMsg.join('\n'),'\n____')
-//        console.log(JSON.stringify(arr[0],null,2))
+        var allSignalsFired = RestArrayCreator.debugOptions.all();
+        console.log(allSignalsFired.join('\n'));
 
     }
 
