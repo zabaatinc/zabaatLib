@@ -25,17 +25,145 @@ Rectangle {
         ]
 
 //        var ms = Functions.time.mstimer()
-        RestArrayCreator.debugOptions.showPaths   = true;
-        RestArrayCreator.debugOptions.showData    = true;
-        RestArrayCreator.debugOptions.showOldData = true;
-        var arr = RestArrayCreator.create(o);
+//        RestArrayCreator.debugOptions.showPaths   = true;
+//        RestArrayCreator.debugOptions.showData    = true;
+//        RestArrayCreator.debugOptions.showOldData = true;
+//        var arr = RestArrayCreator.create(o);
 
-        arr[0].name = "wolf"
-        arr[0].hobbies = ["derp","herp"];
+//        arr[0].name = "wolf"
+//        arr[0].hobbies = ["derp","herp"];
+
+//        console.log(JSON.stringify(hexToRgb("#ff00ff")));
+//        console.log(JSON.stringify(hexToRgb("#9900ffff")));
+
+        ZAnimator.createUniformColorAnimation("bleed" , ["red",'darkRed'])
+        ZAnimator.createUniformColorAnimation("flashy", ["red","yellow",'blue','green','blue','yellow'])
+//        ZAnimator.runAnimation(colorRect,"bleed",'color','500',2,function(){
+//            ZAnimator.runAnimation(colorRect,"flashy",'color','500')
+//        })
+
+        var anikin = ZAnimator.factory()
+        anikin(colorRect).add('bleed','color',2).add('flashy').start();
+
+        Functions.time.setTimeOut(1000, function() {
+            anikin.stop();
+            anikin.start();
+        })
+
+//        then(function(f){
+//            f.run('flashy')
+//        })
 
 
-        var allSignalsFired = RestArrayCreator.debugOptions.all();
-        console.log(allSignalsFired.join('\n'));
+
+
+        //(colorRect).run('bleed','color', 500).run('flashy');
+//        ZAnimator.runAnimation(colorRect,"bleed",'color','500',2).then('flashy').then(function(){})
+
+
+
+
+//        ZAnimator.createUniformColorAnimation()
+//        var allSignalsFired = RestArrayCreator.debugOptions.all();
+//        console.log(allSignalsFired.join('\n'));
+    }
+
+
+    function chainer(){
+        var target
+        var fn = function(t){
+            target = t
+        }
+
+        fn.run = function(a){
+            console.log("run",a)
+            return fn;
+        }
+
+        return fn;
+    }
+
+
+    Row {
+        anchors.top : colorRect.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        ZTextBox {
+            id : r
+            height : 32
+            width  : height
+            onTextChanged: colorRect.color = rgbToHex(r.text,g.text,b.text,a.text)
+            state : 'standard-b1-f3'
+            text : "1"
+            onActiveFocusChanged: if(activeFocus)
+                                      selectAll();
+        }
+        ZTextBox {
+            id : g
+            height : 32
+            width  : height
+            onTextChanged: colorRect.color = rgbToHex(r.text,g.text,b.text,a.text)
+            state : 'standard-b1-f3'
+            text : "1"
+            onActiveFocusChanged: if(activeFocus)
+                                      selectAll();
+        }
+        ZTextBox {
+            id : b
+            height : 32
+            width  : height
+            onTextChanged: colorRect.color = rgbToHex(r.text,g.text,b.text,a.text)
+            state : 'standard-b1-f3'
+            text : "1"
+            onActiveFocusChanged: if(activeFocus)
+                                      selectAll();
+        }
+        ZTextBox {
+            id : a
+            height : 32
+            width  : height
+            onTextChanged: colorRect.color = rgbToHex(r.text,g.text,b.text,a.text)
+            state : 'standard-b1-f3'
+            text : "1"
+            onActiveFocusChanged: if(activeFocus)
+                                      selectAll();
+        }
+        width : childrenRect.width
+        height : childrenRect.height
+    }
+
+    CheckeredGrid {
+        anchors.centerIn: parent
+        width : height
+        height : 64
+        rows : 3
+        columns: 3
+    }
+
+    Rectangle {
+        id : colorRect
+        anchors.centerIn: parent
+        width : height
+        height : 64
+        border.width: 1
+
+//        SequentialAnimation {
+//            id : seqAnim
+//            property var target : colorRect
+//            running : true
+//            loops : Animation.Infinite
+//            ColorAnimation {
+//                target: seqAnim && seqAnim.target ? seqAnim.target : null
+//                to: "black"
+//                duration: 200
+//                properties: 'color'
+//            }
+//            ColorAnimation {
+//                target: seqAnim && seqAnim.target ? seqAnim.target : null
+//                to: "white"
+//                duration: 200
+//                properties: 'color'
+//            }
+//        }
 
     }
 
@@ -74,124 +202,41 @@ Rectangle {
     }
 
 
-    function getPath(path,key,val) {
-        var k = val && val.id !== null && val.id !== undefined ? val.id : key;
-        return path ? path + "/" + k : k;
+    function rgbToHex(r,g,b,a){
+        r = Math.floor(parseFloat(r) * 255);
+        g = Math.floor(parseFloat(g) * 255);
+        b = Math.floor(parseFloat(b) * 255);
+        a = Math.floor(parseFloat(a) * 255);
+        //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+        function componentToHex(c) {
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+        return "#" + componentToHex(a) + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
-    function convertToCool(obj) {
-        if(Lodash.isArray(obj))
-            return convertToCoolArray(obj);
-        else if(Lodash.isObject(obj))
-            return convertToCoolObject(obj);
-        return obj;
-    }
-    function attachProperties(i, path) {
-        var map   = {hurr :'durr'}
-        var _path = path || "";
-        Object.defineProperty(i, "_path", {
-                                enumerable : true,
-                                get : function() { return _path; },
-                                set : function () {}
-                              });
-        Object.defineProperty(i, "_map", {
-                                enumerable : true,
-                                get : function(key) {
-                                    if(!key)
-                                        return map ;
-                                    return map[key];
-                                } ,
-                                set : function(val) {
-                                    if(typeof val !== 'object')
-                                        return;
 
-                                     for(var k in val) {
-                                        map[k] = val;
-                                     }
-                                }
-                              })
-    }
-    function blankObject(path) {
-        var obj = {};
-        attachProperties(obj,path);
-        return obj;
-    }
-    function blankArray(path) {
-        var arr = [];
-        attachProperties(arr,path);
-        return arr;
-    }
-    function convertToCoolArray(arr,ret,path) {
-        ret  = ret || blankArray(path);
-        path = path || ""
-        if(!Lodash.isArray(arr))
-            return ret;
-
-        Lodash.each(arr, function(v,k) {
-            var p = getPath(path,k,v);
-            if(Lodash.isArray(v)) {
-                ret[k] = convertToCoolArray(v,blankArray(p),p)
-            }
-            else if(Lodash.isObject(v)) {
-                ret[k] = convertToCoolObject(v,blankObject(p),p)
-            }
-            else {
-                var readonly = k === 'id';
-                Object.defineProperty(ret,k,descriptor(v, p, readonly));
-            }
-        })
-
-        return ret;
-    }
-    function convertToCoolObject(obj,ret, path) {
-        ret = ret || {}
-        path = path || ""
-        if(!Lodash.isObject(obj))
-            return ret;
-
-        Lodash.each(obj, function(v,k) {
-            var p = getPath(path,k,v);
-            if(Lodash.isArray(v)) {
-                ret[k] = convertToCoolArray(v,blankArray(p),p)
-            }
-            else if(Lodash.isObject(v)) {
-                ret[k] = convertToCoolObject(v,blankObject(p),p)
-            }
-            else {
-                var readonly = k === 'id';
-                Object.defineProperty(ret,k,descriptor(v, p, readonly));
-            }
-        })
-
-
-        return ret;
-    }
-    function descriptor(val, name, unwritable) {
-        var _value = val;
-        var _name  = name;
-
-        var r = {
-            enumerable : true,
-            get        : function() {
-//                console.log(_name, "=", _value);
-                return _value;
+    function hexToRgb(hex){
+        //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+        var defaultVal = { r: 0, g : 0, b : 0, a : 1 }
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if(result !== null){
+            return {
+                r: parseInt(result[1], 16)/255,
+                g: parseInt(result[2], 16)/255,
+                b: parseInt(result[3], 16)/255,
+                a : 1
             }
         }
-        r.set = unwritable ? function() { console.error("cannot write to readonly property", _name ) ;} :
-                             function(val, noUpdate) {
-                                if(val != _value) {
-                                    var oldVal = _value;
-                                    _value = val;
-                                    if(!noUpdate) {
-                                        //EMIT UPDATE MSG;
-                                        console.log("updated", _name , "to", _value, "from", oldVal);
-                                    }
-                                }
 
-                            }
-
-        return r;
+        //try regexing on 4. so we can  get a.
+        result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            a: parseInt(result[1], 16)/255,
+            r: parseInt(result[2], 16)/255,
+            g: parseInt(result[3], 16)/255,
+            b: parseInt(result[4], 16)/255
+        } : defaultVal;
     }
-
 
 
 

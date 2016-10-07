@@ -1,7 +1,0 @@
-module Zabaat.UI.HUD
-ZDefaultMessage 1.0 ./Messaging/ZDefaultMessage.qml
-ZMessageDisplayer 1.0 ./Messaging/ZMessageDisplayer.qml
-ZChatMessage 1.0 ./Messaging/ZChatMessage.qml
-ZChat 1.0 ./Chat/ZChat.qml
-ZChatView 1.0 ./Chat/ZChatView.qml
-ZLifeBar 1.0 ./GameElements/ZLifeBar.qml

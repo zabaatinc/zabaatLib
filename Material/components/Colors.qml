@@ -114,23 +114,56 @@ QtObject {
             return isDarkColor(text1) ? text1 : text2
         }
     }
-    function rgbToHex(r,g,b){
+    function rgbToHex255(r,g,b,a){
         //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
         function componentToHex(c) {
             var hex = c.toString(16);
             return hex.length == 1 ? "0" + hex : hex;
         }
-        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        return "#" + componentToHex(a) + componentToHex(r) + componentToHex(g) + componentToHex(b);
     }
+    function rgbToHex(r,g,b,a){
+        //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+        r = Math.floor(parseFloat(r) * 255);
+        g = Math.floor(parseFloat(g) * 255);
+        b = Math.floor(parseFloat(b) * 255);
+        a = Math.floor(parseFloat(a) * 255);
+
+        return rgbToHex255(r,g,b,a);
+    }
+
+
+    function hexToRgb255(hex){
+        //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+        var defaultVal = { r: 0, g : 0, b : 0, a : 1 }
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if(result !== null){
+            return {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16),
+                a : 255
+            }
+        }
+
+        //try regexing on 4. so we can  get a.
+        result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            a: parseInt(result[1], 16),
+            r: parseInt(result[2], 16),
+            g: parseInt(result[3], 16),
+            b: parseInt(result[4], 16)
+        } : defaultVal;
+    }
+
     function hexToRgb(hex){
         //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            r: parseInt(result[1], 16),
-            g: parseInt(result[2], 16),
-            b: parseInt(result[3], 16)
-        } : {r:0,g:0,b:0};
-
+        var res = hexToRgb255(hex);
+        res.a /= 255;
+        res.r /= 255;
+        res.g /= 255;
+        res.b /= 255;
+        return res;
     }
 
     //returns all colors as a js object. This means this dont get updated obviously, duh
