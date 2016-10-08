@@ -9,10 +9,11 @@ pragma Singleton
 // ZAnimator.createNumberAnimation('shake' , [20, 0 , -20, 0]);
 //
 // Then, get an animationRunner by:
-// var ani = ZAnimator.sequentialAnimationRunner(QMLTargetItem)
+// var ani = ZAnimator.getAnimationRunner(QMLTargetItem)
 //
 // You can then use this runner like so:
 // ani.add('bleed')
+//    .addAbs('shake','x,y', 1000,3)
 //    .add('shake','x,y',1000,3)
 //    .onStart (function(){ console.log("START") })
 //    .onPause (function(){ console.log("PAUSE") })
@@ -56,7 +57,7 @@ QtObject{
         logic.createAnimationBluePrint(animName, values);
     }
 
-    function sequentialAnimationRunner(item){
+    function getAnimationRunner(item){
         //private variables
         var m_target = item;
         var m_properties
@@ -70,14 +71,14 @@ QtObject{
 
         var retObj = {}            //this is returned all the time
 
-        function getAnimationPromise(animName, props, duration, loops) {
+        function getAnimationPromise(animName, props, duration, loops, abs) {
             return Promises.promise(function(resolve, reject){
                 var mapEntry = logic.map[animName];
                 if(!Qt.isQtObject(m_target) || !mapEntry) {
                     return reject(m_target, mapEntry) ;
                 }
 
-                var anim = logic.generateAnimFromBP(m_target, props,duration,loops,mapEntry);
+                var anim = logic.generateAnimFromBP(m_target, props,duration,loops,mapEntry, abs);
                 if(!anim){
                     return reject("Could not create animation dynamically") ;
                 }
@@ -102,11 +103,16 @@ QtObject{
             })
         }
 
-        retObj.add      = function(name,props,duration,loops) {
+        retObj.addAbs   = function(name,props,duration,loops){
+            retObj.add(name,props,duration,loops,true);
+            return retObj;
+        }
+        retObj.add      = function(name,props,duration,loops, abs) {
             if(!name || !logic.map[name])
                 return retObj;
 
-            m_anims.push([name,props,duration,loops]);
+            abs = abs || false;
+            m_anims.push([name,props,duration,loops, abs]);
 
             return retObj;
         }
@@ -193,7 +199,7 @@ QtObject{
             logic.map[animName] = { type: qmlAnimationName, data : animLines };
         }
 
-        function generateAnimFromBP(target, properties, duration, loops, animBluePrint){
+        function generateAnimFromBP(target, properties, duration, loops, animBluePrint, abs){
 
             function relativeValue(p,v){    //returs relative values against numbers, and absolute for others
                 var tVal = target[p]
@@ -217,16 +223,13 @@ QtObject{
             if(props.length === 0)
                 return false;
 
-//            console.log("PROPERTIES=", properties, props);
-
-
-            //If there's only one property or if its a color anim, no need to do any parallel anims!
             var lines = []
-            if(props.length === 1 || isColorAnimation){
+            if(props.length === 1 || isColorAnimation || abs){
                 var p = props[0]
                 Lodash.each(animLines, function(v,k){
-                    var line = logic.replaceAll("<value>"     ,relativeValue(p,v.value)     ,v.str);
-                    line     = logic.replaceAll("<properties>",props.join(',')              , line);
+                    var val  = abs ? v.value : relativeValue(p,v.value)
+                    var line = logic.replaceAll("<value>"     ,val  ,v.str);
+                    line     = logic.replaceAll("<properties>",props.join(','), line);
                     lines.push(line);
                 })
             }
