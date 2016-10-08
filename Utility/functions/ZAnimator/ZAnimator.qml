@@ -22,6 +22,9 @@ pragma Singleton
 //    .start();
 //
 //  ani.stop(), ani.pause(), ani.start() are functions that control the playing of the animation
+//
+//  You can clone a runner by calling ani.clone(newQMLTargetItem, useSameEventsBool)
+
 
 
 
@@ -172,6 +175,18 @@ QtObject{
             if(typeof cb === 'function')
                 m_pauseCb = cb;
             return retObj;
+        }
+        retObj.clone    = function(targetItem, sameOnEvents){
+            //returns a new runner for targetItem
+            var newRunner = getAnimationRunner(targetItem);
+            Lodash.each(m_anims, function(v,k){
+                newRunner.add.apply(this, v);
+            })
+
+            if(sameOnEvents){
+                newRunner.onEnd(m_endCb).onStart(m_startCb).onPause(m_pauseCb).onResume(m_resumeCb);
+            }
+            return newRunner;
         }
 
         return retObj;

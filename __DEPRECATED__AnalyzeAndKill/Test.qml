@@ -44,7 +44,7 @@ Rectangle {
 //            ZAnimator.runAnimation(colorRect,"flashy",'color','500')
 //        })
 
-        ani = ZAnimator.sequentialAnimationRunner(colorRect)
+        ani = ZAnimator.getAnimationRunner(colorRect)
                     .add('bleed')
                     .add('shake','x,y',1000,3)
                     .addAbs('shake','x,y',1000,3)
@@ -54,6 +54,7 @@ Rectangle {
                     .onEnd   (function(){ console.log("FINISHED") })
                     .start();
 
+        ani2 = ani.clone(colorRect2,true);
 
 
 
@@ -65,6 +66,8 @@ Rectangle {
     }
 
     property var ani
+    property var ani2
+
     SequentialAnimation {
         id : seq
     }
@@ -92,6 +95,32 @@ Rectangle {
             Button {
                 text : "Start"
                 onClicked: ani.start();
+            }
+        }
+    }
+
+    Rectangle {
+        id     : colorRect2
+        x      : parent.width - width * 2
+        y      : (parent.height - height)/2
+        width  : height
+        height : 64
+        border.width: 1
+        property color c2
+
+        Column {
+            anchors.left: parent.right
+            Button {
+                text : "Pause"
+                onClicked: ani2.pause();
+            }
+            Button {
+                text : "Stop"
+                onClicked: ani2.stop();
+            }
+            Button {
+                text : "Start"
+                onClicked: ani2.start();
             }
         }
     }
