@@ -10,11 +10,18 @@ pragma Singleton
 //
 // Then, get an animationRunner by:
 // var ani = ZAnimator.sequentialAnimationRunner(QMLTargetItem)
+//
+// You can then use this runner like so:
 // ani.add('bleed')
-//    .add('shake','x,y',1000,Animation.Infinite)
-//    .start().onEnd(function(){
-//          console.log("animation finished")
-//    });
+//    .add('shake','x,y',1000,3)
+//    .onStart (function(){ console.log("START") })
+//    .onPause (function(){ console.log("PAUSE") })
+//    .onResume(function(){ console.log("RESUMED") })
+//    .onEnd   (function(){ console.log("FINISHED") })
+//    .start();
+//
+//  ani.stop(), ani.pause(), ani.start() are functions that control the playing of the animation
+
 
 
 QtObject{
@@ -58,7 +65,9 @@ QtObject{
         var m_anims = []
         var m_userStopCalled = false
         var m_currentQmlAnimation
-        var m_cb   = function() {}  //adjustable by calling .end(fn)
+        var m_endCb ,m_startCb, m_pauseCb, m_resumeCb
+        m_endCb = m_startCb = m_pauseCb = m_resumeCb = function() {}  //adjustable by calling .end(fn)
+
         var retObj = {}            //this is returned all the time
 
         function getAnimationPromise(animName, props, duration, loops) {
@@ -93,7 +102,7 @@ QtObject{
             })
         }
 
-        retObj.add   = function(name,props,duration,loops) {
+        retObj.add      = function(name,props,duration,loops) {
             if(!name || !logic.map[name])
                 return retObj;
 
@@ -101,24 +110,28 @@ QtObject{
 
             return retObj;
         }
-        retObj.start = function(index){
+        retObj.start    = function(index){
             if(m_currentQmlAnimation && m_currentQmlAnimation.paused) {
                 m_currentQmlAnimation.resume();
+                m_resumeCb();
                 return retObj;
             }
             logic.setTimeOut(0, function(){
                 index = index || 0;
                 if(index < m_anims.length){
                     var args = m_anims[index];
-                    getAnimationPromise.apply(this,args).then(function() { retObj.start(++index) } );
+                    getAnimationPromise.apply(this,args).then(function() { retObj.start(index+1) } );
+                    if(index === 0){
+                        m_startCb();
+                    }
                 }
                 else {
-                    m_cb();
+                    m_endCb();
                 }
             })
             return retObj;
         }
-        retObj.stop  = function() {
+        retObj.stop     = function() {
             if(m_currentQmlAnimation) {
                 m_userStopCalled = true;
                 var m = m_currentQmlAnimation;
@@ -127,15 +140,31 @@ QtObject{
             }
             return retObj;
         }
-        retObj.pause = function() {
+        retObj.pause    = function() {
             if(m_currentQmlAnimation && m_currentQmlAnimation.running) {
                 m_currentQmlAnimation.pause();
+                m_pauseCb();
             }
             return retObj;
         }
-        retObj.onEnd = function(cb){
+        retObj.onEnd    = function(cb){
             if(typeof cb === 'function')
-                m_cb = cb;
+                m_endCb = cb;
+            return retObj;
+        }
+        retObj.onStart  = function(cb) {
+            if(typeof cb === 'function')
+                m_startCb = cb;
+            return retObj;
+        }
+        retObj.onResume = function(cb){
+            if(typeof cb === 'function')
+                m_resumeCb = cb;
+            return retObj;
+        }
+        retObj.onPause  = function(cb){
+            if(typeof cb === 'function')
+                m_pauseCb = cb;
             return retObj;
         }
 

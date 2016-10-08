@@ -46,10 +46,12 @@ Rectangle {
 
         ani = ZAnimator.sequentialAnimationRunner(colorRect)
                     .add('bleed')
-                    .add('shake','x,y',333,3)
-                    .start().onEnd(function(){
-                        console.log("animation finished")
-                    });
+                    .add('shake','x,y',1000,3)
+                    .onStart (function(){ console.log("START") })
+                    .onPause (function(){ console.log("PAUSE") })
+                    .onResume(function(){ console.log("RESUMED") })
+                    .onEnd   (function(){ console.log("FINISHED") })
+                    .start();
 
 
 
