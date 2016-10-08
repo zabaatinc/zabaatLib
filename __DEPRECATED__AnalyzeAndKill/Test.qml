@@ -3,6 +3,7 @@ import Zabaat.Utility 1.0
 import Zabaat.Material 1.0
 import Zabaat.Shaders 1.0 as Fx
 import Zabaat.MVVM 1.0
+import QtQuick.Controls 1.4
 
 Rectangle {
     id : rootObject
@@ -36,29 +37,21 @@ Rectangle {
 //        console.log(JSON.stringify(hexToRgb("#ff00ff")));
 //        console.log(JSON.stringify(hexToRgb("#9900ffff")));
 
-        ZAnimator.createUniformColorAnimation("bleed" , ["red",'darkRed'])
-        ZAnimator.createUniformColorAnimation("flashy", ["red","yellow",'blue','green','blue','yellow'])
+        ZAnimator.createColorAnimation ("bleed" , ["red",'darkRed'])
+        ZAnimator.createColorAnimation ("flashy", ["white","black"])
+        ZAnimator.createNumberAnimation('shake' , [20, 0 , -20, 0]);
 //        ZAnimator.runAnimation(colorRect,"bleed",'color','500',2,function(){
 //            ZAnimator.runAnimation(colorRect,"flashy",'color','500')
 //        })
 
-        var anikin = ZAnimator.factory()
-        anikin(colorRect).add('bleed','color',2).add('flashy').start();
-
-        Functions.time.setTimeOut(1000, function() {
-            anikin.stop();
-            anikin.start();
-        })
-
-//        then(function(f){
-//            f.run('flashy')
-//        })
+        ani = ZAnimator.sequentialAnimationRunner(colorRect)
+                    .add('bleed')
+                    .add('shake','x,y',333,3)
+                    .start().onEnd(function(){
+                        console.log("animation finished")
+                    });
 
 
-
-
-        //(colorRect).run('bleed','color', 500).run('flashy');
-//        ZAnimator.runAnimation(colorRect,"bleed",'color','500',2).then('flashy').then(function(){})
 
 
 
@@ -68,104 +61,39 @@ Rectangle {
 //        console.log(allSignalsFired.join('\n'));
     }
 
-
-    function chainer(){
-        var target
-        var fn = function(t){
-            target = t
-        }
-
-        fn.run = function(a){
-            console.log("run",a)
-            return fn;
-        }
-
-        return fn;
+    property var ani
+    SequentialAnimation {
+        id : seq
     }
 
-
-    Row {
-        anchors.top : colorRect.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        ZTextBox {
-            id : r
-            height : 32
-            width  : height
-            onTextChanged: colorRect.color = rgbToHex(r.text,g.text,b.text,a.text)
-            state : 'standard-b1-f3'
-            text : "1"
-            onActiveFocusChanged: if(activeFocus)
-                                      selectAll();
-        }
-        ZTextBox {
-            id : g
-            height : 32
-            width  : height
-            onTextChanged: colorRect.color = rgbToHex(r.text,g.text,b.text,a.text)
-            state : 'standard-b1-f3'
-            text : "1"
-            onActiveFocusChanged: if(activeFocus)
-                                      selectAll();
-        }
-        ZTextBox {
-            id : b
-            height : 32
-            width  : height
-            onTextChanged: colorRect.color = rgbToHex(r.text,g.text,b.text,a.text)
-            state : 'standard-b1-f3'
-            text : "1"
-            onActiveFocusChanged: if(activeFocus)
-                                      selectAll();
-        }
-        ZTextBox {
-            id : a
-            height : 32
-            width  : height
-            onTextChanged: colorRect.color = rgbToHex(r.text,g.text,b.text,a.text)
-            state : 'standard-b1-f3'
-            text : "1"
-            onActiveFocusChanged: if(activeFocus)
-                                      selectAll();
-        }
-        width : childrenRect.width
-        height : childrenRect.height
-    }
-
-    CheckeredGrid {
-        anchors.centerIn: parent
-        width : height
-        height : 64
-        rows : 3
-        columns: 3
-    }
 
     Rectangle {
         id : colorRect
-        anchors.centerIn: parent
+        x : (parent.width - width)/2
+        y : (parent.height - height)/2
         width : height
         height : 64
         border.width: 1
+        property color c2
 
-//        SequentialAnimation {
-//            id : seqAnim
-//            property var target : colorRect
-//            running : true
-//            loops : Animation.Infinite
-//            ColorAnimation {
-//                target: seqAnim && seqAnim.target ? seqAnim.target : null
-//                to: "black"
-//                duration: 200
-//                properties: 'color'
-//            }
-//            ColorAnimation {
-//                target: seqAnim && seqAnim.target ? seqAnim.target : null
-//                to: "white"
-//                duration: 200
-//                properties: 'color'
-//            }
-//        }
-
+        Column {
+            anchors.left: parent.right
+            Button {
+                text : "Pause"
+                onClicked: ani.pause();
+            }
+            Button {
+                text : "Stop"
+                onClicked: ani.stop();
+            }
+            Button {
+                text : "Start"
+                onClicked: ani.start();
+            }
+        }
     }
+
+
 
 
     Text {
@@ -202,41 +130,6 @@ Rectangle {
     }
 
 
-    function rgbToHex(r,g,b,a){
-        r = Math.floor(parseFloat(r) * 255);
-        g = Math.floor(parseFloat(g) * 255);
-        b = Math.floor(parseFloat(b) * 255);
-        a = Math.floor(parseFloat(a) * 255);
-        //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-        function componentToHex(c) {
-            var hex = c.toString(16);
-            return hex.length == 1 ? "0" + hex : hex;
-        }
-        return "#" + componentToHex(a) + componentToHex(r) + componentToHex(g) + componentToHex(b);
-    }
-
-    function hexToRgb(hex){
-        //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-        var defaultVal = { r: 0, g : 0, b : 0, a : 1 }
-        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        if(result !== null){
-            return {
-                r: parseInt(result[1], 16)/255,
-                g: parseInt(result[2], 16)/255,
-                b: parseInt(result[3], 16)/255,
-                a : 1
-            }
-        }
-
-        //try regexing on 4. so we can  get a.
-        result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? {
-            a: parseInt(result[1], 16)/255,
-            r: parseInt(result[2], 16)/255,
-            g: parseInt(result[3], 16)/255,
-            b: parseInt(result[4], 16)/255
-        } : defaultVal;
-    }
 
 
 
