@@ -64,7 +64,7 @@ QtObject {
             }
             function standardSignalsPackage() {
                 function prints(path,data,oldData){
-                    var p  = path     && debugOptions.showPaths   ? path                              : "";
+                    var p  = helpers.def(path) && debugOptions.showPaths   ? path                     : "";
                     var d  = data     && debugOptions.showData    ? "= "    + JSON.stringify(data)    : "";
                     var od = oldData  && debugOptions.showOldData ? "from " + JSON.stringify(oldData) : "";
                     return { p:p, d:d, od:od }
@@ -76,40 +76,40 @@ QtObject {
                 return  {
                     lengthChanged : function(path,len)  {
                         var pr = prints(path,len);
-                        if(pr.p) {
+                        if(helpers.def(pr.p)) {
                             var msg = "lenChanged:"+" "+ pr.p +" "+ pr.d+" "+ pr.od
                             debugOptions.batchUpdateMsg.push({msg:msg,time:now()})
                         }
                     } ,
                     propertyUpdated : function(path,data,oldData){
                         var pr = prints(path,data,oldData);
-                        if(pr.p || pr.d || pr.od){
+                        if(helpers.def(pr.p) || pr.d || pr.od){
                             debugOptions.batchUpdateMsg.push({msg:pr.p+" "+ pr.d+" "+ pr.od,time:now()});
                         }
                     } ,
                     propertyCreated  : function(path,data) {
                         var pr = prints(path,data);
-                        if(pr.p || pr.d || pr.od)
+                        if(helpers.def(pr.p) || pr.d || pr.od)
                             debugOptions.batchCreateMsg.push({msg:pr.p+" "+ pr.d,time:now()});
                     } ,
                     propertyDeleted  : function(path) {
                         var pr = prints(path);
-                        if(pr.p || pr.d || pr.od)
+                        if(helpers.def(pr.p) || pr.d || pr.od)
                             debugOptions.batchDeleteMsg.push({msg:pr.p,time:now()})
                     } ,
                     beforePropertyUpdated : function(path,data,oldData){
                         var pr = prints(path,data,oldData);
-                        if(pr.p || pr.d || pr.od)
+                        if(helpers.def(pr.p) || pr.d || pr.od)
                             debugOptions.batchBeforeUpdateMsg.push({msg:pr.p +" "+ pr.d +" "+ pr.od,time:now()});
                     } ,
                     beforePropertyCreated : function(path,data) {
                         var pr = prints(path,data);
-                            if(pr.p || pr.d || pr.od)
+                            if(helpers.def(pr.p) || pr.d || pr.od)
                         debugOptions.batchBeforeCreateMsg.push({msg:pr.p +" "+ pr.d,time:now()});
                     } ,
                     beforePropertyDeleted : function(path)  {
                         var pr = prints(path);
-                        if(pr.p || pr.d || pr.od)
+                        if(helpers.def(pr.p) || pr.d || pr.od)
                             debugOptions.batchBeforeDeleteMsg.push({msg:pr.p,time:now()})
                     }
                 }
@@ -147,6 +147,21 @@ QtObject {
         }
         QtObject {
             id : helpers
+            function def(obj, props){
+                if(obj === null || obj === undefined || obj === "")
+                    return false;
+
+                if(props && !Lodash.isArray(props))
+                    props = [props];
+
+                for(var p in props){
+                    var key = props[p]
+                    if(obj[key] === null || obj[key] === undefined || obj[key] === "")
+                        return false;
+                }
+                return true;
+            }
+
             function arrayIsIded(js, idProp) {
                 if(js.length === 0)
                     return true;
@@ -182,8 +197,9 @@ QtObject {
 
                 var r = { enumerable : true, configurable : true }
                 r.get =  function() {  return _value; }
-                r.set = isReadOnly ? function() { console.error("cannot write to readonly property", _path ) ;} :
+                r.set = isReadOnly ? function() { /*console.error("cannot write to readonly property", _path )*/ ;} :
                                      function(val, noUpdate) {
+//                                        console.log("CUSTOM SET CALLED", val, "FROM", _value)
 
                                         var idProperty = this._idProperty;
                                         var signals = this._signals;
@@ -196,6 +212,7 @@ QtObject {
                                             var newType     = { isArray : Lodash.isArray(val)    , isObject : Lodash.isObject(val) }
 
                                             if(!currentType.isArray && !currentType.isObject) { //simplest case
+//                                                console.log("SIMPLE SETTER", _value, "to", val)
                                                 signals.beforePropertyUpdated(_path,val,_value);
                                                 _value = priv.convert(val,_path,signals,idProperty);
                                                 signals.propertyUpdated(_path,_value,oldVal);
@@ -272,17 +289,18 @@ QtObject {
             //creates a restful path
             function getPath(path,key,val, idProperty) {
                 idProperty = idProperty || (val && val._idProperty) || "id"
-                if(key === null || key === undefined){
-                    return path ? path : "";
+                if(!def(key)){
+                    return def(path) ? path : "";
                 }
 
-                var k = val && val[idProperty] !== null && val[idProperty] !== undefined ? val.id : key;
-                return path ? path + "/" + k : k;
+                var k = def(val,idProperty) ? val[idProperty] : key;
+                return def(path) ? path + "/" + k : k;
             }
 
-            function getDescriptorNonEnumerable(value) {
+            function getDescriptorNonEnumerable(value, readOnly) {
                 var _value = value;
                 return {
+                    writable : readOnly ? false : true,
                     configurable : true,
                     enumerable : false,
                     value : _value
@@ -298,46 +316,190 @@ QtObject {
 
 
                 function attachPush() {
-                    var f = function(val){
-                        function simpleInsertion(){
-                            var p = getPath(path,arr.length,val,idProperty);
-                            var v = priv.convert(val,p,signals,idProperty);
+                    var f = function(){
+                        if(arguments.length === 0)
+                            return;
 
-                            signals.beforePropertyCreated(p,val);
-                            Object.defineProperty(arr, arr.length, helpers.getDescriptor(v,p,false))
-                            signals.propertyCreated(p,val);
-                            signals.lengthChanged(path,arr.length);
-                        }
+                        Lodash.each(arguments, function(val){
+                            function simpleInsertion(){
+                                var p = getPath(path,arr.length,val,idProperty);
+                                var v = priv.convert(val,p,signals,idProperty);
 
-                        if(arr.length === 0 || !helpers.arrayIsIded(arr)) { //if our array is empty or it if its not ided, cool . just shove it in!
-                            simpleInsertion();
-                        }
-                        else {
-                            //try to find the idx of the thing we are trying to insert, provided its an object!
-                            var idx = helpers.keyAt(arr, helpers.idMatcherFuncGen(idProperty,val))
-                            if(idx === -1){
+                                signals.beforePropertyCreated(p,val);
+                                Object.defineProperty(arr, arr.length, helpers.getDescriptor(v,p,false))
+                                signals.propertyCreated(p,val);
+                                signals.lengthChanged(path,arr.length);
+                            }
+
+                            if(arr.length === 0 || !helpers.arrayIsIded(arr)) { //if our array is empty or it if its not ided, cool . just shove it in!
                                 simpleInsertion();
                             }
                             else {
-                                //pray to the Almighty that we have set this idx to have a setter and it handles this madness!
-                                arr[idx] = val;
+                                //try to find the idx of the thing we are trying to insert, provided its an object!
+                                var idx = helpers.keyAt(arr, helpers.idMatcherFuncGen(idProperty,val))
+                                if(idx === -1){
+                                    simpleInsertion();
+                                }
+                                else {
+                                    //pray to the Almighty that we have set this idx to have a setter and it handles this madness!
+                                    arr[idx] = val;
+                                }
                             }
+                        })
+                    }
+                    Object.defineProperty(js, 'push', { enumerable : false, value : f })
+                }
+
+                //returns an array of deleted elements!!
+                function attachSplice(){
+
+                    var f = function(idx,deleteCount){
+                        console.log("--------------------------------------")
+                        var args        = Array.prototype.slice.call(arguments);
+                        var insertElems = args.length <= 2 ? undefined : args.slice(2);
+
+                        var deletedElems = [];
+
+                        if(idx === null || idx === undefined || idx > js.length)
+                            idx = js.length;
+                        if(idx < 0) //negative
+                            idx = js.length - idx;
+
+                        var remaining = js.length - idx;
+                        if(deleteCount > remaining)
+                            deleteCount = remaining;
+
+                        //handle deletion first
+                        var slen = js.length;
+                        var dCount = deleteCount;
+                        for(var i = idx; deleteCount > 0; ++i){
+                            console.log("rem from", js, "@", js[idx]);
+                            //i is the index to delete!!
+                            deletedElems.push(js[idx]);
+
+                            //always start at where we are deleting!
+                            var last = js[js.length-1];
+                            for(var j = idx; j < js.length-1; ++j){
+                                console.log("set", js[j], "to", js[j+1])
+                                js[j] = js[(j+1)];    //this should call our version of SET!
+                            }
+
+                            console.log(js, js.length, typeof js[2])
+                            js.length = js.length - 1;
+//                            js[js.length-1] = last;
+                            console.log(js, js.length, typeof js[2])
+//                            signals.lengthChanged()
+
+                            deleteCount--;
                         }
+//                        console.log("deleted", dCount, "elems from", slen, "resuting in", js.length, js )
+
+                        //begin inserting at i!
+
+                        Lodash.eachRight(insertElems, function(v,k){
+
+                            //shift all the elements to make room!!
+//                            console.log("STEP 0", js)
+                            for(var i = js.length; i >= idx ; i--){
+//                                if(js[i] === undefined){
+//                                    Object.defineProperty(js, i, priv.con)
+//                                }
+//                                else{
+                                    js[i] = js[i-1];
+//                                }
+                            }
+
+//                            console.log("STEP1", js)
+
+
+                            //replace element at idx
+                            js[idx] = v;
+//                            console.log("STEP2", js)
+
+                        })
+
+
+
+
+
+                        //then handle insertion or should we about it the other way??
+
+
+                        return deletedElems;
                     }
 
-                    Object.defineProperty(js, 'push', {
-                                            enumerable : false,
-                                            value : f
-                                          })
+                    Object.defineProperty(js, 'splice', { enumerable : false, value : f })
+//                    Object.defineProperty(js, 'splice', helpers.getDescriptorNonEnumerable(f,true));
                 }
 
-                function attachSplice(idx, remove, insertElements){
+                function attachFrom(){
+
+                }
+
+                function attachOf(){
+
+                }
+
+                function attachConcat(){
+
+                }
+
+                function attachCopyWihin(){
+
+                }
+
+                function attachFill(){
+
+                }
+
+                function attachFilter(){
+
+                }
+
+                function attachMap(){
+
+                }
+
+                function attachProp(){
+
+                }
+
+                function attachrReverse(){
+
+                }
+
+                function attachShift(){
+
+                }
+
+                function attachUnshift(){
+
+                }
+
+                function attachSlice(){
+
+                }
+
+                function attachSort(){
 
                 }
 
 
-                attachSplice();
                 attachPush();
+                attachSplice();
+//                attachFrom();
+//                attachOf
+//                attachConcat
+//                attachCopyWihin
+//                attachFill
+//                attachFilter
+//                attachMap
+//                attachProp
+//                attachrReverse
+//                attachShift
+//                attachUnshift
+//                attachSlice
+//                attachSort
             }
 
             //attaches properties to object (overrides default object stuffs)
@@ -418,7 +580,7 @@ QtObject {
 
         //creates an observable object. calls convert if js is provided.
         function createObject(js, path, signals,idProperty) {
-            path = path || "";
+            path = helpers.def(path) ?  path : "";
             idProperty = idProperty
             var p = helpers.getPath(path);
             if(Lodash.isObject(js)) {
