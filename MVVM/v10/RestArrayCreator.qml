@@ -45,6 +45,15 @@ QtObject {
             property var batchUpdateMsg      : []
             property var batchDeleteMsg      : []
 
+            function allCount(){
+                return batchBeforeCreateMsg.length +
+                       batchBeforeUpdateMsg.length +
+                       batchBeforeDeleteMsg.length +
+                       batchCreateMsg.length +
+                       batchUpdateMsg.length +
+                       batchDeleteMsg.length
+            }
+
             function clearBatches(){
                 batchBeforeCreateMsg =  []
                 batchBeforeUpdateMsg =  []
@@ -114,13 +123,20 @@ QtObject {
                     }, [])
                 }
 
-                var arr = [].concat(doReduce(batchBeforeCreateMsg, "beforeCreate"))
-                            .concat(doReduce(batchBeforeDeleteMsg, "beforeDelete"))
-                            .concat(doReduce(batchBeforeUpdateMsg, "beforeUpdate"))
-                            .concat(doReduce(batchCreateMsg      , "create"))
-                            .concat(doReduce(batchUpdateMsg      , "update"))
-                            .concat(doReduce(batchDeleteMsg      , "delete"))
-                            .sort(function(a,b){ return a.time - b.time })
+                var arr = doReduce(batchBeforeCreateMsg, "beforeCreate")
+                          .concat(doReduce(batchBeforeDeleteMsg, "beforeDelete"))
+                          .concat(doReduce(batchBeforeUpdateMsg, "beforeUpdate"))
+                          .concat(doReduce(batchCreateMsg      , "create"))
+                          .concat(doReduce(batchUpdateMsg      , "update"))
+                          .concat(doReduce(batchDeleteMsg      , "delete"))
+                          .sort(function(a,b){
+                              var at = a.time.getTime();
+                              var bt = b.time.getTime();
+                              if(at == bt){
+                                  return a.msg.indexOf('before') !== -1 ? -1 : 1
+                              }
+                              return at - bt
+                          })
 
                 return Lodash.reduce(arr, function(a,e){
                     a.push(e.msg);
@@ -129,12 +145,8 @@ QtObject {
 
             }
         }
-
         QtObject {
             id : helpers
-
-
-
             function arrayIsIded(js, idProp) {
                 if(js.length === 0)
                     return true;
@@ -418,12 +430,6 @@ QtObject {
             helpers.attachPropertiesObject(ret);
             return ret;
         }
-
-
-
-
-
-
     }
 
 

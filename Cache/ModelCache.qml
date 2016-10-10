@@ -16,12 +16,12 @@ QtObject {
 
     //The function that determines whether an entry was deleted
     property var determineDeletedFunc : function(a){
-        return a.deleted ? true : false
+        return !!a.deleted
     }
 
     //The function that determines two items in the list/item are the same!
     property var equalityFunc : function(a,b){
-        return a.id == b.id
+        return a.id === b.id
     }
 
     //happens after determinedNewer. By default, newer is all we need to determine update so returns true.
@@ -46,6 +46,7 @@ QtObject {
     //This function will call cb (if it is a function) when the task has completed!
     property var updateFunc: function(list,value,idx, cb){
         if(Functions.list.isArray(list)){
+//            console.log("SETTING", JSON.stringify(list[idx]), "TO", JSON.stringify(value))
             list[idx] = value;
         }
         else {
@@ -108,7 +109,7 @@ QtObject {
 
 
         var res = file.writeFile(cacheDir,name,JSON.stringify(arr,null,2))
-        console.log("Wrote file", cacheDir + "/" + name, "=",res)
+//        console.log("Wrote file", cacheDir + "/" + name, "=",res)
         return res;
     }
 
@@ -232,10 +233,14 @@ QtObject {
                 }
             }
 
-
+            //MAKE SURE TO SORT THE PROC ARR BY INDEX DESCENDING!!!!
+            //If you don't do this and we delete some element , it will throw off all the indices!!
+            procArr.sort(function(a,b){
+                return b.i - a.i;
+            })
 
             //proc the stuff we know we need to process,
-            //if the src is newer && we determined that src was deleted, call delete, otehrwise update
+            //if the src is newer && we determined that src was deleted, call delete, otherwise update
             Lodash.each(procArr, function(val) {
                 var v = val.v
                 var idx = val.i
@@ -315,6 +320,12 @@ QtObject {
                     cb();
                 }
             }
+
+            //MAKE SURE TO SORT THE PROC ARR BY INDEX DESCENDING!!!!
+            //If you don't do this and we delete some element , it will throw off all the indices!!
+            procArr.sort(function(a,b){
+                return b.i - a.i;
+            })
 
             //proc the stuff we know we need to process,
             //if the src is newer && we determined that src was deleted, call delete, otehrwise update

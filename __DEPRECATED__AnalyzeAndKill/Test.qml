@@ -29,7 +29,7 @@ Rectangle {
 //        RestArrayCreator.debugOptions.showPaths   = true;
 //        RestArrayCreator.debugOptions.showData    = true;
 //        RestArrayCreator.debugOptions.showOldData = true;
-//        var arr = RestArrayCreator.create(o);
+          var arr = RestArrayCreator.create(o);
 
 //        arr[0].name = "wolf"
 //        arr[0].hobbies = ["derp","herp"];
@@ -37,9 +37,9 @@ Rectangle {
 //        console.log(JSON.stringify(hexToRgb("#ff00ff")));
 //        console.log(JSON.stringify(hexToRgb("#9900ffff")));
 
-        ZAnimator.createColorAnimation ("bleed" , ["red",'darkRed'])
-        ZAnimator.createColorAnimation ("flashy", ["white","black"])
-        ZAnimator.createNumberAnimation('shake' , [20, 0 , -20, 0]);
+//        ZAnimator.createColorAnimation ("bleed" , ["red",'darkRed'])
+//        ZAnimator.createColorAnimation ("flashy", ["white","black"])
+//        ZAnimator.createNumberAnimation('shake' , [20, 0 , -20, 0]);
 //        ZAnimator.runAnimation(colorRect,"bleed",'color','500',2,function(){
 //            ZAnimator.runAnimation(colorRect,"flashy",'color','500')
 //        })
@@ -52,20 +52,20 @@ Rectangle {
 
 //        var ani2 = ani.clone(colorRect2,true).start();
 
-        ani = ZAnimator.getAnimationRunner(colorRect)
-                    .add('bleed')
-                    .add('shake','x,y',1000,3)
-                    .addAbs('shake','x,y',1000,3)
-                    .onStart (function(){ console.log("START") })
-                    .onPause (function(){ console.log("PAUSE") })
-                    .onResume(function(){ console.log("RESUMED") })
-                    .onEnd   (function(){ console.log("FINISHED") })
-                    .start();
+//        ani = ZAnimator.getAnimationRunner(colorRect)
+//                    .add('bleed')
+//                    .add('shake','x,y',1000,3)
+////                    .addAbs('shake','x,y',1000,3)
+//                    .onStart (function(){ console.log("START") })
+//                    .onPause (function(){ console.log("PAUSE") })
+//                    .onResume(function(){ console.log("RESUMED") })
+//                    .onEnd   (function(a){ a.color = 'black' })
+//                    .start();
 
-        ani2 = ani.clone(colorRect2,true);
+//        ani2 = ani.clone(colorRect2,true);
 //        ZAnimator.createUniformColorAnimation()
-//        var allSignalsFired = RestArrayCreator.debugOptions.all();
-//        console.log(allSignalsFired.join('\n'));
+        var allSignalsFired = RestArrayCreator.debugOptions.all();
+        console.log(allSignalsFired.join('\n'));
     }
 
     property var ani

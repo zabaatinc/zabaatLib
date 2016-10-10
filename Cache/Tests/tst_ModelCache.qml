@@ -67,7 +67,7 @@ ZabaatTest {
     function test_03_syncArray(){
         mc.cacheModel("test3",newArr);
         if(!mc.loadCache("test3",arr))
-            fail("Unable to read file: " + mc.cacheDir + "/mermaid")
+            fail("Unable to read file: " + mc.cacheDir + "/test3")
 
         compare(arr.length, 4);
         compare(arr[0].color, 'black')
@@ -90,29 +90,32 @@ ZabaatTest {
         newArr[0].deleted = true;
         mc.cacheModel("test5",newArr);
         if(!mc.loadCache("test5",arr))
-            fail("Unable to read file: " + mc.cacheDir + "/mermaid")
+            fail("Unable to read file: " + mc.cacheDir + "/test5")
+
+        var disp = Lodash.reduce(arr, function(a,e){ a.push(e.id + ":" + e.color); return a }, []);
 
         compare(arr.length, 3);
-        compare(arr[0].color, 'white')
-        compare(arr[1].color, 'green')
-        compare(arr[2].color, 'purple')
+        compare(arr[0].color, 'white' , disp)
+        compare(arr[1].color, 'green' , disp)
+        compare(arr[2].color, 'purple', disp)
     }
     function test_06_syncModelDelete(){
         newArr[0].deleted = true;
         mc.cacheModel("test6",newArr);
         if(!mc.loadCache("test6",lm))
-            fail("Unable to read file:" + mc.cacheDir + "/test4")
+            fail("Unable to read file:" + mc.cacheDir + "/test6")
 
+        var disp = Lodash.reduce(arr, function(a,e){ a.push(e.id + ":" + e.color); return a }, []);
         compare(lm.count, 3);
-        compare(lm.get(0).color, 'white')
-        compare(lm.get(1).color, 'green')
-        compare(lm.get(2).color, 'purple')
+        compare(lm.get(0).color, 'white' , disp)
+        compare(lm.get(1).color, 'green' , disp)
+        compare(lm.get(2).color, 'purple', disp)
     }
     function test_07_syncArrayDeleteIgnore(){
         newArr[2].deleted = true;
         mc.cacheModel("test7",newArr);
         if(!mc.loadCache("test7",arr))
-            fail("Unable to read file: " + mc.cacheDir + "/mermaid")
+            fail("Unable to read file: " + mc.cacheDir + "/test7")
 
         compare(arr.length, 4);
         compare(arr[0].color, 'black')
@@ -120,11 +123,11 @@ ZabaatTest {
         compare(arr[2].color, 'green')
         compare(arr[3].color, 'purple')
     }
-    function test_08_syncArrayDeleteIgnore(){
+    function test_08_syncModelDeleteIgnore(){
         newArr[2].deleted = true;
         mc.cacheModel("test8",newArr);
         if(!mc.loadCache("test8",lm))
-            fail("Unable to read file: " + mc.cacheDir + "/mermaid")
+            fail("Unable to read file: " + mc.cacheDir + "/test8")
 
         compare(lm.count, 4);
         compare(lm.get(0).color, 'black')
