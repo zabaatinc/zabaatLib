@@ -122,7 +122,7 @@ QtObject{
         retObj.start    = function(index){
             if(m_currentQmlAnimation && m_currentQmlAnimation.paused) {
                 m_currentQmlAnimation.resume();
-                m_resumeCb();
+                m_resumeCb(m_target);
                 return retObj;
             }
             logic.setTimeOut(0, function(){
@@ -131,11 +131,11 @@ QtObject{
                     var args = m_anims[index];
                     getAnimationPromise.apply(this,args).then(function() { retObj.start(index+1) } );
                     if(index === 0){
-                        m_startCb();
+                        m_startCb(m_target);
                     }
                 }
                 else {
-                    m_endCb();
+                    m_endCb(m_target);
                 }
             })
             return retObj;
@@ -152,7 +152,7 @@ QtObject{
         retObj.pause    = function() {
             if(m_currentQmlAnimation && m_currentQmlAnimation.running) {
                 m_currentQmlAnimation.pause();
-                m_pauseCb();
+                m_pauseCb(m_target);
             }
             return retObj;
         }

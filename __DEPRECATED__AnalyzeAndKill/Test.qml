@@ -44,6 +44,14 @@ Rectangle {
 //            ZAnimator.runAnimation(colorRect,"flashy",'color','500')
 //        })
 
+//        var ani = ZAnimator.getAnimationRunner(colorRect)
+//                           .add('shake','x',1000,2)
+//                           .add('bleed','color',500,3)
+//                           .onEnd(function(a) { a.color = 'black' })
+//                           .start();
+
+//        var ani2 = ani.clone(colorRect2,true).start();
+
         ani = ZAnimator.getAnimationRunner(colorRect)
                     .add('bleed')
                     .add('shake','x,y',1000,3)
@@ -55,11 +63,6 @@ Rectangle {
                     .start();
 
         ani2 = ani.clone(colorRect2,true);
-
-
-
-
-
 //        ZAnimator.createUniformColorAnimation()
 //        var allSignalsFired = RestArrayCreator.debugOptions.all();
 //        console.log(allSignalsFired.join('\n'));
@@ -68,9 +71,6 @@ Rectangle {
     property var ani
     property var ani2
 
-    SequentialAnimation {
-        id : seq
-    }
 
 
     Rectangle {
@@ -81,7 +81,6 @@ Rectangle {
         height : 64
         border.width: 1
         property color c2
-
         Column {
             anchors.left: parent.right
             Button {
