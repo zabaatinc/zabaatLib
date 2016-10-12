@@ -53,6 +53,11 @@ QtObject {
                        batchUpdateMsg.length +
                        batchDeleteMsg.length
             }
+            function printAll(){
+                Lodash.each(all(), function(v,k){
+                    console.log(k,v)   ;
+                })
+            }
 
             function clearBatches(){
                 batchBeforeCreateMsg =  []
@@ -198,12 +203,16 @@ QtObject {
                 var r = { enumerable : true, configurable : true }
                 r.get =  function() {  return _value; }
                 r.set = isReadOnly ? function() { /*console.error("cannot write to readonly property", _path )*/ ;} :
-                                     function(val, noUpdate) {
+                                     function(val, changePath) {
 //                                        console.log("CUSTOM SET CALLED", val, "FROM", _value)
+                                        if(changePath) {
+                                            console.log("WOOT NOT CHANGING VAL BUT PATH to:",changePath,"from",_path);
+                                            return _path = changePath;
+                                        }
+
 
                                         var idProperty = this._idProperty;
-                                        var signals = this._signals;
-
+                                        var signals    = this._signals;
                                         if(val != _value) {
 
                                             var oldVal = _value;
@@ -218,7 +227,7 @@ QtObject {
                                                 signals.propertyUpdated(_path,_value,oldVal);
                                             }
                                             else if(currentType.isArray && newType.isArray) {
-                                                var ided = helpers.arrayIsIded(_value) && helpers.arrayIsIded(val,idProperty);
+                                                var ided = helpers.arrayIsIded(_value,idProperty) && helpers.arrayIsIded(val,idProperty);
                                                 if(!ided){
                                                     //since we replace the whole array, there's a good chance
                                                     //that we killed elements. so let's figure that out
@@ -310,183 +319,216 @@ QtObject {
             //attaches properties to array (overrides default array stuffs)
             function attachPropertiesArray(js) {
                 var arr        = js;
-                var path       = js._path;
                 var idProperty = js._idProperty;
                 var signals    = js._signals;
 
+                function updatePath(obj,key,newPath,dontUpdateVal){
+                    var val = obj[key];
+                    var idProperty = obj._idProperty;
+                    if(Lodash.isArray(obj) && helpers.arrayIsIded(obj,idProperty)){
+                        //if the array is ided, we need to make sure that the properties at the top level of the arrays
+                        Object.getOwnPropertyDescriptor(arr,key).set(null,newPath);
+                    }
+                    else if(val && val._path && !dontUpdateVal){
+                        //if the array is unided, we need to change the paths inside all the objects in the array
+                        val._updatePath(newPath);
+                    }
 
-                function attachPush() {
-                    var f = function(){
-                        if(arguments.length === 0)
-                            return;
+                }
 
-                        Lodash.each(arguments, function(val){
-                            function simpleInsertion(){
-                                var p = getPath(path,arr.length,val,idProperty);
-                                var v = priv.convert(val,p,signals,idProperty);
+                //since the js._path can be changed. we don't make a private var of it!!
 
-                                signals.beforePropertyCreated(p,val);
-                                Object.defineProperty(arr, arr.length, helpers.getDescriptor(v,p,false))
-                                signals.propertyCreated(p,val);
-                                signals.lengthChanged(path,arr.length);
-                            }
+                //removes a single index from the arr and emits signals that need to be emitted
+                //Our deletion works in the following way
+                //Del B from A B C D
+                //STEP 1 :   A C D D
+                //STEP 2 :   A C D
+                //essentially we move stuff left by one and then remove at the end!
+                function remove(idx){
+                    if(idx >= arr.length || idx < 0)
+                        return console.error("ERROR:: idx " + idx + " is not in the array")
 
-                            if(arr.length === 0 || !helpers.arrayIsIded(arr)) { //if our array is empty or it if its not ided, cool . just shove it in!
+                    var path = arr._path;
+                    var isIded = helpers.arrayIsIded(arr,idProperty);
+
+
+                    var relevantIdx = isIded ? idx : arr.length-1
+                    var delPath = getPath(path,relevantIdx,arr[relevantIdx],idProperty);
+
+                    signals.beforePropertyDeleted(delPath);
+
+                    for(var j = idx; j < arr.length-1; ++j){
+                        arr[j] = arr[j+1];    //this should call our version of SET!
+
+                        if(isIded && j === idx)
+                            signals.propertyDeleted(delPath);
+
+                        updatePath(arr,j+1,j)
+                    }
+
+                    arr.length = arr.length - 1;
+                    if(!isIded)
+                        signals.propertyDeleted(delPath);
+
+                    signals.lengthChanged(arr.length);
+
+
+                    return true;
+                }
+
+                //inserts a single val at idx and emtis signals that need to be emitted
+                //begin inserting at idx!
+                //Our insertion works in the following way
+                //Insert X @ 1 in A B C D
+                //Step 1 :        A B B C D
+                //Step 2 :        A X B C D
+                //essentially we move stuff to the right by one and then change the index where we wanted to insert
+                //If the array has Ids, only new ids will be added. Existing ones will update!!
+                function insert(idx, v){
+                    var path = arr._path;
+                    if(idx < 0)
+                        return;
+
+                    var isIded = helpers.arrayIsIded(arr,idProperty);
+
+                    function doInsert() {
+                        for(var i = arr.length; i > idx ; i--){
+                             var val = arr[i-1];
+                             var p  = getPath(path,i,val,idProperty);
+
+                             updatePath(arr,i-1,p);
+                             //in this case the val is already converted , so we don't need to convert it right?
+                             //we might want to change its path doe
+                             if(i >= arr.length){
+                                 //new property is being made, so let's make sure we make it observable.
+
+                                 signals.beforePropertyCreated(p,val)
+
+                                 Object.defineProperty(arr,i,helpers.getDescriptor(val,p));
+
+                                 signals.propertyCreated(p,val)
+                             }
+                             else{
+                                arr[i] = val;
+                             }
+                        }
+
+                        var pInsert = getPath(path,idx,v,idProperty);
+
+                        if(idx >= arr.length){
+                            //we need to create this property since its not even in a list!!
+                            var vInsert = priv.convert(v,pInsert,signals,idProperty);
+                            Object.defineProperty(arr,idx,helpers.getDescriptor(vInsert,pInsert));
+                        }
+                        else{
+                            //WILL AUTO CONVERT v by virtue of our custom set function
+                            updatePath(arr,idx,p,true);
+                            arr[idx] = v;
+                        }
+
+                        signals.lengthChanged(arr.length);
+                    }
+
+                    //unfortunately, the insert function needs to check if the array is ided.
+                    //If it is, it must go and try to find the index reported by v (if any).
+                    //If found, it needs to update rather than create a duplicate.
+                    if(arr.length === 0 || !helpers.arrayIsIded(arr,idProperty)) { //if our array is empty or it if its not ided, cool . just shove it in!
+                        doInsert();
+                    }
+                    else {
+                        var idxOfVal = helpers.keyAt(arr, helpers.idMatcherFuncGen(idProperty,v));
+                        if(idx === -1)
+                            doInsert();
+                        else {
+                            console.error("I PITY THE FOOL WHO TRIES TO MAKE DUPLICATES!")
+                            arr[idxOfVal] = v;  //v will be auto converted by virtue of our CUSTOM SET!
+                        }
+                    }
+                }
+
+
+                //Pushes arguments into the array. If the array has Ids, only new ids will be added. Existing ones will update!!
+                function push(){
+                    if(arguments.length === 0)
+                        return;
+
+                    var path  = arr._path;
+                    Lodash.each(arguments, function(val){
+                        function simpleInsertion(){
+                            var p = getPath(path,arr.length,val,idProperty);
+                            var v = priv.convert(val,p,signals,idProperty);
+
+                            signals.beforePropertyCreated(p,val);
+                            Object.defineProperty(arr, arr.length, helpers.getDescriptor(v,p,false))
+                            signals.propertyCreated(p,val);
+                            signals.lengthChanged(path,arr.length);
+                        }
+
+                        if(arr.length === 0 || !helpers.arrayIsIded(arr,idProperty)) { //if our array is empty or it if its not ided, cool . just shove it in!
+                            simpleInsertion();
+                        }
+                        else {
+                            //try to find the idx of the thing we are trying to insert, provided its an object!
+                            var idx = helpers.keyAt(arr, helpers.idMatcherFuncGen(idProperty,val))
+                            if(idx === -1){
                                 simpleInsertion();
                             }
                             else {
-                                //try to find the idx of the thing we are trying to insert, provided its an object!
-                                var idx = helpers.keyAt(arr, helpers.idMatcherFuncGen(idProperty,val))
-                                if(idx === -1){
-                                    simpleInsertion();
-                                }
-                                else {
-                                    //pray to the Almighty that we have set this idx to have a setter and it handles this madness!
-                                    arr[idx] = val;
-                                }
+                                //pray to the Almighty that we have set this idx to have a setter and it handles this madness!
+                                arr[idx] = val;
                             }
-                        })
-                    }
-                    Object.defineProperty(js, 'push', { enumerable : false, value : f })
-                }
-
-                //returns an array of deleted elements!!
-                function attachSplice(){
-
-                    var f = function(idx,deleteCount){
-                        console.log("--------------------------------------")
-                        var args        = Array.prototype.slice.call(arguments);
-                        var insertElems = args.length <= 2 ? undefined : args.slice(2);
-
-                        var deletedElems = [];
-
-                        if(idx === null || idx === undefined || idx > js.length)
-                            idx = js.length;
-                        if(idx < 0) //negative
-                            idx = js.length - idx;
-
-                        var remaining = js.length - idx;
-                        if(deleteCount > remaining)
-                            deleteCount = remaining;
-
-                        //handle deletion first
-                        var slen = js.length;
-                        var dCount = deleteCount;
-                        for(var i = idx; deleteCount > 0; ++i){
-                            console.log("rem from", js, "@", js[idx]);
-                            //i is the index to delete!!
-                            deletedElems.push(js[idx]);
-
-                            //always start at where we are deleting!
-                            var last = js[js.length-1];
-                            for(var j = idx; j < js.length-1; ++j){
-                                console.log("set", js[j], "to", js[j+1])
-                                js[j] = js[(j+1)];    //this should call our version of SET!
-                            }
-
-                            console.log(js, js.length, typeof js[2])
-                            js.length = js.length - 1;
-//                            js[js.length-1] = last;
-                            console.log(js, js.length, typeof js[2])
-//                            signals.lengthChanged()
-
-                            deleteCount--;
                         }
-//                        console.log("deleted", dCount, "elems from", slen, "resuting in", js.length, js )
-
-                        //begin inserting at i!
-
-                        Lodash.eachRight(insertElems, function(v,k){
-
-                            //shift all the elements to make room!!
-//                            console.log("STEP 0", js)
-                            for(var i = js.length; i >= idx ; i--){
-//                                if(js[i] === undefined){
-//                                    Object.defineProperty(js, i, priv.con)
-//                                }
-//                                else{
-                                    js[i] = js[i-1];
-//                                }
-                            }
-
-//                            console.log("STEP1", js)
-
-
-                            //replace element at idx
-                            js[idx] = v;
-//                            console.log("STEP2", js)
-
-                        })
-
-
-
-
-
-                        //then handle insertion or should we about it the other way??
-
-
-                        return deletedElems;
-                    }
-
-                    Object.defineProperty(js, 'splice', { enumerable : false, value : f })
-//                    Object.defineProperty(js, 'splice', helpers.getDescriptorNonEnumerable(f,true));
-                }
-
-                function attachFrom(){
-
-                }
-
-                function attachOf(){
-
-                }
-
-                function attachConcat(){
-
-                }
-
-                function attachCopyWihin(){
-
-                }
-
-                function attachFill(){
-
-                }
-
-                function attachFilter(){
-
-                }
-
-                function attachMap(){
-
-                }
-
-                function attachProp(){
-
-                }
-
-                function attachrReverse(){
-
-                }
-
-                function attachShift(){
-
-                }
-
-                function attachUnshift(){
-
-                }
-
-                function attachSlice(){
-
-                }
-
-                function attachSort(){
-
+                    })
                 }
 
 
-                attachPush();
-                attachSplice();
+                //returns an array of deleted elements!! Uses remove and insert
+                function splice(idx,deleteCount){
+                    var args        = Array.prototype.slice.call(arguments);
+                    var insertElems = args.length <= 2 ? undefined : args.slice(2);
+
+                    var deletedElems = [];
+
+                    if(idx === null || idx === undefined || idx > arr.length)
+                        idx = arr.length;
+                    if(idx < 0) //negative
+                        idx = arr.length - idx;
+
+                    var remaining = arr.length - idx;
+                    if(deleteCount > remaining)
+                        deleteCount = remaining;
+
+                    Lodash.times(deleteCount, function(){
+                        deletedElems.push(arr[idx]);
+                        remove(idx);
+                    })
+
+                    Lodash.eachRight(insertElems, function(v,k){
+                         insert(idx,v);
+                    })
+
+                    return deletedElems;
+                }
+
+                function attachFrom(){}
+                function attachOf(){}
+                function attachConcat(){}
+                function attachCopyWihin(){}
+                function attachFill(){}
+                function attachFilter(){}
+                function attachMap(){}
+                function attachProp(){}
+                function attachrReverse(){}
+                function attachShift(){}
+                function attachUnshift(){}
+                function attachSlice(){}
+                function attachSort(){}
+
+
+                Object.defineProperty(js, 'push'  , helpers.getDescriptorNonEnumerable(push,true))
+                Object.defineProperty(js, 'splice', helpers.getDescriptorNonEnumerable(splice,true))
+                Object.defineProperty(arr,'insert', helpers.getDescriptorNonEnumerable(insert,true))
+                Object.defineProperty(arr,'remove', helpers.getDescriptorNonEnumerable(remove,true))
 //                attachFrom();
 //                attachOf
 //                attachConcat
@@ -509,9 +551,28 @@ QtObject {
 
             //attaches properties to js that are valid for both arrays and objects
             function attachPropertiesGeneric(js,path,signals,idProperty) {
+
+                function updatePath(newPath){
+                    js._path = newPath;
+                    Lodash.each(js, function(v,k){
+                        var p
+                        if(Lodash.isObject(v)){
+                            p = getPath(newPath,k,null,idProperty);
+                            Object.getOwnPropertyDescriptor(js,k).set(null, p);
+                            v._updatePath(p);
+                        }
+                        else if(Lodash.isArray(v)){
+                            p = getPath(newPath,k,v,idProperty);
+                            Object.getOwnPropertyDescriptor(js,k).set(null, p);
+                            v._updatePath(p);
+                        }
+                    })
+                }
+
                 Object.defineProperty(js,"_signals"   , helpers.getDescriptorNonEnumerable(signals));
                 Object.defineProperty(js,"_path"      , helpers.getDescriptorNonEnumerable(path));
                 Object.defineProperty(js,"_idProperty", helpers.getDescriptorNonEnumerable(idProperty))
+                Object.defineProperty(js,"_updatePath", helpers.getDescriptorNonEnumerable(updatePath));
             }
 
         }
@@ -554,6 +615,7 @@ QtObject {
                 Lodash.each(js, function(v,k) { recursiveAttacher(v,k,obj,path); })
                 return obj;
             }
+
 
 
 
