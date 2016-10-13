@@ -25,14 +25,23 @@ ZabaatTest {
             badRetFn = typeof badRetFn === 'function' ? badRetFn : function(a,b) { return false ; }
 
             if(!Lodash.isArray(a) || !Lodash.isArray(b))
-                return false;
+                return badRetFn(a,b);
 
             if(a.length !== b.length){
                 return badRetFn(a,b);
             }
 
             for(var i = 0; i < a.length; ++i){
-                if(a[i] != b[i])
+                var v  = a[i]
+                var v2 = b[i]
+
+                if(Lodash.isObject(v) && Lodash.isObject(v2) && !softObjectMatch(v,v2))
+                    return badRetFn(a,b);
+
+                if(Lodash.isArray(v) && Lodash.isArray(v2) && !arrEq(v,v2))
+                    return badRetFn(a,b);
+
+                if(v != v2)
                     return badRetFn(a,b);
             }
             return true;
@@ -65,6 +74,30 @@ ZabaatTest {
             return exact ? count === instances :
                            count >=  instances;
 
+        }
+
+        function softObjectMatch(obj1,obj2, badRetFn){
+            badRetFn = typeof badRetFn === 'function' ? badRetFn : function(a,b) { return false ; }
+            if(!Lodash.isObject(obj1) && !Lodash.isObject(obj2))
+                return badRetFn(obj1,obj2);
+
+            if(!arrEq(Lodash.keys(obj1) , Lodash.keys(obj2)))
+                return badRetFn(obj1,obj2);
+
+            for(var k in obj1){
+                var v  = obj1[k]
+                var v2 = obj2[k]
+                if(Lodash.isObject(v) && Lodash.isObject(v2) && !softObjectMatch(v,v2)) {
+                    return badRetFn(obj1,obj2);
+                }
+                else if(Lodash.isArray(v) && Lodash.isArray(v2) && !arrEq(v,v2)) {
+                    return badRetFn(obj1,obj2);
+                }
+                else if(v != v2){
+                    return badRetFn(obj1,obj2);
+                }
+            }
+            return true;
         }
 
         //returns true if all the before<signName> are before the <sigName> in the array
@@ -317,7 +350,67 @@ ZabaatTest {
         compare(RestArrayCreator.debugOptions.allCount(), 12);
     }
 
+    function test_07_insert_ided(){
+        var arr = RestArrayCreator.create([{id:"10",name:"Shahan"}]);
+        arr.insert(0, {id : "20", name : "Anam" })
 
+        compare(arr.length,2);
+        verify(helpers.softObjectMatch(arr[0], {id : "20", name : "Anam" }))
+        verify(helpers.softObjectMatch(arr[1], {id:"10",name:"Shahan"}))
+
+        arr.insert(1, {id : "20", name : "Anam Shahan" })
+        compare(arr.length,2);
+        verify(helpers.softObjectMatch(arr[0], {id : "20", name : "Anam Shahan" }))
+        verify(helpers.softObjectMatch(arr[1], {id:"10",name:"Shahan"}))
+
+        arr[0].id = "30";
+        compare(arr[0].id, "20")
+        compare(arr[0]._racgen, true);
+        compare(arr[1]._racgen, true);
+    }
+
+    function test_07_insert_ided_signals(){
+        var arr = RestArrayCreator.create([{id:"10",name:"Shahan"}]);
+        var allSignals
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.insert(0, {id : "20", name : "Anam" })
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'lenChanged: 2' ,1));
+        verify(helpers.arrayContains(allSignals,'beforeCreate->20' ,2));
+        verify(helpers.arrayContains(allSignals,'beforeCreate->20/name' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 5);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.insert(1, {id : "20", name : "Anam Shahan" });
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->20/name' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr[0].name = "Anam Shahan Kazi";
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->20/name' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr[0] = { name : "Anam Shahan" };
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->20/name' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr[1].name = "Shahan Kazi";
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->10/name' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr[1] = { name : "Shahan" };
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->10/name' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        //        RestArrayCreator.debugOptions.printAll();
+    }
 
 
 }

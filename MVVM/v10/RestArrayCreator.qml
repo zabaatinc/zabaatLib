@@ -152,6 +152,11 @@ QtObject {
         }
         QtObject {
             id : helpers
+
+            function isRestful(obj){
+                return obj._racgen ? true : false;
+            }
+
             function def(obj, props){
                 if(obj === null || obj === undefined || obj === "")
                     return false;
@@ -400,13 +405,16 @@ QtObject {
                              //in this case the val is already converted , so we don't need to convert it right?
                              //we might want to change its path doe
                              if(i >= arr.length){
-                                 //new property is being made, so let's make sure we make it observable.
-
-                                 signals.beforePropertyCreated(p,val)
+                                 //new property is being made, so let's make sure we make it observable
+                                 //and that we generate the apt signals. However, if the array is ided
+                                 //we dont need to say a new property was created because we just moved
+                                 if(!isIded)
+                                    signals.beforePropertyCreated(p,val)
 
                                  Object.defineProperty(arr,i,helpers.getDescriptor(val,p));
 
-                                 signals.propertyCreated(p,val)
+                                 if(!isIded)
+                                    signals.propertyCreated(p,val)
                              }
                              else{
                                 arr[i] = val;
@@ -414,16 +422,34 @@ QtObject {
                         }
 
                         var pInsert = getPath(path,idx,v,idProperty);
+                        var vInsert //the reason we don't call convert here so we don't emit all
+                                    //the signals
 
-                        if(idx >= arr.length){
-                            //we need to create this property since its not even in a list!!
-                            var vInsert = priv.convert(v,pInsert,signals,idProperty);
+
+                        //the reason we don't use arr[idx] = v is because the setter is too smart
+                        //it is not gonna replace an object there if this is an object.
+                        //Instead we gotta PUT this new object (v) there. We have already moved
+                        //the object that was there so this is safe.
+                        if(isIded || idx >= arr.length) {
+                            signals.beforePropertyCreated(pInsert,v)
+
+                            vInsert = priv.convert(v,pInsert,signals,idProperty);
                             Object.defineProperty(arr,idx,helpers.getDescriptor(vInsert,pInsert));
+
+                            signals.propertyCreated(pInsert,vInsert)
                         }
-                        else{
-                            //WILL AUTO CONVERT v by virtue of our custom set function
-                            updatePath(arr,idx,p,true);
-                            arr[idx] = v;
+                        else {
+                            //determine whether we need to emit update messages
+                            //we only need to do that on unided arrays when we move elements!
+                            var oldVal = arr[idx]
+                            if(!isIded)
+                                signals.beforePropertyUpdated(pInsert,v,oldVal)
+
+                            vInsert = priv.convert(v,pInsert,signals,idProperty);
+                            Object.defineProperty(arr,idx,helpers.getDescriptor(vInsert,pInsert));
+
+                            if(!isIded)
+                                signals.propertyUpdated(pInsert,vInsert,oldVal)
                         }
 
                         signals.lengthChanged(arr.length);
@@ -437,10 +463,10 @@ QtObject {
                     }
                     else {
                         var idxOfVal = helpers.keyAt(arr, helpers.idMatcherFuncGen(idProperty,v));
-                        if(idx === -1)
+                        if(idxOfVal === -1)
                             doInsert();
                         else {
-                            console.error("I PITY THE FOOL WHO TRIES TO MAKE DUPLICATES!")
+//                            console.error("I PITY THE FOOL WHO TRIES TO MAKE DUPLICATES!")
                             arr[idxOfVal] = v;  //v will be auto converted by virtue of our CUSTOM SET!
                         }
                     }
@@ -573,6 +599,10 @@ QtObject {
                 Object.defineProperty(js,"_path"      , helpers.getDescriptorNonEnumerable(path));
                 Object.defineProperty(js,"_idProperty", helpers.getDescriptorNonEnumerable(idProperty))
                 Object.defineProperty(js,"_updatePath", helpers.getDescriptorNonEnumerable(updatePath));
+
+                //short for restArrayCreatorGenerated . Makes it easy to test objects/arrays if
+                //it was created here!
+                Object.defineProperty(js,"_racgen", helpers.getDescriptorNonEnumerable(true,true))
             }
 
         }
@@ -599,7 +629,6 @@ QtObject {
                 }
 
                 if(k !== idProperty)
-
                     signals.propertyCreated(p,v)
             }
 
