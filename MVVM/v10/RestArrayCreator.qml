@@ -6,7 +6,7 @@ QtObject {
     id : rootObject
     objectName : "RestArrayCreator"
     property alias debugOptions : debugOptions;
-    property alias helpers : helpers;
+//    property alias helpers : helpers;
 
     //defaults to array construction!
 //  js      -> optional . Converts an object or array to special version.
@@ -28,6 +28,7 @@ QtObject {
         return Lodash.isObject(js) ? priv.createObject(js, path, signals, idProperty) :
                                      priv.createArray(js,path, signals, idProperty);
     }
+
 
 
     property Item __priv : Item{
@@ -156,6 +157,96 @@ QtObject {
         QtObject {
             id : helpers
 
+
+            function findById(obj,id,idProperty,giveKey){
+                idProperty = idProperty || "id";
+                for(var a in obj){
+                    var item = obj[a];
+                    if(item && item[idProperty] === id)
+                        return giveKey ?  a : item;
+                }
+                return giveKey ? -1 : undefined;
+            }
+
+            function get(obj,path){
+                if(!obj)
+                    return undefined;
+                if(!path)
+                    return obj;
+
+                var propArr = Lodash.compact(path.split("/"));
+                var idProperty = obj._idProperty;
+                var ptr     = obj;
+
+                for(var i = 0; i < propArr.length; ++i){
+                    var p = propArr[i];
+                    if(Lodash.isArray(ptr) && arrayIsIded(ptr,idProperty)) {
+                        ptr = findById(ptr,p,idProperty);
+                    }
+                    else {
+                        ptr = ptr[p];
+                    }
+                    if(ptr === undefined)
+                        return ptr;
+                }
+                return ptr;
+            }
+
+            function set(obj,path,val,signals){
+                if(!obj)
+                    return false;
+                if(!path) {
+                    obj = val;
+                    return true;
+                }
+
+                var propArr    = Lodash.compact(path.split("/"));
+                signals    = signals || obj._signals;
+                if(!signals){
+                    console.log("NO SIGANLS ON", JSON.stringify(obj))
+                }
+
+                var idProperty = obj._idProperty;
+                var ptr        = obj;
+
+                for(var i = 0; i < propArr.length; ++i){
+                    var p = propArr[i];
+                    if(i != propArr.length -1) {
+                        if(Lodash.isArray(ptr) && arrayIsIded(ptr,idProperty)) {
+                            ptr = findById(ptr,p,idProperty);
+                        }
+                        else {
+                            ptr = ptr[p];
+                        }
+                        if(ptr === undefined)
+                            return false;
+                    }
+                    else {  //this is where we assign
+                        var assignKey = p;
+                        if(Lodash.isArray(ptr) && arrayIsIded(ptr,idProperty)) {
+                            assignKey = findById(ptr,p,idProperty,true);
+                        }
+                        var objPath = helpers.getPath(ptr._path,assignKey,val,idProperty);
+
+                        if(ptr.hasOwnProperty(assignKey)) {
+                            ptr[assignKey] = val;
+                        }
+                        else {
+                            signals.beforePropertyCreated(objPath,val);
+                            var vIns = priv.convert(val,objPath,signals,idProperty);
+
+                            Object.defineProperty(ptr,assignKey,helpers.getDescriptor(vIns,objPath));
+
+                            signals.propertyCreated(objPath,val);
+                        }
+
+
+                        return true;
+                    }
+                }
+                return false;
+            }
+
             function isRestful(obj){
                 return obj && obj._racgen ? true : false;
             }
@@ -218,10 +309,11 @@ QtObject {
                                             return _path = changePath;
                                         }
 
-
 //                                        console.log(JSON.stringify(this))
-                                        var idProperty = _value && _value._idProperty ? _value._idProperty : this._idProperty;
-                                        var signals    = _value && _value._signals    ? _value._signals    : this._signals;
+//                                        var idProperty = _value && _value._idProperty ? _value._idProperty : this._idProperty;
+//                                        var signals    = _value && _value._signals    ? _value._signals    : this._signals;
+                                        var idProperty = this._idProperty;
+                                        var signals    = this._signals;
                                         if(val != _value) {
 
                                             var oldVal = _value;
@@ -257,7 +349,17 @@ QtObject {
                                                     else {
                                                         Lodash.eachRight(val, function(v,k) {
                                                             var p = getPath(path,k,null,idProperty)
-                                                            _value[k] = priv.convert(val[k],p,signals,idProperty)
+                                                            if(_value.hasOwnProperty(k))
+                                                                _value[k] = priv.convert(val[k],p,signals,idProperty);
+                                                            else {
+                                                                signals.beforePropertyCreated(p,v);
+
+                                                                var vIns = priv.convert(val[k],p,signals,idProperty)
+                                                                Object.defineProperty(_value,k,helpers.getDescriptor(vIns,p));
+
+                                                                signals.propertyCreated(p,vIns);
+                                                                signals.lengthChanged(_value.length);
+                                                            }
                                                         })
                                                     }
                                                 }
@@ -779,6 +881,14 @@ QtObject {
                 //short for restArrayCreatorGenerated . Makes it easy to test objects/arrays if
                 //it was created here!
                 Object.defineProperty(js,"_racgen", helpers.getDescriptorNonEnumerable(true,true))
+
+                Object.defineProperty(js,'get', helpers.getDescriptorNonEnumerable(function(str){
+                    return get(js,str);
+                }, true))
+
+                Object.defineProperty(js,'set', helpers.getDescriptorNonEnumerable(function(str,val){
+                    return set(js,str,val,signals);
+                }))
             }
 
         }

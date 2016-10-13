@@ -1,7 +1,5 @@
 import QtQuick 2.5
 import "../Lodash"
-import "./ObservableArray.js" as OA
-import "./ObservableObject.js" as OO
 pragma Singleton
 QtObject {
     id : rootObject

@@ -562,11 +562,178 @@ ZabaatTest {
                  });
         var allSignals = RestArrayCreator.debugOptions.all();
         verify(helpers.arrEq(arr,[{id:"1"}, {id:"2"}, {id:"3"} , {id:"4"}]));
-//        verify(helpers.arrayContains(allSignals,'beforeUpdate->0' ,1));
-//        verify(helpers.arrayContains(allSignals,'beforeUpdate->1' ,1));
-//        verify(helpers.arrayContains(allSignals,'beforeUpdate->2' ,1));
-//        verify(helpers.arrayContains(allSignals,'beforeUpdate->3' ,1));
         compare(RestArrayCreator.debugOptions.allCount(), 0);
+    }
+
+    function test_14_get_unided(){
+        var pets  = ["Pig","Clam","Shellie"]
+        var arr = RestArrayCreator.create(pets)
+
+        compare(arr.get('0'),"Pig")
+        compare(arr.get('1'),"Clam")
+        compare(arr.get('2'),"Shellie")
+        compare(arr.get('3'),undefined)
+    }
+
+    function test_15_get_unided_complex(){
+        var pets  = ["Pig","Clam","Shellie"]
+        var pets2 = ["Drake","Sam"]
+        var arr = RestArrayCreator.create([{name : "Wolf"  , pets : pets } ,
+                                           {name : "Shahan", pets : pets2 }]);
+
+        verify(helpers.softObjectMatch(arr.get("0") , {name : "Wolf" , pets : pets }))
+        verify(helpers.softObjectMatch(arr.get("1") , {name : "Shahan", pets : pets2 }))
+        compare(arr.get('0/name'),"Wolf")
+        compare(arr.get('1/name'),"Shahan")
+        verify(helpers.softObjectMatch(arr.get("0/pets") , pets ))
+        verify(helpers.softObjectMatch(arr.get("1/pets") , pets2 ))
+
+        compare(arr.get('2'),undefined)
+        compare(arr.get('2/name'),undefined)
+        compare(arr.get('2/pets'),undefined)
+    }
+
+    function test_16_get_ided(){
+        var pets  = ["Pig","Clam","Shellie"]
+        var pets2 = ["Drake","Sam"]
+        var arr = RestArrayCreator.create([{id:"4", name : "Wolf"  , pets : pets } ,
+                                           {id:"3", name : "Shahan", pets : pets2 }]);
+
+        verify(helpers.softObjectMatch(arr.get("3") , {id:"3", name : "Shahan", pets : pets2 }))
+        verify(helpers.softObjectMatch(arr.get("4") , {id:"4", name : "Wolf" , pets : pets }))
+        compare(arr.get('3/name'),"Shahan")
+        compare(arr.get('4/name'),"Wolf")
+        verify(helpers.softObjectMatch(arr.get("3/pets") , pets2 ))
+        verify(helpers.softObjectMatch(arr.get("4/pets") , pets ))
+
+        compare(arr.get('0'),undefined)
+        compare(arr.get('0/name'),undefined)
+        compare(arr.get('0/pets'),undefined)
+    }
+
+    function test_17_set_unided() {
+        var pets  = ["Pig","Clam","Shellie"]
+        var arr = RestArrayCreator.create(pets);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set("0","Piggy");
+        var sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        verify(helpers.arrayContains(sigs,"beforeUpdate->0",1));
+        verify(helpers.arrEq(arr,["Piggy","Clam","Shellie"]))
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set("1","Clammy");
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        verify(helpers.arrayContains(sigs,"beforeUpdate->1",1));
+        verify(helpers.arrEq(arr,["Piggy","Clammy","Shellie"]))
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set("2","Shell");
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        verify(helpers.arrayContains(sigs,"beforeUpdate->2",1));
+        verify(helpers.arrEq(arr,["Piggy","Clammy","Shell"]))
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('3','Helga');
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        verify(helpers.arrayContains(sigs,"beforeCreate->3",1));
+        verify(helpers.arrEq(arr,["Piggy","Clammy","Shell","Helga"]))
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('3','Helgamoto');
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        verify(helpers.arrayContains(sigs,"beforeUpdate->3",1));
+        verify(helpers.arrEq(arr,["Piggy","Clammy","Shell","Helgamoto"]))
+    }
+
+    function test_18_set_unided_complex(){
+        var pets  = ["Pig","Clam","Shellie"]
+        var pets2 = ["Drake","Sam"]
+        var arr = RestArrayCreator.create([{name : "Wolf"  , pets : pets } ,
+                                           {name : "Shahan", pets : pets2 }]);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('0/name','Wolfy');
+        var sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        compare(arr[0] , {name : "Wolfy"  , pets : pets })
+        verify(helpers.arrayContains(sigs,"beforeUpdate->0/name",1));
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('1/name','Shahany');
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        compare(arr[1] , {name : "Shahany"  , pets : pets2 })
+        verify(helpers.arrayContains(sigs,"beforeUpdate->1/name",1));
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('0/pets/0','Piggy');
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        compare(arr.get("0/pets") , ["Piggy","Clam","Shellie"])
+        verify(helpers.arrayContains(sigs,"beforeUpdate->0/pets/0",1));
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('0/pets/1','Clamy');
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        compare(arr.get("0/pets") , ["Piggy","Clamy","Shellie"])
+        verify(helpers.arrayContains(sigs,"beforeUpdate->0/pets/1",1));
+
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('0/pets/2','Shell');
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        compare(arr.get("0/pets") , ["Piggy","Clamy","Shell"])
+        verify(helpers.arrayContains(sigs,"beforeUpdate->0/pets/2",1));
+
+
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('1/pets/0','Draco');
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        compare(arr.get("1/pets") , ["Draco","Sam"])
+        verify(helpers.arrayContains(sigs,"beforeUpdate->1/pets/0",1));
+
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('1/pets/1','Sammy');
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+        compare(arr.get("1/pets") , ["Draco","Sammy"])
+        verify(helpers.arrayContains(sigs,"beforeUpdate->1/pets/1",1));
+
+
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('0/pets', ["Johny","Reed","Susie","Benny"]);
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 9);
+        verify(helpers.arrayContains(sigs,'beforeUpdate->0/pets/0',1))
+        verify(helpers.arrayContains(sigs,'beforeUpdate->0/pets/1',1))
+        verify(helpers.arrayContains(sigs,'beforeUpdate->0/pets/2',1))
+        verify(helpers.arrayContains(sigs,'beforeCreate->0/pets/3',1))
+        compare(arr.get("0/pets") , ["Johny","Reed","Susie","Benny"])
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.set('1/pets', ["Draxxis"]);
+        sigs = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 5);
+        verify(helpers.arrayContains(sigs,'beforeUpdate->1/pets/0',1))
+        verify(helpers.arrayContains(sigs,'beforeDelete->1/pets/1',1))
+        compare(arr.get("1/pets") , ["Draxxis"])
+
+//        RestArrayCreator.debugOptions.clearBatches();
+//        arr.reverse();
+//        sigs = RestArrayCreator.debugOptions.all();
+//        RestArrayCreator.debugOptions.printAll()
     }
 
 
