@@ -35,14 +35,17 @@ ZabaatTest {
                 var v  = a[i]
                 var v2 = b[i]
 
-                if(Lodash.isObject(v) && Lodash.isObject(v2) && !softObjectMatch(v,v2))
+                if(Lodash.isObject(v) && Lodash.isObject(v2)) {
+                    if(!softObjectMatch(v,v2))
+                        return badRetFn(a,b);
+                }
+                else if(Lodash.isArray(v) && Lodash.isArray(v2)){
+                    if(!arrEq(v,v2))
+                        return badRetFn(a,b);
+                }
+                else if(v != v2) {
                     return badRetFn(a,b);
-
-                if(Lodash.isArray(v) && Lodash.isArray(v2) && !arrEq(v,v2))
-                    return badRetFn(a,b);
-
-                if(v != v2)
-                    return badRetFn(a,b);
+                }
             }
             return true;
         }
@@ -71,6 +74,7 @@ ZabaatTest {
             if(print)
                 console.log("--->" , count + "/" + instances)
 
+
             return exact ? count === instances :
                            count >=  instances;
 
@@ -81,17 +85,20 @@ ZabaatTest {
             if(!Lodash.isObject(obj1) && !Lodash.isObject(obj2))
                 return badRetFn(obj1,obj2);
 
-            if(!arrEq(Lodash.keys(obj1) , Lodash.keys(obj2)))
+            if(!arrEq(Lodash.keys(obj1).sort() , Lodash.keys(obj2).sort())) {
                 return badRetFn(obj1,obj2);
+            }
 
             for(var k in obj1){
                 var v  = obj1[k]
                 var v2 = obj2[k]
-                if(Lodash.isObject(v) && Lodash.isObject(v2) && !softObjectMatch(v,v2)) {
-                    return badRetFn(obj1,obj2);
+                if(Lodash.isObject(v) && Lodash.isObject(v2)) {
+                    if(!softObjectMatch(v,v2))
+                        return badRetFn(obj1,obj2);
                 }
-                else if(Lodash.isArray(v) && Lodash.isArray(v2) && !arrEq(v,v2)) {
-                    return badRetFn(obj1,obj2);
+                else if(Lodash.isArray(v) && Lodash.isArray(v2)) {
+                    if(!arrEq(v,v2))
+                        return badRetFn(obj1,obj2);
                 }
                 else if(v != v2){
                     return badRetFn(obj1,obj2);
@@ -369,7 +376,7 @@ ZabaatTest {
         compare(arr[1]._racgen, true);
     }
 
-    function test_07_insert_ided_signals(){
+    function test_08_insert_ided_signals(){
         var arr = RestArrayCreator.create([{id:"10",name:"Shahan"}]);
         var allSignals
         RestArrayCreator.debugOptions.clearBatches();
@@ -411,6 +418,199 @@ ZabaatTest {
         compare(RestArrayCreator.debugOptions.allCount(), 2);
         //        RestArrayCreator.debugOptions.printAll();
     }
+
+    function test_09_remove_ided(){
+        var arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
+        arr.remove(0);
+        verify(helpers.arrEq(arr, [{id:"20",name: "Anam"}, {id:'30', name : "wolf"}]), JSON.stringify(arr));
+
+        arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
+        arr.remove(1);
+        verify(helpers.arrEq(arr, [{id:"10",name:"Shahan"}, {id:'30', name : "wolf"}]));
+
+        arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
+        arr.remove(2);
+        verify(helpers.arrEq(arr, [{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}]));
+
+        arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
+        arr.remove(3);
+        verify(helpers.arrEq(arr, [{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]));
+
+        //start emptying out array
+        arr.remove(1);
+        verify(helpers.arrEq(arr, [{id:"10",name:"Shahan"}, {id:'30', name : "wolf"}]));
+
+        arr.remove(0);
+        verify(helpers.arrEq(arr, [{id:'30', name : "wolf"}]));
+
+        arr.remove(0);
+        verify(helpers.arrEq(arr, []));
+    }
+
+    function test_10_remove_ided_signals(){
+        var arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.remove(0);
+        var allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'lenChanged: 2' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 3);
+
+        arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.remove(1);
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'lenChanged: 2' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 3);
+
+
+        arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.remove(2);
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'lenChanged: 2' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 3);
+
+
+
+        arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.remove(3);
+        allSignals = RestArrayCreator.debugOptions.all();
+        compare(RestArrayCreator.debugOptions.allCount(), 0);
+
+        //start emptying out array
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.remove(1);
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'lenChanged: 2' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 3);
+
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.remove(0);
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'lenChanged: 1' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 3);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.remove(0);
+        allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrayContains(allSignals,'lenChanged: 0' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 3);
+
+    }
+
+    function test_11_reverse(){
+        var arr = RestArrayCreator.create([1,2,3,4]);
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.reverse();
+
+        var allSignals = RestArrayCreator.debugOptions.all();
+        var allSigsStr = " \n" + allSignals.join(' \n');
+
+        compare(RestArrayCreator.debugOptions.allCount(), 8);
+
+
+        arr = RestArrayCreator.create([{id:"A",name:"A"},{id:"B",name:"B"},{id:"C",name:"C"},{id:"D",name:"D"}]);
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.reverse();
+        allSignals = RestArrayCreator.debugOptions.all();
+
+        RestArrayCreator.debugOptions.printAll();
+        compare(RestArrayCreator.debugOptions.allCount(), 0, JSON.stringify(arr,null,2));
+
+//        arr[0].name = "Dylan";
+//        allSignals = RestArrayCreator.debugOptions.all();
+//        verify(helpers.arrayContains(allSignals,'beforeUpdate->D/name' ,1));
+//        compare(RestArrayCreator.debugOptions.allCount(), 2);
+    }
+
+    function test_12_sort_unided_simple(){
+        var arr = RestArrayCreator.create([4,3,2,1]);
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.sort();
+        var allSignals = RestArrayCreator.debugOptions.all();
+
+        verify(helpers.arrEq(arr,[1,2,3,4]));
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->0' ,1));
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->1' ,1));
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->2' ,1));
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->3' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 8);
+    }
+
+    function test_12_sort_unided_complex(){
+        var arr = RestArrayCreator.create([{a:"4"}, {a:"3"}, {a:"2"} , {a:"1"}]);
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.sort(function(a,b){
+                    return parseInt(a.a) - parseInt(b.a);
+                 });
+        var allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrEq(arr,[{a:"1"}, {a:"2"}, {a:"3"} , {a:"4"}]));
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->0' ,1));
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->1' ,1));
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->2' ,1));
+        verify(helpers.arrayContains(allSignals,'beforeUpdate->3' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 8);
+    }
+
+    function test_13_sort_ided(){
+        var arr = RestArrayCreator.create([{id:"4"}, {id:"3"}, {id:"2"} , {id:"1"}]);
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.sort(function(a,b){
+                    return parseInt(a.id) - parseInt(b.id);
+                 });
+        var allSignals = RestArrayCreator.debugOptions.all();
+        verify(helpers.arrEq(arr,[{id:"1"}, {id:"2"}, {id:"3"} , {id:"4"}]));
+//        verify(helpers.arrayContains(allSignals,'beforeUpdate->0' ,1));
+//        verify(helpers.arrayContains(allSignals,'beforeUpdate->1' ,1));
+//        verify(helpers.arrayContains(allSignals,'beforeUpdate->2' ,1));
+//        verify(helpers.arrayContains(allSignals,'beforeUpdate->3' ,1));
+        compare(RestArrayCreator.debugOptions.allCount(), 0);
+    }
+
+
+
+    function test_99_speedTest(){
+        var deepObject = {id : "10",
+          name : "Shahan",
+          hobbies : ["coding","gaming"],
+          relatives : [ {id:"99",name :"Fahad", relation:"brother" } ,
+                         {id:"100",name :"Anam", relation:"wife" }
+                    ]
+        }
+
+        var n = 500;
+        var d
+
+        var createTimer = Functions.time.mstimer();
+        Lodash.times(n, function(){
+            d = RestArrayCreator.create([deepObject])
+        })
+        var totalCreateTime = createTimer.stop();
+
+        var updateTimer = Functions.time.mstimer();
+        Lodash.times(n, function(){
+            d._updatePath('11');
+        })
+        var totalUpdateTime = updateTimer.stop();
+
+
+        var avgCreate = totalCreateTime /n;
+        var avgUpdate = totalUpdateTime /n;
+
+        verify(avgCreate > avgUpdate);
+
+        if(avgCreate > avgUpdate)
+           console.log("\tavg update is", (avgCreate/avgUpdate * 100).toFixed(1) , "% faster" , avgCreate, avgUpdate)
+        else if(avgCreate < avgUpdate)
+           console.log("\tavg Create is", (avgUpdate/avgCreate * 100).toFixed(1) , "% faster" , avgUpdate, avgCreate)
+
+    }
+
+
+
+
 
 
 }

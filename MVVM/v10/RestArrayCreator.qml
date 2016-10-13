@@ -6,6 +6,7 @@ QtObject {
     id : rootObject
     objectName : "RestArrayCreator"
     property alias debugOptions : debugOptions;
+    property alias helpers : helpers;
 
     //defaults to array construction!
 //  js      -> optional . Converts an object or array to special version.
@@ -54,10 +55,12 @@ QtObject {
                        batchDeleteMsg.length
             }
             function printAll(){
-                Lodash.each(all(), function(v,k){
-                    console.log(k,v)   ;
+                Lodash.each(all().sort(), function(v,k){
+                    console.log(k,v);
                 })
+                return "";
             }
+
 
             function clearBatches(){
                 batchBeforeCreateMsg =  []
@@ -154,7 +157,7 @@ QtObject {
             id : helpers
 
             function isRestful(obj){
-                return obj._racgen ? true : false;
+                return obj && obj._racgen ? true : false;
             }
 
             function def(obj, props){
@@ -204,20 +207,21 @@ QtObject {
 
                 var _value = val;
                 var _path  = path.toString();
-
                 var r = { enumerable : true, configurable : true }
-                r.get =  function() {  return _value; }
+
+                r.get =  function(givePath) {  return givePath ? _path : _value; }
                 r.set = isReadOnly ? function() { /*console.error("cannot write to readonly property", _path )*/ ;} :
                                      function(val, changePath) {
 //                                        console.log("CUSTOM SET CALLED", val, "FROM", _value)
                                         if(changePath) {
-                                            console.log("WOOT NOT CHANGING VAL BUT PATH to:",changePath,"from",_path);
+//                                            console.log("WOOT NOT CHANGING VAL BUT PATH to:",changePath,"from",_path);
                                             return _path = changePath;
                                         }
 
 
-                                        var idProperty = this._idProperty;
-                                        var signals    = this._signals;
+//                                        console.log(JSON.stringify(this))
+                                        var idProperty = _value && _value._idProperty ? _value._idProperty : this._idProperty;
+                                        var signals    = _value && _value._signals    ? _value._signals    : this._signals;
                                         if(val != _value) {
 
                                             var oldVal = _value;
@@ -284,14 +288,27 @@ QtObject {
                                                 //different types, say we deleted old path. and created new object in its place!
                                                 //similar to the very first if, but instead of updates, it says deletes and creates
                                                 //since we will be releasing memory!
-                                                signals.beforePropertyDeleted(_path)
-                                                signals.beforePropertyCreated(_path,val)
+                                                try {
+                                                    signals.beforePropertyDeleted(_path)
+                                                    signals.beforePropertyCreated(_path,val)
+                                                }
+                                                catch(e){
+                                                    console.log("ERROR" , JSON.stringify(_value), helpers.isRestful(_value), signals)
+                                                    throw new TypeError("signals is undefined somehow!!");
+                                                }
+
+
 
                                                 //since our _value[k] exists, it will run this function on _value[k].
                                                 _value = priv.convert(val, _path, signals, idProperty);
 
-                                                signals.propertyDeleted(_path)
-                                                signals.propertyCreated(_path,val)
+                                                try {
+                                                    signals.propertyDeleted(_path)
+                                                    signals.propertyCreated(_path,_value)
+                                                }
+                                                catch(e){
+//                                                    console.log("ERROR" , JSON.stringify(_value), helpers.isRestful(_value), signals)
+                                                }
                                             }
 
                                         }
@@ -332,13 +349,14 @@ QtObject {
                     var idProperty = obj._idProperty;
                     if(Lodash.isArray(obj) && helpers.arrayIsIded(obj,idProperty)){
                         //if the array is ided, we need to make sure that the properties at the top level of the arrays
-                        Object.getOwnPropertyDescriptor(arr,key).set(null,newPath);
+                        var desc = Object.getOwnPropertyDescriptor(arr,key)
+                        if(desc)
+                            desc.set(null,newPath);
                     }
-                    else if(val && val._path && !dontUpdateVal){
+                    if(val && val._path && !dontUpdateVal){
                         //if the array is unided, we need to change the paths inside all the objects in the array
                         val._updatePath(newPath);
                     }
-
                 }
 
                 //since the js._path can be changed. we don't make a private var of it!!
@@ -362,15 +380,39 @@ QtObject {
 
                     signals.beforePropertyDeleted(delPath);
 
-                    for(var j = idx; j < arr.length-1; ++j){
-                        arr[j] = arr[j+1];    //this should call our version of SET!
+                    for(var j = idx; j < arr.length; ++j){
+                        if(j === arr.length -1){
+                            if(isIded && j === idx)
+                                signals.propertyDeleted(delPath);
+
+                            continue;
+                        }
+
+                        var old = arr[j];
+                        var val = arr[j+1];
+                        var p   = getPath(path,j,val,idProperty);
+
+                        //If we use the equal to op, it's gonna update rather than replace
+                        //and we need replaced!! we only need to generate update messages
+                        //for unided arrays!
+                        if(!isIded) {
+                            signals.beforePropertyUpdated(p,val,old)
+                            updatePath(arr,j+1,j)
+                        }
+
+                        Object.defineProperty(arr,j,helpers.getDescriptor(val,p));
+
+                        if(!isIded) {
+                            signals.propertyUpdated(p,val,old)
+                        }
 
                         if(isIded && j === idx)
                             signals.propertyDeleted(delPath);
 
-                        updatePath(arr,j+1,j)
                     }
 
+                    //this is where we actually remove an element from an array
+                    //but this is onyl valid for unided array to emit signal at this point!
                     arr.length = arr.length - 1;
                     if(!isIded)
                         signals.propertyDeleted(delPath);
@@ -399,6 +441,7 @@ QtObject {
                     function doInsert() {
                         for(var i = arr.length; i > idx ; i--){
                              var val = arr[i-1];
+//                             console.log(JSON.stringify(val), helpers.isRestful(val))
                              var p  = getPath(path,i,val,idProperty);
 
                              updatePath(arr,i-1,p);
@@ -417,7 +460,15 @@ QtObject {
                                     signals.propertyCreated(p,val)
                              }
                              else{
-                                arr[i] = val;
+                                var old = arr[i];
+                                if(!isIded)
+                                    signals.beforePropertyUpdated(p,val,old)
+
+                                Object.defineProperty(arr,i,helpers.getDescriptor(val,p));
+
+                                if(!isIded)
+                                    signals.propertyUpdated(p,val,old)
+
                              }
                         }
 
@@ -536,38 +587,163 @@ QtObject {
                     return deletedElems;
                 }
 
-                function attachFrom(){}
-                function attachOf(){}
-                function attachConcat(){}
-                function attachCopyWihin(){}
-                function attachFill(){}
-                function attachFilter(){}
-                function attachMap(){}
-                function attachProp(){}
-                function attachrReverse(){}
-                function attachShift(){}
-                function attachUnshift(){}
-                function attachSlice(){}
-                function attachSort(){}
+                function shift(){
+                    if(arr.length === 0)
+                        return undefined;
+
+                    var r = splice(0,1);
+                    return r[0];
+                }
+
+                function pop(){
+                    if(arr.length === 0)
+                        return undefined;
+
+                    var r = splice(-1,1);
+                    return r[0];
+                }
+
+                function unshift(){
+                    var args = Array.prototype.slice.call(arguments);
+                    Lodash.eachRight(args, function(v,k){
+                         insert(0,v);
+                    })
+                    return arr.length;
+                }
+
+                //returns a new array concated with args!
+                function concat(){
+                    var args   = Array.prototype.slice.call(arguments);
+                    var newArr = create(arr,arr._path,signals,idProperty);
+
+                    Lodash.each(args, function(v){
+                        if(!Lodash.isArray(v)){
+                            newArr.push(v);
+                        }
+                        else {
+                            Lodash.each(v, function(v2){
+                                newArr.push(v2);
+                            })
+                        }
+                    })
+
+                    return newArr;
+                }
+
+                function filter(fn){
+                    fn = typeof fn === 'function' ? fn : function(){ return true }
+                    var newArr = Array.prototype.filter.call(arr, fn);
+                    return create(newArr,arr._path,signals,idProperty);
+                }
+
+                function map(){
+                    var args = Array.prototype.slice.call(arguments);
+                    var fn   = typeof args[0] === 'function' ? args[0] : function(a){ return a }
+
+                    var newArr = args.length > 1 ? Array.prototype.map.call(arr, fn, args[1]) :
+                                                   Array.prototype.map.call(arr, fn)
+
+                    return create(newArr,arr._path,signals,idProperty);
+                }
 
 
-                Object.defineProperty(js, 'push'  , helpers.getDescriptorNonEnumerable(push,true))
-                Object.defineProperty(js, 'splice', helpers.getDescriptorNonEnumerable(splice,true))
-                Object.defineProperty(arr,'insert', helpers.getDescriptorNonEnumerable(insert,true))
-                Object.defineProperty(arr,'remove', helpers.getDescriptorNonEnumerable(remove,true))
-//                attachFrom();
-//                attachOf
-//                attachConcat
-//                attachCopyWihin
-//                attachFill
-//                attachFilter
-//                attachMap
-//                attachProp
-//                attachrReverse
-//                attachShift
-//                attachUnshift
-//                attachSlice
-//                attachSort
+                function reverse(){
+                    var startIdx = 0;
+                    var endIdx   = arr.length;
+                    var path = arr._path;
+                    var isIded = helpers.arrayIsIded(arr,idProperty);
+                    while(startIdx < endIdx) {
+//                        if(startIdx === endIdx) //for odd length arrays. this will be the middle elem!
+//                            continue;
+                        var sPath = getPath(path,startIdx,arr[startIdx],idProperty);
+                        var ePath = getPath(path,endIdx  ,arr[endIdx]  ,idProperty);
+
+                        var sVal = arr[startIdx];
+                        var eVal = arr[endIdx];
+
+
+                        if(!isIded){
+                            signals.beforePropertyUpdated(sPath, eVal, sVal);
+                            signals.beforePropertyUpdated(ePath, sVal, eVal);
+//                            sVal._updatePath(sPath);
+//                            eVal._updatePath(ePath);
+                        }
+
+                        if(sVal && sVal._updatePath && !isIded){
+                            sVal._updatePath();
+                        }
+                        if(eVal && eVal._updatePath && !isIded){
+                            eVal._updatePath();
+                        }
+
+//                        updatePath(arr, startIdx, ePath);
+//                        updatePath(arr, endIdx  , sPath);
+
+
+
+                        Object.defineProperty(arr, startIdx,helpers.getDescriptor(eVal,sPath));
+                        Object.defineProperty(arr, endIdx  ,helpers.getDescriptor(sVal,ePath));
+
+                        if(!isIded){
+                            signals.propertyUpdated(sPath, eVal, sVal);
+                            signals.propertyUpdated(ePath, sVal, eVal);
+                        }
+
+
+                        startIdx++;
+                        endIdx--;
+                    }
+                }
+
+                function reduce(callback, initValue){
+                    var args = Array.prototype.slice.call(arguments);
+                    var r    = Array.prototype.reduce.call(arr,args[0], args[1]);
+                    return create(r,arr._path,signals,idProperty);
+                }
+                function reduceRight(callback, initValue){
+                    var args = Array.prototype.slice.call(arguments);
+                    var r    = Array.prototype.reduceRight.call(arr,args[0], args[1]);
+                    return create(r,arr._path,signals,idProperty);
+                }
+
+                function sort(fn){
+                    var isIded = helpers.arrayIsIded(arr,idProperty);
+                    fn = typeof fn === 'function' ? fn : function(a,b) { return a -b }
+
+                    //create a clone!
+                    var clone = JSON.parse(JSON.stringify(arr));
+                    clone.sort(fn);
+
+                    Lodash.each(clone,function(v,k){
+                        var oldVal = arr[k];
+                        var p      = getPath(arr._path, k, oldVal, idProperty);
+
+                        if(!isIded)
+                            signals.beforePropertyUpdated(p,v,oldVal);
+
+                        var vIns = priv.convert(v,p,signals,idProperty,true);
+
+                        Object.defineProperty(arr,k,helpers.getDescriptor(vIns,p));
+
+                        if(!isIded)
+                            signals.propertyUpdated(p,v,oldVal);
+                    })
+                }
+
+                Object.defineProperty(arr,'push'       , helpers.getDescriptorNonEnumerable(push,true))
+                Object.defineProperty(arr,'splice'     , helpers.getDescriptorNonEnumerable(splice,true))
+                Object.defineProperty(arr,'insert'     , helpers.getDescriptorNonEnumerable(insert,true))
+                Object.defineProperty(arr,'remove'     , helpers.getDescriptorNonEnumerable(remove,true))
+                Object.defineProperty(arr,'shift'      , helpers.getDescriptorNonEnumerable(shift,true))
+                Object.defineProperty(arr,'unshift'    , helpers.getDescriptorNonEnumerable(unshift,true))
+                Object.defineProperty(arr,'pop'        , helpers.getDescriptorNonEnumerable(pop,true))
+                Object.defineProperty(arr,'concat'     , helpers.getDescriptorNonEnumerable(concat,true))
+                Object.defineProperty(arr,'filter'     , helpers.getDescriptorNonEnumerable(filter,true))
+                Object.defineProperty(arr,'map'        , helpers.getDescriptorNonEnumerable(map,true))
+                Object.defineProperty(arr,'reverse'    , helpers.getDescriptorNonEnumerable(reverse,true))
+                Object.defineProperty(arr,'reduce'     , helpers.getDescriptorNonEnumerable(reduce,true))
+                Object.defineProperty(arr,'reduceRight', helpers.getDescriptorNonEnumerable(reduceRight,true))
+                Object.defineProperty(arr,'sort'       , helpers.getDescriptorNonEnumerable(sort,true))
             }
 
             //attaches properties to object (overrides default object stuffs)
@@ -609,12 +785,14 @@ QtObject {
 
 
         //converts a js object/array to our custom observable one. will dig down to the roots!!
-        function convert(js, path, signals, idProperty) {
+        //returns a new and shiny object if it is not helpers.isRestful
+        //otherwise, updates the path of the js
+        function convert(js, path, signals, idProperty, suppressSignals) {
             idProperty = idProperty || js._idProperty || "id";
 
             function recursiveAttacher(v,k,acc,path) {
                 var p = helpers.getPath(path,k,v, idProperty);
-                if(k !== idProperty)
+                if(k !== idProperty && !suppressSignals)
                     signals.beforePropertyCreated(p,v)
 
                 if(Lodash.isArray(v)) {
@@ -628,30 +806,38 @@ QtObject {
                     Object.defineProperty(acc,k,helpers.getDescriptor(v,p,isReadonly));
                 }
 
-                if(k !== idProperty)
+                if(k !== idProperty && !suppressSignals)
                     signals.propertyCreated(p,v)
             }
 
 
             function convertArr(js,path) {
                 var arr = priv.createArray(null,path,signals, idProperty);
-                Lodash.each(js, function(v,k) { recursiveAttacher(v,k,arr,path); })
+                Lodash.each(js, function(v,k) {
+                    recursiveAttacher(v,k,arr,path);
+                })
                 return arr;
             }
 
             function convertObj(js,path) {
                 var obj = priv.createObject(null,path,signals, idProperty);
-                Lodash.each(js, function(v,k) { recursiveAttacher(v,k,obj,path); })
+                Lodash.each(js, function(v,k) {
+                    recursiveAttacher(v,k,obj,path);
+                })
                 return obj;
             }
 
 
-
-
-
-            return Lodash.isArray(js) ? convertArr(js,path) :
-                                        Lodash.isObject(js) ? convertObj(js,path) :
-                                                              js;
+            if(helpers.isRestful(js)){
+                console.log("WOAh, saved duplication mannnnnnnnnnnnnnnnnnnnnn @", path)
+                js._updatePath(path);
+                return js;
+            }
+            else {
+                return Lodash.isArray(js) ? convertArr(js,path) :
+                                            Lodash.isObject(js) ? convertObj(js,path) :
+                                                                  js;
+            }
         }
 
 
