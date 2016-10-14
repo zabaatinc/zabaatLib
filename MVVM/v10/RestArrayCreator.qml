@@ -191,7 +191,6 @@ QtObject {
                 }
                 return ptr;
             }
-
             function set(obj,path,val,signals){
                 if(!obj)
                     return false;
@@ -246,6 +245,60 @@ QtObject {
                 }
                 return false;
             }
+            function del(obj,path,signals){
+                if(!obj || !path)
+                    return false;
+
+                var propArr = Lodash.compact(path.split("/"));
+                signals = signals || obj._signals;
+                if(!signals){
+                    console.log("NO SIGANLS ON", JSON.stringify(obj))
+                    return false;
+                }
+
+                var idProperty = obj._idProperty;
+                var ptr        = obj;
+
+                for(var i = 0; i < propArr.length; ++i){
+                    var p = propArr[i];
+                    if(i != propArr.length -1) {
+                        if(Lodash.isArray(ptr) && arrayIsIded(ptr,idProperty))
+                            ptr = findById(ptr,p,idProperty);
+                        else
+                            ptr = ptr[p];
+
+                        if(ptr === undefined)
+                            return false;
+                    }
+                    else {  //this is where we assign
+                        var delKey = p;
+                        if(Lodash.isArray(ptr) && arrayIsIded(ptr,idProperty)) {
+                            delKey = findById(ptr,p,idProperty,true);
+                        }
+                        if(!delKey)
+                            return false;
+
+                        var objPath = helpers.getPath(ptr._path,delKey,ptr[delKey],idProperty);
+
+                        if(!ptr.hasOwnProperty(delKey))
+                            return false;
+
+                        if(Lodash.isArray(ptr)) {
+//                            console.log("REMOVE CALLED on IDX", delKey)
+                            ptr.remove(delKey);
+                            return true;
+                        }
+                        else if(Lodash.isObject(ptr)){
+//                            console.log("DEL CALLED ON PROPERTY", delKey)
+                            signals.beforePropertyDeleted(objPath);
+                            delete ptr[delKey]
+                            signals.propertyDeleted(objPath);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
 
             function isRestful(obj){
                 return obj && obj._racgen ? true : false;
@@ -292,6 +345,7 @@ QtObject {
                 }
                 return badVal;
             }
+
 
 
             function getDescriptor(val , path, isReadOnly) {
@@ -470,8 +524,10 @@ QtObject {
                 //STEP 2 :   A C D
                 //essentially we move stuff left by one and then remove at the end!
                 function remove(idx){
-                    if(idx >= arr.length || idx < 0)
+                    idx = parseInt(idx);
+                    if(idx >= arr.length || idx < 0 || idx === NaN) //parseInt returns NaN if it can't figure out what the hell you gave it!
                         return console.error("ERROR:: idx " + idx + " is not in the array")
+
 
                     var path = arr._path;
                     var isIded = helpers.arrayIsIded(arr,idProperty);
@@ -534,10 +590,11 @@ QtObject {
                 //essentially we move stuff to the right by one and then change the index where we wanted to insert
                 //If the array has Ids, only new ids will be added. Existing ones will update!!
                 function insert(idx, v){
-                    var path = arr._path;
-                    if(idx < 0)
+                    idx = parseInt(idx);
+                    if(idx < 0 || idx === NaN)
                         return;
 
+                    var path = arr._path;
                     var isIded = helpers.arrayIsIded(arr,idProperty);
 
                     function doInsert() {
@@ -663,14 +720,17 @@ QtObject {
 
                 //returns an array of deleted elements!! Uses remove and insert
                 function splice(idx,deleteCount){
+                    idx = parseInt(idx);
+                    if(idx === NaN)
+                        return [];
+
                     var args        = Array.prototype.slice.call(arguments);
                     var insertElems = args.length <= 2 ? undefined : args.slice(2);
-
                     var deletedElems = [];
 
-                    if(idx === null || idx === undefined || idx > arr.length)
+                    if(idx > arr.length)
                         idx = arr.length;
-                    if(idx < 0) //negative
+                    else if(idx < 0) //negative
                         idx = arr.length - idx;
 
                     var remaining = arr.length - idx;
@@ -751,7 +811,7 @@ QtObject {
 
                 function reverse(){
                     var startIdx = 0;
-                    var endIdx   = arr.length;
+                    var endIdx   = arr.length-1;
                     var path = arr._path;
                     var isIded = helpers.arrayIsIded(arr,idProperty);
                     while(startIdx < endIdx) {
@@ -780,9 +840,6 @@ QtObject {
 
 //                        updatePath(arr, startIdx, ePath);
 //                        updatePath(arr, endIdx  , sPath);
-
-
-
                         Object.defineProperty(arr, startIdx,helpers.getDescriptor(eVal,sPath));
                         Object.defineProperty(arr, endIdx  ,helpers.getDescriptor(sVal,ePath));
 
@@ -888,6 +945,10 @@ QtObject {
 
                 Object.defineProperty(js,'set', helpers.getDescriptorNonEnumerable(function(str,val){
                     return set(js,str,val,signals);
+                }))
+
+                Object.defineProperty(js,'del',helpers.getDescriptorNonEnumerable(function(str){
+                    return del(js,str,signals);
                 }))
             }
 

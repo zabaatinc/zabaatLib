@@ -10,103 +10,6 @@ ZabaatTest {
 
     QtObject {
         id : helpers
-        function arrayIndexOf(arr,str,startIndex){
-            startIndex = startIndex || 0
-            for(var a = startIndex; a < arr.length; a++){
-                var e = arr[a]
-//                console.log("(",e, ")INDEX OF(", str, ")=" , e.indexOf(str))
-                if(e.indexOf(str) !== -1)
-                    return a;
-            }
-            return -1;
-        }
-
-        function arrEq(a,b, badRetFn){
-            badRetFn = typeof badRetFn === 'function' ? badRetFn : function(a,b) { return false ; }
-
-            if(!Lodash.isArray(a) || !Lodash.isArray(b))
-                return badRetFn(a,b);
-
-            if(a.length !== b.length){
-                return badRetFn(a,b);
-            }
-
-            for(var i = 0; i < a.length; ++i){
-                var v  = a[i]
-                var v2 = b[i]
-
-                if(Lodash.isObject(v) && Lodash.isObject(v2)) {
-                    if(!softObjectMatch(v,v2))
-                        return badRetFn(a,b);
-                }
-                else if(Lodash.isArray(v) && Lodash.isArray(v2)){
-                    if(!arrEq(v,v2))
-                        return badRetFn(a,b);
-                }
-                else if(v != v2) {
-                    return badRetFn(a,b);
-                }
-            }
-            return true;
-        }
-
-        function arrayContains(arr, str, instances,print){
-            var exact = true;
-            if(!instances || typeof instances !== 'number') {
-                instances = 1;
-                exact = false;
-            }
-
-            instances = Math.max(instances,1);
-            var s     = 0;
-            var count = 0;
-            while(exact || count < instances) {
-                var idx = arrayIndexOf(arr,str,s)
-                if(idx !== -1) {
-                    s = idx+1;
-                    count++;
-                }
-                else {
-                    break;
-                }
-            }
-
-            if(print)
-                console.log("--->" , count + "/" + instances)
-
-
-            return exact ? count === instances :
-                           count >=  instances;
-
-        }
-
-        function softObjectMatch(obj1,obj2, badRetFn){
-            badRetFn = typeof badRetFn === 'function' ? badRetFn : function(a,b) { return false ; }
-            if(!Lodash.isObject(obj1) && !Lodash.isObject(obj2))
-                return badRetFn(obj1,obj2);
-
-            if(!arrEq(Lodash.keys(obj1).sort() , Lodash.keys(obj2).sort())) {
-                return badRetFn(obj1,obj2);
-            }
-
-            for(var k in obj1){
-                var v  = obj1[k]
-                var v2 = obj2[k]
-                if(Lodash.isObject(v) && Lodash.isObject(v2)) {
-                    if(!softObjectMatch(v,v2))
-                        return badRetFn(obj1,obj2);
-                }
-                else if(Lodash.isArray(v) && Lodash.isArray(v2)) {
-                    if(!arrEq(v,v2))
-                        return badRetFn(obj1,obj2);
-                }
-                else if(v != v2){
-                    return badRetFn(obj1,obj2);
-                }
-            }
-            return true;
-        }
-
         //returns true if all the before<signName> are before the <sigName> in the array
         //returns an error message if validation failed. Otherwise, returns true.
         function validateSignalOrder(arr){
@@ -160,10 +63,10 @@ ZabaatTest {
 //        console.log("@@@@@@")
 //        console.log(allSigsStr)
 //        console.log("@@@@@@")
-        verify(helpers.arrayContains(allSignals,'beforeCreate->0'     ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeCreate->0/name') , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'create->0'           ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'create->0/name'      ) , allSigsStr);
+        arrayContains(allSignals,'beforeCreate->0', allSigsStr);
+        arrayContains(allSignals,'beforeCreate->0/name' , allSigsStr);
+        arrayContains(allSignals,'create->0'            , allSigsStr);
+        arrayContains(allSignals,'create->0/name'       , allSigsStr);
         compare(RestArrayCreator.debugOptions.allCount(), 4          , allSigsStr);
 
         var vso = helpers.validateSignalOrder(allSignals)
@@ -176,14 +79,14 @@ ZabaatTest {
         var allSignals = RestArrayCreator.debugOptions.all();
         var allSigsStr = "\n" + allSignals.join('\n')
 
-        verify(helpers.arrayContains(allSignals,'beforeCreate->0'      ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeCreate->0/name' ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'create->0'            ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'create->0/name'       ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeCreate->1'      ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeCreate->1/name' ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'create->1'            ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'create->1/name'       ) , allSigsStr);
+        arrayContains(allSignals,'beforeCreate->0'       , allSigsStr);
+        arrayContains(allSignals,'beforeCreate->0/name'  , allSigsStr);
+        arrayContains(allSignals,'create->0'             , allSigsStr);
+        arrayContains(allSignals,'create->0/name'        , allSigsStr);
+        arrayContains(allSignals,'beforeCreate->1'       , allSigsStr);
+        arrayContains(allSignals,'beforeCreate->1/name'  , allSigsStr);
+        arrayContains(allSignals,'create->1'             , allSigsStr);
+        arrayContains(allSignals,'create->1/name'        , allSigsStr);
         compare(RestArrayCreator.debugOptions.allCount(), 8          , allSigsStr);
 
         var vso = helpers.validateSignalOrder(allSignals)
@@ -196,12 +99,12 @@ ZabaatTest {
         var allSignals = RestArrayCreator.debugOptions.all();
         var allSigsStr = "\n" + allSignals.join('\n')
 
-        verify(helpers.arrayContains(allSignals,'beforeCreate->0'      ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeCreate->0/name' ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'create->0'            ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'create->0/name'       ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->0/name' ) , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'update->0/name'       ) , allSigsStr);
+        arrayContains(allSignals,'beforeCreate->0'       , allSigsStr);
+        arrayContains(allSignals,'beforeCreate->0/name'  , allSigsStr);
+        arrayContains(allSignals,'create->0'             , allSigsStr);
+        arrayContains(allSignals,'create->0/name'        , allSigsStr);
+        arrayContains(allSignals,'beforeUpdate->0/name'  , allSigsStr);
+        arrayContains(allSignals,'update->0/name'        , allSigsStr);
         compare(RestArrayCreator.debugOptions.allCount(), 6, allSigsStr);
 
 
@@ -220,52 +123,42 @@ ZabaatTest {
         var removed = myFish.splice(2, 0, 'drum');
         // myFish is ['angel', 'clown', 'drum', 'mandarin', 'surgeon']
         // removed is [], no elements removed
-        var mRes = helpers.arrEq(myFish ,['angel', 'clown', 'drum', 'mandarin', 'surgeon'], dispMsg);
-        var rRes = helpers.arrEq(removed,[] , dispMsg);
-
-        verify(mRes === true, mRes);
-        verify(rRes === true, rRes);
-
+        compareArrays(myFish ,['angel', 'clown', 'drum', 'mandarin', 'surgeon'], dispMsg);
+        compareArrays(removed,[] , dispMsg);
 
         // myFish is ['angel', 'clown', 'drum', 'mandarin', 'surgeon']
         // removes 1 element from index 3
         removed = myFish.splice(3, 1);
         // myFish is ['angel', 'clown', 'drum', 'surgeon']
         // removed is ['mandarin']
-        mRes = helpers.arrEq(myFish  , ['angel', 'clown', 'drum', 'surgeon'], dispMsg);
-        rRes = helpers.arrEq(removed , ['mandarin'], dispMsg);
-        verify(mRes === true, mRes);
-        verify(rRes === true, rRes);
+        compareArrays(myFish  , ['angel', 'clown', 'drum', 'surgeon'], dispMsg);
+        compareArrays(removed , ['mandarin'], dispMsg);
 
         // myFish is ['angel', 'clown', 'drum', 'surgeon']
         // removes 1 element from index 2, and inserts 'trumpet'
         removed = myFish.splice(2, 1, 'trumpet');
         // myFish is ['angel', 'clown', 'trumpet', 'surgeon']
         // removed is ['drum']
-        mRes = helpers.arrEq(myFish     , ['angel', 'clown', 'trumpet', 'surgeon'], dispMsg);
-        rRes = helpers.arrEq(removed    , ['drum'], dispMsg);
-        verify(mRes === true, mRes);
-        verify(rRes === true, rRes);
+        compareArrays(myFish     , ['angel', 'clown', 'trumpet', 'surgeon'], dispMsg);
+        compareArrays(removed    , ['drum'], dispMsg);
+
 
         // myFish is ['angel', 'clown', 'trumpet', 'surgeon']
         // removes 2 elements from index 0, and inserts 'parrot', 'anemone' and 'blue'
         removed = myFish.splice(0, 2, 'parrot', 'anemone', 'blue');
         // myFish is ['parrot', 'anemone', 'blue', 'trumpet', 'surgeon']
         // removed is ['angel', 'clown']
-        mRes = helpers.arrEq(myFish     , ['parrot', 'anemone', 'blue', 'trumpet', 'surgeon'], dispMsg);
-        rRes = helpers.arrEq(removed    , ['angel', 'clown'], dispMsg);
-        verify(mRes === true, mRes);
-        verify(rRes === true, rRes);
+        compareArrays(myFish     , ['parrot', 'anemone', 'blue', 'trumpet', 'surgeon'], dispMsg);
+        compareArrays(removed    , ['angel', 'clown'], dispMsg);
+
 
         // myFish is ['parrot', 'anemone', 'blue', 'trumpet', 'surgeon']
         // removes 2 elements from index 2
         removed = myFish.splice(myFish.length -3, 2);
         // myFish is ['parrot', 'anemone', 'surgeon']
         // removed is ['blue', 'trumpet']
-        mRes = helpers.arrEq(myFish     ,['parrot', 'anemone', 'surgeon'], dispMsg);
-        rRes = helpers.arrEq(removed    ,['blue', 'trumpet'], dispMsg);
-        verify(mRes === true, mRes);
-        verify(rRes === true, rRes);
+        compareArrays(myFish     ,['parrot', 'anemone', 'surgeon'], dispMsg);
+        compareArrays(removed    ,['blue', 'trumpet'], dispMsg);
     }
 
     function test_06_splice_unIded_signals(){
@@ -278,10 +171,10 @@ ZabaatTest {
         var allSignals = RestArrayCreator.debugOptions.all();
         var allSigsStr = "\n" + allSignals.join('\n')
 
-        verify(helpers.arrayContains(allSignals,'beforeCreate->4 = "surgeon"'), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->2')            , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->3')            , allSigsStr);
-        verify(helpers.arrayContains(allSignals,'update->lenChanged')         , allSigsStr);
+        arrayContains(allSignals,'beforeCreate->4 = "surgeon"' , allSigsStr);
+        arrayContains(allSignals,'beforeUpdate->2'            , allSigsStr);
+        arrayContains(allSignals,'beforeUpdate->3'            , allSigsStr);
+        arrayContains(allSignals,'update->lenChanged'         , allSigsStr);
         compare(RestArrayCreator.debugOptions.allCount() , 7, allSigsStr);
 
 
@@ -292,9 +185,9 @@ ZabaatTest {
         allSignals = RestArrayCreator.debugOptions.all();
         allSigsStr = "\n" + allSignals.join('\n');
 
-        verify(helpers.arrayContains(allSignals,'beforeDelete->4'   ), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->3'   ), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'update->lenChanged'), allSigsStr);
+        arrayContains(allSignals,'beforeDelete->4'   , allSigsStr);
+        arrayContains(allSignals,'beforeUpdate->3'   , allSigsStr);
+        arrayContains(allSignals,'update->lenChanged', allSigsStr);
 
         compare(RestArrayCreator.debugOptions.allCount() , 5, allSigsStr);
 
@@ -306,14 +199,14 @@ ZabaatTest {
         allSigsStr = "\n" + allSignals.join('\n');
 
         //delete related updates
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->2'   ), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeDelete->3'   ), allSigsStr);
+        arrayContains(allSignals,'beforeUpdate->2'   , allSigsStr);
+        arrayContains(allSignals,'beforeDelete->3'   , allSigsStr);
 
         //insert related updates
-        verify(helpers.arrayContains(allSignals,'beforeCreate->3'   ), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->2'   ), allSigsStr);
+        arrayContains(allSignals,'beforeCreate->3'   , allSigsStr);
+        arrayContains(allSignals,'beforeUpdate->2'   , allSigsStr);
 
-        verify(helpers.arrayContains(allSignals,'update->lenChanged',2), allSigsStr);
+        arrayContains(allSignals,'update->lenChanged',2, allSigsStr);
         compare(RestArrayCreator.debugOptions.allCount() , 10, allSigsStr);
 
 
@@ -325,18 +218,18 @@ ZabaatTest {
 
 
         //Delete
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->0' ,5), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->1' ,5), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->2' ,3), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->3' ,1), allSigsStr);
+        arrayContains(allSignals,'beforeUpdate->0' ,5, allSigsStr);
+        arrayContains(allSignals,'beforeUpdate->1' ,5, allSigsStr);
+        arrayContains(allSignals,'beforeUpdate->2' ,3, allSigsStr);
+        arrayContains(allSignals,'beforeUpdate->3' ,1, allSigsStr);
 
-        verify(helpers.arrayContains(allSignals,'beforeDelete->2' ,1), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeDelete->3' ,1), allSigsStr);
+        arrayContains(allSignals,'beforeDelete->2' ,1, allSigsStr);
+        arrayContains(allSignals,'beforeDelete->3' ,1, allSigsStr);
 
-        verify(helpers.arrayContains(allSignals,'beforeCreate->2' ,1), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeCreate->3' ,1), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'beforeCreate->4' ,1 ), allSigsStr);
-        verify(helpers.arrayContains(allSignals,'update->lenChanged', 5));
+        arrayContains(allSignals,'beforeCreate->2' ,1, allSigsStr);
+        arrayContains(allSignals,'beforeCreate->3' ,1, allSigsStr);
+        arrayContains(allSignals,'beforeCreate->4' ,1, allSigsStr);
+        arrayContains(allSignals,'update->lenChanged', 5);
         compare(RestArrayCreator.debugOptions.allCount(), 43);
 
 
@@ -348,11 +241,11 @@ ZabaatTest {
 
 //        RestArrayCreator.debugOptions.printAll();
 
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->2' ,2));
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->3' ,1));
-        verify(helpers.arrayContains(allSignals,'beforeDelete->3' ,1));
-        verify(helpers.arrayContains(allSignals,'beforeDelete->4' ,1));
-        verify(helpers.arrayContains(allSignals,'update->lenChanged', 2));
+        arrayContains(allSignals,'beforeUpdate->2' ,2);
+        arrayContains(allSignals,'beforeUpdate->3' ,1);
+        arrayContains(allSignals,'beforeDelete->3' ,1);
+        arrayContains(allSignals,'beforeDelete->4' ,1);
+        arrayContains(allSignals,'update->lenChanged', 2);
 
         compare(RestArrayCreator.debugOptions.allCount(), 12);
     }
@@ -362,13 +255,13 @@ ZabaatTest {
         arr.insert(0, {id : "20", name : "Anam" })
 
         compare(arr.length,2);
-        verify(helpers.softObjectMatch(arr[0], {id : "20", name : "Anam" }))
-        verify(helpers.softObjectMatch(arr[1], {id:"10",name:"Shahan"}))
+        compareObjects(arr[0], {id : "20", name : "Anam" });
+        compareObjects(arr[1], {id:"10",name:"Shahan"});
 
         arr.insert(1, {id : "20", name : "Anam Shahan" })
         compare(arr.length,2);
-        verify(helpers.softObjectMatch(arr[0], {id : "20", name : "Anam Shahan" }))
-        verify(helpers.softObjectMatch(arr[1], {id:"10",name:"Shahan"}))
+        compareObjects(arr[0], {id : "20", name : "Anam Shahan" });
+        compareObjects(arr[1], {id:"10",name:"Shahan"});
 
         arr[0].id = "30";
         compare(arr[0].id, "20")
@@ -382,39 +275,39 @@ ZabaatTest {
         RestArrayCreator.debugOptions.clearBatches();
         arr.insert(0, {id : "20", name : "Anam" })
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'lenChanged: 2' ,1));
-        verify(helpers.arrayContains(allSignals,'beforeCreate->20' ,2));
-        verify(helpers.arrayContains(allSignals,'beforeCreate->20/name' ,1));
+        arrayContains(allSignals,'lenChanged: 2' ,1);
+        arrayContains(allSignals,'beforeCreate->20' ,2);
+        arrayContains(allSignals,'beforeCreate->20/name' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 5);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.insert(1, {id : "20", name : "Anam Shahan" });
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->20/name' ,1));
+        arrayContains(allSignals,'beforeUpdate->20/name' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 2);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr[0].name = "Anam Shahan Kazi";
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->20/name' ,1));
+        arrayContains(allSignals,'beforeUpdate->20/name' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 2);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr[0] = { name : "Anam Shahan" };
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->20/name' ,1));
+        arrayContains(allSignals,'beforeUpdate->20/name' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 2);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr[1].name = "Shahan Kazi";
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->10/name' ,1));
+        arrayContains(allSignals,'beforeUpdate->10/name' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 2);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr[1] = { name : "Shahan" };
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->10/name' ,1));
+        arrayContains(allSignals,'beforeUpdate->10/name' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 2);
         //        RestArrayCreator.debugOptions.printAll();
     }
@@ -422,29 +315,29 @@ ZabaatTest {
     function test_09_remove_ided(){
         var arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
         arr.remove(0);
-        verify(helpers.arrEq(arr, [{id:"20",name: "Anam"}, {id:'30', name : "wolf"}]), JSON.stringify(arr));
+        compareArrays(arr, [{id:"20",name: "Anam"}, {id:'30', name : "wolf"}], JSON.stringify(arr));
 
         arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
         arr.remove(1);
-        verify(helpers.arrEq(arr, [{id:"10",name:"Shahan"}, {id:'30', name : "wolf"}]));
+        compareArrays(arr, [{id:"10",name:"Shahan"}, {id:'30', name : "wolf"}]);
 
         arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
         arr.remove(2);
-        verify(helpers.arrEq(arr, [{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}]));
+        compareArrays(arr, [{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}]);
 
         arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
         arr.remove(3);
-        verify(helpers.arrEq(arr, [{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]));
+        compareArrays(arr, [{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
 
         //start emptying out array
         arr.remove(1);
-        verify(helpers.arrEq(arr, [{id:"10",name:"Shahan"}, {id:'30', name : "wolf"}]));
+        compareArrays(arr, [{id:"10",name:"Shahan"}, {id:'30', name : "wolf"}]);
 
         arr.remove(0);
-        verify(helpers.arrEq(arr, [{id:'30', name : "wolf"}]));
+        compareArrays(arr, [{id:'30', name : "wolf"}]);
 
         arr.remove(0);
-        verify(helpers.arrEq(arr, []));
+        compareArrays(arr, []);
     }
 
     function test_10_remove_ided_signals(){
@@ -452,14 +345,14 @@ ZabaatTest {
         RestArrayCreator.debugOptions.clearBatches();
         arr.remove(0);
         var allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'lenChanged: 2' ,1));
+        arrayContains(allSignals,'lenChanged: 2' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 3);
 
         arr = RestArrayCreator.create([{id:"10",name:"Shahan"}, {id:"20",name: "Anam"}, {id:'30', name : "wolf"}]);
         RestArrayCreator.debugOptions.clearBatches();
         arr.remove(1);
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'lenChanged: 2' ,1));
+        arrayContains(allSignals,'lenChanged: 2' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 3);
 
 
@@ -467,7 +360,7 @@ ZabaatTest {
         RestArrayCreator.debugOptions.clearBatches();
         arr.remove(2);
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'lenChanged: 2' ,1));
+        arrayContains(allSignals,'lenChanged: 2' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 3);
 
 
@@ -482,20 +375,20 @@ ZabaatTest {
         RestArrayCreator.debugOptions.clearBatches();
         arr.remove(1);
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'lenChanged: 2' ,1));
+        arrayContains(allSignals,'lenChanged: 2' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 3);
 
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.remove(0);
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'lenChanged: 1' ,1));
+        arrayContains(allSignals,'lenChanged: 1' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 3);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.remove(0);
         allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrayContains(allSignals,'lenChanged: 0' ,1));
+        arrayContains(allSignals,'lenChanged: 0' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 3);
 
     }
@@ -521,7 +414,7 @@ ZabaatTest {
 
 //        arr[0].name = "Dylan";
 //        allSignals = RestArrayCreator.debugOptions.all();
-//        verify(helpers.arrayContains(allSignals,'beforeUpdate->D/name' ,1));
+//        arrayContains(allSignals,'beforeUpdate->D/name' ,1));
 //        compare(RestArrayCreator.debugOptions.allCount(), 2);
     }
 
@@ -531,11 +424,11 @@ ZabaatTest {
         arr.sort();
         var allSignals = RestArrayCreator.debugOptions.all();
 
-        verify(helpers.arrEq(arr,[1,2,3,4]));
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->0' ,1));
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->1' ,1));
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->2' ,1));
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->3' ,1));
+        compareArrays(arr,[1,2,3,4]);
+        arrayContains(allSignals,'beforeUpdate->0' ,1);
+        arrayContains(allSignals,'beforeUpdate->1' ,1);
+        arrayContains(allSignals,'beforeUpdate->2' ,1);
+        arrayContains(allSignals,'beforeUpdate->3' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 8);
     }
 
@@ -546,11 +439,11 @@ ZabaatTest {
                     return parseInt(a.a) - parseInt(b.a);
                  });
         var allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrEq(arr,[{a:"1"}, {a:"2"}, {a:"3"} , {a:"4"}]));
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->0' ,1));
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->1' ,1));
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->2' ,1));
-        verify(helpers.arrayContains(allSignals,'beforeUpdate->3' ,1));
+        compareArrays(arr,[{a:"1"}, {a:"2"}, {a:"3"} , {a:"4"}]);
+        arrayContains(allSignals,'beforeUpdate->0' ,1);
+        arrayContains(allSignals,'beforeUpdate->1' ,1);
+        arrayContains(allSignals,'beforeUpdate->2' ,1);
+        arrayContains(allSignals,'beforeUpdate->3' ,1);
         compare(RestArrayCreator.debugOptions.allCount(), 8);
     }
 
@@ -561,7 +454,7 @@ ZabaatTest {
                     return parseInt(a.id) - parseInt(b.id);
                  });
         var allSignals = RestArrayCreator.debugOptions.all();
-        verify(helpers.arrEq(arr,[{id:"1"}, {id:"2"}, {id:"3"} , {id:"4"}]));
+        compareArrays(arr,[{id:"1"}, {id:"2"}, {id:"3"} , {id:"4"}]);
         compare(RestArrayCreator.debugOptions.allCount(), 0);
     }
 
@@ -581,12 +474,12 @@ ZabaatTest {
         var arr = RestArrayCreator.create([{name : "Wolf"  , pets : pets } ,
                                            {name : "Shahan", pets : pets2 }]);
 
-        verify(helpers.softObjectMatch(arr.get("0") , {name : "Wolf" , pets : pets }))
-        verify(helpers.softObjectMatch(arr.get("1") , {name : "Shahan", pets : pets2 }))
+        compareObjects(arr.get("0") , {name : "Wolf" , pets : pets })
+        compareObjects(arr.get("1") , {name : "Shahan", pets : pets2 })
         compare(arr.get('0/name'),"Wolf")
         compare(arr.get('1/name'),"Shahan")
-        verify(helpers.softObjectMatch(arr.get("0/pets") , pets ))
-        verify(helpers.softObjectMatch(arr.get("1/pets") , pets2 ))
+        compareObjects(arr.get("0/pets") , pets )
+        compareObjects(arr.get("1/pets") , pets2 )
 
         compare(arr.get('2'),undefined)
         compare(arr.get('2/name'),undefined)
@@ -599,12 +492,12 @@ ZabaatTest {
         var arr = RestArrayCreator.create([{id:"4", name : "Wolf"  , pets : pets } ,
                                            {id:"3", name : "Shahan", pets : pets2 }]);
 
-        verify(helpers.softObjectMatch(arr.get("3") , {id:"3", name : "Shahan", pets : pets2 }))
-        verify(helpers.softObjectMatch(arr.get("4") , {id:"4", name : "Wolf" , pets : pets }))
+        compareObjects(arr.get("3") , {id:"3", name : "Shahan", pets : pets2 })
+        compareObjects(arr.get("4") , {id:"4", name : "Wolf" , pets : pets })
         compare(arr.get('3/name'),"Shahan")
         compare(arr.get('4/name'),"Wolf")
-        verify(helpers.softObjectMatch(arr.get("3/pets") , pets2 ))
-        verify(helpers.softObjectMatch(arr.get("4/pets") , pets ))
+        compareObjects(arr.get("3/pets") , pets2 )
+        compareObjects(arr.get("4/pets") , pets )
 
         compare(arr.get('0'),undefined)
         compare(arr.get('0/name'),undefined)
@@ -619,36 +512,36 @@ ZabaatTest {
         arr.set("0","Piggy");
         var sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
-        verify(helpers.arrayContains(sigs,"beforeUpdate->0",1));
-        verify(helpers.arrEq(arr,["Piggy","Clam","Shellie"]))
+        arrayContains(sigs,"beforeUpdate->0",1);
+        compareArrays(arr,["Piggy","Clam","Shellie"]);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.set("1","Clammy");
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
-        verify(helpers.arrayContains(sigs,"beforeUpdate->1",1));
-        verify(helpers.arrEq(arr,["Piggy","Clammy","Shellie"]))
+        arrayContains(sigs,"beforeUpdate->1",1);
+        compareArrays(arr,["Piggy","Clammy","Shellie"]);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.set("2","Shell");
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
-        verify(helpers.arrayContains(sigs,"beforeUpdate->2",1));
-        verify(helpers.arrEq(arr,["Piggy","Clammy","Shell"]))
+        arrayContains(sigs,"beforeUpdate->2",1);
+        compareArrays(arr,["Piggy","Clammy","Shell"]);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.set('3','Helga');
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
-        verify(helpers.arrayContains(sigs,"beforeCreate->3",1));
-        verify(helpers.arrEq(arr,["Piggy","Clammy","Shell","Helga"]))
+        arrayContains(sigs,"beforeCreate->3",1);
+        compareArrays(arr,["Piggy","Clammy","Shell","Helga"]);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.set('3','Helgamoto');
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
-        verify(helpers.arrayContains(sigs,"beforeUpdate->3",1));
-        verify(helpers.arrEq(arr,["Piggy","Clammy","Shell","Helgamoto"]))
+        arrayContains(sigs,"beforeUpdate->3",1);
+        compareArrays(arr,["Piggy","Clammy","Shell","Helgamoto"]);
     }
 
     function test_18_set_unided_complex(){
@@ -662,28 +555,28 @@ ZabaatTest {
         var sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
         compare(arr[0] , {name : "Wolfy"  , pets : pets })
-        verify(helpers.arrayContains(sigs,"beforeUpdate->0/name",1));
+        arrayContains(sigs,"beforeUpdate->0/name",1);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.set('1/name','Shahany');
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
         compare(arr[1] , {name : "Shahany"  , pets : pets2 })
-        verify(helpers.arrayContains(sigs,"beforeUpdate->1/name",1));
+        arrayContains(sigs,"beforeUpdate->1/name",1);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.set('0/pets/0','Piggy');
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
         compare(arr.get("0/pets") , ["Piggy","Clam","Shellie"])
-        verify(helpers.arrayContains(sigs,"beforeUpdate->0/pets/0",1));
+        arrayContains(sigs,"beforeUpdate->0/pets/0",1);
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.set('0/pets/1','Clamy');
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
         compare(arr.get("0/pets") , ["Piggy","Clamy","Shellie"])
-        verify(helpers.arrayContains(sigs,"beforeUpdate->0/pets/1",1));
+        arrayContains(sigs,"beforeUpdate->0/pets/1",1);
 
 
         RestArrayCreator.debugOptions.clearBatches();
@@ -691,7 +584,7 @@ ZabaatTest {
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
         compare(arr.get("0/pets") , ["Piggy","Clamy","Shell"])
-        verify(helpers.arrayContains(sigs,"beforeUpdate->0/pets/2",1));
+        arrayContains(sigs,"beforeUpdate->0/pets/2",1);
 
 
 
@@ -700,7 +593,7 @@ ZabaatTest {
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
         compare(arr.get("1/pets") , ["Draco","Sam"])
-        verify(helpers.arrayContains(sigs,"beforeUpdate->1/pets/0",1));
+        arrayContains(sigs,"beforeUpdate->1/pets/0",1);
 
 
         RestArrayCreator.debugOptions.clearBatches();
@@ -708,7 +601,7 @@ ZabaatTest {
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 2);
         compare(arr.get("1/pets") , ["Draco","Sammy"])
-        verify(helpers.arrayContains(sigs,"beforeUpdate->1/pets/1",1));
+        arrayContains(sigs,"beforeUpdate->1/pets/1",1);
 
 
 
@@ -716,24 +609,52 @@ ZabaatTest {
         arr.set('0/pets', ["Johny","Reed","Susie","Benny"]);
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 9);
-        verify(helpers.arrayContains(sigs,'beforeUpdate->0/pets/0',1))
-        verify(helpers.arrayContains(sigs,'beforeUpdate->0/pets/1',1))
-        verify(helpers.arrayContains(sigs,'beforeUpdate->0/pets/2',1))
-        verify(helpers.arrayContains(sigs,'beforeCreate->0/pets/3',1))
+        arrayContains(sigs,'beforeUpdate->0/pets/0',1)
+        arrayContains(sigs,'beforeUpdate->0/pets/1',1)
+        arrayContains(sigs,'beforeUpdate->0/pets/2',1)
+        arrayContains(sigs,'beforeCreate->0/pets/3',1)
         compare(arr.get("0/pets") , ["Johny","Reed","Susie","Benny"])
 
         RestArrayCreator.debugOptions.clearBatches();
         arr.set('1/pets', ["Draxxis"]);
         sigs = RestArrayCreator.debugOptions.all();
         compare(RestArrayCreator.debugOptions.allCount(), 5);
-        verify(helpers.arrayContains(sigs,'beforeUpdate->1/pets/0',1))
-        verify(helpers.arrayContains(sigs,'beforeDelete->1/pets/1',1))
+        arrayContains(sigs,'beforeUpdate->1/pets/0',1)
+        arrayContains(sigs,'beforeDelete->1/pets/1',1)
         compare(arr.get("1/pets") , ["Draxxis"])
+    }
 
-//        RestArrayCreator.debugOptions.clearBatches();
-//        arr.reverse();
-//        sigs = RestArrayCreator.debugOptions.all();
-//        RestArrayCreator.debugOptions.printAll()
+    function test_19_delete_unided(){
+        var pets  = ["Pig","Clam","Shellie"]
+        var arr = RestArrayCreator.create(pets);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.del('0')
+        var sigs = RestArrayCreator.debugOptions.all();
+        compare(arr.length, 2);
+        arrayContains(sigs,"beforeUpdate->0",1);
+        arrayContains(sigs,"beforeUpdate->1",1);
+        arrayContains(sigs,"beforeDelete->2",1);
+        compareArrays(arr,["Clam","Shellie"]);
+        compare(RestArrayCreator.debugOptions.allCount() , 7);
+    }
+
+    function test_19_delete_unided_complex(){
+        var pets  = ["Pig","Clam","Shellie"]
+        var pets2 = ["Drake","Sam"]
+        var arr = RestArrayCreator.create([{name : "Wolf"  , pets : pets } ,
+                                           {name : "Shahan", pets : pets2 }]);
+        RestArrayCreator.debugOptions.clearBatches();
+        var arrPets = arr.get('0/pets');
+
+
+        arrPets.del('1');
+        var sigs    = RestArrayCreator.debugOptions.all();
+        compare(arrPets.length,2);
+        compareObjects(arr[0], {name: "Wolf", pets:["Pig", "Shellie"] })
+        arrayContains(sigs, "beforeUpdate->0/pets/1");
+        arrayContains(sigs,"beforeDelete->0/pets/2");
+        compare(RestArrayCreator.debugOptions.allCount(), 5);
     }
 
 
