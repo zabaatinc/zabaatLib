@@ -19,14 +19,16 @@ ZabaatTest {
 
             for(var i in arr){
                 var e = arr[i];
-                if(e.indexOf('before'))
+                if(e.indexOf('before') !== -1)
                     continue;
 
                 var arrowIdx = e.indexOf('->');
                 var varN     = e.slice(arrowIdx);
                 var opName   = e.slice(0,arrowIdx);
+                var idx = Lodash.findIndex(arr, function(a) {
+                    return a.indexOf('before' + firstToUpper(opName)) !== -1 ? true : false
+                })
 
-                var idx = arrayContains(arr, 'before' + firstToUpper(opName));
                 if(idx === -1)
                     return "No " + 'before' + firstToUpper(opName) + " for" + varN;
                 if(idx > i)
@@ -35,6 +37,8 @@ ZabaatTest {
 
             return true;
         }
+
+
     }
 
 
@@ -87,7 +91,7 @@ ZabaatTest {
         arrayContains(allSignals,'beforeCreate->1/name'  , allSigsStr);
         arrayContains(allSignals,'create->1'             , allSigsStr);
         arrayContains(allSignals,'create->1/name'        , allSigsStr);
-        compare(RestArrayCreator.debugOptions.allCount(), 8          , allSigsStr);
+        compare(RestArrayCreator.debugOptions.allCount(), 8  , allSigsStr);
 
         var vso = helpers.validateSignalOrder(allSignals)
         verify(vso === true, vso);
@@ -644,10 +648,9 @@ ZabaatTest {
         var pets2 = ["Drake","Sam"]
         var arr = RestArrayCreator.create([{name : "Wolf"  , pets : pets } ,
                                            {name : "Shahan", pets : pets2 }]);
+
         RestArrayCreator.debugOptions.clearBatches();
         var arrPets = arr.get('0/pets');
-
-
         arrPets.del('1');
         var sigs    = RestArrayCreator.debugOptions.all();
         compare(arrPets.length,2);
@@ -655,6 +658,43 @@ ZabaatTest {
         arrayContains(sigs, "beforeUpdate->0/pets/1");
         arrayContains(sigs,"beforeDelete->0/pets/2");
         compare(RestArrayCreator.debugOptions.allCount(), 5);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.del("0/name");
+        sigs = RestArrayCreator.debugOptions.all();
+        compareObjects(arr[0], { pets:["Pig", "Shellie"] })
+        arrayContains(sigs,"beforeDelete->0/name");
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+    }
+
+    function test_20_delete_ided(){
+
+        var pets  = ["Pig","Clam","Shellie"]
+        var pets2 = ["Drake","Sam"]
+        var arr = RestArrayCreator.create([{id : "A", name : "Wolf"  , pets : pets } ,
+                                           {id : "B", name : "Shahan", pets : pets2 }]);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        var arrPets = arr.get('A/pets');
+        arrPets.del('1');
+        var sigs    = RestArrayCreator.debugOptions.all();
+        compare(arrPets.length,2);
+        compareObjects(arr[0], { id : "A", name: "Wolf", pets:["Pig", "Shellie"] })
+        arrayContains(sigs, "beforeUpdate->A/pets/1");
+        arrayContains(sigs,"beforeDelete->A/pets/2");
+        compare(RestArrayCreator.debugOptions.allCount(), 5);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.del("A/name");
+        sigs = RestArrayCreator.debugOptions.all();
+        compareObjects(arr[0], { id : "A", pets:["Pig", "Shellie"] })
+        arrayContains(sigs,"beforeDelete->A/name");
+        compare(RestArrayCreator.debugOptions.allCount(), 2);
+
+        RestArrayCreator.debugOptions.clearBatches();
+        arr.del("A");
+        compare(arr.get("A"),undefined);
+        compare(arr.get("A/pets"),undefined);
     }
 
 

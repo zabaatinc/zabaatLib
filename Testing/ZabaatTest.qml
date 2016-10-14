@@ -30,18 +30,17 @@ TestCase {
     }
 
     function compareObjects(obj1,obj2, msg){
-        msg = msg || "Objects don't match";
+        msg = msg || "Objects don't match.\nActual:" + JSON.stringify(obj1,null,2) + "\nExpected:" + JSON.stringify(obj2,null,2) ;
         verify(priv.softObjectMatch(obj1,obj2), msg)
     }
 
     function compareArrays(arr1,arr2,msg){
-        msg = msg || "Arrays don't match";
+        msg = msg || "Arrays don't match.\nActual:" + JSON.stringify(arr1,null,2) + "\nExpected:" + JSON.stringify(arr1,null,2) ;
         verify(priv.arrEq(arr1,arr2), msg);
     }
 
     function arrayContains(arr,val,instances){
-        var contains = priv.arrayContains(arr,val,instances);
-        verify(contains,"Array does not contain " + val);
+        verify(priv.arrayContains(arr,val,instances), ("Array does not contain: " + val))
     }
 
 
@@ -66,7 +65,11 @@ TestCase {
             for(var a = startIndex; a < arr.length; a++){
                 var e = arr[a]
 //                console.log("(",e, ")INDEX OF(", str, ")=" , e.indexOf(str))
-                if(e.indexOf(str) !== -1)
+                if(typeof e === 'string') {
+                    if(e.indexOf(str) !== -1)
+                        return a;
+                }
+                else if(e === str)
                     return a;
             }
             return -1;
