@@ -1,0 +1,3 @@
+module Zabaat.UserSystem
+singleton UserSystem 1.0 UserSystem.qml
+singleton UserState  1.0 UserState.qml
