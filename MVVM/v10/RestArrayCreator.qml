@@ -21,12 +21,26 @@ QtObject {
 //     beforePropertyDeleted : function(path)  }
 //  idProperty -> The name of the id property inside js that determines element uniqueness. default:"id"
     function create(js, path, signals, idProperty) {
-        signals    = signals    || debugOptions.standardSignalsPackage();
+        signals    = debugOptions.standardSignalsPackage(signals);
         idProperty = idProperty || "id";
 
 
         return Lodash.isObject(js) ? priv.createObject(js, path, signals, idProperty) :
                                      priv.createArray(js,path, signals, idProperty);
+    }
+
+    function addListeners(arr,obj) {
+        if(!helpers.isRestful(arr) || !arr._signals || typeof arr._signals.addListeners !== 'function')
+            return;
+
+        arr._signals.addListeners(obj);
+    }
+
+    function removeListeners(arr,obj) {
+        if(!helpers.isRestful(arr) || !arr._signals || typeof arr._signals.removeListeners !== 'function')
+            return;
+
+        arr._signals.removeListeners(obj);
     }
 
 
@@ -71,7 +85,7 @@ QtObject {
                 batchUpdateMsg       =  []
                 batchDeleteMsg       =  []
             }
-            function standardSignalsPackage() {
+            function standardSignalsPackage(extraSignals) {
                 function prints(path,data,oldData){
                     var p  = helpers.def(path) && debugOptions.showPaths   ? path                     : "";
                     var d  = data     && debugOptions.showData    ? "= "    + JSON.stringify(data)    : "";
@@ -82,44 +96,166 @@ QtObject {
                     return new Date();
                 }
 
-                return  {
-                    lengthChanged : function(path,len)  {
-                        var pr = prints(path,len);
-                        if(helpers.def(pr.p)) {
-                            var msg = "lenChanged:"+" "+ pr.p +" "+ pr.d+" "+ pr.od
-                            debugOptions.batchUpdateMsg.push({msg:msg,time:now()})
+                var fnDebugLengthChanged         = function(path,len){
+                    var pr = prints(path,len);
+                    if(helpers.def(pr.p)) {
+                        var msg = "lenChanged:"+" "+ pr.p +" "+ pr.d+" "+ pr.od
+                        debugOptions.batchUpdateMsg.push({msg:msg,time:now()})
+                    }
+                }
+                var fnDebugPropertyUpdated       = function(path,data,oldData){
+                    var pr = prints(path,data,oldData);
+                    if(helpers.def(pr.p) || pr.d || pr.od){
+                        debugOptions.batchUpdateMsg.push({msg:pr.p+" "+ pr.d+" "+ pr.od,time:now()});
+                    }
+                }
+                var fnDebugPropertyCreated       = function(path,data) {
+                    var pr = prints(path,data);
+                    if(helpers.def(pr.p) || pr.d || pr.od)
+                        debugOptions.batchCreateMsg.push({msg:pr.p+" "+ pr.d,time:now()});
+                }
+                var fnDebugPropertyDeleted       = function(path) {
+                    var pr = prints(path);
+                    if(helpers.def(pr.p) || pr.d || pr.od)
+                        debugOptions.batchDeleteMsg.push({msg:pr.p,time:now()})
+                }
+                var fnDebugBeforePropertyUpdated = function(path,data,oldData){
+                    var pr = prints(path,data,oldData);
+                    if(helpers.def(pr.p) || pr.d || pr.od)
+                        debugOptions.batchBeforeUpdateMsg.push({msg:pr.p +" "+ pr.d +" "+ pr.od,time:now()});
+                }
+                var fnDebugBeforePropertyCreated = function(path,data) {
+                    var pr = prints(path,data);
+                        if(helpers.def(pr.p) || pr.d || pr.od)
+                    debugOptions.batchBeforeCreateMsg.push({msg:pr.p +" "+ pr.d,time:now()});
+                }
+                var fnDebugBeforePropertyDeleted = function(path)  {
+                    var pr = prints(path);
+                    if(helpers.def(pr.p) || pr.d || pr.od)
+                        debugOptions.batchBeforeDeleteMsg.push({msg:pr.p,time:now()})
+                }
+
+                var listeners = {
+                    lengthChanged         : [fnDebugLengthChanged],
+                    propertyUpdated       : [fnDebugPropertyUpdated],
+                    propertyCreated       : [fnDebugPropertyCreated],
+                    propertyDeleted       : [fnDebugPropertyDeleted],
+                    beforePropertyUpdated : [fnDebugBeforePropertyUpdated],
+                    beforePropertyCreated : [fnDebugBeforePropertyCreated],
+                    beforePropertyDeleted : [fnDebugBeforePropertyDeleted]
+                }
+
+                var fnAddSignals = function(extraSignals){
+                    function contains(arr,val){
+                        for(var k in arr){
+                            if(arr[k] === val)
+                                return true;
                         }
+                        return false;
+                    }
+
+                    Lodash.each(extraSignals, function(v,k){
+                        if(listeners[k]){
+                            var origCount = listeners[k].length
+                            var fnArr = Lodash.isArray(v) ? v : [v];
+                            Lodash.each(fnArr,function(fn) {
+                                if(Lodash.isFunction(fn) && !contains(listeners[k],fn))
+                                    listeners[k].push(fn);
+                            })
+//                            console.log("Added listeners to", k, " resutling in", listeners[k].length , "from", origCount);
+                        }
+                    })
+                }
+
+
+                var fnRemoveSignals = function(extraSignals){
+                    function contains(arr,val){
+                        for(var k in arr){
+                            if(arr[k] === val)
+                                return true;
+                        }
+                        return false;
+                    }
+
+                    Lodash.each(extraSignals, function(v,key){
+                        if(listeners[key]){
+
+                            var origCount = listeners[key].length
+                            var fnArr = Lodash.isArray(v) ? v : [v];
+                            Lodash.each(fnArr,function(fn) {
+                                var idx = Lodash.indexOf(listeners[key],fn);
+                                if(idx !== -1){
+                                    listeners[key].splice(idx,1);
+                                }
+                            })
+
+                            console.log("Removed", key, "listeners resulting in", listeners[key].length , "from", origCount);
+
+                        }
+                    })
+                }
+
+
+
+                return  {
+                    addListeners  : fnAddSignals,
+                    removeListeners : fnRemoveSignals,
+                    listeners     : listeners,
+                    lengthChanged : function(path,len)  {
+                        Lodash.eachRight(listeners.lengthChanged, function(v,k){
+                            if(typeof v === 'function')
+                                v(path,len);
+                            else //remove this thing!!
+                                listeners.lengthChanged.splice(k,1);
+                        })
                     } ,
                     propertyUpdated : function(path,data,oldData){
-                        var pr = prints(path,data,oldData);
-                        if(helpers.def(pr.p) || pr.d || pr.od){
-                            debugOptions.batchUpdateMsg.push({msg:pr.p+" "+ pr.d+" "+ pr.od,time:now()});
-                        }
+                        Lodash.eachRight(listeners.propertyUpdated, function(v,k){
+                            if(typeof v === 'function')
+                                v(path,data,oldData);
+                            else
+                                listeners.propertyUpdated.splice(k,1);
+                        })
                     } ,
                     propertyCreated  : function(path,data) {
-                        var pr = prints(path,data);
-                        if(helpers.def(pr.p) || pr.d || pr.od)
-                            debugOptions.batchCreateMsg.push({msg:pr.p+" "+ pr.d,time:now()});
+                        Lodash.eachRight(listeners.propertyCreated, function(v,k){
+                            if(typeof v === 'function')
+                                v(path,data);
+                            else
+                                listeners.propertyCreated.splice(k,1);
+                        })
                     } ,
                     propertyDeleted  : function(path) {
-                        var pr = prints(path);
-                        if(helpers.def(pr.p) || pr.d || pr.od)
-                            debugOptions.batchDeleteMsg.push({msg:pr.p,time:now()})
+                        Lodash.eachRight(listeners.propertyDeleted, function(v,k){
+                            if(typeof v === 'function')
+                                v(path);
+                            else
+                                listeners.propertyDeleted.splice(k,1);
+                        })
                     } ,
                     beforePropertyUpdated : function(path,data,oldData){
-                        var pr = prints(path,data,oldData);
-                        if(helpers.def(pr.p) || pr.d || pr.od)
-                            debugOptions.batchBeforeUpdateMsg.push({msg:pr.p +" "+ pr.d +" "+ pr.od,time:now()});
+                        Lodash.eachRight(listeners.beforePropertyUpdated, function(v,k){
+                            if(typeof v === 'function')
+                                v(path,data,oldData);
+                            else
+                                listeners.beforePropertyUpdated.splice(k,1);
+                        })
                     } ,
                     beforePropertyCreated : function(path,data) {
-                        var pr = prints(path,data);
-                            if(helpers.def(pr.p) || pr.d || pr.od)
-                        debugOptions.batchBeforeCreateMsg.push({msg:pr.p +" "+ pr.d,time:now()});
+                        Lodash.eachRight(listeners.beforePropertyCreated, function(v,k){
+                            if(typeof v === 'function')
+                                v(path,data);
+                            else
+                                listeners.beforePropertyCreated.splice(k,1);
+                        })
                     } ,
                     beforePropertyDeleted : function(path)  {
-                        var pr = prints(path);
-                        if(helpers.def(pr.p) || pr.d || pr.od)
-                            debugOptions.batchBeforeDeleteMsg.push({msg:pr.p,time:now()})
+                        Lodash.eachRight(listeners.beforePropertyDeleted, function(v,k){
+                            if(typeof v === 'function')
+                                v(path);
+                            else
+                                listeners.beforePropertyDeleted.splice(k,1);
+                        })
                     }
                 }
             }
@@ -477,11 +613,11 @@ QtObject {
             function getPath(path,key,val, idProperty) {
                 idProperty = idProperty || (val && val._idProperty) || "id"
                 if(!def(key)){
-                    return def(path) ? path : "";
+                    return def(path) ? path.toString() : "";
                 }
 
                 var k = def(val,idProperty) ? val[idProperty] : key;
-                return def(path) ? path + "/" + k : k;
+                return def(path) ? path + "/" + k : k.toString();
             }
 
             function getDescriptorNonEnumerable(value, readOnly) {
@@ -685,6 +821,7 @@ QtObject {
 
                 //Pushes arguments into the array. If the array has Ids, only new ids will be added. Existing ones will update!!
                 function push(){
+//                    console.log("CUSTOM PUSH!!")
                     if(arguments.length === 0)
                         return;
 
@@ -696,7 +833,7 @@ QtObject {
 
                             signals.beforePropertyCreated(p,val);
                             Object.defineProperty(arr, arr.length, helpers.getDescriptor(v,p,false))
-                            signals.propertyCreated(p,val);
+                            signals.propertyCreated(p,v);
                             signals.lengthChanged(path,arr.length);
                         }
 
