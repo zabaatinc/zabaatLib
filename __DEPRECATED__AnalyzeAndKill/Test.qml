@@ -9,6 +9,9 @@ Rectangle {
     color : 'lightyellow'
 
     Component.onCompleted: {
+        mainWindow.width =  345
+        mainWindow.height = 647
+//        375, 647)
         var userData = UserSystem.settings.userLoginData;
         console.log("LAST LOGGED IN WITH", JSON.stringify(userData));
 
@@ -74,21 +77,30 @@ Rectangle {
         Text { text :"Email:"       + " " + UserSystem.userInfo.email }
     }
 
-
-
-
-
-    Connections {
-
+    LoginFlow {
+        id : loginFlow
+        anchors.fill: parent
+        sizeDesigner  : Qt.point(750,1254)
+        sizeMainWindow: Qt.point(375, 647)
+        scaleMultiplier: Qt.point(2,2)
+        config.background.component : Component {
+            Rectangle {
+                color : 'gray'
+            }
+        }
+        config.title_text.component: Component {
+            Text {
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.pointSize: 18
+                text : "Login Flow!"
+            }
+        }
+        config.title_img.source: "https://upload.wikimedia.org/wikipedia/en/9/99/MarioSMBW.png"
     }
 
-    Text {
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.margins: 5
-        font.pointSize: 14
-        text : UserSystem.statusString
-    }
+
+
 
 
 }

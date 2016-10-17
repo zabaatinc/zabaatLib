@@ -16,6 +16,7 @@ QtObject{
     id : rootObject
     readonly property alias status       : priv.status
     readonly property alias statusString : priv.statusString
+    property bool noNetwork : false;
 
     property alias userInfo  : userInfo
     property alias settings  : settings
@@ -27,7 +28,7 @@ QtObject{
 //    signal loggedOut();
 //    signal skippedLogin();
     function login(userData, success, fail){
-        if(status != 0)
+        if(status != 0 || noNetwork)
             return console.error("Cannot Log In because you are", priv.statusString);
 
         var blankFn = function(){}
@@ -71,7 +72,7 @@ QtObject{
         });
     }
     function skipLogin(success,fail){
-        if(status != 0)
+        if(status != 0 || noNetwork)
             return console.error("Cannot skip login because you are", priv.statusString);
 
         priv.status = 5;     //attemptSkipLogin
@@ -113,7 +114,7 @@ QtObject{
     }
     function logout(success, fail){
         //can only log out if you aren't loggedIn and if state isn't busy!
-        if(status == 0 || status >= 3)
+        if(status == 0 || status >= 3 || noNetwork)
             return console.error("Cannot log out because you are", priv.statusString);
 
         var blankFn = function(){}
@@ -176,7 +177,7 @@ QtObject{
             property var createUserFunc : function(cb){
                 cb();
             }
-
+            property var leaveFeedbackFunc
             property var skippedLoginFuncs : []
             property var loginFuncs        : []
             property var logoutFuns        : []
