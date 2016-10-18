@@ -3,7 +3,9 @@ import Zabaat.UserSystem 1.0
 import QtQuick.Controls 1.4
 import Zabaat.Utility 1.0
 import Zabaat.MVVM 1.0
+
 import Zabaat.Material 1.0
+import Zabaat.Controller 1.0
 
 
 Rectangle {
@@ -11,13 +13,25 @@ Rectangle {
     objectName : "test.qml"
     color : 'lightyellow'
 
+
     property var arr
     Component.onCompleted:  {
-        arr  = RestArrayCreator.create(sampleArray());
+        var sample = sampleArray(1);
+
+        var time2 = Functions.time.mstimer();
+
+        controller.addModel('herp', sample);
+//        console.log('Controller time = ', time2.stop(), 'ms')
+
+        var timer = Functions.time.mstimer();
+        arr = RestArrayCreator.create(sample);
+        console.log('RA time = ', timer.stop(), 'ms');
+
     }
 
-    function sampleArray(){
-        return Chance.n(person,1);
+    function sampleArray(n){
+        n = n || 1;
+        return Chance.n(person,n);
     }
     property var uid : 10
     function person(){
@@ -84,6 +98,31 @@ Rectangle {
                 arr[randIdx].children.remove(kidRandIdx);
             }
         }
+        Button {
+            text : "remove firstname"
+            onClicked : {
+                var randIdx = Math.floor(Math.random() * arr.length)
+                var id = arr[randIdx].id
+                arr.del(id + '/firstname');
+            }
+        }
+        Button {
+            text : "remove stats"
+            onClicked : {
+                var randIdx = Math.floor(Math.random() * arr.length)
+                var id = arr[randIdx].id
+                arr.del(id + '/stats');
+            }
+        }
+        Button {
+            text : "add stats"
+            onClicked : {
+                var randIdx = Math.floor(Math.random() * arr.length)
+                var id = arr[randIdx].id
+                arr.set(id + '/stats', {hp:999,mp:999});
+            }
+        }
+
 
 
     }
@@ -93,11 +132,7 @@ Rectangle {
         anchors.centerIn: parent
         width : parent.width/2
         height : parent.height
-        model : ViewModel {
-            id : vm
-            sourceModel: arr;
-            properties: ['firstname','stats','children']
-        }
+        model : vm
         delegate : Item {
             property var m : model;
             property var kids : m ? vm.getEmbedded(m.path + "/children") : null;
@@ -108,11 +143,12 @@ Rectangle {
                 width : parent.width
                 height : parent.height * 0.5
                 state : 'f1-success-b1'
-                property var hp : parent.m ? parent.m.value.stats.hp : 0
+                property var hp : Lodash.has(parent,"m.value.stats.hp") ? Lodash.get(parent,"m.value.stats.hp") : "??"
+                property var mp : Lodash.has(parent,"m.value.stats.mp") ? Lodash.get(parent,"m.value.stats.mp") : "??"
                 text : {
                     if(!parent || !parent.m)
                         return "";
-                    return parent.m.value.id + "\t" + parent.m.value.firstname + "\t"+ hp + "\t" + parent.m.value.stats.mp;
+                    return parent.m.value.id + "\t" + parent.m.value.firstname + "\t"+ hp + "\t" + mp;
                 }
             }
 
@@ -141,8 +177,16 @@ Rectangle {
         }
     }
 
+    ViewModel {
+        id : vm
+        sourceModel: arr;
+        properties: ['firstname','stats','children']
+    }
 
 
+    ZController {
+        id : controller
+    }
 
 
 

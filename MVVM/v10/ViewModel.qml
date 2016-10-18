@@ -34,9 +34,9 @@ ListModel {
     onFilterFuncChanged: logic.executeFilter();
 
     Component.onDestruction: {
-        console.log("OH NO I DIE", logic.myPath)
+//        console.log("OH NO I DIE", logic.myPath)
         console.trace();
-        console.log("--------------------------------")
+//        console.log("--------------------------------")
         var sigPkg = {
             propertyUpdated        : connections.propertyUpdated,
             propertyCreated        : connections.propertyCreated,
@@ -102,12 +102,12 @@ ListModel {
             vm.properties   = 'All';
 
             logic.embeddedModelsMap[path] = vm;
-            console.log("Added embeddedModel @", path, JSON.stringify(restArr));
+//            console.log("Added embeddedModel @", path, JSON.stringify(restArr));
 
             vm.sourceModel= restArr;
             vm.logic.embeddedModelsMap = logic.embeddedModelsMap;   //so we only haf one map!
 
-            console.log("---\n"+ Lodash.keys(logic.embeddedModelsMap).join("\n")+ "\n---\n")
+//            console.log("---\n"+ Lodash.keys(logic.embeddedModelsMap).join("\n")+ "\n---\n")
             return true;
         }
 
@@ -284,6 +284,36 @@ ListModel {
                 else {
                     ptr = ptr[v];
                     if(ptr === undefined || ptr === null){
+//                        console.log("FAILED ON", v)
+                        return;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        //deletes path from obj
+        function delOnElem(obj, path){
+            //console.log(JSON.stringify(obj), path, JSON.stringify(newVal))
+            var arr = Lodash.compact(path.split("/"));
+            var ptr = obj;
+
+            if(arr.length === 0)
+                return false;
+
+            for(var k = 0 ; k < arr.length; ++k) {
+                var v = arr[k];
+                if(k == arr.length - 1){
+                    //update!
+                    if(Lodash.isObject(ptr) && ptr[v])
+                        delete ptr[v];
+                    else if(Lodash.isArray(ptr) && ptr[v] !== undefined)
+                        ptr.splice(v,1);
+                }
+                else {
+                    ptr = ptr[v];
+                    if(ptr === undefined || ptr === null){
                         console.log("FAILED ON", v)
                         return;
                     }
@@ -296,7 +326,7 @@ ListModel {
 
         Item {
             id : connections
-            function propertyUpdated(path,data,oldData)  {
+            function propertyUpdated(path,data,oldData,skipChecks)  {
                 if(!logic.pathIsRelevant(path))
                     return;
 
@@ -320,17 +350,41 @@ ListModel {
 //                    var key = data.hasOwnProperty(idProperty) ? data[idProperty] : rootObject.count;
                     var fn = typeof filterFunc === 'function' ? filterFunc : function() { return true; }
                     if(fn(data,path)){
-                        console.log("Adding", path, "to", logic.myPath)
+//                        console.log("Adding", path, "to", logic.myPath)
                         logic.add(data,path);
                     }
                 }
-//                else {
-//                    //navigate to this thing! first see if there's a path that matches in our map!
-//                }
+                else if(logic.pathIsRelevant(path)) {
+                    var idx = logic.findByPathFuzzy(path,true);
+                    if(idx === -1)
+                        return;
+
+                    var elem = rootObject.get(idx);
+                    path = path.replace(elem.path, "");
+                    path = path.charAt(0) === "/" ? path.slice(1) : path;
+
+
+                    var clone = JSON.parse(JSON.stringify(elem.value))
+                    if(logic.setOnElem(clone,path,data))
+                        rootObject.setProperty(idx, 'value', clone);
+                }
             }
             function beforePropertyDeleted(path)  {
                 if(logic.isAtRoot(path)){
                     logic.del(path);
+                }
+                else if(logic.pathIsRelevant(path)) {
+                    var idx = logic.findByPathFuzzy(path,true);
+                    if(idx === -1)
+                        return;
+
+                    var elem = rootObject.get(idx);
+                    path = path.replace(elem.path, "");
+                    path = path.charAt(0) === "/" ? path.slice(1) : path;
+                    var clone = JSON.parse(JSON.stringify(elem.value));
+                    if(logic.delOnElem(clone,path)) {
+                        rootObject.setProperty(idx, 'value', clone);
+                    }
                 }
             }
         }
