@@ -314,10 +314,12 @@ QtObject {
                 var idProperty = obj._idProperty;
                 var ptr     = obj;
 
+//                console.log("look for", propArr, "!")
                 for(var i = 0; i < propArr.length; ++i){
                     var p = propArr[i];
                     if(Lodash.isArray(ptr) && arrayIsIded(ptr,idProperty)) {
                         ptr = findById(ptr,p,idProperty);
+                        console.log("find by Id", p, ptr)
                     }
                     else {
                         ptr = ptr[p];

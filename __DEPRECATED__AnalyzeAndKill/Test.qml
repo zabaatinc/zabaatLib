@@ -5,6 +5,7 @@ import Zabaat.Utility 1.0
 import Zabaat.MVVM 1.0
 import Zabaat.Material 1.0
 
+
 Rectangle {
     id : rootObject
     objectName : "test.qml"
@@ -12,7 +13,7 @@ Rectangle {
 
     property var arr
     Component.onCompleted:  {
-        arr = RestArrayCreator.create(sampleArray());
+        arr  = RestArrayCreator.create(sampleArray());
     }
 
     function sampleArray(){
@@ -20,8 +21,9 @@ Rectangle {
     }
     property var uid : 10
     function person(){
+        var assign = uid++;
         return {
-            id        : ++uid,
+            id        : assign.toString(),
             firstname : Chance.first(),
             lastname  : Chance.last(),
             children  : Chance.n(Chance.first, 3),
@@ -33,12 +35,12 @@ Rectangle {
         id : btns
         anchors.right: parent.right
         anchors.bottom: parent.bottom
+        anchors.bottomMargin : 15
         Button {
             text : "Add"
             onClicked :  {
                 arr.push(person());
                 var last = arr[arr.length-1];
-                console.log(last._path, last.children._path, last.children[0]._path , last.children[1]._path, last.children[2]._path);
             }
         }
         Button {
@@ -56,27 +58,50 @@ Rectangle {
             text : "ChangeHP"
             onClicked: arr[Math.floor(Math.random() * arr.length)].stats.hp++;
         }
+        Button {
+            text : "ChangeKid"
+            onClicked: {
+                var randIdx = Math.floor(Math.random() * arr.length)
+                var randIdxKidLen = arr[randIdx].children.length;
+                var kidRandIdx = Math.floor(Math.random() * randIdxKidLen)
+                arr[randIdx].children[kidRandIdx] = Chance.first();
+//                console.log(JSON.stringify(arr[randIdx].children))
+            }
+        }
+        Button {
+            text : "addKid"
+            onClicked : {
+                var randIdx = Math.floor(Math.random() * arr.length)
+                arr[randIdx].children.push(Chance.first())
+            }
+        }
+        Button {
+            text : "removeKid"
+            onClicked : {
+                var randIdx = Math.floor(Math.random() * arr.length)
+                var randIdxKidLen = arr[randIdx].children.length;
+                var kidRandIdx = Math.floor(Math.random() * randIdxKidLen)
+                arr[randIdx].children.remove(kidRandIdx);
+            }
+        }
 
 
     }
 
     ListView {
+        id : lv
         anchors.centerIn: parent
         width : parent.width/2
         height : parent.height
         model : ViewModel {
             id : vm
-            sourceModel: arr
-            properties: ['firstname','children','stats']
-//            filterFunc: function(a,path,i) {
-//                var code = a.firstname.charCodeAt(0);
-//                return code >= 65 && code < 75;
-//            }
+            sourceModel: arr;
+            properties: ['firstname','stats','children']
         }
         delegate : Item {
             property var m : model;
-            property var kids : m ? vm.logic.embeddedModelsMap[m.path + "/children"] : null;
-            width : ListView.view.width;
+            property var kids : m ? vm.getEmbedded(m.path + "/children") : null;
+            width  : ListView.view.width;
             height : ListView.view.height * 0.1;
 
             ZText {
@@ -105,10 +130,21 @@ Rectangle {
                     height : delLV.height
                     state  : "danger-f2"
                 }
+                ZText {
+                    anchors.right : parent.left
+                    text : delLV.count
+                    height : delLV.height
+                    width : height
+                }
             }
 
         }
     }
+
+
+
+
+
 
 //    Component.onCompleted: {
 //        mainWindow.width =  345
