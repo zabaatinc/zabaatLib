@@ -4,4 +4,5 @@ QtObject {
     property var component
     property alias source : rootObject.component
     property string valueProperty : 'text'
+    property string labelProperty : 'label'
 }

@@ -6,6 +6,13 @@ Item {
     id : rootObject
     property var src    //must be ComponentInfo
     property var value
+    property var label
+    onLabelChanged: if(fl.item && src && src.labelProperty) {
+                        try {
+                            fl.item[src.labelProperty] = label;
+                        }catch(e) {}
+                    }
+
     onValueChanged : if(fl.item &&  src && src.valueProperty){
                         try {
                             fl.item[src.valueProperty] = value;
@@ -26,10 +33,31 @@ Item {
         onLoaded : {
             if(rootObject.src && rootObject.src.valueProperty){
                 try {
-                    item[rootObject.src.valueProperty] = value;
+                    var sigName = rootObject.src.valueProperty+"Changed"
+                    if(typeof item[sigName] === 'function') {
+                        item[sigName].connect(function() {
+                            if(rootObject.value === item[rootObject.src.valueProperty])
+                                return;
+
+                            rootObject.value = item[rootObject.src.valueProperty];
+//                            console.log("rootObject.val", rootObject.value )
+                        })
+                    }
+                    else {
+                        console.log("no", sigName, 'found on', item)
+                    }
+
+                    //assign val
+                    item[rootObject.src.valueProperty] = rootObject.value;
                 }catch(e){}
             }
             rootObject.loaded(item);
+        }
+
+
+
+        function capFirst(str){
+            return str.charAt(0).toUpperCase() + str.slice(1);
         }
     }
 

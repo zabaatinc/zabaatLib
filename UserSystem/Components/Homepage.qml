@@ -4,26 +4,34 @@ ZPage {
     id : pg
     property var config
     signal action(var param);
-    Component.onCompleted: {
-        console.log('HOMEPAGE LOADED')
+
+//    button
+//    button_alt
+//    background
+//    background_login
+//    background_resetpass
+//    background_signup
+//    background_loggedin
+//    title
+//    title_img
+//    title_text
+//    text
+//    textbox
+//    textbox_password
+    FlexibleComponent {
+        id : title
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: hx(67)
+        width  : wx(219)
+        height : hx(50)
+        src    : config ? config.title : null;
     }
 
-    //config contains:
-    //button
-    //button_alt
-    //background
-    //background_login
-    //background_resetpass
-    //background_signup
-    //background_loggedin
-    //textbox
-    //textbox_password
-    //title_text
-    //title_img
     FlexibleComponent {
         id : welcomeText
         width  : pg.wx(244)
-        height : pg.wx(48)
+        height : pg.hx(48)
         anchors.top: parent.top
         anchors.topMargin: pg.hx(159)
         anchors.horizontalCenter: parent.horizontalCenter

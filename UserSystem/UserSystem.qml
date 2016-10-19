@@ -24,6 +24,8 @@ QtObject{
     property alias config    : config
     property alias userObj   : userInfo.obj
 
+    property string facebookAppId : "";
+
 //    signal loggedIn();
 //    signal loggedOut();
 //    signal skippedLogin();
@@ -143,6 +145,32 @@ QtObject{
         });
     }
 
+    function loginThruFb(url, success,fail){
+        if(noNetwork && status != 0)
+            return console.error("Cannot Log In thru fb because there is no netowork or status:", priv.statusString);
+
+        var blankFn = function(cb){ return cb() ; }
+        success = typeof success === 'function' ? success : blankFn;
+        fail    = typeof fail    === 'function' ? fail    : blankFn;
+
+        var oldStatus = priv.status;
+        priv.status = 3;
+        return priv.genFuncPromise(functions.fbLoginFunc, url).then(function(msg){
+            if(msg && msg.data){ //we got our user!!!
+                UserSystem.userObj = msg.data;
+                priv.status = 1;
+                success();
+            }
+            else {
+                priv.status = oldStatus;
+                fail(msg.err);
+            }
+        }).catch(function(err) {
+            console.log("Error when loggin in thru fb");
+            priv.status = oldStatus;
+            fail();
+        });
+    }
 
 
     property Item __priv : Item {
@@ -177,6 +205,19 @@ QtObject{
             property var createUserFunc : function(cb){
                 cb();
             }
+            //normally the url is "auth/facebook/callback?" + appAuthenticatedKey + "=" + code
+            property var fbLoginFunc : function(url, cb) {
+                cb({err:"no func provided"});
+            }
+
+            property var requestResetCodeFunc : function(username, cb){
+                cb();
+            }
+
+            property var resetPassFunc : function(username, pass, code, cb){
+                cb();
+            }
+
             property var leaveFeedbackFunc
             property var skippedLoginFuncs : []
             property var loginFuncs        : []

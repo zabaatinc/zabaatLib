@@ -7,6 +7,7 @@ ZPage {
     id : rootObject
     property alias config : config;
     property string facebookAppId: "";
+    signal done();
 
 
     ComponentsConfig {
@@ -29,11 +30,11 @@ ZPage {
         property string state : ''
         function toFileName(state){
             switch(state) {
-                case 'login'    : return Qt.resolvedUrl("./Components/Login.qml")
-                case 'restpass' : return Qt.resolvedUrl("./Components/ResetPass.qml")
-                case 'signup'   : return Qt.resolvedUrl("./Components/SignUp.qml")
-                case 'loggedin' : return Qt.resolvedUrl("./Components/LoggedIn.qml")
-                case ''         : return Qt.resolvedUrl("./Components/Homepage.qml")
+                case 'login'    : return Qt.resolvedUrl("./Components/Login.qml");
+                case 'resetpass': return Qt.resolvedUrl("./Components/ResetPass.qml");
+                case 'signup'   : return Qt.resolvedUrl("./Components/SignUp.qml");
+                case 'loggedin' : return Qt.resolvedUrl("./Components/LoggedIn.qml");
+                case ''         : return Qt.resolvedUrl("./Components/Homepage.qml");
             }
         }
     }
@@ -49,7 +50,7 @@ ZPage {
     }
 
     FlexibleLoader {
-        id : loaderState
+        id : loader
         anchors.fill: parent
         source : logic.toFileName(logic.state);
         onLoaded : {
@@ -58,8 +59,57 @@ ZPage {
             item.scaleMultiplier = Qt.binding(function() { return rootObject.scaleMultiplier });
             item.absoluteMode    = Qt.binding(function() { return rootObject.absoluteMode    });
             item.config          = Qt.binding(function() { return rootObject.config          });
+
+            if(typeof item.action === 'function')
+                item.action.connect(handleAction);
+
         }
+
+        function handleAction(action) {
+
+            switch(action.name) {
+                case "tosignup":
+                    return logic.state = 'signup';
+                case "tologin" :
+                    if(action.username)
+                        loader.loadArgsOnNext({username:action.username})
+                    return logic.state = "login";
+                case "skip"    :
+                    return UserSystem.skipLogin(done)
+                case "login"   :
+                    var userData = {};
+                    userData[UserSystem.config.keyName_username] = action.username;
+                    userData[UserSystem.config.keyName_password] = action.password;
+
+                    blocker.visible = true;
+                    return UserSystem.login(userData, function() { handleAction({name:"loggedin"})} , function() { blocker.visible = false; });
+
+                case "loggedin":
+                    return logic.state = 'loggedin';
+                case 'reset'   :
+                    loader.loadArgsOnNext({ username : action.username } )
+                    return logic.state = 'resetpass'
+                case 'done'    :
+                    return done();
+                default :
+                    console.log("loading home cause action was was set to", action.name)
+                    return logic.state = "";
+            }
+        }
+
+
     }
+
+    UIBlocker {
+        id : blocker
+        anchors.fill: parent
+        visible : false;
+
+        onVisibleChanged: if(visible)
+                              forceActiveFocus();
+    }
+
+
 
 
 

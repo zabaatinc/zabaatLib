@@ -30,6 +30,14 @@ Item {
     signal event(string name, var args);
     signal loaded(var item);
 
+    function loadWithArgs(src, args) {
+        loader.args = args;
+        rootObject.src = src;
+    }
+
+    function loadArgsOnNext(args){
+        loader.args = args;
+    }
 
     Loader {
         id : loader
@@ -66,7 +74,7 @@ Item {
                 }
             })
 
-            rootObject.loaded(item);
+            rootObject.loaded(loader.item);
         }
 
         property var args : ({})
