@@ -53,8 +53,18 @@ Rectangle {
         Button {
             text : "Add"
             onClicked :  {
-                arr.push(person());
-                var last = arr[arr.length-1];
+                var p = person();
+                p.id = "10";
+
+                console.time('RA push')
+                arr.push(p);
+                console.timeEnd('RA push')
+
+//                console.time('Controller')
+//                console.log(JSON.stringify(p,null,2))
+                controller.addModel('herp', p);
+//                console.timeEnd('Controller')
+                console.log(arr.length, controller.getModel('herp').count)
             }
         }
         Button {

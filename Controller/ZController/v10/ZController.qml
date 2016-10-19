@@ -102,6 +102,7 @@ Item
             }
         }
         function appendToModel(lm, data) {
+//            console.log("APPEND TOP MODEL", lm , data)
             var arr = isArray(data) ? data : [data]
             for(var i = 0; i < arr.length; i++) {
                 addObjectToModel(lm,arr[i])
@@ -118,6 +119,7 @@ Item
                 else {              //update existing
                     var existingItem = lm.get(existingIdx);
                     updateItem(existingItem, obj);
+//                    console.log('finish update')
                 }
             }
         }
@@ -147,9 +149,10 @@ Item
                     }
                 }
                 else {
+//                    console.log("\tdo Deep copy")
                     deepCopy(existingItem[o],obj[o], existingItem, o,o )
                 }
-
+//                console.log("\tend", o)
             }
         }
         function deepCopy(obj1, obj2, prev, lvl1, lvl2)  {
@@ -201,9 +204,45 @@ Item
                 }
                 else {       //overwrite stuffs! THERES NO ID!
                      if(obj1.count !== null && obj1.count !== undefined){   //OVERWRITE THE ENTIRE LIST MODEL!
-                         obj1.clear()
-                         return obj1.append(obj2)
+//                         console.log("\toverwrite!!", toString.call(obj1), obj1.toString())
+                         //remove these
+//                         console.log(obj2)
+                         if(!isArray(obj2)) //safety
+                         {
+                             console.warn("Wut m8. Not an array trying to replace an array????", obj2)
+                             obj1.clear();
+                             continue;
+                         }
 
+                         for(var i = obj1.count - 1; i > obj2.length -1 ; i--)
+                             obj1.remove(i)
+
+
+                         //now overwrite
+                         var warn = []
+                         for(i = 0 ; i < obj2.length; ++i){
+                             var arri = obj2[i]
+                             if(typeof arri !== 'object') {
+                                 arri = { value : arri }    //so we don't get Value is not an object !
+                                 warn.push(arri);
+                             }
+
+                             if(i < obj1.length){ //overwrite
+                                 obj1.set(i,arri)
+                             }
+                             else { //extend
+                                 obj1.append(arri)
+                             }
+                         }
+
+                         if(warn.length > 0) {
+                             console.warn("ZCONTROLLER WARN::DeepCopy flat array:", JSON.stringify(obj2), "turned into", JSON.stringify(warn))
+                         }
+
+
+//                         obj1.clear()
+//                         obj1.append(obj2)
+                         return;
                      }
                      else if(obj1.toString().toLowerCase().indexOf('modelobject') === -1 && !isArray(obj1) && typeof obj1 === 'object'){
 //                         console.log("REPLACE ENTIRE OBJECT")
