@@ -24,6 +24,12 @@ QtObject {
             text : "Logged In"
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
+            Timer {
+                running : true;
+                interval: 250
+                onTriggered: parent.done();
+            }
+
             signal done();
         }
     }

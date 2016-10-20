@@ -32,9 +32,11 @@ ZPage {
         function createAndLogin(info, cb){
             menu.enabled = false;
             UserSystem.functions.createUserFunc(info, function(msg){
-                                   if(!msg || msg.err || !msg.data)
-                                        return menu.enabled = false;
+                                   if(!msg || msg.err || !msg.data) {
+                                        return menu.enabled = true;
+                                   }
 
+                                    console.log("trying to login using" , JSON.stringify(info,null,2))
                                     UserSystem.login(info,function(){
                                         if(typeof cb === 'function')
                                             cb()
@@ -117,38 +119,7 @@ ZPage {
 
 
 
-            FlexibleComponent {
-                width  : parent.width
-                height : nextBtnHeight
-                src : config ? config.text : null;
-                value   : "1 / 2"
-                anchors.bottom: bar.top
-            }
-            Rectangle {
-                id : bar
-                width : uxWidth
-                height : barHeight
-                border.width: 1
-                border.color: barFill.color
-                color : 'transparent'
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: cancelBtn.top
 
-                Rectangle {
-                    id : barFill
-                    height : parent.height
-                    width  : parent.width /2
-                }
-            }
-            FlexibleComponent {
-                id : cancelBtn
-                value : "Cancel"
-                width : parent.width
-                height : cancelBtnHeight
-                src : config ? config.button_alt : null;
-                anchors.bottom: parent.bottom
-                onEvent: if(name === 'clicked') action({name : "tologin" })
-            }
         }
     }
 

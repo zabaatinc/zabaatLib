@@ -184,6 +184,10 @@ ZPage {
         anchors.fill: parent
         text : ""
 
+
+
+
+
         FlexibleComponent {
             id : userListExpanderBackButton
             anchors.margins: 5
@@ -200,12 +204,26 @@ ZPage {
         FlexibleComponent {
             width : parent.width - userListExpanderBackButton.width
             height : userListExpanderBackButton.height
-            value : "Choose User";
+            property var animals : ["🐀","🐁","🐂","🐃","🐄","🐅","🐆","🐇","🐈","🐉","🐊","🐋","🐌",
+                                    "🐍","🐎","🐏","🐐","🐑","🐒","🐓","🐔","🐕","🐖","🐗","🐘","🐙",
+                                    "🐚","🐛","🐜","🐝","🐞","🐟","🦂","🦃","🐠","🦀","🐡","🐢","🐣",
+                                    "🐤","🐥","🐦","🐧","🐨","🐩","🐪","🐫","🐬","🕷","🕸","🐭","🐮",
+                                    "🦁","🐯","🐰","🐱","🐲","🐳","🐴","🐵","🐶","🐷","🐸","🦄","🐹",
+                                    "🐺","🐻","🐼","🐽"]
+
+            property string randAnimalIcon : ""
+            value : randAnimalIcon + " Choose User";
             src : config ? config.button : null;
             anchors.right: parent.right
             anchors.margins: 5
             anchors.top: parent.top
+            onVisibleChanged: if(visible) {
+                                  var idx = Math.floor(Math.random() * animals.length);
+                                  randAnimalIcon = animals[idx];
+                              }
+
         }
+
 
         Item {
             anchors.top:userListExpanderBackButton.bottom

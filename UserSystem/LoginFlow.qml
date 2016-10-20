@@ -54,12 +54,19 @@ ZPage {
         id : loader
         anchors.fill: parent
         source : logic.toFileName(logic.state);
+
+        function attachBindings(item, name){
+            var m_name = name;
+            if(item.hasOwnProperty(name))
+                item[name] = Qt.binding(function() { return rootObject[m_name]  });
+        }
+
         onLoaded : {
-            item.sizeDesigner    = Qt.binding(function() { return rootObject.sizeDesigner    });
-            item.sizeMainWindow  = Qt.binding(function() { return rootObject.sizeMainWindow  });
-            item.scaleMultiplier = Qt.binding(function() { return rootObject.scaleMultiplier });
-            item.absoluteMode    = Qt.binding(function() { return rootObject.absoluteMode    });
-            item.config          = Qt.binding(function() { return rootObject.config          });
+            attachBindings(item, 'sizeDesigner'   );
+            attachBindings(item, 'sizeMainWindow' );
+            attachBindings(item, 'scaleMultiplier');
+            attachBindings(item, 'absoluteMode'   );
+            attachBindings(item, 'config'         );
 
             if(typeof item.action === 'function')
                 item.action.connect(handleAction);

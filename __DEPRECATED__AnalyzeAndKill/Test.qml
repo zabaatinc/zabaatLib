@@ -35,9 +35,8 @@ Rectangle {
     Component.onCompleted: {
         var sample = sampleArray(1);
         arr = RestArrayCreator.create(sample);
-
-        mainWindow.width =  345
-        mainWindow.height = 647
+//        mainWindow.width =  345
+//        mainWindow.height = 647
 //        375, 647)
         var userData = UserSystem.settings.userLoginData;
         console.log("LAST LOGGED IN WITH", JSON.stringify(userData));
@@ -109,11 +108,6 @@ Rectangle {
         scaleMultiplier: Qt.point(2,2)
         onDone : loginFlow.visible = false;
         config.userList: ['Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett"]
-        config.background.component : Component {
-            Rectangle {
-                color : 'gray'
-            }
-        }
         config.title_text.component: Component {
             Text {
                 horizontalAlignment: Text.AlignHCenter
@@ -122,10 +116,26 @@ Rectangle {
                 text : "Login Flow!"
             }
         }
-        config.title_img.source: "https://upload.wikimedia.org/wikipedia/en/9/99/MarioSMBW.png"
+        config.textbox.component: Component { ZTextBox { state : 'cliplabel-b1-f12pt-nobar' }}
+        config.textbox_password.component: Component { ZTextBoxPassword { state : 'cliplabel-b1-f12pt-nobar' }}
         config.button.component: Component { ZButton { state : 'accent-f10pt' } }
         config.button_alt.component: Component {  ZButton { state : 'transparent-t2-f10pt' } }
+        config.background.component : Component { Rectangle {
+            id : rect;
+            color : 'gray'
+            Component.onCompleted: {
+                if(!ZAnimator.animationExists('blinky'))
+                    ZAnimator.createColorAnimation("blinky",["gray", 'lightgray'])
+
+                var ani = ZAnimator.getAnimationRunner(rect)
+                ani.add('blinky','color',60000,Animation.Infinite).start();
+//                console.log("STARTED")
+            }
+        } }
     }
+
+
+
 //    Column {
 //        id : btns
 //        anchors.right: parent.right

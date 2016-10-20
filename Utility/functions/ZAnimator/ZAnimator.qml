@@ -111,8 +111,10 @@ QtObject{
             return retObj;
         }
         retObj.add      = function(name,props,duration,loops, abs) {
-            if(!name || !logic.map[name])
+            if(!name || !logic.map[name]) {
+                console.error("NO anim found :" , name)
                 return retObj;
+            }
 
             abs = abs || false;
             m_anims.push([name,props,duration,loops, abs]);
@@ -120,6 +122,7 @@ QtObject{
             return retObj;
         }
         retObj.start    = function(index){
+//            console.log("CALLED STAERT", m_anims.length, JSON.stringify(m_anims))
             if(m_currentQmlAnimation && m_currentQmlAnimation.paused) {
                 m_currentQmlAnimation.resume();
                 m_resumeCb(m_target);
@@ -192,6 +195,9 @@ QtObject{
         return retObj;
     }
 
+    function animationExists(name){
+        return logic.map[name] ? true : false
+    }
 
     property QtObject __logic : QtObject{
         id : logic

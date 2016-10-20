@@ -146,7 +146,7 @@ Item {
 //            }
 //        }
 //        property var prevStates : []
-        onEnabledChanged: rootObject.stateChangeOp(logic.state, logic.enabled);
+        onEnabledChanged: if(rootObject) rootObject.stateChangeOp(logic.state, logic.enabled);
 
     }
     onStatesChanged: {

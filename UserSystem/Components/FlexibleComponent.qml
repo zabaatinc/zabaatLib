@@ -49,8 +49,12 @@ Item {
 
                     //assign val
                     item[rootObject.src.valueProperty] = rootObject.value;
+
                 }catch(e){}
             }
+            if(rootObject.label && rootObject.src.labelProperty)
+                item[rootObject.src.labelProperty] = rootObject.label;
+
             rootObject.loaded(item);
         }
 

@@ -27,9 +27,10 @@ ZPage {
             fn = typeof fn === 'function' ? fn : function(usrname,pass,code, cb) { cb() }
             fn(username, pass, code, function(msg) {
                 step2_reset.busy = false;
-                if(!msg.err) {
-                    action({name:'login', username : username, password : pass } );
-                }
+                if(msg && msg.err)
+                    return;
+
+                action({name:'login', username : username, password : pass } );
             })
         }
     }
@@ -125,7 +126,15 @@ ZPage {
                     parent.busy = true;
                     logic.resetPass(textbox_user.value, textbox_pw2.value, textbox_code.value);
                 }
-                enabled : !parent.busy
+                enabled : {
+                    if(parent.busy)                              return false;
+                    if(!textbox_code.value)                      return false;
+                    if(!textbox_pw1.value)                       return false;
+                    if(!textbox_pw2.value)                       return false;
+                    if(textbox_pw1.value !== textbox_pw2.value)  return false;
+
+                    return true;
+                }
             }
 
             FlexibleComponent {
