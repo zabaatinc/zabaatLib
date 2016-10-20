@@ -17,7 +17,7 @@ QtObject {
     property alias text                  : text
     property alias textbox               : textbox
     property alias textbox_password      : textbox_password
-    property var userList   //should be an array of all users!
+    property var   userList                //should be an array of all users!
 
     property var onLoggedInQml : Component {
         Text {

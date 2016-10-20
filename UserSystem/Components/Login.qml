@@ -4,7 +4,6 @@ import "Facebook"
 import "../Lodash"
 ZPage {
     id : rootObject
-    property var config
     signal action(var param);
     property alias username : textbox_user.value
 
@@ -28,7 +27,7 @@ ZPage {
         anchors.topMargin: hx(67)
         width  : wx(219)
         height : hx(50)
-        src    : config ? config.title : null;
+        src    : UserSystem.componentsConfig ? UserSystem.componentsConfig.title : null;
     }
 
 
@@ -47,7 +46,7 @@ ZPage {
 
             FlexibleComponent {
                 id : textbox_user
-                src : config ? config.textbox : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.textbox : null;
                 width : parent.width - userListExpanderButton.width
                 height : parent.height
                 label  : "Username"
@@ -60,14 +59,14 @@ ZPage {
             }
             FlexibleComponent {
                 id : userListExpanderButton
-                src : config ? config.button: null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button: null;
                 value : "▼"
                 onEvent : if(name === 'clicked'){
                             userListExpander.visible = true;
                           }
                 height: parent.height
                 width : visible ? height : 0
-                visible : config && Lodash.isArray(config.userList) && config.userList.length > 0
+                visible : UserSystem.componentsConfig && Lodash.isArray(UserSystem.componentsConfig.userList) && UserSystem.componentsConfig.userList.length > 0
             }
         }
 
@@ -77,7 +76,7 @@ ZPage {
 
         FlexibleComponent {
             id : textbox_pw
-            src : config ? config.textbox_password : null;
+            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.textbox_password : null;
             label : "Password"
             value : {
                 if(UserSystem.settings.userLoginData && UserSystem.settings.userLoginData[UserSystem.config.keyName_password])
@@ -100,7 +99,7 @@ ZPage {
         value : "Forgot password?";
         onEvent: if(name === 'clicked')
                     action({name:'reset',username:textbox_user.value})
-        src : config ? config.button_alt : null
+        src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null
     }
 
     Column {
@@ -112,7 +111,7 @@ ZPage {
         anchors.topMargin: rootObject.hx(50);
         spacing : rootObject.hx(5);
         FlexibleComponent {
-            src : config ? config.button : null
+            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button : null
             width : parent.width
             height: rootObject.hx(40)
             value : "Log in"
@@ -135,13 +134,13 @@ ZPage {
         FlexibleComponent {
             width : rootObject.wx(60)
             height : rootObject.hx(19)
-            src : config ? config.text : null;
+            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.text : null;
             value : "OR"
             anchors.horizontalCenter: parent.horizontalCenter
             visible : !!UserSystem.facebookAppId
         }
         FlexibleComponent {
-            src : config ? config.button : null
+            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button : null
             width : parent.width
             height: rootObject.hx(40)
             value : /*Constants.fa(FA.facebook_f) + Constants.spaces(4) +*/ "Log in with Facebook"
@@ -152,7 +151,7 @@ ZPage {
     }
 
     FlexibleComponent {
-        src : config ? config.button_alt : null
+        src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null
         width : rootObject.wx(300)
         height : rootObject.hx(40)
         value : "Continue Without Logging In"
@@ -166,7 +165,7 @@ ZPage {
 
     //IS IN ROOTOBJECT! NOT PART OF THIS!
     FlexibleComponent {
-        src : config ? config.button_alt : null
+        src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null
         width : rootObject.wx(248)
         height : rootObject.hx(24)
 
@@ -193,7 +192,7 @@ ZPage {
             anchors.margins: 5
             anchors.top: parent.top
             anchors.left: parent.left
-            src : config ? config.button : null;
+            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button : null;
             onEvent: if(name === 'clicked')
                          userListExpander.visible= false;
             value : "◄"
@@ -213,7 +212,7 @@ ZPage {
 
             property string randAnimalIcon : ""
             value : randAnimalIcon + " Choose User";
-            src : config ? config.button : null;
+            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button : null;
             anchors.right: parent.right
             anchors.margins: 5
             anchors.top: parent.top
@@ -237,62 +236,22 @@ ZPage {
                 width : parent.width * 0.9
                 height : Math.min(cellHeight * count + (spacing * (count-1)) , parent.height -cellHeight);
                 anchors.centerIn: parent
-                model : userListExpanderButton.visible ? config.userList : null;
+                model : userListExpanderButton.visible ? UserSystem.componentsConfig.userList : null;
                 spacing : hx(15);
 
                 property real cellHeight: userListExpander.height * 0.07
-                delegate: Row {
-                    id : userDel
+                delegate: UserButton {
+                    m : userLv.model[index]
                     width  : ListView.view.width
                     height : userLv.cellHeight
-                    property var m  : userLv.model[index]
-                    property string textDisp
-                    property string avatar
-                    property string username
-                    onMChanged: {
-                        if(!m)
-                            return;
-
-                        if(Lodash.isObject(m)){
-                            avatar = m[UserSystem.config.keyName_avatar];
-                            avatar = avatar || Qt.resolvedUrl("blank.png");
-
-                            var first    = m[UserSystem.config.keyName_firstName] || "";
-                            var last     = m[UserSystem.config.keyName_lastName]  || "";
-                            var username = m[UserSystem.config.keyName_username]  || "";
-
-                            userDel.username = username || (first + " " + last);
-
-                            if(first || last)
-                                return textDisp = first + " " + last;
-                            else
-                                return textDisp = username;
-                        }
-                        else {
-                            avatar = Qt.resolvedUrl('blank.png');
-                            userDel.username = textDisp = m;
-                        }
-
-
-                    }
-
-                    RoundedImage {
-                        width  : height
-                        height : parent.height
-                        source : parent.avatar
-                    }
-
-                    FlexibleComponent {
-                        width : parent.width - parent.height
-                        height : parent.height
-                        value : parent.textDisp
-                        src : config ? config.button_alt : null;
-                        onEvent: if(name === 'clicked') {
-                                     textbox_user.value = parent.username;
-                                     userListExpander.visible = false;
-                                 }
+                    onClicked: {
+                        textbox_user.value = username;
+                        userListExpander.visible = false;
                     }
                 }
+
+
+
             }
         }
 
@@ -313,14 +272,14 @@ ZPage {
             FlexibleComponent {
                 anchors.fill : parent
                 value: 'Authenticate'
-                src : config ? config.text : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.text : null;
             }
 
             FlexibleComponent {
                 width    : height
                 height   : parent.height
                 value    : "<"
-                src : config ? config.button_alt : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null;
                 onEvent : if(name === 'clicked') fbLogin.visible = false;
                 visible : fb.opacity !== 0
             }

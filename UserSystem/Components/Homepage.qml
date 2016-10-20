@@ -2,7 +2,6 @@ import QtQuick 2.5
 import Zabaat.UserSystem 1.0
 ZPage {
     id : pg
-    property var config
     signal action(var param);
 
 //    button
@@ -25,7 +24,7 @@ ZPage {
         anchors.topMargin: hx(67)
         width  : wx(219)
         height : hx(50)
-        src    : config ? config.title : null;
+        src    : UserSystem.componentsConfig ? UserSystem.componentsConfig.title : null;
     }
 
     FlexibleComponent {
@@ -35,7 +34,7 @@ ZPage {
         anchors.top: parent.top
         anchors.topMargin: pg.hx(159)
         anchors.horizontalCenter: parent.horizontalCenter
-        src : config ? config.title_text : null;
+        src : UserSystem.componentsConfig ? UserSystem.componentsConfig.title_text : null;
     }
     FlexibleComponent {
         id : titleImg
@@ -44,7 +43,7 @@ ZPage {
         anchors.horizontalCenter: parent.horizontalCenter
         width  : pg.wx(148)
         height : pg.hx(28)
-        src : config ? config.title_img : null;
+        src : UserSystem.componentsConfig ? UserSystem.componentsConfig.title_img : null;
     }
 
     Column {
@@ -60,7 +59,7 @@ ZPage {
         FlexibleComponent {
             width : parent.width
             height: parent.h
-            src : config ? config.button : null
+            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button : null
             value  : "Log in"
             onEvent : if(name === 'clicked') {
                         action({name:"tologin"});
@@ -70,7 +69,7 @@ ZPage {
         FlexibleComponent {
             width : parent.width
             height : parent.h
-            src : config ? config.button : null
+            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button : null
             value : "Sign Up"
             onEvent : if(name === 'clicked') {
                          action({name:"tosignup"});
@@ -81,7 +80,7 @@ ZPage {
         FlexibleComponent {
             width : parent.width
             height : parent.h
-            src : config ? config.button_alt : null;
+            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null;
             value : "Continue Without Logging In"
             onEvent : if(name === 'clicked')
                         action({name:"skip"})// logic.skipLogin()//logic.toLoginProc("","")
@@ -91,7 +90,7 @@ ZPage {
     FlexibleComponent {
         width : parent.width
         height: hx(40)
-        src : config ? config.button_alt : null;
+        src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null;
         value : "Leave Feedback"
         onEvent : if(name === 'clicked'){
             UserSystem.functions.leaveFeedbackFunc();

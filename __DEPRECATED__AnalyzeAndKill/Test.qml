@@ -107,8 +107,22 @@ Rectangle {
         sizeMainWindow: Qt.point(375, 647)
         scaleMultiplier: Qt.point(2,2)
         onDone : loginFlow.visible = false;
-        config.userList: ['Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett"]
-        config.title_text.component: Component {
+
+        Component.onCompleted: {
+            UserSystem.componentsConfig.userList                   = ['Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett"]
+            UserSystem.componentsConfig.title_text.component       = titleText;
+            UserSystem.componentsConfig.textbox.component          = textbox
+            UserSystem.componentsConfig.textbox_password.component = textbox_password
+            UserSystem.componentsConfig.button.component           = button
+            UserSystem.componentsConfig.button_alt.component       = button_alt
+            UserSystem.componentsConfig.background.component       = background
+        }
+    }
+
+    Item {
+        id : cmps
+        Component {
+            id: titleText
             Text {
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
@@ -116,23 +130,25 @@ Rectangle {
                 text : "Login Flow!"
             }
         }
-        config.textbox.component: Component { ZTextBox { state : 'cliplabel-b1-f12pt-nobar' }}
-        config.textbox_password.component: Component { ZTextBoxPassword { state : 'cliplabel-b1-f12pt-nobar' }}
-        config.button.component: Component { ZButton { state : 'accent-f10pt' } }
-        config.button_alt.component: Component {  ZButton { state : 'transparent-t2-f10pt' } }
-        config.background.component : Component { Rectangle {
-            id : rect;
-            color : 'gray'
-            Component.onCompleted: {
-                if(!ZAnimator.animationExists('blinky'))
-                    ZAnimator.createColorAnimation("blinky",["gray", 'lightgray'])
+        Component { id : textbox; ZTextBox { state : 'cliplabel-b1-f12pt-nobar' }}
+        Component { id : textbox_password;  ZTextBoxPassword { state : 'cliplabel-b1-f12pt-nobar' }}
+        Component { id : button;  ZButton { state : 'accent-f10pt' } }
+        Component { id : button_alt;  ZButton { state : 'transparent-t2-f10pt' } }
+        Component { id : background; Rectangle {
+                        id : rect;
+                        color : 'gray'
+                        Component.onCompleted: {
+                            if(!ZAnimator.animationExists('blinky'))
+                                ZAnimator.createColorAnimation("blinky",["gray", 'lightgray'])
 
-                var ani = ZAnimator.getAnimationRunner(rect)
-                ani.add('blinky','color',60000,Animation.Infinite).start();
-//                console.log("STARTED")
-            }
-        } }
+                            var ani = ZAnimator.getAnimationRunner(rect)
+                            ani.add('blinky','color',60000,Animation.Infinite).start();
+            //                console.log("STARTED")
+                        }
+                    } }
     }
+
+
 
 
 

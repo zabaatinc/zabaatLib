@@ -2,6 +2,8 @@ import QtQuick 2.5
 import "Lodash"
 import "Promises"
 import Qt.labs.settings 1.0
+import "Components"
+
 pragma Singleton
 
 //notloggedIn         : 0;
@@ -18,11 +20,12 @@ QtObject{
     readonly property alias statusString : priv.statusString
     property bool noNetwork : false;
 
-    property alias userInfo  : userInfo
-    property alias settings  : settings
-    property alias functions : functions
-    property alias config    : config
-    property alias userObj   : userInfo.obj
+    property alias userInfo         : userInfo
+    property alias settings         : settings
+    property alias functions        : functions
+    property alias config           : config
+    property alias userObj          : userInfo.obj
+    property alias componentsConfig : componentsConfig
 
     property string facebookAppId : "";
 
@@ -264,6 +267,9 @@ QtObject{
 
             property string role_default : 'user'
             property string role_guest   : 'guest'
+        }
+        ComponentsConfig {
+            id : componentsConfig
         }
 
         property int    status       : 0;

@@ -5,26 +5,11 @@ import Zabaat.UserSystem 1.0
 import QtQuick.Controls 1.4
 ZPage {
     id : rootObject
-    property alias config : config;
+    property var config : UserSystem.componentsConfig;
     property string facebookAppId: "";
     signal done();
 
 
-    ComponentsConfig {
-        id : config
-        //button
-        //button_alt
-        //background
-        //background_login
-        //background_resetpass
-        //background_signup
-        //background_loggedin
-        //textbox
-        //textbox_password
-        //title_text
-        //title_img
-
-      }
 
     QtObject {
         id : logic

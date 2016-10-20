@@ -21,6 +21,10 @@ Item {
     onSrcChanged :  {
         if(!src)
             return fl.src = null;
+        src.componentChanged.connect(function() {
+            if(fl)
+                fl.src = src ? src.component : null;
+        })
         fl.src = src.component;
     }
 

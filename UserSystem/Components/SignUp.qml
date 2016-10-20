@@ -2,7 +2,6 @@ import QtQuick 2.5
 import Zabaat.UserSystem 1.0
 ZPage {
     id : rootObject
-    property var config
     signal action(var param);
 
     //config contains:
@@ -74,21 +73,21 @@ ZPage {
                     width  : uxWidth
                     height : nextBtnHeight
                     label  : "E-mail"
-                    src : config ? config.textbox : null;
+                    src : UserSystem.componentsConfig ? UserSystem.componentsConfig.textbox : null;
                 }
                 FlexibleComponent {
                     id : boxUsername
                     width  : parent.width
                     height : nextBtnHeight
                     label  : "Username"
-                    src : config ? config.textbox : null;
+                    src : UserSystem.componentsConfig ? UserSystem.componentsConfig.textbox : null;
                 }
                 FlexibleComponent {
                     id : boxPassword
                     width  : parent.width
                     height : nextBtnHeight
                     label  : "Password"
-                    src : config ? config.textbox_password : null;
+                    src : UserSystem.componentsConfig ? UserSystem.componentsConfig.textbox_password : null;
                 }
             }
         }
@@ -102,14 +101,14 @@ ZPage {
                 width : uxWidth
                 height : nextBtnHeight
                 value : "Next"
-                src : config ? config.button : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button : null;
                 anchors.horizontalCenter: parent.horizontalCenter
                 onEvent: if(name === 'clicked') logic.createAndLogin(logic.genUserInfoObj())
             }
             FlexibleComponent {
                 id: tosBtn
                 width : parent.width
-                src : config ? config.button_alt : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null;
                 height : tosHeight
                 value : "By signing up, you agree to our<br><b>Terms & Service</b> agreement"
                 anchors.top : nextBtn.bottom

@@ -2,7 +2,6 @@ import QtQuick 2.5
 import Zabaat.UserSystem 1.0
 ZPage {
     id : pg
-    property var config
     signal action(var param);
     property alias username : textbox_user.value
     property int currentStep : 1
@@ -52,7 +51,7 @@ ZPage {
             FlexibleComponent {
                 id : textbox_user
                 label  : "Username"
-                src : config ? config.textbox : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.textbox : null;
                 width  : wx(300);
                 height : hx(40);
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -62,7 +61,7 @@ ZPage {
                 width  : wx(300);
                 height : hx(40);
                 anchors.horizontalCenter: parent.horizontalCenter
-                src : config ? config.button : null
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button : null
                 onEvent : if(name === 'clicked') {
                     parent.busy = true;
                     logic.requestCode(textbox_user.value)
@@ -73,7 +72,7 @@ ZPage {
             FlexibleComponent {
                 width  : wx(300);
                 height : hx(80);
-                src : config ? config.text : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.text : null;
                 anchors.horizontalCenter: parent.horizontalCenter
                 value : "An e-mail will be sent to you with a reset code. This may take a few minutes."
             }
@@ -89,7 +88,7 @@ ZPage {
             FlexibleComponent {
                 id : textbox_code
                 label  : "Code"
-                src : config ? config.textbox : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.textbox : null;
                 width  : wx(300);
                 height : hx(40);
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -98,7 +97,7 @@ ZPage {
             FlexibleComponent {
                 id : textbox_pw1
                 label  : "New Password"
-                src : config ? config.textbox_password : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.textbox_password : null;
                 width  : wx(300);
                 height : hx(40);
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -107,7 +106,7 @@ ZPage {
             FlexibleComponent {
                 id : textbox_pw2
                 label  : "Re-enter Password"
-                src : config ? config.textbox_password : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.textbox_password : null;
                 width  : wx(300);
                 height : hx(40);
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -118,7 +117,7 @@ ZPage {
                 width  : wx(300);
                 height : hx(40);
                 anchors.horizontalCenter: parent.horizontalCenter
-                src : config ? config.button : null
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button : null
                 onEvent: if(name === 'clicked') {
                     if(textbox_pw1.value !== textbox_pw2.value)
                         return console.error("Passwords do not match!")
@@ -140,7 +139,7 @@ ZPage {
             FlexibleComponent {
                 width  : wx(300);
                 height : hx(80)
-                src : config ? config.text : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.text : null;
                 anchors.horizontalCenter: parent.horizontalCenter
                 value : "Please input the reset code you received at " + textbox_user.value + ".";
             }
@@ -165,7 +164,7 @@ ZPage {
             FlexibleComponent {
                 width  : parent.width
                 height : hx(40)
-                src : config ?config.text : null;
+                src : UserSystem.componentsConfig ?UserSystem.componentsConfig.text : null;
                 value : currentStep + "/" + totalSteps
                 anchors.bottom: bar.top
             }
@@ -188,7 +187,7 @@ ZPage {
             FlexibleComponent {
                 id : cancelBtn
                 value : "Cancel"
-                src : config ? config.button_alt : null;
+                src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null;
                 width : parent.width
                 height : hx(40)
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -221,7 +220,7 @@ ZPage {
         anchors.topMargin: hx(67)
         width  : wx(219)
         height : hx(50)
-        src    : config ? config.title : null;
+        src    : UserSystem.componentsConfig ? UserSystem.componentsConfig.title : null;
     }
 
 
