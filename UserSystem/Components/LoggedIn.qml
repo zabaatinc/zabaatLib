@@ -1,23 +1,22 @@
 import QtQuick 2.5
-ZPage {
-    id : pg
+//Place holder for app specific LoginQmls!
+FlexibleLoader {
     property var config
     signal action(var param);
 
-    //config contains:
-    //button
-    //button_alt
-    //background
-    //background_login
-    //background_resetpass
-    //background_signup
-    //background_loggedin
-    //textbox
-    //textbox_password
-    //title_text
-    //title_imgSrc
-
-
-
-
+    onLoaded: {
+        if(typeof item.done === 'function')
+            item.done.connect(function() {
+                action({name:'done' })
+            })
+    }
+    Component.onCompleted:  {
+        if(config && config.onLoggedInQml) {
+            src = config.onLoggedInQml;
+        }
+        else {
+            action({name:'done'})
+        }
+    }
 }
+
