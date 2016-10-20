@@ -197,24 +197,34 @@ QtObject{
         QtObject {
             id : functions
             property var loginFunc: function(userInfo, cb){
+                console.log("Warning DEFAULT", "loginFunc" )
                 cb();
             }
             property var logoutFunc : function(cb){
+                console.log("Warning DEFAULT", "logoutFunc" )
                 cb();
             }
-            property var createUserFunc : function(cb){
-                cb();
+            property var createUserFunc : function(info, cb){
+                console.log("Warning DEFAULT", "createUserFunc")
+                cb({data : "pls put your function here!!" } );
             }
             //normally the url is "auth/facebook/callback?" + appAuthenticatedKey + "=" + code
             property var fbLoginFunc : function(url, cb) {
+                console.log("Warning DEFAULT" , "fbLogin" )
                 cb({err:"no func provided"});
             }
 
+            property var showTos : function() {
+                console.log("Warning DEFAULT", "showTos" )
+            }
+
             property var requestResetCodeFunc : function(username, cb){
+                console.log("Warning DEFAULT", "requestResetCodeFunc" )
                 cb();
             }
 
             property var resetPassFunc : function(username, pass, code, cb){
+                console.log("Warning DEFAULT", "resetPassFunc" )
                 cb();
             }
 

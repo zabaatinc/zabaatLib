@@ -18,6 +18,14 @@ QtObject {
     property alias textbox               : textbox
     property alias textbox_password      : textbox_password
 
+    property var onLoggedInQml : Component {
+        Text {
+            text : "Logged In"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            signal done();
+        }
+    }
 
     property QtObject ___priv : QtObject {
         id : priv
