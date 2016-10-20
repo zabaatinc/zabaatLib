@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import Zabaat.Utility 1.0
+import Zabaat.UserSystem 1.0
 //Place holder for app specific LoginQmls!
 FlexibleLoader {
     signal action(var param);

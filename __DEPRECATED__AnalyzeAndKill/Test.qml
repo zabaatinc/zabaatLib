@@ -109,7 +109,7 @@ Rectangle {
         onDone : loginFlow.visible = false;
 
         Component.onCompleted: {
-            UserSystem.componentsConfig.userList                   = ['Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett"]
+            UserSystem.componentsConfig.userList                   = ['Shahan','Fahad',"Anam","Brett"]
             UserSystem.componentsConfig.title_text.component       = titleText;
             UserSystem.componentsConfig.textbox.component          = textbox
             UserSystem.componentsConfig.textbox_password.component = textbox_password
