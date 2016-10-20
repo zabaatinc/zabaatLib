@@ -1,6 +1,7 @@
 import QtQuick 2.5
 import Zabaat.UserSystem 1.0
 import "Facebook"
+import "../Lodash"
 ZPage {
     id : rootObject
     property var config
@@ -40,19 +41,40 @@ ZPage {
         anchors.topMargin: rootObject.hx(200)
         anchors.horizontalCenter: parent.horizontalCenter
 
-        FlexibleComponent {
-            id : textbox_user
-            src : config ? config.textbox : null;
-
-            label  : "Username"
-            value  : {
-                if(UserSystem.settings.userLoginData && UserSystem.settings.userLoginData[UserSystem.config.keyName_username])
-                    return UserSystem.settings.userLoginData[UserSystem.config.keyName_username]
-                return "";
-            }
+        Row {
             width  : parent.width
             height : rootObject.hx(40);
+
+            FlexibleComponent {
+                id : textbox_user
+                src : config ? config.textbox : null;
+                width : parent.width - userListExpanderButton.width
+                height : parent.height
+                label  : "Username"
+                value  : {
+                    if(UserSystem.settings.userLoginData && UserSystem.settings.userLoginData[UserSystem.config.keyName_username])
+                        return UserSystem.settings.userLoginData[UserSystem.config.keyName_username]
+                    return "";
+                }
+
+            }
+            FlexibleComponent {
+                id : userListExpanderButton
+                src : config ? config.button: null;
+                value : "▼"
+                onEvent : if(name === 'clicked'){
+                            userListExpander.visible = true;
+                          }
+                height: parent.height
+                width : visible ? height : 0
+                visible : config && Lodash.isArray(config.userList) && config.userList.length > 0
+            }
         }
+
+
+
+
+
         FlexibleComponent {
             id : textbox_pw
             src : config ? config.textbox_password : null;
@@ -78,7 +100,7 @@ ZPage {
         value : "Forgot password?";
         onEvent: if(name === 'clicked')
                     action({name:'reset',username:textbox_user.value})
-        src : config ? config.button : null
+        src : config ? config.button_alt : null
     }
 
     Column {
@@ -157,11 +179,111 @@ ZPage {
         enabled : !UserSystem.noNetwork
     }
 
+    UIBlocker {
+        id : userListExpander
+        anchors.fill: parent
+        text : ""
+
+        FlexibleComponent {
+            id : userListExpanderBackButton
+            anchors.margins: 5
+            anchors.top: parent.top
+            anchors.left: parent.left
+            src : config ? config.button : null;
+            onEvent: if(name === 'clicked')
+                         userListExpander.visible= false;
+            value : "◄"
+            height : userLv.cellHeight * 1.1
+            width  : height
+        }
+
+        FlexibleComponent {
+            width : parent.width - userListExpanderBackButton.width
+            height : userListExpanderBackButton.height
+            value : "Choose User";
+            src : config ? config.button : null;
+            anchors.right: parent.right
+            anchors.margins: 5
+            anchors.top: parent.top
+        }
+
+        Item {
+            anchors.top:userListExpanderBackButton.bottom
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            clip : true
+
+            ListView {
+                id : userLv
+                width : parent.width * 0.9
+                height : Math.min(cellHeight * count + (spacing * (count-1)) , parent.height -cellHeight);
+                anchors.centerIn: parent
+                model : userListExpanderButton.visible ? config.userList : null;
+                spacing : hx(15);
+
+                property real cellHeight: userListExpander.height * 0.07
+                delegate: Row {
+                    id : userDel
+                    width  : ListView.view.width
+                    height : userLv.cellHeight
+                    property var m  : userLv.model[index]
+                    property string textDisp
+                    property string avatar
+                    property string username
+                    onMChanged: {
+                        if(!m)
+                            return;
+
+                        if(Lodash.isObject(m)){
+                            avatar = m[UserSystem.config.keyName_avatar];
+                            avatar = avatar || Qt.resolvedUrl("blank.png");
+
+                            var first    = m[UserSystem.config.keyName_firstName] || "";
+                            var last     = m[UserSystem.config.keyName_lastName]  || "";
+                            var username = m[UserSystem.config.keyName_username]  || "";
+
+                            userDel.username = username || (first + " " + last);
+
+                            if(first || last)
+                                return textDisp = first + " " + last;
+                            else
+                                return textDisp = username;
+                        }
+                        else {
+                            avatar = Qt.resolvedUrl('blank.png');
+                            userDel.username = textDisp = m;
+                        }
+
+
+                    }
+
+                    RoundedImage {
+                        width  : height
+                        height : parent.height
+                        source : parent.avatar
+                    }
+
+                    FlexibleComponent {
+                        width : parent.width - parent.height
+                        height : parent.height
+                        value : parent.textDisp
+                        src : config ? config.button_alt : null;
+                        onEvent: if(name === 'clicked') {
+                                     textbox_user.value = parent.username;
+                                     userListExpander.visible = false;
+                                 }
+                    }
+                }
+            }
+        }
+
+
+    }
 
     UIBlocker {
         id : fbLogin
         anchors.fill: parent
-        parent : rootObject
         visible : false
         text : ""
 

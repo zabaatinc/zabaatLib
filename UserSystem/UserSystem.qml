@@ -53,6 +53,7 @@ QtObject{
             settings.email       = priv.get(userObj, config.keyName_email       ,""               );
             settings.dateOfBirth = priv.get(userObj, config.keyName_dateOfBirth ,""               );
             settings.role        = priv.get(userObj, config.keyName_role       , config.role_guest);
+            settings.avatar      = priv.get(userObj, config.keyName_avatar     , "");
             if(settings.id === config.role_guest)
                 settings.role = config.role_guest;
 
@@ -98,6 +99,8 @@ QtObject{
         userObj[config.keyName_email]       = settings.email
         userObj[config.keyName_dateOfBirth] = settings.dateOfBirth
         userObj[config.keyName_role]        = settings.role
+        userObj[config.keyName_avatar]      = settings.avatar
+
 
         userInfo.obj = userObj;
 
@@ -234,18 +237,20 @@ QtObject{
             property string email
             property string dateOfBirth
             property string role
+            property string avatar
         }
         QtObject {
             id : config
-            property string keyName_username    : 'identifier'
-            property string keyName_email       : 'email'
-            property string keyName_password    : 'password'
             property string keyName_id          : 'id'
-            property string keyName_role        : 'role'
+            property string keyName_username    : 'identifier'
             property string keyName_firstName   : 'firstname'
             property string keyName_lastName    : 'lastname'
             property string keyName_gender      : 'sex'
+            property string keyName_email       : 'email'
             property string keyName_dateOfBirth : 'dob'
+            property string keyName_role        : 'role'
+            property string keyName_password    : 'password'
+            property string keyName_avatar      : 'avatarUrl'
 
             property string role_default : 'user'
             property string role_guest   : 'guest'

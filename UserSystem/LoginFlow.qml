@@ -23,6 +23,7 @@ ZPage {
         //textbox_password
         //title_text
         //title_img
+
       }
 
     QtObject {

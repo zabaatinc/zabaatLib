@@ -108,6 +108,7 @@ Rectangle {
         sizeMainWindow: Qt.point(375, 647)
         scaleMultiplier: Qt.point(2,2)
         onDone : loginFlow.visible = false;
+        config.userList: ['Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett",'Shahan','Fahad',"Anam","Brett"]
         config.background.component : Component {
             Rectangle {
                 color : 'gray'
@@ -122,6 +123,8 @@ Rectangle {
             }
         }
         config.title_img.source: "https://upload.wikimedia.org/wikipedia/en/9/99/MarioSMBW.png"
+        config.button.component: Component { ZButton { state : 'accent-f10pt' } }
+        config.button_alt.component: Component {  ZButton { state : 'transparent-t2-f10pt' } }
     }
 //    Column {
 //        id : btns
