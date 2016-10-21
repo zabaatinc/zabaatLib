@@ -1,2 +1,2 @@
-singleton _                Lodash.qml
+singleton Lodash           Lodash.qml
 singleton GFuncs 		   GenericFunctions.qml
