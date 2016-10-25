@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
-import "Lodash"
+import Zabaat.Base 1.0
 Item {
     id : rootObject
     property var obj
@@ -21,7 +21,7 @@ Item {
 
         function addObj(){
             for(var p in obj){
-                if(Lodash.indexOf(excludeList,p) !== -1 || p.indexOf("__") === 0)
+                if(excludeList.indexOf(p) !== -1 || p.indexOf("__") === 0)
                     continue
 
                 var key  = p

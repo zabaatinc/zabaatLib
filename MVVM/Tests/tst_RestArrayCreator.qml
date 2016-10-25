@@ -1,8 +1,8 @@
 import QtTest 1.0
 import QtQuick 2.0
 import Zabaat.MVVM 1.0
-import Zabaat.Utility 1.0
 import Zabaat.Testing 1.0
+import Zabaat.Base 1.0
 ZabaatTest {
     id : rootObject
     objectName: "RestArrayCreator"

@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import QtTest 1.0
 import Zabaat.Utility.FileIO 1.0 as U
-import Zabaat.Utility 1.0
+import Zabaat.Base 1.0
 import Zabaat.Cache 1.0
 import Zabaat.Testing 1.0
 ZabaatTest {

@@ -1,9 +1,7 @@
 import QtQuick 2.5
 import Zabaat.Auth 1.0
-import Zabaat.Utility 1.0
+import Zabaat.Base 1.0
 Item {
-
-
     Facebook {
         id : fb
         anchors.centerIn: parent
@@ -19,10 +17,4 @@ Item {
 
         }
     }
-
-
-
-
-
-
 }

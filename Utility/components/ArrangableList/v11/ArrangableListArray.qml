@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
-import Zabaat.Utility 1.0 //get underscore!
+import Zabaat.Base 1.0
 Item {
     id : rootObject
     property alias model : logic.model

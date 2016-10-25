@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import "Lodash"
+import Zabaat.Base 1.0
 QtObject {
     id : rootObject
     objectName : "ObjectFunctions"

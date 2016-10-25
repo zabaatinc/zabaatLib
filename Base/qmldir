@@ -1,0 +1,12 @@
+module Zabaat.Base
+singleton Functions 	1.0 ./Functions/Functions.qml
+singleton Chance 		1.0 ./Chance/Chance.qml
+singleton _ 			1.0 ./Lodash/_.qml
+singleton Lodash 		1.0 ./Lodash/Lodash.qml
+singleton Underscore 	1.0 ./Underscore/Underscore.qml
+singleton JSONC		 	1.0 ./JSONC/JSONC.qml
+singleton Promises		1.0 ./Promises/Promises.qml
+singleton Moment		1.0 ./Moment/Moment.qml
+singleton ZAnimator 	1.0 ./ZAnimator/ZAnimator.qml
+UIBlocker 			    1.0 ./Qml/UIBlocker.qml
+ZTracer					1.0 ./Qml/ZTracer.qml

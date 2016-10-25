@@ -1,5 +1,5 @@
 import QtQuick 2.5
-import "../Lodash"
+import Zabaat.Base 1.0
 //The layer between the view & the model. The model in this case is the restArray
 ListModel {
     id : rootObject

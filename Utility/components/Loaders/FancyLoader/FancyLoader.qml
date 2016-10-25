@@ -1,6 +1,6 @@
 import QtQuick 2.4
 //import "../Functions"
-import Zabaat.Utility 1.0
+import Zabaat.Base 1.0
 //Essentially loads the next thing async and then shows it when ready! Ability to block when loading
 
 Item {

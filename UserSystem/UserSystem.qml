@@ -1,6 +1,5 @@
 import QtQuick 2.5
-import "Lodash"
-import "Promises"
+import Zabaat.Base 1.0
 import Qt.labs.settings 1.0
 import "Components"
 

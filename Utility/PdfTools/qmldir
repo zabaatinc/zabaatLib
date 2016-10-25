@@ -1,7 +1,0 @@
-module Zabaat.Utiltiy.PdfTools
-plugin pdftoolsplugin
-typeinfo plugins.qmltypes
-ZPdfBook 1.0 ./Qml/ZPdfBook.qml
-ZPdfSection 1.0 ./Qml/ZPdfSection.qml
-ZPdfReportEditor 1.0 ./Qml/ZPdfReportEditor.qml
-ZPdfSaver 1.0 ./Qml/ZPdfSaver.qml

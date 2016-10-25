@@ -3,6 +3,7 @@ import QtQuick.Controls 1.4
 import "MessageTypes"
 import Zabaat.Utility 1.1
 import Zabaat.Utility.SubModel 1.1
+import Zabaat.Base 1.0
 
 Item {
     id : rootObject

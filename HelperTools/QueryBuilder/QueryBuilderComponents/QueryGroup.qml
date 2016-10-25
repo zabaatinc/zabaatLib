@@ -2,7 +2,7 @@ import QtQuick 2.5
 import "../../ControllerView"   //for simplebutton
 import QtQuick.Controls 1.4
 import QtQuick.Window 2.0
-import "../Lodash"
+import Zabaat.Base 1.0
 Rectangle {
     id : rootObject
     color : color1

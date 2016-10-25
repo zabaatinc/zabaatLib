@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import Zabaat.Utility.FileIO 1.0 as ZFO
-import Zabaat.Utility 1.0
+import Zabaat.Base 1.0
 QtObject {
     id : rootObject
     property string cacheDir            : paths.data

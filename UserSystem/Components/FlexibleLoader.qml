@@ -1,5 +1,5 @@
 import QtQuick 2.5
-import "../Lodash"
+import Zabaat.Base 1.0
 //Able to load qmlFiles , images as well as components.
 //If src is a string, it will determine whether to load an image
 //or a qml file. If it's a component, it will obviously load the component.

@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
-import "Lodash"
+import Zabaat.Base 1.0
 import "QueryBuilderComponents"
 //import QtQuick.Window 2.0
 //provides a nice gui to create query objects

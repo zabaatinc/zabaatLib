@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import "."
-
+import Zabaat.Base 1.0
 pragma Singleton
 QtObject {
     id : genericFunctions

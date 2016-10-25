@@ -1,5 +1,5 @@
 import QtQuick 2.5
-import "../Lodash"
+import Zabaat.Base 1.0
 pragma Singleton
 QtObject {
     id : rootObject

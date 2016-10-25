@@ -1,16 +1,4 @@
 module Zabaat.Utility
-singleton Functions 	1.0 functions/Functions.qml
-singleton Chance 		1.0 functions/Chance/Chance.qml
-singleton _ 			1.0 functions/Lodash/_.qml
-singleton Lodash 		1.0 functions/Lodash/Lodash.qml
-singleton Underscore 	1.0 functions/Underscore/Underscore.qml
-singleton JSONC		 	1.0 functions/JSONC/JSONC.qml
-singleton Promises		1.0 functions/Promises/Promises.qml
-singleton Moment		1.0 functions/Moment/Moment.qml
-singleton ZAnimator 	1.0 functions/ZAnimator/ZAnimator.qml
-UIBlocker 				1.0 components/UIBlocker.qml
-Oath 					1.0 functions/Promises/Oath.qml
-ZTracer	 				1.0 components/ZTracer.qml
 ArrangableList			1.0 components/ArrangableList/v10/ArrangableList.qml
 ArrangableList			1.1 components/ArrangableList/v11/ArrangableList.qml
 ZGestureArea 			1.0 components/ZGestureArea/v10/ZGestureArea.qml

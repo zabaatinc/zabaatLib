@@ -1,5 +1,5 @@
 import QtQuick 2.0
-import Zabaat.Base 1.0
+import "../Lodash"
 QtObject {
     function getFromList(list,value,prop, giveMeIndex) {
         if(!list || !prop)
@@ -13,9 +13,85 @@ QtObject {
         return giveMeIndex ? -1 : null;
     }
 
-    function isArray(obj){
-        return toString.call(obj) === '[object Array]';
+    function getFromList_v2(list,matchElemOrFunc,giveMeIndex){
+        var badVal = giveMeIndex ? -1 : null;
+        if(!list)
+            return;
+
+        var isFunc = typeof matchElemOrFunc === 'function'
+        for(var i = 0; i < list.count; ++i){
+            var item = list.get(i);
+            if(isFunc){
+                if(matchElemOrFunc(item))
+                   return giveMeIndex? i : item;
+            }
+            else {
+                if(item == matchElemOrFunc)
+                    return giveMeIndex? i : item;
+            }
+        }
+        return badVal
     }
+
+    function cloneListOrArray(item) {
+        if(!item || typeof item !== 'object')
+            return null;
+
+        var itemIsArray = isArray(item);
+        var len = itemIsArray ? item.length : item.count;
+        var obj = itemIsArray ? {}          : listGenerator.createObject(listContainer);
+
+        for(var i = 0; i < len; i++) {
+            var val = itemIsArray ? item[i] : item.get(i);
+            var rDerp
+
+            if(typeof val !== 'object'){
+                rDerp = itemIsArray ? obj.push(val) : obj.append(val);
+            }
+            else {
+                var newObj = cloneObject(val);
+                rDerp = itemIsArray ? obj.push(newObj) : obj.append(newObj);
+            }
+        }
+
+        return obj;
+    }
+
+
+    function cloneObject(obj, r) {
+        r = r || {}
+        function isQmlType(v) {
+            if(!v || !v.hasOwnProperty || !v.hasOwnProperty('objectName') || !v.hasOwnProperty('objectNameChanged'))
+                return false;
+            return true;
+        }
+
+        if(typeof obj !== 'object')
+            return obj;
+
+        Lodash.each(obj, function(v,k) {
+            var type = toString.call(v);
+            if(type === '[object Array]') {
+                r[k] = [];
+                cloneObject(v, r[k]);
+            }
+            else if(isQmlType(v) ) {
+                //TODO, make better.
+                r[k] = v.toString();
+            }
+            else if(type === '[object Object]') {
+                r[k] = {}
+                cloneObject(v, r[k]);
+            }
+            else {
+                r[k] = v;
+            }
+        })
+
+        return r;
+    }
+
+
 
 
     function quickSort (lm, compareFunc) {
@@ -29,6 +105,15 @@ QtObject {
             return false;
 
         return isArray(lm) ? hidden.hsArr(lm, compareFunc) : hidden.hs(lm, compareFunc)
+    }
+
+    function insert(lmOrArr, index, value) {
+        if(isArray(lmOrArr)) {
+           lmOrArr.splice(index, 0 , value);
+        }
+        else {
+            lmOrArr.insert(index,value);
+        }
     }
 
 
@@ -353,6 +438,28 @@ QtObject {
     }
 
     //ARRAY RELATED
+    function getFromArray_v2(arr,matchElemOrFunc,giveMeIndex){
+        var badVal = giveMeIndex ? -1 : null;
+        if(!arr || !isArray(arr))
+            return;
+
+        var isFunc = typeof matchElemOrFunc === 'function'
+        for(var i = 0; i < arr.length; ++i){
+            var item = arr[i]
+            if(isFunc){
+                if(matchElemOrFunc(item))
+                   return giveMeIndex? i : item;
+            }
+            else {
+                if(item == matchElemOrFunc)
+                    return giveMeIndex? i : item;
+            }
+        }
+        return badVal
+    }
+    function isArray(obj){
+        return toString.call(obj) === '[object Array]';
+    }
     function getFromArray(arr,value,prop, giveMeIndex){
         if(!arr || !prop)
             return giveMeIndex ? -1 : null;
@@ -402,10 +509,30 @@ QtObject {
     }
 
 
+    function removeFirstThatMatches(list, killerFunc){
+        for(var i = 0; i < list.count ; ++i){
+            if(killerFunc(list.get(i)))
+                list.remove(i)
+        }
+    }
+    function removeLastThatMatches(list, killerFunc) {
+        removeAllThatMatch(list, killerFunc, 1)
+    }
+    function removeAllThatMatch(list, killerFunc, count) {
+        var remCount = 0;
+        for(var i = list.count - 1; i >= 0 ; --i){
+            if(killerFunc(list.get(i))) {
+                list.remove(i)
+                remCount++
+                if(count && remCount === count) {
+                    return
+                }
+            }
+        }
+    }
 
 
-
-
-
+    property Component listGenerator : Component { id : listGenerator;  ListModel { dynamicRoles : true } }
+    property Item listContainer : Item { id : listContainer }
 
 }

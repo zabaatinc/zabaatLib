@@ -1,5 +1,5 @@
 import QtQuick 2.5
-import "../Lodash"
+import Zabaat.Base 1.0
 //allows us to load components defined by ComponentInfo and also
 //change their values that is abstracted away in the value property :)
 Item {

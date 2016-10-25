@@ -1,5 +1,0 @@
-singleton _			 ./Lodash/Lodash.qml
-singleton Underscore ./Underscore/Underscore.qml
-singleton Functions  ./Functions.qml
-singleton JSONC		 ./JSONC/JSONC.qml
-Moment		  		 functions/Moment/moment.js

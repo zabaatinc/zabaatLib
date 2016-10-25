@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
+import Zabaat.Utility.SubModel 1.1
 
 Item {
     id : root

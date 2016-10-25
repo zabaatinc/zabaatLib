@@ -27,7 +27,7 @@ ApplicationWindow {
     }
 
 
-    ZSocketIOClient {
+    ZSocketIO {
         id : sio
         onIsConnectedChanged : console.log(isConnected, details);
         onServerResponse     : console.log("Server Response" , value, JSON.stringify(value,null,2))

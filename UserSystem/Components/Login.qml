@@ -1,7 +1,7 @@
 import QtQuick 2.5
 import Zabaat.UserSystem 1.0
 import "Facebook"
-import "../Lodash"
+import Zabaat.Base 1.0
 ZPage {
     id : rootObject
     signal action(var param);

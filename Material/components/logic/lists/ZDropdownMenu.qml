@@ -1,7 +1,7 @@
 import QtQuick 2.5
 import QtQuick.Window 2.0
 import Zabaat.Material 1.0
-import "../../Lodash"
+import Zabaat.Base 1.0
 import QtGraphicalEffects 1.0
 Item {
     id : rootObject

@@ -2,6 +2,7 @@ import QtQuick 2.0
 import Zabaat.Material 1.0
 import "../StateTransition"
 import "../Functions"
+import Zabaat.Base 1.0
 Item {
     id : rootObject
     property var m                          : null             //the model

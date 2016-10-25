@@ -1,5 +1,5 @@
 import QtQuick 2.5
-import Zabaat.Utility 1.1
+import Zabaat.Utility.SubModel 1.0
 CSubModel {
     id : rootObject
     property var  filterFunc: null

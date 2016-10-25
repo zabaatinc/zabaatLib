@@ -1,6 +1,6 @@
 import QtTest 1.0
 import QtQuick 2.5
-import "Lodash"
+import Zabaat.Base 1.0
 
 //basically auto hooks up all the signals of testObj for us in a neat manner!
 TestCase {

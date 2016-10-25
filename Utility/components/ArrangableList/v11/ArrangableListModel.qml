@@ -2,7 +2,8 @@ import QtQuick 2.5
 //import Zabaat.Material 1.0  //remove dependecy later
 import Zabaat.Utility.SubModel 1.1
 import QtQuick.Controls 1.4
-import Zabaat.Utility 1.0
+import Zabaat.Base 1.0
+
 
 
 Item {

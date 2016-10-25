@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import Zabaat.Material 1.0
-import Zabaat.Utility 1.0
+import Zabaat.Utility.SubModel 1.1
 
 Item {
 
@@ -33,14 +33,14 @@ Item {
     ZSubModel {
         id : sub
         sourceModel: sourceModel
-        compareFunction: function(a,b) {
+        sortFunc: function(a,b) {
             if(a.date < b.date)
                 return 1;
             else if(a.date > b.date)
                 return -1;
             return 0;
         }
-        filterFunction: function(a) { return true; }
+        filterFunc: function(a) { return true; }
     }
 
 
