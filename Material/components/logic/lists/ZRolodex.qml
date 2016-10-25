@@ -94,7 +94,7 @@ Item {
 
                 var item = lv.itemAt(mouseX,mouseY);
                 if(item) {
-                    console.log(item, JSON.stringify(logic.mapArr[item._index],null,2))
+//                    console.log(item, JSON.stringify(logic.mapArr[item._index],null,2))
                     var pt    = mapToItem(item,mouseX,mouseY);
                     var percX = pt.x / item.width;
                     var percY = pt.y / item.height;
