@@ -13,6 +13,65 @@ Rectangle {
     objectName : "test.qml"
     color : 'lightyellow'
 
+    property real w : 400
+    property real h : height * 0.05
+    ZDropdownMenu{
+        menuItemWidth: w
+        menuItemHeight: h
+        width : height
+        height:  parent.height * 0.1
+        state : "rounded-f3-standard-b1"
+    }
+    ZDropdownMenu{
+        menuItemWidth: w
+        menuItemHeight: h
+        width : height
+        height:  parent.height * 0.1
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
+    ZDropdownMenu{
+        menuItemWidth: w
+        menuItemHeight: h
+        width : height
+        height:  parent.height * 0.1
+        anchors.right: parent.right
+        anchors.rightMargin: 128
+    }
+    ZDropdownMenu{
+        menuItemWidth: w
+        menuItemHeight: h
+        width : height
+        height:  parent.height * 0.1
+        anchors.centerIn: parent
+    }
+
+    ZDropdownMenu{
+        menuItemWidth: w
+        menuItemHeight: h
+        width : height
+        height:  parent.height * 0.1
+        anchors.right: parent.right
+    }
+    ZDropdownMenu{
+        menuItemWidth: w
+        menuItemHeight: h
+        width : height
+        height:  parent.height * 0.1
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+    }
+    ZDropdownMenu{
+        menuItemWidth: w
+        menuItemHeight: h
+        width : height
+        height:  parent.height * 0.1
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+    }
+
+
+
+
 
     property var arr
     function sampleArray(n){
@@ -100,53 +159,53 @@ Rectangle {
 //        Text { text :"DateOfBirth:" + " " + UserSystem.userInfo.dateOfBirth }
 //        Text { text :"Email:"       + " " + UserSystem.userInfo.email }
 //    }
-    LoginFlow {
-        id : loginFlow
-        anchors.fill: parent
-        sizeDesigner  : Qt.point(750,1254)
-        sizeMainWindow: Qt.point(375, 647)
-        scaleMultiplier: Qt.point(2,2)
-        onDone : loginFlow.visible = false;
+//    LoginFlow {
+//        id : loginFlow
+//        anchors.fill: parent
+//        sizeDesigner  : Qt.point(750,1254)
+//        sizeMainWindow: Qt.point(375, 647)
+//        scaleMultiplier: Qt.point(2,2)
+//        onDone : loginFlow.visible = false;
 
-        Component.onCompleted: {
-            UserSystem.componentsConfig.userList                   = ['Shahan','Fahad',"Anam","Brett"]
-            UserSystem.componentsConfig.title_text.component       = titleText;
-            UserSystem.componentsConfig.textbox.component          = textbox
-            UserSystem.componentsConfig.textbox_password.component = textbox_password
-            UserSystem.componentsConfig.button.component           = button
-            UserSystem.componentsConfig.button_alt.component       = button_alt
-            UserSystem.componentsConfig.background.component       = background
-        }
-    }
+//        Component.onCompleted: {
+//            UserSystem.componentsConfig.userList                   = ['Shahan','Fahad',"Anam","Brett"]
+//            UserSystem.componentsConfig.title_text.component       = titleText;
+//            UserSystem.componentsConfig.textbox.component          = textbox
+//            UserSystem.componentsConfig.textbox_password.component = textbox_password
+//            UserSystem.componentsConfig.button.component           = button
+//            UserSystem.componentsConfig.button_alt.component       = button_alt
+//            UserSystem.componentsConfig.background.component       = background
+//        }
+//    }
 
-    Item {
-        id : cmps
-        Component {
-            id: titleText
-            Text {
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.pointSize: 18
-                text : "Login Flow!"
-            }
-        }
-        Component { id : textbox; ZTextBox { state : 'cliplabel-b1-f12pt-nobar' }}
-        Component { id : textbox_password;  ZTextBoxPassword { state : 'cliplabel-b1-f12pt-nobar' }}
-        Component { id : button;  ZButton { state : 'accent-f10pt' } }
-        Component { id : button_alt;  ZButton { state : 'transparent-t2-f10pt' } }
-        Component { id : background; Rectangle {
-                        id : rect;
-                        color : 'gray'
-                        Component.onCompleted: {
-                            if(!ZAnimator.animationExists('blinky'))
-                                ZAnimator.createColorAnimation("blinky",["gray", 'lightgray'])
+//    Item {
+//        id : cmps
+//        Component {
+//            id: titleText
+//            Text {
+//                horizontalAlignment: Text.AlignHCenter
+//                verticalAlignment: Text.AlignVCenter
+//                font.pointSize: 18
+//                text : "Login Flow!"
+//            }
+//        }
+//        Component { id : textbox; ZTextBox { state : 'cliplabel-b1-f12pt-nobar' }}
+//        Component { id : textbox_password;  ZTextBoxPassword { state : 'cliplabel-b1-f12pt-nobar' }}
+//        Component { id : button;  ZButton { state : 'accent-f10pt' } }
+//        Component { id : button_alt;  ZButton { state : 'transparent-t2-f10pt' } }
+//        Component { id : background; Rectangle {
+//                        id : rect;
+//                        color : 'gray'
+//                        Component.onCompleted: {
+//                            if(!ZAnimator.animationExists('blinky'))
+//                                ZAnimator.createColorAnimation("blinky",["gray", 'lightgray'])
 
-                            var ani = ZAnimator.getAnimationRunner(rect)
-                            ani.add('blinky','color',60000,Animation.Infinite).start();
-            //                console.log("STARTED")
-                        }
-                    } }
-    }
+//                            var ani = ZAnimator.getAnimationRunner(rect)
+//                            ani.add('blinky','color',60000,Animation.Infinite).start();
+//            //                console.log("STARTED")
+//                        }
+//                    } }
+//    }
 
 
 

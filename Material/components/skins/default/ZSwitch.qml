@@ -23,7 +23,7 @@ M.ZSkin {
     Rectangle {
         id : bar
         width : parent.width
-        height: Math.max(parent.height/8 , M.Units.dp(15))
+        height: parent.height * 0.8
         color : logic && logic.isOn ? graphical.fill_Default : graphical.disabled2
         radius: height/2
         anchors.centerIn: parent

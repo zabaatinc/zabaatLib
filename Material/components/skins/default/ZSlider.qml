@@ -4,7 +4,7 @@ import "helpers"
 M.ZSkin {
     id : rootObject
     color : "transparent"
-    property int    minHeight     : Math.max(parent.height/8 , M.Units.dp(15))
+    property int    minHeight     : parent.height * 0.8
     property int    minTextHeight : M.Units.dp(25)
     property string lblDisp       : logic.labelDispFunc ? logic.labelDispFunc(logic.value) : logic.label
     property string valDisp       : logic.valueDispFunc ? logic.valueDispFunc(logic.value) : logic.value
@@ -63,12 +63,11 @@ M.ZSkin {
         rotation : logic ? -logic.rotation : 0
         Text {
             anchors.fill        : parent
-            font.pixelSize      : Math.min(height * 1/2, minTextHeight)
-            font.family         : logic.font1
+            font : rootObject.font
             text                : lblDisp
             color               : graphical.text_Press
-            horizontalAlignment : Text.AlignHCenter
-            verticalAlignment   : Text.AlignVCenter
+            horizontalAlignment : graphical.text_hAlignment
+            verticalAlignment   : graphical.text_vAlignment
         }
     }
     Rectangle {
@@ -197,6 +196,7 @@ M.ZSkin {
         id : valueContainer
         anchors.right         : parent.right
         anchors.verticalCenter: parent.verticalCenter
+        anchors.rightMargin: -knob.width/2
 //        visible               : graphical.valueVisible
         width                 : visible ? parent.width * 0.1 : 0
         height                : width
@@ -207,14 +207,23 @@ M.ZSkin {
         Text {
             id : valueText
             anchors.fill        : parent
-            font.pixelSize      : Math.min(height * 1/2, minTextHeight)
+            font.pixelSize      : height * 1/3
+
+            property real px : font.pixelSize
+//            onPxChanged : {
+//                console.log("PX =", px);
+//                console.trace()
+//                console.log("--------------------------")
+//            }
+
             font.family         : logic.font1
             text                : valDisp
             color               : graphical.text_Default
-            horizontalAlignment : Text.AlignHCenter
-            verticalAlignment   : Text.AlignVCenter
+            horizontalAlignment : graphical.text_hAlignment
+            verticalAlignment   : graphical.text_vAlignment
             elide               : Text.ElideRight
         }
+        z : Number.MAX_VALUE
     }
     Item {
         id : ticks

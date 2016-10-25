@@ -10,10 +10,17 @@ QtObject{
 
     Component.onCompleted: {
         console.log(rootObject, 'location @', cacheLocation)
-        fileIO.createDirIfDoesNotExist(cacheLocation)
+        var arr = cacheLocation.split("/");
+        //create all the folders to the cacheLocation if it don't exist!
+        for(var i = 1; i < arr.length; ++i){
+            var dir = arr.slice(0, i+1).join('/');
+            fileIO.createDirIfDoesNotExist(dir);
+        }
         logic.buildCache()
 //        fileIO.deleteDirectory("C:/Users/SSK/AppData/Local/QtProject/QtQmlViewer/cache/delfolder");
     }
+
+
 
     //magical balloon of a function. Abstracts away a ton of stuff. usage:
     //image.source = load("http://amazeballs.png", "balls_amaze", image, "source");
@@ -102,7 +109,7 @@ QtObject{
         nameOptional = sanitizeName(nameOptional)
 
 
-        console.log('ADD', nameOptional, " ", orig)
+        console.log('ADD', nameOptional, "as", orig)
         downloader.download(imgSource, cacheLocation + "/" + nameOptional + ext )
 
 //        downloader.download()

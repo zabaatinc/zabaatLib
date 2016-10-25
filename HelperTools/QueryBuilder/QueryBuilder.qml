@@ -23,7 +23,7 @@ Rectangle {
     function addRule(m,args) {
         return mainGroup.logic.addRule(m,args);
     }
-    function addGroup() {
+    function addGroup(m,args) {
         return mainGroup.logic.addGroup(m,args);
     }
     function blankGroup() {

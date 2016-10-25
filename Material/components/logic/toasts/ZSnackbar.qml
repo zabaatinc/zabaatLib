@@ -25,7 +25,7 @@ Rectangle {
         try{
             rootObject.destroy()
         }catch(e){
-            console.log("Cannot destroy indestructible object", rootObject, ". Requesting destruction from parent")
+//            console.log("Cannot destroy indestructible object", rootObject, ". Requesting destruction from parent")
             rootObject.requestDestruction()
         }
     }

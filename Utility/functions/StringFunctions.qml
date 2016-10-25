@@ -105,13 +105,13 @@ QtObject {
     function beautifyString(str, specialCaseArray){
         //find index of all Cap words
         var arr = getWords(str)
-        if(isUndef(specialCaseArray))
+        if(specialCaseArray === null || specialCaseArray === undefined)
             specialCaseArray = ["of"]
 //        console.log(arr)
 
         //special case "of", turn it to lowercase
         for(var a in arr){
-            var index = Lodash.indexOf(specialCaseArray, arr[a].toLowerCase())
+            var index = specialCaseArray.indexOf(arr[a].toLowerCase())
             if(index !== -1)
                 arr[a] = arr[a].toLowerCase()
         }

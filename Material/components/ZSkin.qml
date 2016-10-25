@@ -47,13 +47,24 @@ spill1 - spill9 : spill of the ink from the knob (low to high)
 */
 Item {
     id : rootObject
-    property QtObject derp : QtObject { property var herp  }
-
     signal skinFuncAdded();
     signal initialized();
 
     /*! The ZObject that has loaded this ZSkin as its skin \hr */
     property var    logic        : null         //the pointer to the parent logic itme
+    onLogicChanged: {
+        if(logic) {
+            cache.addBorderStates()
+            cache.addGraphicalStates()
+            if(rootObject.hasOwnProperty("font")) {
+                cache.addFontStates()
+            }
+            if(rootObject.hasOwnProperty("knob"))
+                cache.addKnobStates()
+
+            rootObject.stateChangeOp(logic.state, logic.enabled)
+        }
+    }
 
     /*! The name of the color theme. \b default: "default" \hr */
     property string colorTheme   : logic ? logic.colors : "default"
@@ -108,9 +119,69 @@ Item {
     */
     property alias graphical      : graphical
     readonly property var injectState : cache.injectState
+    property string state  : "default"
+    property var    states : []
+    function log(){
+        if(debug)
+            console.log.apply(this,arguments)
+    }
+    function clr(name){
+        return Colors.get(colorTheme , name)
+    }
+    /*! The money maker of ZSkin objects. Works sort of like css. Example: state : "warning-t2 \b default : "default" \hr */
+    function stateChangeOp(state, enabled, force){
+        ss.state = state;
+        ss.enabled = enabled;
+        ss.force = force? true : false;
+        ss.start();
+    }
+    function stateChangeOpGuts(state,enabled,force){
+        if(!force && state === cache.state && enabled === cache.enable)
+            return;
+
+        if(state === "" && cache.first)
+            return cache.first = false;
+
+        if(cache.ready) {
+            rootObject.enabled = enabled;
+            if(!enabled && logic.disableShowsGraphically) {
+                ZStateHandler.setState(rootObject, state + "-disabled")
+            }
+            else {
+                ZStateHandler.setState(rootObject, state)
+            }
+        }
+
+        cache.state  = state
+        cache.enable = enabled
+        if(cache.first){
+            cache.first = false;        //tells us that we have init or loaded a different state other than default :D
+        }
+
+        if(!cache.initEmitted) {
+            initialized();
+            cache.initEmitted = true;
+        }
+    }
 
 
-    Rectangle { id: rect ; anchors.fill : parent; color: logic ? Colors.get(logic.colors , "standard") : "white"; opacity: graphical.fill_Opacity; }
+    Timer {
+        id : ss
+        interval : 0
+        property string state
+        property bool enabled
+        property bool force
+        onTriggered: stateChangeOpGuts(state,enabled,force);
+    }
+
+
+
+    Rectangle {
+        id: rect ;
+        anchors.fill : parent;
+        color: Colors.standard
+        opacity: graphical.fill_Opacity;
+    }
     Rectangle {
         id: borderRect ;
         anchors.fill : parent;
@@ -119,60 +190,14 @@ Item {
         radius : rect.radius
         z : Number.MAX_VALUE
     }
-
-    /*! The money maker of ZSkin objects. Works sort of like css. Example: state : "warning-t2 \b default : "default" \hr */
-    property string state  : "default"
-    property var    states : []
-
-    function log(){
-        if(debug)
-            console.log.apply(this,arguments)
-    }
-    function clr(name){
-        return Colors.get(colorTheme , name)
-    }
-
-//    focus : true
-
     Connections {
         id : conn
         property bool hasInit : false
-
         target          : logic ? logic : null
         onStateChanged  : rootObject.stateChangeOp(logic.state, logic.enabled)
-//            if(rootObject.toString().indexOf("ZButton") !== -1) {
-//                conn.prevStates.push(logic.state);
-//                console.log('ZBUTTON', conn.prevStates)
-//            }
-//        }
-//        property var prevStates : []
         onEnabledChanged: if(rootObject) rootObject.stateChangeOp(logic.state, logic.enabled);
 
     }
-    onStatesChanged: {
-        if(logic){
-            if(logic.hasOwnProperty('font'))    cache.addFontStates()
-            if(logic.hasOwnProperty('knob'))    cache.addKnobStates()
-
-            rootObject.stateChangeOp(logic.state, logic.enabled)
-        }
-    }
-    onLogicChanged: {
-        if(logic) {
-            cache.addBorderStates()
-            cache.addGraphicalStates()
-            if(rootObject.hasOwnProperty("font"))
-                cache.addFontStates()
-            if(rootObject.hasOwnProperty("knob"))
-                cache.addKnobStates()
-
-//            console.log(rootObject, logic.state)
-            rootObject.stateChangeOp(logic.state, logic.enabled)
-        }
-    }
-
-
-
     QtObject {
         id : cache
         property string state  : ""
@@ -255,6 +280,7 @@ Item {
 
         }
 
+
         function addBorderStates(){
             cache.injectState("b!"  , "rootObject" , { "border.width" : "!" })
 
@@ -280,10 +306,6 @@ Item {
 
             cache.bordersAdded = true;
         }
-
-
-
-
         function addFontStates(){
 
             cache.injectState("default","font", { bold : false, italic : false, "@pixelSize":["@parent","height",1/4],
@@ -312,6 +334,9 @@ Item {
 
 
             cache.injectState("f!", "font" , { "@pixelSize": ["@parent","height","1/!"]})
+//            if(objectName.toLowerCase().indexOf("zslider") !== -1)
+//                console.log("INJECTED!!")
+
             cache.injectState("fw!", "font" , { "@pixelSize": ["@parent","width","1/!"]})
             cache.injectState("bold"       , "font" , { bold      : true                      })
             cache.injectState("italic"     , "font" , { italic    : true                      })
@@ -593,6 +618,10 @@ Item {
             cache.injectState("default", "knob" , {"@height":  ["@parent", "height", 2]})
             cache.injectState("noknob" , "knob" , {  "visible"    : false   })
 
+
+
+//            cache.injectState("f!", "font" , { "@pixelSize": ["@parent","height","1/!"]})
+//            cache.injectState("knob!","knob", { "@height" : function(a) { return rootObject.height * (0.25 * a + 1) } } )
             cache.injectState( "knob1"  , "knob" , { "@height" : ["@parent", "height", 1.25 ] })
             cache.injectState( "knob2"  , "knob" , { "@height" : ["@parent", "height", 1.5  ] })
             cache.injectState( "knob3"  , "knob" , { "@height" : ["@parent", "height", 1.75 ] })
@@ -616,48 +645,11 @@ Item {
 
             cache.knobAdded = true;
         }
-
-
-
     }
 
 
 
 
-    //Automatically adds borderStates and fontStates if there is a font in the rootLevel Object!!
-    //these states are - b1-b10 , f1-f10, fw1-fw10      //fw means font size is dependent on the Width instead of height of the component
-    function stateChangeOp(state, enabled, force){
-//        console.log(rootObject, "statechangeOp")
-
-        if(!force && state === cache.state && enabled === cache.enable)
-            return;
-
-        if(state === "" && cache.first)
-            return cache.first = false;
-
-//        console.log(rootObject, 'setting state to', state)
-        if(cache.ready) {
-            rootObject.enabled = enabled;
-            if(!enabled && logic.disableShowsGraphically) {
-                ZStateHandler.setState(rootObject, state + "-disabled")
-            }
-            else
-                ZStateHandler.setState(rootObject, state)
-        }
-
-        cache.state  = state
-        cache.enable = enabled
-        if(cache.first){
-            cache.first = false;        //tells us that we have init or loaded a different state other than default :D
-        }
-
-        if(!cache.initEmitted) {
-            initialized();
-            cache.initEmitted = true;
-        }
-
-
-    }
 
 
 
