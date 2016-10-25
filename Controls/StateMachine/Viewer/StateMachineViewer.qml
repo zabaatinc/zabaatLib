@@ -1,7 +1,7 @@
 import QtQuick 2.4
 import "Functions"
 import "FancyLoader"
-import Zabaat.Utility 1.0
+import Zabaat.Base 1.0
 //import Zabaat.Utility.FileIO 1.0
 
 

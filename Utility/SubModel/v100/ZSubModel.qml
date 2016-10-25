@@ -1,5 +1,4 @@
 import QtQuick 2.5
-import Zabaat.Utility 1.0 as U  //replace later
 import "ZSubModel.js" as QueryHandler
 
 ListModel {

@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import "../ZController"
-import Zabaat.Utility 1.0
+import Zabaat.Base 1.0
 
 /*!
    \brief an extension of the ZController that uses Xhr requests to communicate.

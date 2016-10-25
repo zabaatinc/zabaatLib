@@ -1,6 +1,5 @@
 import QtQuick 2.4
 import "moment.js" as M
-import Zabaat.Utility 1.0
 
 pragma Singleton
 QtObject {

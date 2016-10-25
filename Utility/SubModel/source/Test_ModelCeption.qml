@@ -1,4 +1,4 @@
-import Zabaat.Utility 1.1
+import Zabaat.Utility.SubModel 1.1
 import QtQuick.Controls 1.4
 import QtQuick 2.5
 
