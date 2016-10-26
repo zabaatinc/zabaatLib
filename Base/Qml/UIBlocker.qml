@@ -17,6 +17,7 @@ Item {
         id : colorRect
         anchors.fill: parent
         opacity : solidBackGround?  1 : 0.8
+        color : 'black'
     }
 
     Text {

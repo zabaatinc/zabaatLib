@@ -29,6 +29,8 @@ ZPage {
         id : loaderBackground
         anchors.fill: parent
         source: {
+            if(!config)
+                return ""
             if(!logic.state)
                 return config.background.component;
             return config['background_' + logic.state].component
@@ -75,7 +77,10 @@ ZPage {
                     userData[UserSystem.config.keyName_password] = action.password;
 
                     blocker.visible = true;
-                    return UserSystem.login(userData, function() { handleAction({name:"loggedin"})} , function() { blocker.visible = false; });
+                    return UserSystem.login(userData,
+                                            function() { blocker.visible = false; handleAction({name:"loggedin"})} ,
+                                            function() { blocker.visible = false; }
+                                           );
 
                 case "loggedin":
                     return logic.state = 'loggedin';

@@ -83,6 +83,7 @@ ZPage {
                     return UserSystem.settings.userLoginData[UserSystem.config.keyName_password];
                 return "";
             }
+            visible : UserSystem.passwordRequired
             clip : true
             width : parent.width
             height : rootObject.hx(40);
@@ -100,6 +101,7 @@ ZPage {
         onEvent: if(name === 'clicked')
                     action({name:'reset',username:textbox_user.value})
         src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null
+        visible : Lodash.isFunction(UserSystem.functions.resetPassFunc) && Lodash.isFunction(UserSystem.functions.requestResetCodeFunc)
     }
 
     Column {
@@ -115,20 +117,18 @@ ZPage {
             width : parent.width
             height: rootObject.hx(40)
             value : "Log in"
-            enabled : !UserSystem.noNetwork
+            enabled : {
+                if(UserSystem.noNetwork ||
+                   textbox_user.value.length == 0 ||
+                   (textbox_pw.value.length == 0 && UserSystem.passwordRequired) ||
+                   ((textbox_user.error || textbox_pw.error))
+                ) {
+                    return false;
+                }
+                return true;
+            }
             onEvent : if(name === 'clicked') {
-                if(textbox_user.error || textbox_pw.error)
-                    return;
-
-                if(textbox_user.value.length == 0){
-//                    Constants.errDisplay("Username is empty");
-                }
-                else if(textbox_pw.value.length == 0){
-//                    Constants.errDisplay("Password is empty");
-                }
-                else {
-                    action({name:"login", username : textbox_user.value, password:textbox_pw.value})
-                }
+                action({name:"login", username : textbox_user.value, password:textbox_pw.value})
             }
         }
         FlexibleComponent {
@@ -159,11 +159,10 @@ ZPage {
         anchors.top: loginItem_buttons.bottom
         anchors.topMargin: rootObject.hx(45)
         anchors.horizontalCenter: parent.horizontalCenter
+        visible : UserSystem.skipLoginAllowed
     }
 
 
-
-    //IS IN ROOTOBJECT! NOT PART OF THIS!
     FlexibleComponent {
         src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null
         width : rootObject.wx(248)
@@ -174,7 +173,7 @@ ZPage {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: rootObject.hx(17)
-        visible : !fbLogin.visible  //dont show this at the bottom when fb area is up!
+        visible : !fbLogin.visible && Lodash.isFunction(UserSystem.functions.createUserFunc)  //dont show this at the bottom when fb area is up!
         enabled : !UserSystem.noNetwork
     }
 
@@ -182,10 +181,7 @@ ZPage {
         id : userListExpander
         anchors.fill: parent
         text : ""
-
-
-
-
+        visible : false
 
         FlexibleComponent {
             id : userListExpanderBackButton
@@ -199,31 +195,29 @@ ZPage {
             height : userLv.cellHeight * 1.1
             width  : height
         }
-
         FlexibleComponent {
-            width : parent.width - userListExpanderBackButton.width
-            height : userListExpanderBackButton.height
-            property var animals : ["🐀","🐁","🐂","🐃","🐄","🐅","🐆","🐇","🐈","🐉","🐊","🐋","🐌",
-                                    "🐍","🐎","🐏","🐐","🐑","🐒","🐓","🐔","🐕","🐖","🐗","🐘","🐙",
-                                    "🐚","🐛","🐜","🐝","🐞","🐟","🦂","🦃","🐠","🦀","🐡","🐢","🐣",
-                                    "🐤","🐥","🐦","🐧","🐨","🐩","🐪","🐫","🐬","🕷","🕸","🐭","🐮",
-                                    "🦁","🐯","🐰","🐱","🐲","🐳","🐴","🐵","🐶","🐷","🐸","🦄","🐹",
-                                    "🐺","🐻","🐼","🐽"]
 
-            property string randAnimalIcon : ""
-            value : randAnimalIcon + " Choose User";
-            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button : null;
+            height : userListExpanderBackButton.height
+//            property var animals : ["🐀","🐁","🐂","🐃","🐄","🐅","🐆","🐇","🐈","🐉","🐊","🐋","🐌",
+//                                    "🐍","🐎","🐏","🐐","🐑","🐒","🐓","🐔","🐕","🐖","🐗","🐘","🐙",
+//                                    "🐚","🐛","🐜","🐝","🐞","🐟","🦂","🦃","🐠","🦀","🐡","🐢","🐣",
+//                                    "🐤","🐥","🐦","🐧","🐨","🐩","🐪","🐫","🐬","🕷","🕸","🐭","🐮",
+//                                    "🦁","🐯","🐰","🐱","🐲","🐳","🐴","🐵","🐶","🐷","🐸","🦄","🐹",
+//                                    "🐺","🐻","🐼","🐽"]
+
+//            property string randAnimalIcon : ""
+            value : "Choose User";
+            src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null;
+            anchors.left: userListExpanderBackButton.right
             anchors.right: parent.right
             anchors.margins: 5
             anchors.top: parent.top
-            onVisibleChanged: if(visible) {
-                                  var idx = Math.floor(Math.random() * animals.length);
-                                  randAnimalIcon = animals[idx];
-                              }
+//            onVisibleChanged: if(visible) {
+//                                  var idx = Math.floor(Math.random() * animals.length);
+//                                  randAnimalIcon = animals[idx];
+//                              }
 
         }
-
-
         Item {
             anchors.top:userListExpanderBackButton.bottom
             anchors.bottom: parent.bottom
@@ -254,8 +248,6 @@ ZPage {
 
             }
         }
-
-
     }
 
     UIBlocker {

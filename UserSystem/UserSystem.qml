@@ -27,6 +27,8 @@ QtObject{
     property alias componentsConfig : componentsConfig
 
     property string facebookAppId : "";
+    property bool   skipLoginAllowed : true;
+    property bool   passwordRequired : true;
 
 //    signal loggedIn();
 //    signal loggedOut();
@@ -35,7 +37,7 @@ QtObject{
         if(status != 0 || noNetwork)
             return console.error("Cannot Log In because you are", priv.statusString);
 
-        var blankFn = function(){}
+        var blankFn = function(){ console.log("CALLING BLANK FNC") }
         success = typeof success === 'function' ? success : blankFn
         fail    = typeof fail    === 'function' ? fail    : blankFn
 
@@ -44,22 +46,32 @@ QtObject{
 
         return priv.genFuncPromise(functions.loginFunc, userData).then(function(msg) {
             //adjust more vars hurr
-            var userObj = Lodash.isArray(msg.data) ? msg.data[0] : msg.data;
+//            console.log(JSON.stringify(msg,null,2))
+            if(msg && msg.err) {
+                throw new Error("Failed to log in!")
+            }
 
-            settings.userLoginData = userData;
-            settings.id          = priv.get(userObj, config.keyName_id          ,config.role_guest);
-            settings.username    = priv.get(userObj, config.keyName_username    ,""               );
-            settings.firstname   = priv.get(userObj, config.keyName_firstName   ,""               );
-            settings.lastname    = priv.get(userObj, config.keyName_lastName    ,""               );
-            settings.gender      = priv.get(userObj, config.keyName_gender      ,""               );
-            settings.email       = priv.get(userObj, config.keyName_email       ,""               );
-            settings.dateOfBirth = priv.get(userObj, config.keyName_dateOfBirth ,""               );
-            settings.role        = priv.get(userObj, config.keyName_role       , config.role_guest);
-            settings.avatar      = priv.get(userObj, config.keyName_avatar     , "");
-            if(settings.id === config.role_guest)
-                settings.role = config.role_guest;
+            if(msg && msg.data) {
+                var userObj = Lodash.isArray(msg.data) ? msg.data[0] : msg.data;
 
-            userInfo.obj = userObj;
+                settings.userLoginData = userData;
+                settings.id          = priv.get(userObj, config.keyName_id          ,config.role_guest);
+                settings.username    = priv.get(userObj, config.keyName_username    ,""               );
+                settings.firstname   = priv.get(userObj, config.keyName_firstName   ,""               );
+                settings.lastname    = priv.get(userObj, config.keyName_lastName    ,""               );
+                settings.gender      = priv.get(userObj, config.keyName_gender      ,""               );
+                settings.email       = priv.get(userObj, config.keyName_email       ,""               );
+                settings.dateOfBirth = priv.get(userObj, config.keyName_dateOfBirth ,""               );
+                settings.role        = priv.get(userObj, config.keyName_role       , config.role_guest);
+                settings.avatar      = priv.get(userObj, config.keyName_avatar     , "");
+                if(settings.id === config.role_guest)
+                    settings.role = config.role_guest;
+
+                userInfo.obj = userObj;
+            }
+            else {
+                console.warn("WARNING!!!!!! LOGIN FUNCTION DIDNT RETURN DATA!!!!!!");
+            }
 
             priv.status = 1; //sucessfully logged in!
             var promises = [];
@@ -71,13 +83,13 @@ QtObject{
                                           Promises.all(promises).finally(success);
         }).catch(function(err){
             //return status to old status cause logout failed!
-            console.error("Error when Logging In", err);
-            status = oldStatus
+            console.error("Error when Logging In -->", err);
+            priv.status = oldStatus
             fail();
         });
     }
     function skipLogin(success,fail){
-        if(status != 0 || noNetwork)
+        if(status != 0 || noNetwork || !skipLoginAllowed)
             return console.error("Cannot skip login because you are", priv.statusString);
 
         priv.status = 5;     //attemptSkipLogin

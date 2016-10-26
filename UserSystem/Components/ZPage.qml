@@ -6,7 +6,7 @@ Item {
     objectName     : title
     width          : 100
     height         : 100
-    property point sizeDesigner    : Qt.point(1980,1080);
+    property point sizeDesigner    : Qt.point(750,1254);
     property point sizeMainWindow  : Qt.point(Screen.width, Screen.height)
     property point scaleMultiplier : Qt.point(1,1);
     property bool  absoluteMode    : true       //determines if we are calculating our hx,wx in mainWindow's w/h or this Item's!

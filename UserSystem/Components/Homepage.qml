@@ -76,11 +76,13 @@ ZPage {
                       }
 
             enabled : !UserSystem.noNetwork
+            visible : typeof UserSystem.functions.createUserFunc === 'function'
         }
         FlexibleComponent {
             width : parent.width
             height : parent.h
             src : UserSystem.componentsConfig ? UserSystem.componentsConfig.button_alt : null;
+            visible : UserSystem.skipLoginAllowed
             value : "Continue Without Logging In"
             onEvent : if(name === 'clicked')
                         action({name:"skip"})// logic.skipLogin()//logic.toLoginProc("","")
