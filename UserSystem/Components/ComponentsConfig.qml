@@ -3,9 +3,9 @@ import QtQuick.Controls 1.4
 
 QtObject {
     id :config
-
     property alias button                : button
     property alias button_alt            : button_alt
+    property alias button_user           : button_user
     property alias background            : background
     property alias background_login      : background_login
     property alias background_resetpass  : background_resetpass
@@ -38,6 +38,7 @@ QtObject {
         id : priv
         property ComponentInfo button               : ComponentInfo{ id : button ;component: Component { Button {} } }
         property ComponentInfo button_alt           : ComponentInfo{ id : button_alt ;component: button.component }
+        property ComponentInfo button_user          : ComponentInfo{ id : button_user ;component: button_alt.component }
         property ComponentInfo background           : ComponentInfo{ id : background; }
         property ComponentInfo background_login     : ComponentInfo{ id : background_login     ;component : background.component }
         property ComponentInfo background_resetpass : ComponentInfo{ id : background_resetpass ;component : background.component }

@@ -65,6 +65,14 @@ Item{   //Essentially a list of loaders
         id : lv
         anchors.fill: parent
 //        model : rootObject.model
+        onModelChanged: {
+//            console.log("MY MODEL CAHNGED!", model, model.count)
+//            for(var i = 0; i < model.count; ++i){
+//                JSON.stringify(model.get(i),null,2)
+//            }
+//            console.log("------------------------------")
+        }
+
         delegate : MouseArea {
             width  : lv.width
             height : cellHeight
@@ -78,6 +86,8 @@ Item{   //Essentially a list of loaders
                 id : del
                 anchors.fill: parent
                 source : logic.listDelegateSource()
+                property string listDelSOurce : logic.listDelegateSource();
+                onListDelSOurceChanged: console.log("listdelsource =", listDelSOurce);
                 property var args : delArgs
                 property bool loadingArgs: false;
                 onLoaded : {

@@ -34,16 +34,7 @@ Item {
         height : rootObject.height
         text : FAR.list
         state : 'accent-f3-t2'
-        onClicked: {
-            if(!logic.menuOpen){
-                console.log("menu not open, creating")
-                logic.createDropdown();
-            }
-            else{
-                console.log("menu open, killing")
-                logic.killmenu();
-            }
-        }
+        onClicked: !logic.menuOpen ? logic.createDropdown() : logic.killmenu();
     }
 
 

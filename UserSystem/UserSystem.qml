@@ -53,6 +53,7 @@ QtObject{
 
             if(msg && msg.data) {
                 var userObj = Lodash.isArray(msg.data) ? msg.data[0] : msg.data;
+                console.log("THIS IS USEROBJ" , JSON.stringify(userObj,null,2))
 
                 settings.userLoginData = userData;
                 settings.id          = priv.get(userObj, config.keyName_id          ,config.role_guest);
@@ -68,6 +69,10 @@ QtObject{
                     settings.role = config.role_guest;
 
                 userInfo.obj = userObj;
+
+
+
+                userInfo.printCurrentUserProperties();
             }
             else {
                 console.warn("WARNING!!!!!! LOGIN FUNCTION DIDNT RETURN DATA!!!!!!");
@@ -206,9 +211,17 @@ QtObject{
                 if(!obj)
                     return "";
                 if(obj[config.keyName_role])
-                    obj[config.keyName_role];
+                    return obj[config.keyName_role];
                 return id === config.role_guest ? config.role_guest :
                                                   config.role_default
+            }
+            onRoleChanged: console.log("ROLE =", role);
+            function printCurrentUserProperties(){
+                Lodash.each(userInfo,function(v,k) {
+                    if(k === 'obj' || k === 'objectName' || Lodash.isFunction(v))
+                        return;
+                    console.log(k , ":", v);
+                })
             }
         }
         QtObject {

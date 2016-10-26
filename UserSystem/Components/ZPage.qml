@@ -21,8 +21,8 @@ Item {
         //property real aspectRatio : wMulti / hMulti
     }
 
-    function wx(px)        { return absoluteMode ? px * logic.wMultiAbs : px * logic.wMulti }
-    function hx(px)        { return absoluteMode ? px * logic.hMultiAbs : px * logic.hMulti }
+    function wx(px)        { return Math.min(sizeMainWindow.x , absoluteMode ? px * logic.wMultiAbs : px * logic.wMulti) }
+    function hx(px)        { return Math.min(sizeMainWindow.y , absoluteMode ? px * logic.hMultiAbs : px * logic.hMulti) }
     function point(w,h)    { return Qt.point(wx(w) , hx(h)) }
     function rect(x,y,w,h) { return Qt.rect(wx(x) , hx(y), wx(w), hx(h)) }
     function bindItem(item,x,y,w,h) {   //

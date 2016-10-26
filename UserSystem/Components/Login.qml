@@ -192,7 +192,7 @@ ZPage {
             onEvent: if(name === 'clicked')
                          userListExpander.visible= false;
             value : "◄"
-            height : userLv.cellHeight * 1.1
+            height : parent.height * 0.1
             width  : height
         }
         FlexibleComponent {
@@ -227,13 +227,14 @@ ZPage {
 
             ListView {
                 id : userLv
-                width : parent.width * 0.9
+                width  : parent.width / 2
                 height : Math.min(cellHeight * count + (spacing * (count-1)) , parent.height -cellHeight);
                 anchors.centerIn: parent
+                anchors.horizontalCenterOffset: cellHeight  //the width of the image for each user! This will give us a nice centered looking list!!
                 model : userListExpanderButton.visible ? UserSystem.componentsConfig.userList : null;
                 spacing : hx(15);
 
-                property real cellHeight: userListExpander.height * 0.07
+                property real cellHeight: userListExpander.height * 0.2 //5 per screen
                 delegate: UserButton {
                     m : userLv.model[index]
                     width  : ListView.view.width

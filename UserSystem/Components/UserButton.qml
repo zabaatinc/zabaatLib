@@ -29,6 +29,10 @@ Item {
         height : parent.height
         source : parent.avatar
         property string def : female ? 'blank_female.png' : 'blank.png'
+        MouseArea {
+            anchors.fill: parent
+            onClicked: rootObject.clicked(uid, username);
+        }
     }
 
     FlexibleComponent {
@@ -36,7 +40,7 @@ Item {
         height : parent.height
         value : parent.textDisp
         anchors.right: parent.right
-        src : UserSystem.componentsConfig.button_alt
+        src : UserSystem.componentsConfig.button_user
         onEvent: if(name === 'clicked')
                      rootObject.clicked(uid, username);
     }

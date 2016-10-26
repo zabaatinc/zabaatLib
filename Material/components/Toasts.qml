@@ -397,7 +397,7 @@ Item {
                     id : uiBlocker
                     anchors.fill: parent
                     color : 'black'
-                    opacity : 0.9
+                    opacity : 0.7
                     visible : parent.blocking
                     enabled : visible
                     MouseArea {
