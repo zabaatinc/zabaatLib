@@ -83,13 +83,7 @@ QtObject{
                 if(typeof v === 'function')
                     promises.push(priv.genFuncPromise(v));
             })
-
-//            promises[0] = function() { return Promises.promise(function(resolve,reject) { resolve() }) }
-            console.log("HEY bruh", promises.length);
-            return promises.length == 0 ? success() :
-                                          Promises.all(promises)
-                                                  .catch(function(err){ console.error("Error on promise.all(loginfuncs) -->", err); } )
-                                                  .finally(function() { console.log("u wot mate"); success(); } )
+            return Promises.all(promises).finally(success);
 
         }).catch(function(err){
             //return status to old status cause logout failed!
@@ -131,16 +125,16 @@ QtObject{
 
         return promises.length === 0 ? success() :
         Promises.all(promises)
-        .then(function(){
-            priv.status = 2; //skippedLogin
-            success();
-        })
-        .catch(function(err) {
-            console.log(err);
-            userInfo.obj = undefined;
-            priv.status = 0; //notLoggedIn
-            fail();
-        });
+                .then(function(){
+                    priv.status = 2; //skippedLogin
+                    success();
+                 })
+                .catch(function(err) {
+                    console.log(err);
+                    userInfo.obj = undefined;
+                    priv.status = 0; //notLoggedIn
+                    fail();
+                });
     }
     function logout(success, fail){
         //can only log out if you aren't loggedIn and if state isn't busy!

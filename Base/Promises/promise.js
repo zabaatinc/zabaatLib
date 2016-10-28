@@ -29,9 +29,7 @@ function All(promiseArray) {
 //                        console.log("case 1")
                         args[i] = val.value;
                         if (--remaining === 0) {
-                          console.log("CALLING RESOLVE ALL")
                           resolve(args);
-                          console.log("FINISHED CALLING RESOLVE ALL")
                         }
                         return;
                     }
@@ -47,9 +45,7 @@ function All(promiseArray) {
 
                         //succeed makes remaining go down by 1. if we hit 0, we have resolved the main promise!!
                         if (--remaining === 0) {
-                          console.log("CALLING RESOLVE case 2")
                           resolve(args);
-                          console.log("FINISHED RESOLVE case 2")
                         }
 //                        res(i,val.value);
                     } , reject)
@@ -57,9 +53,7 @@ function All(promiseArray) {
                 else {
                     args[i] = val.value;
                     if (--remaining === 0) {
-                      console.log("CALLING RESOLVE case 3")
                       resolve(args);
-                      console.log("FINISHED RESOLVE case 3")
                     }
                     return;
                 }
@@ -177,8 +171,27 @@ function Promise(fn) {
   }
 
   this.finally = function (f) {
-//      f = typeof f !== 'function' ? function() {}
-      return this.then(f, f);
+        var fulfill = function(value) {
+            return new Promise(f).then(function() { return value })
+        }
+        var reject = function(err) {
+            return new Promise(f).then(function() {  throw err })
+        }
+
+        return this.then(fulfill, reject);
+//      return this.then(onFulfilled, onRejected);
+//          function (value) {
+//                return Promise.resolve(f()).then(function () {
+//                  return value;
+//                });
+//          }
+//          ,
+//          function (err) {
+//                return Promise.resolve(f()).then(function () {
+//                    throw err;
+//                });
+//          }
+//      );
   };
 
   doResolve(fn, self.resolve, self.reject);
