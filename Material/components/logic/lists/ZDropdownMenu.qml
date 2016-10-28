@@ -23,8 +23,12 @@ Item {
         property bool menuOpen: false
         signal killmenu();
         function createDropdown(){
-            Toasts.createComponentPermanent(menuComponent, null, null, 1,1);
-            menuOpen = true;
+            return Promises.promise(function(resolve,reject) {
+                var toast = Toasts.createComponentPermanent(menuComponent, null, null, 1,1);
+                toast.Component.destruction.connect(resolve)
+                menuOpen = true;
+            }).then(function(val){ if(Lodash.isFunction(val)) val() })
+            .finally(function(){ menuOpen = false })
         }
     }
 
@@ -43,9 +47,6 @@ Item {
         Item {
             id: menuInstance
             signal requestDestruction();
-            Component.onDestruction: logic.menuOpen = false;
-
-
             property point pos : Qt.point(0,0);
             property bool hasInit : false;
 //            property real sLen : 3;
@@ -65,7 +66,8 @@ Item {
             }
             Connections {
                 target : logic
-                onKillmenu : animClose.start();
+                onKillmenu : if(!animClose.running)
+                                 animClose.closeEmpty();
             }
 
 
@@ -133,7 +135,7 @@ Item {
                                         return;
                                     }
 
-                                    animClose.start();
+                                    animClose.closeEmpty();
                                   }
             }
 
@@ -142,23 +144,25 @@ Item {
                 width : menuItemWidth
                 model : 4
                 delegate: ZButton {
+                    id : lvInstance
                     width : menuItemWidth
                     height : menuItemHeight
                     state : Lodash.isObject(v) && Lodash.isString(v.state)? v.state : menuItemState
-                    text : modelData
+                    property string icon : Lodash.isObject(v) && Lodash.isString(v.icon)? v.icon + " " : ""
                     property var v : menuObj[modelData];
+                    text : modelData
                     onClicked : {
                         if(!animOpen.running && !animClose.running){
-                            if(Lodash.isFunction(v)) {
-                                v();
-                                return animClose.start();
-                            }
-                            else if(Lodash.isObject(v) && Lodash.isFunction(v.fn)){
-                                v.fn();
-                                return animClose.start();
-                            }
-                            console.error("ZDropdownMenu :: No function found @" , index , "Must be function or { fn : <function> }")
+                            var fn = Lodash.isFunction(v) ? v : Lodash.isObject(v) && Lodash.isFunction(v.fn) ? v.fn : null;
+                            animClose.closeWith(fn);
                         }
+                    }
+                    ZText {
+                        anchors.fill: parent
+                        anchors.margins: 5
+                        state : parent.state + "-transparent-tleft"
+                        text : parent.icon
+                        visible : parent.icon
                     }
                 }
                 transform: Scale { id : sc  }
@@ -179,7 +183,21 @@ Item {
                     from : 1
                     to : 0
                     duration : 75
-                    onStopped: menuInstance.requestDestruction();
+                    property var fn
+                    onStopped: {
+                        menuInstance.requestDestruction(undefined);
+                        if(Lodash.isFunction(fn))
+                            fn();
+                        fn= null;
+                    }
+                    function closeWith(fn){
+                        animClose.fn = fn;
+                        start();
+                    }
+                    function closeEmpty(){
+                        animClose.fn = null;
+                        start();
+                    }
                 }
             }
 

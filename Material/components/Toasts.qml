@@ -28,42 +28,42 @@ Item {
 
     //available functions!
     function create                 (message,args,type,wPerc,hPerc){
-        logic.create(message,type,args,{},wPerc,hPerc)
+        return logic.create(message,type,args,{},wPerc,hPerc)
     }
     function createBlocking         (message,args,type,wPerc,hPerc){
-        logic.create(message,type,args,{blocking:true},wPerc,hPerc)
+        return logic.create(message,type,args,{blocking:true},wPerc,hPerc)
     }
     function createPermanent        (message,args,type,wPerc,hPerc){
-        logic.create(message,type,args,{duration:-1},wPerc,hPerc)
+        return logic.create(message,type,args,{duration:-1},wPerc,hPerc)
     }
     function createPermanentBlocking(message,args,type,wPerc,hPerc){
 //        console.log("Toasts create Permanent blocking", message, args, type, wPerc, hPerc);
-        logic.create(message,type,args,{blocking:true,duration:-1},wPerc,hPerc)
+        return logic.create(message,type,args,{blocking:true,duration:-1},wPerc,hPerc)
     }
 
     function createIn(item,msg,args,type,wPerc,hPerc){
-        logic.create(msg,type,args,{},wPerc,hPerc,item)
+        return logic.create(msg,type,args,{},wPerc,hPerc,item)
     }
     function createBlockingIn       (item,message,args,type,wPerc,hPerc){
-        logic.create(message,type,args,{blocking:true},wPerc,hPerc,item)
+        return logic.create(message,type,args,{blocking:true},wPerc,hPerc,item)
     }
     function createPermanentIn      (item,message,args,type,wPerc,hPerc){
-        logic.create(message,type,args,{duration:-1},wPerc,hPerc,item)
+        return logic.create(message,type,args,{duration:-1},wPerc,hPerc,item)
     }
     function createPermanentBlockingIn(item,message,args,type,wPerc,hPerc){
-        logic.create(message,type,args,{blocking:true,duration:-1},wPerc,hPerc,item)
+        return logic.create(message,type,args,{blocking:true,duration:-1},wPerc,hPerc,item)
     }
 
     function createComponent(componentOrPath, args, cb, wPerc,hPerc,contentItem){
-        logic.create("","ZToastComponent",{cmp:componentOrPath,args:args, cb : cb },{},wPerc, hPerc, contentItem)
+        return logic.create("","ZToastComponent",{cmp:componentOrPath,args:args, cb : cb },{},wPerc, hPerc, contentItem)
     }
 
     function createComponentPermanent(componentOrPath, args, cb, wPerc,hPerc,contentItem){
-        logic.create("","ZToastComponent",{cmp:componentOrPath,args:args, cb : cb },{duration:-1},wPerc, hPerc, contentItem)
+        return logic.create("","ZToastComponent",{cmp:componentOrPath,args:args, cb : cb },{duration:-1},wPerc, hPerc, contentItem)
     }
 
     function createComponentPermanentBlocking(componentOrPath, args, cb, wPerc,hPerc,contentItem){
-        logic.create("","ZToastComponent",{cmp:componentOrPath,args:args, cb : cb },{blocking:true,duration:-1},wPerc, hPerc, contentItem)
+        return logic.create("","ZToastComponent",{cmp:componentOrPath,args:args, cb : cb },{blocking:true,duration:-1},wPerc, hPerc, contentItem)
     }
 
     function error(strOrObj,title,args){
@@ -73,7 +73,7 @@ Item {
                 obj[a] = args[a]
             }
         }
-        logic.create("","ZToastError", obj ,{blocking:true,duration:-1})
+        return logic.create("","ZToastError", obj ,{blocking:true,duration:-1})
     }
     function errorIn(item,strOrObj,title,args){
         var  obj = { err : strOrObj }
@@ -82,11 +82,11 @@ Item {
                 obj[a] = args[a]
             }
         }
-        logic.create("","ZToastError", obj ,{blocking:true,duration:-1},null,null,item)
+        return logic.create("","ZToastError", obj ,{blocking:true,duration:-1},null,null,item)
     }
 
     function dialog(title, text, cbAccept, cbCancel, args){
-        dialogIn(title,text,cbAccept,cbCancel,args)
+        return dialogIn(title,text,cbAccept,cbCancel,args)
     }
     function dialogIn(title, text, cbAccept, cbCancel, args, item) {
         if(!args)
@@ -96,10 +96,10 @@ Item {
         args.acceptFunc = cbAccept;
         args.cancelFunc = cbCancel;
 
-        logic.create(text,"ZToastDialog", args, {blocking:true,duration:-1} , null, null , item)
+        return logic.create(text,"ZToastDialog", args, {blocking:true,duration:-1} , null, null , item)
     }
     function dialogWithInput(title, text, cbAccept, cbCancel, args){
-        dialogWithInputIn(title,text,cbAccept,cbCancel,args)
+        return dialogWithInputIn(title,text,cbAccept,cbCancel,args)
     }
     function dialogWithInputIn(title, text, cbAccept, cbCancel, args, item) {
         if(!args)
@@ -110,12 +110,12 @@ Item {
         args.cancelFunc = cbCancel;
 //        args.focusFunc = cbFocus;
 
-        logic.create(text,"ZToastDialogInput", args, {blocking:true,duration:-1} , null, null , item)
+        return logic.create(text,"ZToastDialogInput", args, {blocking:true,duration:-1} , null, null , item)
     }
 
 
     function listOptions(title, model, cbAccept, cbCancel, args){
-        listOptionsIn(title,model,cbAccept,cbCancel,args)
+        return listOptionsIn(title,model,cbAccept,cbCancel,args)
     }
     function listOptionsIn(title, model, cbAccept, cbCancel, args, item){
         if(!args)
@@ -126,7 +126,7 @@ Item {
         args.cancelFunc = cbCancel;
         args.model      = model;
 
-        logic.create("","ZToastList",args,{blocking:true,duration:-1}, null, null, item)
+        return logic.create("","ZToastList",args,{blocking:true,duration:-1}, null, null, item)
     }
     function snackbar(text, args, cb, btnText){
         if(!args)
@@ -141,7 +141,7 @@ Item {
         if(btnText !== undefined)
             args.textButton  = btnText
 
-        logic.createSnack(text,"ZSnackbar",args);
+        return logic.createSnack(text,"ZSnackbar",args);
     }
     function snackbarPermanent(text,args,cb,btnText){
         if(!args)
@@ -156,7 +156,7 @@ Item {
         if(btnText !== undefined)
             args.textButton  = btnText
 
-        logic.createSnack(text,"ZSnackbar",args);
+        return logic.createSnack(text,"ZSnackbar",args);
     }
 
 
@@ -191,7 +191,7 @@ Item {
                     }
                     else {
                         console.error("NO PARENT FOUND TO MAKE SNACK IN!", mgr.target.mainWindow);
-                        return;
+                        return null;
                     }
                 }
 
@@ -204,8 +204,8 @@ Item {
                     activeSnack              = snackBakery.createObject(contentItem);
 //                    activeSnack.anchors.top  = mainItem.bottom  //under the main item!
                     activeSnack.state        = args.state || "";
-                    activeSnack.w            = args.w
-                    activeSnack.h            = args.h
+                    activeSnack.w            = args.w || 1
+                    activeSnack.h            = args.h || 0.1
                     activeSnack.args         = args;
 
                     activeSnack.width  = Qt.binding(function() { return contentItem.width })
@@ -237,6 +237,7 @@ Item {
                     activeSnack              = snackBakery.createObject(contentItem);
                     activeSnack.anchors.fill = contentItem
                     activeSnack.state        = args.state || "";
+
                     activeSnack.w            = args.w
                     activeSnack.h            = args.h
                     activeSnack.args         = args;
@@ -307,7 +308,7 @@ Item {
                 }
                 else {
                     console.error("NO PARENT FOUND TO MAKE TOAST IN!", mgr.target.mainWindow);
-                    return;
+                    return null;
                 }
             }
 

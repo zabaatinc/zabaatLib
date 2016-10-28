@@ -1,6 +1,7 @@
 import QtQuick 2.4
 import Zabaat.Material 1.0
 ZObject{
+    id : rootObject
     objectName : "ZButton"
     signal pressed(var self)
     signal clicked(var self, int x, int y, int button)
@@ -12,17 +13,22 @@ ZObject{
     property bool   allowDoubleClicks: false
 //    focus : true;
     debug                  : false
-    onPressed              : log(self, "pressed")
-    onClicked              : log(self, "clicked"      , x,  y,  button)
+//    onPressed              : log(self, "pressed")
+//    onClicked              : log(self, "clicked"      , x,  y,  button)
     onSingleClicked        : {
+        if(!rootObject) return;
         clicked(self,x,y,button)
-        log(self, "singleClicked", x,y,button)
+//        log(self, "singleClicked", x,y,button)
     }
     onDoubleClicked        : {
+        if(!rootObject) return;
         clicked(self,x,y,button)
-        log(self, "doubleClicked", x,  y,  button)
+//        log(self, "doubleClicked", x,  y,  button)
     }
-    onContainsMouseChanged : log(this, "containsMouse", containsMouse )
+    onContainsMouseChanged : {
+        if(!rootObject) return;
+//        log(this, "containsMouse", containsMouse )
+    }
 
 
 
