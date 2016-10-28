@@ -5,14 +5,15 @@ Item {
     id : rootObject
     property var m
 
-    property string textDisp    : !m ? "" : first || last  ? first + " " + last : username;
-    property string avatar      : !m ? "" : getSafe(m, UserSystem.config.keyName_avatar, Qt.resolvedUrl(ri.def));
+    property string textDisp    : !m ? "Not Logged In" : first || last  ? first + " " + last : username;
+    property string avatar      : !m ? Qt.resolvedUrl(ri.def) : getSafe(m, UserSystem.config.keyName_avatar, Qt.resolvedUrl(ri.def));
     property string username    : !m ? "" : Lodash.isString(m) ? m :
                                                                 getSafe(m, UserSystem.config.keyName_username, "");
     property string uid         : !m ? "" : getSafe(m, UserSystem.config.keyName_id, "");
     property string first       : !m ? "" : getSafe(m, UserSystem.config.keyName_firstName, "");
     property string last        : !m ? "" : getSafe(m, UserSystem.config.keyName_lastName, "");
     property bool   female      : !m ? false : getSafe(m, UserSystem.config.keyName_gender, false);
+    property alias  btn         : btn
 
     function getSafe(obj,prop,defaultVal){
         if(typeof obj !== 'object' || !obj.hasOwnProperty(prop))
@@ -36,6 +37,7 @@ Item {
     }
 
     FlexibleComponent {
+        id : btn
         width : parent.width - parent.height
         height : parent.height
         value : parent.textDisp

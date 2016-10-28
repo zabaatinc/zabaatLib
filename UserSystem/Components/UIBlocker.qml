@@ -2,6 +2,8 @@ import QtQuick 2.5
 Item {
     id : blocker
     visible : false;
+    property alias color : blockerFill.color
+    property alias transparency : blockerFill.opacity
 
     onVisibleChanged: if(visible)
                           forceActiveFocus();

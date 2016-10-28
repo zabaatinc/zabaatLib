@@ -334,7 +334,7 @@ Item {
 
             newToast.w         = w || argsW ||  defaultToastSize.x
             newToast.h         = h || argsH || defaultToastSize.y
-            newToast.z         = 999999
+            newToast.z         = Number.MAX_VALUE
 
             //now load the inner loader!
             type  = type || "ZToastSimple.qml"
@@ -403,6 +403,11 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         hoverEnabled: true
+                        acceptedButtons: Qt.AllButtons
+                        onPressed: mouse.accepted = true;
+                        onReleased: mouse.accepted = true;
+                        propagateComposedEvents: false;
+                        preventStealing: true;
                     }
                 }
                 Loader {

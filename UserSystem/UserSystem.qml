@@ -69,27 +69,33 @@ QtObject{
                     settings.role = config.role_guest;
 
                 userInfo.obj = userObj;
-
-
-
-                userInfo.printCurrentUserProperties();
+//                userInfo.printCurrentUserProperties();
             }
             else {
                 console.warn("WARNING!!!!!! LOGIN FUNCTION DIDNT RETURN DATA!!!!!!");
             }
 
             priv.status = 1; //sucessfully logged in!
+
+
             var promises = [];
             Lodash.each(functions.loginFuncs, function(v,k){
                 if(typeof v === 'function')
                     promises.push(priv.genFuncPromise(v));
             })
+
+//            promises[0] = function() { return Promises.promise(function(resolve,reject) { resolve() }) }
+            console.log("HEY bruh", promises.length);
             return promises.length == 0 ? success() :
-                                          Promises.all(promises).finally(success);
+                                          Promises.all(promises)
+                                                  .catch(function(err){ console.error("Error on promise.all(loginfuncs) -->", err); } )
+                                                  .finally(function() { console.log("u wot mate"); success(); } )
+
         }).catch(function(err){
             //return status to old status cause logout failed!
             console.error("Error when Logging In -->", err);
             priv.status = oldStatus
+            console.log(statusString);
             fail();
         });
     }
@@ -215,7 +221,6 @@ QtObject{
                 return id === config.role_guest ? config.role_guest :
                                                   config.role_default
             }
-            onRoleChanged: console.log("ROLE =", role);
             function printCurrentUserProperties(){
                 Lodash.each(userInfo,function(v,k) {
                     if(k === 'obj' || k === 'objectName' || Lodash.isFunction(v))
@@ -316,11 +321,14 @@ QtObject{
 
 
             return Promises.promise(function(resolve,reject){
+
                 args.push(function(msg) { //return msg && msg.err ? reject(msg.err) : resolve(msg);
                     if(msg && msg.err) {
                         console.log("REJECTING WITH", msg.err);
                         reject(msg.err);
                     }
+//                  console.log("RESOLVING WITH", JSON.stringify(msg), typeof resolve);
+//                  console.trace();
                     resolve(msg);
                 })
 

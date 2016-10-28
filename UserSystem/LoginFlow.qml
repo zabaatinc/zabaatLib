@@ -7,8 +7,14 @@ ZPage {
     id : rootObject
     property var config : UserSystem.componentsConfig;
     property string facebookAppId: "";
+    readonly property alias state : logic.state
     signal done();
 
+    //block everything behind this!!!!!!
+    UIBlocker {
+        anchors.fill: parent
+        color : 'transparent'
+    }
 
 
     QtObject {

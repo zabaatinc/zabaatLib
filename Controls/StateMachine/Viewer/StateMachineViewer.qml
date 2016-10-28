@@ -18,6 +18,7 @@ Item {
     property alias defaultTransitionDuration : loader.transitionDuration
     property alias loader :loader
 
+    readonly property alias state        : logic.currentState
     readonly property alias currentState : logic.currentState
     readonly property alias allStates    : logic.states
     property var transitionFunc : logic.defaultTransitionFunc //provide this function. inputs(string id, string dest). Should make modelObject change states
@@ -155,14 +156,25 @@ Item {
 
             return null;
         }
-        function getAllowedTransitions(stateName){
+        function getAllowedTransitions(stateName, asArr){
             if(stateMachine && currentState !== ""){
                 var stateObj = GFuncs.getFromList(logic.states,stateName,"name")
                 if(stateObj)
-                    return stateObj.transitions
+                    return !asArr ?stateObj.transitions : GFuncs.toArray(stateObj.transitions);
             }
             return null;
         }
+        function getAllowedTransitionNames(stateName){
+            stateName = stateName || currentState
+            var arr = getAllowedTransitions(stateName, true);
+            var res = []
+            Lodash.each(arr, function(v) {
+                res.push(v.dest)
+            })
+            return res;
+        }
+
+
         function getAllowedFunctions(stateName){
             var fArr = GFuncs.clone(alwaysAllowedFunctions)
             if(stateMachine && currentState !== "") {

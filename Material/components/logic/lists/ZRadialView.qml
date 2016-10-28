@@ -22,6 +22,7 @@ Rectangle {
     property alias highlightRangeMode : pv.highlightRangeMode
     property bool  isStatic           : false
     property alias pathMargin         : pv.pathMargin
+    property alias animSpeed          : pv.highlightMoveDuration
     radius : height/2
     color : 'transparent'
     border.width: 5

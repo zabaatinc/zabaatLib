@@ -8,6 +8,7 @@ EndlessScroller			1.0 components/Loaders/EndlessScroller/EndlessScroller.qml
 CachedLoader 			1.0 components/Loaders/CachedLoader/CachedLoader.qml
 ObjectEditor			1.0 components/ObjectEditor/v10/ObjectEditor.qml
 HorizontalGradient 		1.0 components/Graphical/HorizontalGradient.qml
+GradientShadow	 		1.0 components/Graphical/GradientShadow.qml
 ImageSubView			1.0 components/Graphical/ImageSubView/ImageSubView.qml
 ImageSubPicker 			1.0 components/Graphical/ImageSubView/ImageSubPicker.qml
 ZTitleBar 				1.0 components/Graphical/ZTitleBar.qml
@@ -16,5 +17,7 @@ CircularProgressBar	 	1.0 components/Graphical/CircularProgressBar.qml
 Diamond 				1.0 components/Graphical/Diamond.qml
 CheckeredGrid 			1.0 components/Graphical/CheckeredGrid.qml
 Line					1.0 components/Graphical/Line.qml
+SpeechBubble			1.0 components/Graphical/SpeechBubble.qml
 Selector 				1.0 components/Editor/Selector.qml
 Compositor 				1.0 components/Editor/Compositor.qml
+

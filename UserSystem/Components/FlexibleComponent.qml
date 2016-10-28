@@ -7,20 +7,30 @@ Item {
     property var src    //must be ComponentInfo
     property var value
     property var label
-    onLabelChanged: if(fl.item && src && src.labelProperty) {
-                        try {
-                            fl.item[src.labelProperty] = label;
-                        }catch(e) {}
-                    }
-
-    onValueChanged : if(fl.item &&  src && src.valueProperty){
-                        try {
-                            fl.item[src.valueProperty] = value;
-                        }catch(e) {}
-                     }
+    onLabelChanged: {
+        var labelProperty = src && src.labelProperty ? src.labelProperty : "label"
+        if(fl.item) {
+            try {
+                fl.item[labelProperty] = label;
+            }catch(e) {}
+        }
+    }
+    onValueChanged : {
+        var valProperty = src && src.valueProperty  ? src.valueProperty : "text"
+        if(fl.item){
+            try {
+                fl.item[valProperty] = value;
+            }catch(e) {}
+        }
+    }
     onSrcChanged :  {
         if(!src)
             return fl.src = null;
+
+        var notComponentInfoObj = typeof src === 'string' || src.toString().toLowerCase().indexOf("qqmlcomponent") !== -1
+        if(notComponentInfoObj)
+            return fl.src = src;
+
         src.componentChanged.connect(function() {
             if(fl)
                 fl.src = src ? src.component : null;
@@ -35,29 +45,50 @@ Item {
         anchors.fill: parent
         onEvent : rootObject.event(name,args);
         onLoaded : {
-            if(rootObject.src && rootObject.src.valueProperty){
-                try {
-                    var sigName = rootObject.src.valueProperty+"Changed"
-                    if(typeof item[sigName] === 'function') {
-                        item[sigName].connect(function() {
-                            if(rootObject.value === item[rootObject.src.valueProperty])
-                                return;
+            var valProperty   = rootObject.src && rootObject.src.valueProperty ? rootObject.src.valueProperty : "text"
+            var labelProperty = rootObject.src && rootObject.src.labelProperty ? rootObject.src.labelProperty : "label"
 
-                            rootObject.value = item[rootObject.src.valueProperty];
+            try {
+                var sigName = valProperty+"Changed"
+                if(typeof item[sigName] === 'function') {
+                    item[sigName].connect(function() {
+                        if(rootObject.value === item[valProperty])
+                            return;
+
+                        rootObject.value = item[valProperty];
 //                            console.log("rootObject.val", rootObject.value )
-                        })
-                    }
-                    else {
-                        console.log("no", sigName, 'found on', item)
-                    }
+                    })
+                }
+                else {
+//                    console.log("no", sigName, 'found on', item)
+                }
 
-                    //assign val
-                    item[rootObject.src.valueProperty] = rootObject.value;
+                //assign val
+                item[valProperty] = rootObject.value;
 
-                }catch(e){}
-            }
-            if(rootObject.label && rootObject.src.labelProperty && item[rootObject.src.labelProperty])
-                item[rootObject.src.labelProperty] = rootObject.label;
+            }catch(e){}
+
+            try {
+                sigName = labelProperty + "Changed";
+                if(typeof item[sigName] === 'function') {
+                    item[sigName].connect(function() {
+                        if(rootObject.label === item[labelProperty])
+                            return;
+
+                        rootObject.label = item[labelProperty];
+                    })
+                }
+                else {
+//                    console.log("no", sigName, "found on", item);
+                }
+
+                //assign label
+                if(item.hasOwnProperty(labelProperty))
+                    item[labelProperty] = rootObject.label;
+
+            }catch(e){}
+
+
 
             rootObject.loaded(item);
         }
