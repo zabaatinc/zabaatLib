@@ -16,6 +16,12 @@ QtObject {
         textedit.copy()
         textedit.text = ""
     }
+
+    function log(){
+        var arr = [string.currentFileAndLineNum(2)].concat(Array.prototype.slice.call(arguments));
+        console.log.apply(this,arr);
+    }
+
     property TextEdit __private__ : TextEdit{
         id : textedit
     }

@@ -1,6 +1,36 @@
 import QtQuick 2.0
 QtObject {
 
+    function currentLineNum(stackidx) {
+        stackidx = stackidx || 1;
+        var stack = new Error().stack.split('\n')
+        if(stack.length > stackidx) {
+            var relevantLine = stack[stackidx];
+            var lastIdx = relevantLine.lastIndexOf(":");
+            if(lastIdx !== -1){
+                var num = relevantLine.slice(lastIdx+1);
+                return parseInt(num);
+            }
+        }
+        return 0;
+    }
+
+    function currentFileAndLineNum(stackidx) {
+        stackidx = stackidx || 1;
+        var stack = new Error().stack.split('\n')
+        if(stack.length > stackidx) {
+            var relevantLine = stack[stackidx];
+            var arr = relevantLine.split("/");
+
+            relevantLine = arr[arr.length -1];
+            arr = relevantLine.split(":");
+            if(arr.length == 2) {
+                return arr[0] + "::" + arr[1];
+            }
+        }
+        return "";
+    }
+
     function strToBool(str){
         if(str){
             str = str.toLowerCase()

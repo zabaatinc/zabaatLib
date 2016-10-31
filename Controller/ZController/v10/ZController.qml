@@ -430,6 +430,15 @@ Item
            model.clear()
    }
 
+   /*! fn: Clears all models!! \hr */
+   function clearAllModels() {
+       var mNames = getAllModelNames();
+       for(var n in mNames) {
+           var modelname = mNames[n];
+           clearModel(modelname);
+       }
+   }
+
 
    /*! fn: Recursively prints an object with tabs, tabStr \hr */
    function __printObject(obj, tabStr){

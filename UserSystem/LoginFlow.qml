@@ -8,6 +8,11 @@ ZPage {
     property var config : UserSystem.componentsConfig;
     property string facebookAppId: "";
     readonly property alias state : logic.state
+
+    function resetState() {
+        logic.state = "";
+    }
+
     signal done();
 
     //block everything behind this!!!!!!
@@ -27,6 +32,20 @@ ZPage {
                 case 'signup'   : return Qt.resolvedUrl("./Components/SignUp.qml");
                 case 'loggedin' : return Qt.resolvedUrl("./Components/LoggedIn.qml");
                 case ''         : return Qt.resolvedUrl("./Components/Homepage.qml");
+            }
+        }
+
+        property bool watchLogout : false
+        property Connections userStatusConn : Connections{
+            target : UserSystem
+            onStatusChanged : {
+                if(UserSystem.status === UserState.attemptingLogout) {
+                    logic.watchLogout = true;
+                }
+                else if(UserSystem.status === UserState.notloggedIn && logic.watchLogout) {
+                    logic.watchLogout = false;
+                    logic.state = "";
+                }
             }
         }
     }

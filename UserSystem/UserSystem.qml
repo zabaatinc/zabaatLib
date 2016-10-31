@@ -53,7 +53,8 @@ QtObject{
 
             if(msg && msg.data) {
                 var userObj = Lodash.isArray(msg.data) ? msg.data[0] : msg.data;
-                console.log("THIS IS USEROBJ" , JSON.stringify(userObj,null,2))
+                Functions.log("THIS IS USEROBJ" , JSON.stringify(userObj,null,2))
+
 
                 settings.userLoginData = userData;
                 settings.id          = priv.get(userObj, config.keyName_id          ,config.role_guest);
@@ -79,9 +80,11 @@ QtObject{
 
 
             var promises = [];
-            Lodash.each(functions.loginFuncs, function(v,k){
+            Lodash.eachRight(functions.onLoginFuncs, function(v,k){
                 if(typeof v === 'function')
                     promises.push(priv.genFuncPromise(v));
+                else
+                    functions.onLogoutFuncs.splice(k,1);
             })
             return Promises.all(promises).finally(success);
 
@@ -103,9 +106,11 @@ QtObject{
         fail    = typeof fail    === 'function' ? fail    : blankFn
 
         var promises = [];
-        Lodash.each(functions.skippedLoginFuncs, function(v,k){
+        Lodash.eachRight(functions.onSkippedLoginFuncs, function(v,k){
             if(typeof v === 'function')
                 promises.push(priv.genFuncPromise(v));
+            else
+                functions.onLogoutFuncs.splice(k,1);
         })
 
         //make da userInfo based on our settings cause we remember it, then call the onSkippedLoginFuncs!!
@@ -152,9 +157,11 @@ QtObject{
             priv.status = 0; //sucessfully logged out
             userInfo.obj = undefined;
             var promises = [];
-            Lodash.each(functions.logoutFuncs, function(v,k){
+            Lodash.eachRight(functions.onLogoutFuncs, function(v,k){
                 if(typeof v === 'function')
                     promises.push(priv.genFuncPromise(v));
+                else
+                    functions.onLogoutFuncs.splice(k,1);
             })
             return promises.length === 0 ? success() :
                                            Promises.all(promises).finally(success);
@@ -258,9 +265,9 @@ QtObject{
             }
 
             property var leaveFeedbackFunc
-            property var skippedLoginFuncs : []
-            property var loginFuncs        : []
-            property var logoutFuns        : []
+            property var onSkippedLoginFuncs : []
+            property var onLoginFuncs        : []
+            property var onLogoutFuncs       : []
         }
         Settings {
             id : settings

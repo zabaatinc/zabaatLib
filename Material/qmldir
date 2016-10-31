@@ -33,3 +33,4 @@ ZToggleGroup				1.0 ./components/logic/selection_controls/ZToggleGroup.qml
 ZTextBoxLabel 				1.0 ./components/logic/textboxes/ZTextBoxLabel.qml
 ZSwipeView					1.0 ./components/logic/containers/ZSwipeView.qml
 ZSnackbar					1.0 ./components/logic/toasts/ZSnackbar.qml
+ZProgressBarIndeterminate	1.0 ./components/logic/progress/ZProgressBarIndeterminate.qml
