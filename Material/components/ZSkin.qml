@@ -236,8 +236,8 @@ Item {
             property color inkColor         : Colors.getContrastingColor(fill_Default)
             property color borderColor      : Colors.text1
             property real  inkOpacity       : 1
-            property color disabled1        : "Gray"
-            property color disabled2        : "DarkGray"
+            property color disabled1        : Colors.names.gray
+            property color disabled2        : Qt.darker(Colors.names.gray)
         }
 
         function has(obj, key){
@@ -290,6 +290,9 @@ Item {
             cache.injectState("square"   , "rootObject" , { "radius" : 0   });
             cache.injectState("circle"  , "rootObject" , { "@radius" : [rootObject,"height",1/2]  });
 
+            cache.injectState("bblack"    , "graphical" , { "borderColor"  : Colors.names.black });
+            cache.injectState("bgray"     , "graphical" , { "borderColor"  : Colors.names.gray });
+            cache.injectState("bwhite"    , "graphical" , { "borderColor"  : Colors.names.white });
             cache.injectState("bdisabled" , "graphical" , { "@borderColor" : [graphical,"disabled1"] });
             cache.injectState("baccent"   , "graphical" , { "@borderColor" : [Colors,"accent"] });
             cache.injectState("bdanger"   , "graphical" , { "@borderColor" : [Colors,"danger"] });
@@ -350,6 +353,55 @@ Item {
             cache.fontsAdded = true;
         }
         function addGraphicalStates() {
+            cache.injectState("black","graphical", {
+               "fill_Empty"      : "transparent",
+               "fill_Default"   : Colors.names.black,
+               "text_Default"   : Colors.names.white,
+               "borderColor"    : Colors.names.white,
+               "inkColor"       : Colors.names.gray,
+               "fill_Press"     : Colors.names.gray,
+               "fill_Focus"     : Colors.names.darkgray,
+               "text_Press"     : Colors.names.lightgray,
+               "text_Focus"     : Colors.names.lightgray,
+               "text_hAlignment" : Text.AlignHCenter,
+               "text_vAlignment" : Text.AlignVCenter,
+               "inkOpacity"      : 1,
+               "fill_Opacity"    : 1
+            })
+
+            cache.injectState("white","graphical", {
+               "fill_Empty"      : "transparent",
+               "fill_Default"   : Colors.names.white,
+               "text_Default"   : Colors.names.black,
+               "borderColor"    : Colors.names.black,
+               "inkColor"       : Colors.names.gray,
+               "fill_Press"     : Colors.names.gray,
+               "fill_Focus"     : Colors.names.lightgray,
+               "text_Press"     : Colors.names.darkgray,
+               "text_Focus"     : Colors.names.darkgray,
+               "text_hAlignment" : Text.AlignHCenter,
+               "text_vAlignment" : Text.AlignVCenter,
+               "inkOpacity"      : 1,
+               "fill_Opacity"    : 1
+            })
+
+            cache.injectState("gray","graphical", {
+               "fill_Empty"      : "transparent",
+               "fill_Default"    : Colors.names.gray,
+               "text_Default"    : Colors.names.white,
+               "borderColor"     : Colors.names.white,
+               "inkColor"        : Colors.names.darkgray,
+               "fill_Press"      : Colors.names.darkgray,
+               "fill_Focus"      : Colors.names.lightgray,
+               "text_Press"      : Colors.names.white,
+               "text_Focus"      : Colors.names.white,
+               "text_hAlignment" : Text.AlignHCenter,
+               "text_vAlignment" : Text.AlignVCenter,
+               "inkOpacity"      : 1,
+               "fill_Opacity"    : 1
+            })
+
+
             cache.injectState("standard","graphical", {
                "fill_Empty"      : "transparent",
                "@fill_Default"   : [Colors,"standard"],
@@ -539,6 +591,27 @@ Item {
                 "@text_Press"  : [graphical,"disabled1"],
                 "@text_Focus"  : [graphical,"disabled2"],
                 "@borderColor" : [graphical,"disabled1"]
+            })
+
+            cache.injectState("tblack","graphical", {
+                "text_Default": Colors.names.black,
+                "text_Press"  : Colors.names.black,
+                "borderColor" : Colors.names.black,
+                "text_Focus"  : Colors.names.gray
+            })
+
+            cache.injectState("tgray","graphical", {
+                "text_Default": Colors.names.gray,
+                "text_Press"  : Colors.names.gray,
+                "borderColor" : Colors.names.gray,
+                "text_Focus"  : Colors.names.lightgray
+            })
+
+            cache.injectState("twhite","graphical", {
+                "text_Default": Colors.names.white,
+                "text_Press"  : Colors.names.white,
+                "borderColor" : Colors.names.white,
+                "text_Focus"  : Colors.names.black
             })
 
             cache.injectState("t1","graphical", {
