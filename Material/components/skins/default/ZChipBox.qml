@@ -80,7 +80,7 @@ ZSkin {
             spacing : 5
             delegate : ZChip {
                 id : delChip
-                height : lv.height /** 3/4*/
+                height : lv.height * 0.9 /** 3/4*/
                 width  : lv.height * 2.5
                 anchors.verticalCenter: parent.verticalCenter
                 state  : logic ? logic.chipState : ""

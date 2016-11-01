@@ -10,7 +10,7 @@ ZObject {
     property var    chipModifierFunc
 
     property string chipState            : "close"
-    property string chipCloseButtonState : 'disabled-circle-f2'
+    property string chipCloseButtonState : 'danger-circle-f2'
     property string chipCloseButtonText  : FAR.close
     property string textBoxState         : "nobar-b0-lleft"
 

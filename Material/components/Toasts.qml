@@ -334,7 +334,7 @@ Item {
             var argsH = !args ? null : args.width ? args.height : args.h
 
             newToast.w         = w || argsW ||  defaultToastSize.x
-            newToast.h         = h || argsH || defaultToastSize.y
+            newToast.h         = h || argsH ||  defaultToastSize.y
             newToast.z         = Number.MAX_VALUE
 
             //now load the inner loader!
@@ -398,7 +398,7 @@ Item {
                     id : uiBlocker
                     anchors.fill: parent
                     color : 'black'
-                    opacity : 0.7
+                    opacity : 0.8
                     visible : parent.blocking
                     enabled : visible
                     MouseArea {
