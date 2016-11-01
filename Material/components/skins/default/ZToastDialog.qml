@@ -33,6 +33,7 @@ M.ZSkin {
         anchors.bottom: parent.bottom
         anchors.margins: 5
         anchors.right : parent.right
+        anchors.rightMargin: parent.radius
 
         M.ZButton {
             id : cancelBtn

@@ -62,7 +62,7 @@ ZSkin {
                 font.underline:           rootObject.font.underline
                 font.weight  :            rootObject.font.weight
                 font.wordSpacing:         rootObject.font.wordSpacing
-                font.pixelSize     : parent.height * 1/3
+                font.pixelSize     : rootObject.font.pixelSize
                 color              : text.color
                 textFormat         : Text.RichText
                 text               : logic.title ? logic.title : ""
