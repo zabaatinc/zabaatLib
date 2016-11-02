@@ -51,7 +51,7 @@ ZSkin {
         color   : graphical.inkColor
         enabled : logic ? true : false;
         allowDoubleClicks: logic ? logic.allowDoubleClicks : false
-        acceptedButtons: Qt.AllButtons
+        acceptedButtons: logic && logic.acceptedButtons !== -1 ? logic.acceptedButtons : Qt.AllButtons
         onPressed       : if(logic) logic.pressed(logic, x,y,buttons)
         onClicked       : if(logic) logic.singleClicked(logic, x,y,buttons)
         onDoubleClicked : if(logic) logic.doubleClicked(logic, x,y,buttons)

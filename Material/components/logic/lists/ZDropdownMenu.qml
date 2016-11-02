@@ -16,6 +16,7 @@ Item {
                                 })
     property var menuSortFn //allows us to sort the menuItems based on Keys
     property alias state : mainBtn.state
+    property alias acceptedButtons : mainBtn.acceptedButtons
 
 
     QtObject {
@@ -39,6 +40,7 @@ Item {
         text : FAR.list
         state : 'accent-f3-t2'
         onClicked: !logic.menuOpen ? logic.createDropdown() : logic.killmenu();
+
     }
 
 
@@ -214,6 +216,7 @@ Item {
 //                samples : radius * 2 + 1;
 //            }
         }
+
     }
 
 

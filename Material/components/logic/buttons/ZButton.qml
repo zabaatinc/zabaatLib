@@ -8,6 +8,7 @@ ZObject{
     signal singleClicked(var self, int x,  int y, int button)
     signal doubleClicked(var self, int x , int y, int button)
 
+    property int acceptedButtons : -1
     property bool containsMouse      : false
     property string text             : ""
     property bool   allowDoubleClicks: false

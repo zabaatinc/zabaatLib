@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import Zabaat.Material 1.0
+import Zabaat.Base 1.0
 //Flexible Toast thbat can take any component and then displays it. If the compoonent is made permanent,
 //should take care of its own destruction. Should have a signal called requestDestruction!
 Item {
@@ -11,6 +12,7 @@ Item {
     property var    autoCloseFunc    : null
     property var    cb               : null //happens on destruction if provided!
     property alias  duration         : destructionTimer.interval        //-1 is permanent
+    property alias  item             : loader.item
 
     //just so we are compliant with other toasts
     property string title: ""
@@ -66,7 +68,12 @@ Item {
             if(args) {
                 for(var a in args){
                     if(item.hasOwnProperty(a))
-                        item[a] = args[a]
+                        try {
+                            item[a] = args[a]
+                        }
+                        catch(e) {
+                            Functions.log("Assignemnt on", item + "." + a, "failed. Was trying to assign", JSON.stringify(args[a]));
+                        }
                 }
             }
         }

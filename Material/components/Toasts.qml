@@ -41,6 +41,43 @@ Item {
         return logic.create(message,type,args,{blocking:true,duration:-1},wPerc,hPerc)
     }
 
+    function createMenu(caller, model, pos, cb_opt, state_opt, cellHeight_opt, cellWidth_opt, args_opt) {
+        if(!model)
+            return;
+
+        if(!args_opt)
+            args_opt = {}
+
+        args_opt.model = model;
+        args_opt.pos   = { x:0, y:0 }
+        if(pos) {
+            var x = parseFloat(pos.x);
+            var y = parseFloat(pos.y);
+            if(!isNaN(x))
+                args_opt.pos.x = x;
+            if(!isNaN(y))
+                args_opt.pos.y = y;
+
+            if(Qt.isQtObject(caller)) {
+                var c = logic.getActiveWindowContentItem();
+                args_opt.pos = caller.mapToItem(c,x,y);
+            }
+        }
+
+        args_opt.menuItemState = state_opt || 'accent-f3-t2';
+
+        cellWidth_opt = parseFloat(cellWidth_opt);
+        cellHeight_opt = parseFloat(cellHeight_opt);
+        if(!isNaN(cellWidth_opt))
+            args_opt.menuItemWidth = cellWidth_opt;
+        if(!isNaN(cellHeight_opt))
+            args_opt.menuItemHeight = cellHeight_opt;
+
+
+        var toast = createComponentPermanent(Qt.resolvedUrl("./logic/toasts/ZButtonMenu.qml"),args_opt,cb_opt,1,1);
+    }
+
+
     function createIn(item,msg,args,type,wPerc,hPerc){
         return logic.create(msg,type,args,{},wPerc,hPerc,item)
     }
@@ -179,20 +216,27 @@ Item {
         property var activeSnack
         property var snackQueue : []    //only one snackbar may be visible at a time. So if there is one, we need to Q it!
 
+
+        function getActiveWindowContentItem () {
+            if(mgr.target && mgr.target.activeWindow) {
+                return mgr.target.activeWindow.contentItem
+            }
+            else if(mgr.target.mainWindow) {
+                return mgr.target.mainWindow.contentItem
+            }
+            else {
+                console.error("NO PARENT FOUND TO MAKE TOAST IN!", mgr.target.mainWindow);
+                return null;
+            }
+        }
+
+
         function createSnack(msg,type,args,contentItem,fromHandleSnackQueue){
             if((!activeSnack && snackQueue.length === 0) || fromHandleSnackQueue){
                 if(!contentItem) {
-                    if(mgr.target && mgr.target.activeWindow) {
-                        contentItem = mgr.target.activeWindow.contentItem
-//                        activeThing = mgr.target.activeWindow.activeFocusItem
-                    }
-                    else if(mgr.target.mainWindow) {
-                        contentItem = mgr.target.mainWindow.contentItem
-                    }
-                    else {
-                        console.error("NO PARENT FOUND TO MAKE SNACK IN!", mgr.target.mainWindow);
+                    contentItem = getActiveWindowContentItem();
+                    if(contentItem === null)
                         return null;
-                    }
                 }
 
 
@@ -299,17 +343,9 @@ Item {
             var activeThing = null
 //            console.log(mgr, mgr.target, mgr.target.activeWindow )
             if(!contentItem) {
-                if(mgr.target && mgr.target.activeWindow) {
-                    contentItem = mgr.target.activeWindow.contentItem
-//                        activeThing = mgr.target.activeWindow.activeFocusItem
-                }
-                else if(mgr.target.mainWindow) {
-                    contentItem = mgr.target.mainWindow.contentItem
-                }
-                else {
-                    console.error("NO PARENT FOUND TO MAKE TOAST IN!", mgr.target.mainWindow);
+                contentItem = getActiveWindowContentItem();
+                if(contentItem === null)
                     return null;
-                }
             }
 
 
