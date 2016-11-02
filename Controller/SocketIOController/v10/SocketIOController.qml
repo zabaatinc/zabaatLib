@@ -53,10 +53,10 @@ ZController {
     }
 
     /*! fn : disconnects any active connections and any attempts to reconnect  \hr */
-    readonly property var   disconnect          : socketHandler.disconnect
+    readonly property var   disconnect  : socketHandler.disconnect
 
     /*! reflects whether the controller is connected to the uri or not  \hr */
-    property bool isConnected         : socketHandler.isConnected
+    property bool isConnected   : socketHandler.isConnected
 
     /*! reflects whether the controller is trying to re-establish a connection  \hr */
     readonly property alias reconnecting        : socketHandler.reconnecting

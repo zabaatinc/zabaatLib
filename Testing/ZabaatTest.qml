@@ -30,11 +30,17 @@ TestCase {
     }
 
     function compareObjects(obj1,obj2, msg){
+        if(Lodash.isArray(obj1) && Lodash.isArray(obj2))
+            return compareArrays(obj1,obj2);
+
         msg = msg || "Objects don't match.\nActual:" + JSON.stringify(obj1,null,2) + "\nExpected:" + JSON.stringify(obj2,null,2) ;
         verify(priv.softObjectMatch(obj1,obj2), msg)
     }
 
     function compareArrays(arr1,arr2,msg){
+        if(Lodash.isObject(arr1) && Lodash.isObject(arr1))
+            return compareObjects(arr1,arr2);
+
         msg = msg || "Arrays don't match.\nActual:" + JSON.stringify(arr1,null,2) + "\nExpected:" + JSON.stringify(arr1,null,2) ;
         verify(priv.arrEq(arr1,arr2), msg);
     }

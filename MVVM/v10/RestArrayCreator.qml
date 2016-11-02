@@ -319,7 +319,7 @@ QtObject {
                     var p = propArr[i];
                     if(Lodash.isArray(ptr) && arrayIsIded(ptr,idProperty)) {
                         ptr = findById(ptr,p,idProperty);
-                        console.log("find by Id", p, ptr)
+                        //console.log("find by Id", p, ptr)
                     }
                     else {
                         ptr = ptr[p];
@@ -516,7 +516,11 @@ QtObject {
                                             if(!currentType.isArray && !currentType.isObject) { //simplest case
 //                                                console.log("SIMPLE SETTER", _value, "to", val)
                                                 signals.beforePropertyUpdated(_path,val,_value);
-                                                _value = priv.convert(val,_path,signals,idProperty);
+                                                if(!helpers.isRestful(val))
+                                                    _value = priv.convert(val,_path,signals,idProperty);
+                                                else
+                                                    _value = val;
+
                                                 signals.propertyUpdated(_path,_value,oldVal);
                                             }
                                             else if(currentType.isArray && newType.isArray) {
@@ -1106,10 +1110,10 @@ QtObject {
                     signals.beforePropertyCreated(p,v)
 
                 if(Lodash.isArray(v)) {
-                    Object.defineProperty(acc,k, helpers.getDescriptor(convertArr(v,p), p));
+                    Object.defineProperty(acc,k, helpers.getDescriptor(v, p));
                 }
                 else if(Lodash.isObject(v) ){
-                    Object.defineProperty(acc,k, helpers.getDescriptor(convertObj(v,p), p));
+                    Object.defineProperty(acc,k, helpers.getDescriptor(v, p));
                 }
                 else {
                     var isReadonly = k ===  idProperty;

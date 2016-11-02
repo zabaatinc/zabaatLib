@@ -167,7 +167,7 @@ QtObject {
     function isNil              (value)                      { return L._[arguments.callee.name].apply(this,arguments)  }
     function isNull             (value)                      { return L._[arguments.callee.name].apply(this,arguments)  }
     function isNumber           (value)                      { return L._[arguments.callee.name].apply(this,arguments)  }
-    function isObject           (value)                      { return L._[arguments.callee.name].apply(this,arguments)  }
+    function isObject           (value)                      { return toString.call(value) === '[object Object]';  }    //idiot lodash! Unintuitive name!!
     function isObjectLike       (value)                      { return L._[arguments.callee.name].apply(this,arguments)  }
     function isPlainObject      (value)                      { return L._[arguments.callee.name].apply(this,arguments)  }
     function isRegExp           (value)                      { return L._[arguments.callee.name].apply(this,arguments)  }

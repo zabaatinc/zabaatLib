@@ -268,9 +268,10 @@ ZabaatTest {
         compareObjects(arr[1], {id:"10",name:"Shahan"});
 
         arr[0].id = "30";
+//        console.log(JSON.stringify(arr,null,2));
         compare(arr[0].id, "20")
-        compare(arr[0]._racgen, true);
-        compare(arr[1]._racgen, true);
+        compare(arr[1]._racgen, true, "idx 1, Is not a RAC object");
+        compare(arr[0]._racgen, true, "idx 0, Is not a RAC object");
     }
 
     function test_08_insert_ided_signals(){
