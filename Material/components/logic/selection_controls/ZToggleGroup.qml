@@ -54,8 +54,8 @@ Item {
             text      : modelData
             state     : lv.currentIndex === index ? stateActive : stateInactive
             disableShowsGraphically: rootObject.disableShowsGraphically
+            //clip : true
         }
-//        visible : false
     }
 
 
@@ -64,8 +64,7 @@ Item {
         id : borderRounder
         anchors.fill: parent
         radius : height/4
-        color  : 'red'
-        visible : false
+        color  : 'purple'
     }
 
     ShaderEffectSource {
@@ -106,8 +105,8 @@ Item {
                  vec4 maskPixel = texture2D(mask,qt_TexCoord0);
 
                  pixel.a = maskPixel.a;
-//                 if(maskPixel.a < 1)
-//                    pixel = vec4(0.0,0.0,0.0,0.0);
+                 if(maskPixel.a < 1)
+                    pixel = vec4(0.0,0.0,0.0,0.0);
 
                  gl_FragColor = (pixel) * qt_Opacity;
              }"

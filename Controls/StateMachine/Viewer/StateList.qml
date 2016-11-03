@@ -87,7 +87,6 @@ Item{   //Essentially a list of loaders
                 anchors.fill: parent
                 source : logic.listDelegateSource()
                 property string listDelSOurce : logic.listDelegateSource();
-                onListDelSOurceChanged: console.log("listdelsource =", listDelSOurce);
                 property var args : delArgs
                 property bool loadingArgs: false;
                 onLoaded : {
