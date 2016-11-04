@@ -1,4 +1,5 @@
 import QtQuick 2.4
+//import Zabaat.Base 1.0
 import "logic/toasts"
 
 //This is dependent on the WindowManager singleton.
@@ -110,6 +111,41 @@ Item {
         return createComponentPermanent(Qt.resolvedUrl("./logic/toasts/ZButtonMenu.qml"),args_opt,cb_opt,1,1);
     }
 
+    function createTooltip(caller, text, pos, cb_opt, state_opt, args_opt) {
+        if(toString.call(args_opt) !== '[object Object]')
+            args_opt = {};
+
+        args_opt.text = text;
+        args_opt.state = state_opt || 'info-rounded-o9-f20pt';
+        var p = { x:0, y:0 }
+        if(pos) {
+            var x = parseFloat(pos.x);
+            var y = parseFloat(pos.y);
+            if(!isNaN(x))
+                p.x = x;
+            if(!isNaN(y))
+                p.y = y;
+
+            if(Qt.isQtObject(caller)) {
+                var c = logic.getActiveWindowContentItem();
+                p = caller.mapToItem(c,x,y);
+            }
+        }
+
+        var url = Qt.resolvedUrl("./logic/toasts/ZTooltip.qml");
+
+        //cause we want to turn off the bloody
+        var args = [
+            { warn : false    } ,
+            { args : args_opt } ,
+            { cmp  : url      } ,
+            { pos  : p        } ,
+        ]
+
+        var t=  createComponentPermanent(Qt.resolvedUrl("./logic/toasts/ZCustomMenu.qml"),args,cb_opt,1,1);
+        //console.log("HERP", t.item);
+        return t;
+    }
 
     function createIn(item,msg,args,type,wPerc,hPerc){
         return logic.create(msg,type,args,{},wPerc,hPerc,item)
@@ -449,6 +485,7 @@ Item {
                 property var    lastActiveThing : null
                 property real w : rootObject.defaultToastSize.x
                 property real h : rootObject.defaultToastSize.y
+                property alias item : toastInstanceLoader.item
 
                 Component.onDestruction: {
                     if(lastActiveThing && lastActiveThing.forceActiveFocus)
@@ -481,6 +518,7 @@ Item {
                     }
                 }
                 Loader {
+                    id : toastInstanceLoader
                     width           : parent.width  * parent.w
                     height          : parent.height * parent.h
                     anchors.centerIn: parent

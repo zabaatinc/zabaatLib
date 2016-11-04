@@ -9,20 +9,25 @@ Item {
 
     property var pos
     property var cmp
+    property bool warn: true
     onCmpChanged: {
-        if(!cmp) {
-            loader.source = "";
-            loader.sourceComponent = null;
-        }
+        var f= function() {
+            if(!cmp) {
+                loader.source = "";
+                loader.sourceComponent = null;
+            }
 
-         if(Lodash.isString(cmp)) {
-             loader.sourceComponent = null;
-             loader.source = cmp;
-         }
-         else {
-            loader.source = ""
-            loader.sourceComponent = cmp;
-         }
+             if(Lodash.isString(cmp)) {
+                 loader.sourceComponent = null;
+                 loader.source = cmp;
+             }
+             else {
+                loader.source = ""
+                loader.sourceComponent = cmp;
+             }
+        }
+        f();
+        //Functions.time.setTimeOut(5, f);
     }
 
     property alias args : loader.args
@@ -101,25 +106,45 @@ Item {
             animOpen.start();
             if(Lodash.isFunction(item.requestDestruction))
                 item.requestDestruction.connect(instance.requestDestruction)
-            else
+            else if(warn)
                 Functions.log(item, "has no requestDestruction signal!");
             item.Component.destruction.connect(instance.requestDestruction);
         }
 
         function attachArgs() {
-            if(Lodash.isObject(args))
+            if(typeof args !== 'object' || !item)
                 return;
 
-            Lodash.each(args, function(v,k) {
-                if(item.hasOwnProperty(k)) {
-                    try {
-                        item[k] = v;
-                    }
-                    catch(e) {
-                        Functions.log("Exception:",e,"\nUnable to assign",v,"to",item,".",k);
+            var getFirstPair = function (obj) {
+                for(var k in obj) {
+                    return {
+                        key : k,
+                        val : obj[k]
                     }
                 }
-            })
+            }
+            var tryAssign = function(key,value) {
+                if(item.hasOwnProperty(key))
+                    try {
+                        item[key] = value;
+                    }
+                    catch(e) {
+                        Functions.log("Exception: ", e , "\nAssignemnt on", item + "." + key, "failed. Type:", toString.call(value) ,"JSON:", JSON.stringify(value));
+                    }
+            }
+            if(typeof args === 'object') {
+                if (Lodash.isArray(args)) {
+                    Lodash.each(args, function(i) {
+                        var pair = getFirstPair(i);
+                        tryAssign(pair.key, pair.val);
+                    })
+                }
+                else {
+                    Lodash.each(args,function(v,k) {
+                        tryAssign(k,v);
+                    })
+                }
+            }
         }
 
 

@@ -65,15 +65,34 @@ Item {
             }
             item.Component.destruction.connect(attemptDestruction)
 
-            if(args) {
-                for(var a in args){
-                    if(item.hasOwnProperty(a))
-                        try {
-                            item[a] = args[a]
-                        }
-                        catch(e) {
-                            Functions.log("Exception: ", e , "\nAssignemnt on", item + "." + a, "failed. Type:", toString.call(args[a]) ,"JSON:", JSON.stringify(args[a]));
-                        }
+            var getFirstPair = function (obj) {
+                for(var k in obj) {
+                    return {
+                        key : k,
+                        val : obj[k]
+                    }
+                }
+            }
+            var tryAssign = function(key,value) {
+                if(item.hasOwnProperty(key))
+                    try {
+                        item[key] = value;
+                    }
+                    catch(e) {
+                        Functions.log("Exception: ", e , "\nAssignemnt on", item + "." + key, "failed. Type:", toString.call(value) ,"JSON:", JSON.stringify(value));
+                    }
+            }
+            if(typeof args === 'object') {
+                if (Lodash.isArray(args)) {
+                    Lodash.each(args, function(i) {
+                        var pair = getFirstPair(i);
+                        tryAssign(pair.key, pair.val);
+                    })
+                }
+                else {
+                    Lodash.each(args,function(v,k) {
+                        tryAssign(k,v);
+                    })
                 }
             }
         }

@@ -8,9 +8,26 @@ ZSkin {
     color : graphical.fill_Default
     border.color: graphical.borderColor
     property bool paintedWidth : false
+    property bool paintedHeight : false
     onPaintedWidthChanged: if(paintedWidth) {
-                                rootObject.width = logic.width = text.paintedWidth + 10
+                               var f = function() { return text.paintedWidth + 10 }
+                               rootObject.width = Qt.binding(f);
+                               logic.width      = Qt.binding(f);
+                           } else {
+                               var temp = rootObject.width
+                               rootObject.width = logic.width = 64;
+                               rootObject.width = logic.width = temp;
                            }
+
+    onPaintedHeightChanged: if(paintedWidth) {
+                                var f= function() { return text.paintedHeight + 10}
+                                rootObject.height = Qt.binding(f);
+                                logic.height = Qt.binding(f);
+                           } else {
+                                var temp = rootObject.height
+                                rootObject.height = logic.height = 64;
+                                rootObject.height = logic.height = temp;
+                            }
 
     Text {
         id : text
@@ -39,9 +56,8 @@ ZSkin {
                  "fit" : {text : { "@scale" : function() { return text.paintedWidth > text.width ? (text.width - 5) / text.paintedWidth : 1}  }
 
                   },
-                  "paintedwidth" : { rootObject : { paintedWidth : true }
-
-                   },
+                  "paintedwidth" : { rootObject : { paintedWidth : true } },
+                  "paintedheight" : { rootObject : { paintedHeight : true } },
                   "wordwrap" : { text : { wrapMode : Text.WordWrap }}
               })
 
