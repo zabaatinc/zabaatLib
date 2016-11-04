@@ -72,7 +72,7 @@ Item {
                             item[a] = args[a]
                         }
                         catch(e) {
-                            Functions.log("Assignemnt on", item + "." + a, "failed. Was trying to assign", JSON.stringify(args[a]));
+                            Functions.log("Exception: ", e , "\nAssignemnt on", item + "." + a, "failed. Type:", toString.call(args[a]) ,"JSON:", JSON.stringify(args[a]));
                         }
                 }
             }

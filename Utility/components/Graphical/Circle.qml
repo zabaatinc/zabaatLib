@@ -8,6 +8,7 @@ Item {
     property alias border: borderRect.border
     property color color : 'green'
     property color emptyColor   : Qt.rgba(0,0,0,0);
+    readonly property alias mixedColor : fill.color
     property real value         : 1    //value must be between 0 and 1
     onValueChanged: {
         if(value > 1)

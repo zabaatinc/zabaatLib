@@ -41,12 +41,45 @@ Item {
         return logic.create(message,type,args,{blocking:true,duration:-1},wPerc,hPerc)
     }
 
+    //implicitWidth & implicitHeight needed on cmp or ull get some bs
+    function createCustomMenu(caller, cmpOrPath, pos, cb_opt, args_opt) {
+        if(!cmpOrPath)
+            return;
+
+        if(!args_opt)
+            args_opt = {}
+
+        var p = { x:0, y:0 }
+        if(pos) {
+            var x = parseFloat(pos.x);
+            var y = parseFloat(pos.y);
+            if(!isNaN(x))
+                p.x = x;
+            if(!isNaN(y))
+                p.y = y;
+
+            if(Qt.isQtObject(caller)) {
+                var c = logic.getActiveWindowContentItem();
+                p = caller.mapToItem(c,x,y);
+            }
+        }
+
+        var args = {
+            args : args_opt,
+            cmp  : cmpOrPath,
+            pos  : p
+        }
+
+        return createComponentPermanent(Qt.resolvedUrl("./logic/toasts/ZCustomMenu.qml"),args,cb_opt,1,1);
+    }
+
     function createMenu(caller, model, pos, cb_opt, state_opt, cellHeight_opt, cellWidth_opt, args_opt) {
         if(!model)
             return;
 
         if(!args_opt)
             args_opt = {}
+
 
         args_opt.model = model;
         args_opt.pos   = { x:0, y:0 }
@@ -74,7 +107,7 @@ Item {
             args_opt.menuItemHeight = cellHeight_opt;
 
 
-        var toast = createComponentPermanent(Qt.resolvedUrl("./logic/toasts/ZButtonMenu.qml"),args_opt,cb_opt,1,1);
+        return createComponentPermanent(Qt.resolvedUrl("./logic/toasts/ZButtonMenu.qml"),args_opt,cb_opt,1,1);
     }
 
 
