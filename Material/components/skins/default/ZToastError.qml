@@ -60,13 +60,22 @@ ZSkin {
         text : logic && logic.title && logic.title !== "" ?  FA.exclamation + " " + logic.title : FA.exclamation + " Error"
         disableShowsGraphically: false
         enabled : false
-
-        MouseArea {
-            anchors.fill: parent
-            drag.target: logic ? logic : null
-            propagateComposedEvents: true
-        }
     }
+    MouseArea {
+        anchors.fill: title
+        drag.target: logic ? logic : null
+        propagateComposedEvents: true
+        property var father : logic && logic.parent ? logic.parent : null;
+        property var gFather : father && father.parent ? father.parent : null;
+        property var ggFather : gFather && gFather.parent ? gFather.parent : null;
+        property point pos : ggFather ? ggFather.mapToItem(rootObject, 0,0) : Qt.point(0,0);
+        property point dim : ggFather ? Qt.point(ggFather.width, ggFather.height) : Qt.point(32,32);
+        drag.minimumX: pos.x
+        drag.minimumY: pos.y
+        drag.maximumX: pos.x + dim.x - rootObject.width;
+        drag.maximumY: pos.y + dim.y - rootObject.height;
+    }
+
 
     Item {
         id : gui

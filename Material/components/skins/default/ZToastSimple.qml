@@ -24,10 +24,37 @@ ZSkin {
     MouseArea {
         anchors.fill: parent
         drag.target: logic ? logic : null
+
+        //onFatherChanged: console.log("FATHER=", father);
+        //onGFatherChanged: console.log("GFATHER", gFather);
+        //onGgFatherChanged: console.log("GGFATHER", ggFather);
+        //in this case, logic's parent is a loader. We want the TOASTInstance that has the loader in it
+        //that is the thing that is gonna be fullscreen! This lets us determine min & max for the drags!
+        property var father : logic && logic.parent ? logic.parent : null;
+        property var gFather : father && father.parent ? father.parent : null;
+        property var ggFather : gFather && gFather.parent ? gFather.parent : null;
+        property point pos : ggFather ? ggFather.mapToItem(rootObject, 0,0) : Qt.point(0,0);
+        property point dim : ggFather ? Qt.point(ggFather.width, ggFather.height) : Qt.point(32,32);
+        drag.minimumX: pos.x
+        drag.minimumY: pos.y
+        drag.maximumX: pos.x + dim.x - rootObject.width;
+        drag.maximumY: pos.y + dim.y - rootObject.height;
         propagateComposedEvents: true
         onClicked : if(guiLogic.closeAnywhere) {
                         logic.attemptDestruction();
                     }
+
+//        Rectangle {
+//            width  : parent.drag.maximumX - parent.drag.minimumX
+//            height : parent.drag.maximumY - parent.drag.minimumY
+//            anchors.left: parent.left
+//            anchors.top: parent.top
+//            anchors.leftMargin: parent.drag.minimumX
+//            anchors.topMargin: parent.drag.minimumY
+//            color  : 'green'
+//            opacity: 0.5
+//        }
+
     }
     Item {
         id : gui
