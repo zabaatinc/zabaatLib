@@ -5,6 +5,8 @@ CSubModel {
     property var  filterFunc: null
     property var  sortFunc  : null
     property bool sortFuncAcceptsIndices : false
+
+    signal finishedFiltering(int count);
 //    property bool debug: false
 
 //    dynamicRoles: true
@@ -112,6 +114,7 @@ CSubModel {
             if(sortFunc)
                 doSort()
 
+            finishedFiltering(indexList.length);
 
 //            console.log("ASSIGNED INDEX LIST")
         }
