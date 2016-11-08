@@ -14,6 +14,7 @@ ZToastSimple {
     property var focusFunc  : null
     property string okBtnState     : rootObject.state
     property string cancelBtnState : rootObject.state
+    property string textboxState   : "standard-f3-b1"
 
     onAttemptingDestruction : if(cancelFunc)
                                   cancelFunc()

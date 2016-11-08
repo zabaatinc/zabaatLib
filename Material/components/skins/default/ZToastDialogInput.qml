@@ -51,7 +51,7 @@ M.ZSkin {
             height : parent.height * 0.55
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
-            state : rootObject.state + "b1"
+            state : logic && logic.textboxState ? logic.textboxState : "standard-b1-f3";
             Component.onCompleted:  {
                 if(logic)
                     text = logic.answer
@@ -89,6 +89,7 @@ M.ZSkin {
             anchors.bottom: parent.bottom
             anchors.margins: 5
             anchors.right : parent.right
+            anchors.rightMargin: rootObject.radius
 
             M.ZButton {
                 id : cancelBtn
