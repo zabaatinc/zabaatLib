@@ -1,5 +1,6 @@
 import QtQuick 2.5
 Canvas {
+    id : rootObject
     width : 64
     height : 64
     property real value      : 0
@@ -8,6 +9,9 @@ Canvas {
     property int thickness   : 4
     property color color          : "green"
     property color colorEmpty     : "gray"
+
+    property point centerOffset : Qt.point(0.5,0.5)
+    property real  radius       : Math.min(width -thickness, height -thickness)/2
 
     onArcLenChanged     : requestPaint();
     onStartAngleChanged : requestPaint();
@@ -20,8 +24,8 @@ Canvas {
         var ctx = getContext('2d')
         ctx.clearRect(0,0,width,height);
 
-        var center     = Qt.point(width/2,height/2);
-        var radius     = Math.min(width -thickness, height -thickness)/2
+        var center     = Qt.point(width * centerOffset.x, height * centerOffset.y);
+        var radius     = rootObject.radius
 
         ctx.beginPath();
         ctx.arc(center.x, center.y, radius, startAngle, startAngle + arcLen);
