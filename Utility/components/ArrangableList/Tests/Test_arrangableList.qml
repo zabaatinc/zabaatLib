@@ -153,7 +153,7 @@ Item {
             anchors.bottom: parent.bottom
             text : "move to top"
             onClicked : {
-                arrangable.moveToTop();
+                arrangable.moveToTopAbsolulte();
 //                arrangable
 //                al.moveSelectedTo(Constants.adminTickets.length -1, Constants.adminTickets.length -1);
             }

@@ -23,6 +23,7 @@ Item {
     readonly property var selectAll             : logic.selectAll
     readonly property var deselectAll           : logic.deselectAll
     readonly property var moveSelectedTo        : logic.moveSelectedTo
+    readonly property var moveToTopAbsolulte    : logic.moveToTopAbsolute
     readonly property var moveToTop             : logic.moveToTop
     readonly property var moveToBottom          : logic.moveToBottom
     readonly property var resetState            : logic.resetState
@@ -319,89 +320,90 @@ Item {
         }
         function moveSelectedTo(idx , destIdx){     //destIdx is normally BLANK! HARD CODE, USE @ UR OWN RISK!
 //            console.log('move selected to', idx)
-            if(selected && selectedLen > 0){
+            if(!selected || selectedLen <= 0)
+                return;
 
-                var list         = logic.indexList
-                var filteredList = logic.indexListFiltered
+            var list         = logic.indexList
+            var filteredList = logic.indexListFiltered
 
-                var len   = filteredList.length
-                var begin = filteredList[0]        //the refIdx at the start of our list(zsubChanger)
-                var end   = filteredList[len -1]
+            var len   = filteredList.length
+            var begin = filteredList[0]        //the refIdx at the start of our list(zsubChanger)
+            var end   = filteredList[len -1]
 //                var superBegin = zsubOrig.indexList[0]
 //                var superEnd   = zsubOrig.indexList[zsubOrig.indexList.length - 1]
-                var dest  = !isUndef(destIdx) ? destIdx :
-                                                idx <= 0 ? begin : idx >= len ? end : filteredList[idx]
+            var dest  = !isUndef(destIdx) ? destIdx :
+                                            idx <= 0 ? begin : idx >= len ? end : filteredList[idx]
 
-                //We have a list and selection in it, we want to move the selection to an
-                //index in the selection (idx). This is a relatively simple problem but what
-                //makes it tougher is that we need to move stuff in zsubOrig.indexList ,
-                //not the zsubChanger.indexList. And what makes this part harder is because of the filter
-                //function. The subChanger doesn't always have the entire list visible to it.
+            //We have a list and selection in it, we want to move the selection to an
+            //index in the selection (idx). This is a relatively simple problem but what
+            //makes it tougher is that we need to move stuff in zsubOrig.indexList ,
+            //not the zsubChanger.indexList. And what makes this part harder is because of the filter
+            //function. The subChanger doesn't always have the entire list visible to it.
 
 
-                //step 1, rip out the selection array from the list
-                dest = isUndef(destIdx) ? filteredList[idx] : logic.indexList[destIdx]
+            //step 1, rip out the selection array from the list
+            dest = isUndef(destIdx) ? filteredList[idx] : logic.indexList[destIdx]
 //                    console.log("dest idx is",dest, "SELECTED:", JSON.stringify(selected))
-                var movingArr = []
-                var sar       = []
+            var movingArr = []
+            var sar       = []
 
-                Lodash.each(selected, function(v,k){
-                    sar[k] = v
-                    movingArr[k] = logic.indexList[v]
-                })
+            Lodash.each(selected, function(v,k){
+                sar[k] = v
+                movingArr[k] = logic.indexList[v]
+            })
 
-                sar       = Lodash.compact(sar);
-                movingArr = Lodash.compact(movingArr);
+            sar       = Lodash.compact(sar);
+            movingArr = Lodash.compact(movingArr);
 
 //                    console.log("sar      ", sar)
 //                    console.log("movingArr", movingArr)
-                //we need the SAR array (to figure out our head & tail), essentially to figure out
-                //if we are moving up or down.
-                var difference = Lodash.difference(logic.indexList, movingArr);
+            //we need the SAR array (to figure out our head & tail), essentially to figure out
+            //if we are moving up or down.
+            var difference = Lodash.difference(logic.indexList, movingArr);
 //                    console.log("remove", movingArr, "from", zsubOrig.indexList , "=", il)
 
 
-                //Figure out the head, tail
-                var head   = parseInt(Lodash.first(sar))
-                var tail   = parseInt(Lodash.last(sar))
+            //Figure out the head, tail
+            var head   = parseInt(Lodash.first(sar))
+            var tail   = parseInt(Lodash.last(sar))
 
-                destIdx    = Lodash.indexOf(difference, logic.indexList[dest]) //indexOf(il, ptrList[dest])
+            destIdx    = Lodash.indexOf(difference, logic.indexList[dest]) //indexOf(il, ptrList[dest])
 //                    console.log("found", logic.indexList[dest], "@", destIdx, "in", difference);
 //                    console.log(destIdx, dest,logic.indexList[dest])
 //                    console.log("move to", destIdx)
 //                    console.log("H:",head, "T:",tail, "\t\tDest:", dest, "@", destIdx)
 
 //                    console.log("head", head, 'tail', tail)
-                if(destIdx !== -1){
-                    var left, right
-                    if(head > dest) {   //going up
+            if(destIdx !== -1){
+                var left, right
+                if(head > dest) {   //going up
 //                             console.log("move", movingArr, "to", destIdx, "in", difference)
-                        left = difference.slice(0, destIdx);
-                        right = difference.slice(destIdx);
-                    }
-                    else if(head < dest){
+                    left = difference.slice(0, destIdx);
+                    right = difference.slice(destIdx);
+                }
+                else if(head < dest){
 //                             console.log("move", movingArr, "to", destIdx+1, "in", difference)
-                        left = difference.slice(0, destIdx+1);
-                        right = difference.slice(destIdx+1);
-                    }
-                    else {
+                    left = difference.slice(0, destIdx+1);
+                    right = difference.slice(destIdx+1);
+                }
+                else {
 //                            console.log("head & dest are the same" , head , "===" , dest)
-                        return;
-                    }
-
-//                        console.log(left, movingArr, right)
-                    difference = left.concat(movingArr).concat(right)
-////                        select(newArray(dest, dest + selectedLen - 1))
-                    logic.indexList = difference;
-                    deselectAll()
-                    logic.lastTouchedIdx = -1;
+                    return;
                 }
 
-                //remove everything after stateIdx (if not last)
-                //by virtue of changing the index list, it should automatically add it to our states
+//                        console.log(left, movingArr, right)
+                difference = left.concat(movingArr).concat(right)
+////                        select(newArray(dest, dest + selectedLen - 1))
+                logic.indexList = difference;
+                deselectAll()
+                logic.lastTouchedIdx = -1;
+            }
+
+            //remove everything after stateIdx (if not last)
+            //by virtue of changing the index list, it should automatically add it to our states
 //                addToStates();
 
-            }
+
         }
         function selectedFirst(){
             var min = Number.MAX_VALUE;
@@ -444,7 +446,7 @@ Item {
 
         //moves all the selected to top and pushes everyuthing else down
         function moveToTop() {
-            if(!selected && selectedLen <= 0)
+            if(!selected || selectedLen <= 0)
                 return;
 
             var list         = logic.indexList
@@ -478,6 +480,17 @@ Item {
                 //its the same as moveSelectedTo
                 moveSelectedTo(0);
             }
+        }
+        function moveToTopAbsolute() {
+            if(!selected || selectedLen <= 0)
+                return;
+
+
+        }
+        function moveToBottomAbsolute() {
+            if(!selected || selectedLen <= 0)
+                return;
+
         }
         function moveToBottom() {
             if(!selected && selectedLen <= 0)
