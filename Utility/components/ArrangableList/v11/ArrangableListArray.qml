@@ -23,9 +23,10 @@ Item {
     readonly property var selectAll             : logic.selectAll
     readonly property var deselectAll           : logic.deselectAll
     readonly property var moveSelectedTo        : logic.moveSelectedTo
-    readonly property var moveToTopAbsolulte    : logic.moveToTopAbsolute
+    readonly property var moveToTopAbsolute     : logic.moveToTopAbsolute
     readonly property var moveToTop             : logic.moveToTop
     readonly property var moveToBottom          : logic.moveToBottom
+    readonly property var moveToBottomAbsolute  : logic.moveToBottomAbsolute
     readonly property var resetState            : logic.resetState
 
     readonly property alias indexList           : logic.indexList
@@ -326,14 +327,8 @@ Item {
             var list         = logic.indexList
             var filteredList = logic.indexListFiltered
 
-            var len   = filteredList.length
-            var begin = filteredList[0]        //the refIdx at the start of our list(zsubChanger)
-            var end   = filteredList[len -1]
-//                var superBegin = zsubOrig.indexList[0]
-//                var superEnd   = zsubOrig.indexList[zsubOrig.indexList.length - 1]
-            var dest  = !isUndef(destIdx) ? destIdx :
-                                            idx <= 0 ? begin : idx >= len ? end : filteredList[idx]
-
+//          var superBegin = zsubOrig.indexList[0]
+//          var superEnd   = zsubOrig.indexList[zsubOrig.indexList.length - 1]
             //We have a list and selection in it, we want to move the selection to an
             //index in the selection (idx). This is a relatively simple problem but what
             //makes it tougher is that we need to move stuff in zsubOrig.indexList ,
@@ -342,7 +337,7 @@ Item {
 
 
             //step 1, rip out the selection array from the list
-            dest = isUndef(destIdx) ? filteredList[idx] : logic.indexList[destIdx]
+            var dest = isUndef(destIdx) ? filteredList[idx] : list[destIdx]
 //                    console.log("dest idx is",dest, "SELECTED:", JSON.stringify(selected))
             var movingArr = []
             var sar       = []
@@ -485,12 +480,43 @@ Item {
             if(!selected || selectedLen <= 0)
                 return;
 
+            //The actual indices of the things to move.
+            //free from filterFunc (filterList);
+            var actualIndices = Lodash.values(selected)
+            var temp = logic.indexList;
 
+            //remove the values @ these indices in the indexList
+            var vals = [];
+            Lodash.eachRight(actualIndices, function(idx) {
+                var v = temp[idx]
+                vals.push(v)
+                temp.splice(idx,1);
+            })
+
+            logic.indexList = vals.reverse().concat(temp);
+            deselectAll()
+            logic.lastTouchedIdx = -1;
         }
         function moveToBottomAbsolute() {
             if(!selected || selectedLen <= 0)
                 return;
 
+            //The actual indices of the things to move.
+            //free from filterFunc (filterList);
+            var actualIndices = Lodash.values(selected)
+            var temp = logic.indexList;
+
+            //remove the values @ these indices in the indexList
+            var vals = [];
+            Lodash.eachRight(actualIndices, function(idx) {
+                var v = temp[idx]
+                vals.push(v)
+                temp.splice(idx,1);
+            })
+
+            logic.indexList = temp.concat(vals.reverse());
+            deselectAll()
+            logic.lastTouchedIdx = -1;
         }
         function moveToBottom() {
             if(!selected && selectedLen <= 0)
