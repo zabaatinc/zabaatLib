@@ -65,6 +65,39 @@ Module {
             Parameter { name: "inchesX"; type: "float" }
             Parameter { name: "inchesY"; type: "float" }
         }
+        Method {
+            name: "printImageData"
+            type: "bool"
+            Parameter { name: "svgData"; type: "string" }
+            Parameter { name: "imageType_opt"; type: "string" }
+            Parameter { name: "pageSize"; type: "string" }
+        }
+        Method {
+            name: "printImageData"
+            type: "bool"
+            Parameter { name: "svgData"; type: "string" }
+            Parameter { name: "imageType_opt"; type: "string" }
+        }
+        Method {
+            name: "printImageData"
+            type: "bool"
+            Parameter { name: "svgData"; type: "string" }
+        }
+        Method {
+            name: "printImageData"
+            type: "bool"
+            Parameter { name: "svgData"; type: "string" }
+            Parameter { name: "inchesX"; type: "float" }
+            Parameter { name: "inchesY"; type: "float" }
+            Parameter { name: "imageType_opt"; type: "string" }
+        }
+        Method {
+            name: "printImageData"
+            type: "bool"
+            Parameter { name: "svgData"; type: "string" }
+            Parameter { name: "inchesX"; type: "float" }
+            Parameter { name: "inchesY"; type: "float" }
+        }
         Method { name: "availablePrinters"; type: "QStringList" }
     }
 }

@@ -87,6 +87,7 @@ Item {
                 url = url.slice(1)
 
             var txt = zfileio.readFile(url)
+//            console.log("FIle opened as ", txt)
             if(txt){
                 try{
                     var obj = JSON.parse(txt)
@@ -143,15 +144,18 @@ Item {
                 try {
                     var obj = JSON.parse(txt);
                     lm.append(obj);
+                    console.log(JSON.stringify(lm.get(0).states.get(0) , null, 2));
                     sme.model = lm.get(0)
                 }
                 catch(e) {
+                    console.log("CASE 2")
                     console.error("Could not parse js", e, txt);
                     lm.append(stateMachineObject) ;
                     sme.model = lm.get(0)
                 }
             }
             else {
+                console.log("CASE 3")
                 lm.append(stateMachineObject) ;
                 sme.model = lm.get(0)
             }

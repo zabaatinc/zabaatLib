@@ -10,7 +10,7 @@
 #include <QTextDocument>
 #include <QDialog>
 #include <QPainter>
-
+//#include <QStandardPaths>
 
 
 class zprinter : public QObject {
@@ -44,25 +44,9 @@ public:
 
     Q_INVOKABLE bool print(QString text, QString pageSize = ""){
         QPageSize p =  pageSize == "" ? pi.defaultPageSize() : stringToPageSize(pageSize);
-
-        if(!isNull()){
-            QTextDocument doc;
-            doc.setPageSize(p.size(QPageSize::Point));  //default for QTextDocument
-            doc.setHtml(text);
-
-            QPrinter printer;
-            printer.setPaperSize(p.size(QPageSize::Inch), QPrinter::Inch);
-            printer.setPrinterName(activePrinter());
-
-            doc.print(&printer);
-            return true;
-        }
-        else {
-            qDebug() << "C++::zprinter.h::printselected printer is Null:" << activePrinter();
-            return false;
-        }
+        QSizeF size = p.size(QPageSize::Inch);
+        return print(text, size.width(), size.height());
     }
-
     Q_INVOKABLE bool print(QString text, float inchesX, float inchesY){
         if(!isNull()){
             QSizeF size(inchesX,inchesY);
@@ -88,6 +72,10 @@ public:
 
     Q_INVOKABLE bool printImage(QString filename, QString pageSize = "") {
         QPageSize p =  pageSize == "" ? pi.defaultPageSize() : stringToPageSize(pageSize);
+        QSizeF size = p.size(QPageSize::Inch);
+        return printImage(filename, size.width(), size.height());
+    }
+    Q_INVOKABLE bool printImage(QString filename, float inchesX, float inchesY) {
         if(isNull()) {
             qDebug() << "C++::zprinter.h::printselected printer is Null:" << activePrinter();
             return false;
@@ -103,7 +91,7 @@ public:
         }
 
         QPrinter printer;
-        printer.setPaperSize(p.size(QPageSize::Inch), QPrinter::Inch);
+        printer.setPaperSize(QSizeF(inchesX,inchesY), QPrinter::Inch);
         printer.setPrinterName(activePrinter());
 
         QPainter painter(&printer);
@@ -111,20 +99,38 @@ public:
         return painter.end();
     }
 
-    Q_INVOKABLE bool printImage(QString filename, float inchesX, float inchesY) {
-        if(isNull()) {
+    Q_INVOKABLE bool printImageData(QString svgData, QString imageType_opt = "", QString pageSize = "") {
+        QPageSize p =  pageSize == "" ? pi.defaultPageSize() : stringToPageSize(pageSize);
+        QSizeF size = p.size(QPageSize::Inch);
+        return printImageData(svgData, size.width(), size.height(), imageType_opt);
+    }
+    Q_INVOKABLE bool printImageData(QString svgData, float inchesX, float inchesY, QString imageType_opt = "") {
+        if(isNull()){
             qDebug() << "C++::zprinter.h::printselected printer is Null:" << activePrinter();
             return false;
         }
 
-        filename = filename.replace("file:///","");
-        filename = filename.replace("qrc:///",":/");
-
+        QByteArray ba = svgData.toUtf8();
         QImage img;
-        if(!img.load(filename)) {
-            qDebug() << "C++::zprinter.h::Could not open file to print : " << filename;
-            return false;
+        if(imageType_opt != "") {
+            if(!img.loadFromData(ba,imageType_opt.toStdString().c_str())) {
+                qDebug() << "C++::zprinter.h::Could not load data as image";
+                return false;
+            }
         }
+        else {
+            if(!img.loadFromData(ba)) {
+                qDebug() << "C++::zprinter.h::Could not load data as image";
+                return false;
+            }
+        }
+
+
+        if(inchesX == 0)
+            inchesX = pi.defaultPageSize().size(QPageSize::Inch).width();
+        if(inchesY == 0)
+            inchesY = pi.defaultPageSize().size(QPageSize::Inch).height();
+
 
         QPrinter printer;
         printer.setPaperSize(QSizeF(inchesX,inchesY), QPrinter::Inch);

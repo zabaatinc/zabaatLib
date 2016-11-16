@@ -96,7 +96,26 @@ Window {
             }
         }
 
-
+        Button{
+            id: btnImageData
+            width : 300
+            text : "print Text as img (AUTO DETECT)"
+            anchors.bottom: parent.bottom
+            anchors.right: btnSvgImage.left;
+            onClicked : {
+                zprinter.printImageData(ti.text);
+            }
+        }
+        Button{
+            id: btnSvgImage
+            width : 250
+            text : "print Text as SVG"
+            anchors.bottom: parent.bottom
+            anchors.right: btnImg.left;
+            onClicked : {
+                zprinter.printImageData(ti.text, "svg");
+            }
+        }
         Button{
             id: btnImg
             text : "print image"
