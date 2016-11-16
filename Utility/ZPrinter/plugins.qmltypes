@@ -40,6 +40,31 @@ Module {
             type: "bool"
             Parameter { name: "text"; type: "string" }
         }
+        Method {
+            name: "print"
+            type: "bool"
+            Parameter { name: "text"; type: "string" }
+            Parameter { name: "inchesX"; type: "float" }
+            Parameter { name: "inchesY"; type: "float" }
+        }
+        Method {
+            name: "printImage"
+            type: "bool"
+            Parameter { name: "filename"; type: "string" }
+            Parameter { name: "pageSize"; type: "string" }
+        }
+        Method {
+            name: "printImage"
+            type: "bool"
+            Parameter { name: "filename"; type: "string" }
+        }
+        Method {
+            name: "printImage"
+            type: "bool"
+            Parameter { name: "filename"; type: "string" }
+            Parameter { name: "inchesX"; type: "float" }
+            Parameter { name: "inchesY"; type: "float" }
+        }
         Method { name: "availablePrinters"; type: "QStringList" }
     }
 }

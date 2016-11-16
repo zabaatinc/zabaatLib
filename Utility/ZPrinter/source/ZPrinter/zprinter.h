@@ -9,7 +9,7 @@
 #include <QDebug>
 #include <QTextDocument>
 #include <QDialog>
-
+#include <QPainter>
 
 
 
@@ -62,6 +62,79 @@ public:
             return false;
         }
     }
+
+    Q_INVOKABLE bool print(QString text, float inchesX, float inchesY){
+        if(!isNull()){
+            QSizeF size(inchesX,inchesY);
+
+            QTextDocument doc;
+            doc.setPageSize(size);  //default for QTextDocument
+            doc.setHtml(text);
+
+            QPrinter printer;
+            printer.setPaperSize(size, QPrinter::Inch);
+            printer.setPrinterName(activePrinter());
+
+            doc.print(&printer);
+            return true;
+        }
+        else {
+            qDebug() << "C++::zprinter.h::printselected printer is Null:" << activePrinter();
+            return false;
+        }
+    }
+
+
+
+    Q_INVOKABLE bool printImage(QString filename, QString pageSize = "") {
+        QPageSize p =  pageSize == "" ? pi.defaultPageSize() : stringToPageSize(pageSize);
+        if(isNull()) {
+            qDebug() << "C++::zprinter.h::printselected printer is Null:" << activePrinter();
+            return false;
+        }
+
+        filename = filename.replace("file:///","");
+        filename = filename.replace("qrc:///",":/");
+
+        QImage img;
+        if(!img.load(filename)) {
+            qDebug() << "C++::zprinter.h::Could not open file to print : " << filename;
+            return false;
+        }
+
+        QPrinter printer;
+        printer.setPaperSize(p.size(QPageSize::Inch), QPrinter::Inch);
+        printer.setPrinterName(activePrinter());
+
+        QPainter painter(&printer);
+        painter.drawImage(QPoint(0,0), img);
+        return painter.end();
+    }
+
+    Q_INVOKABLE bool printImage(QString filename, float inchesX, float inchesY) {
+        if(isNull()) {
+            qDebug() << "C++::zprinter.h::printselected printer is Null:" << activePrinter();
+            return false;
+        }
+
+        filename = filename.replace("file:///","");
+        filename = filename.replace("qrc:///",":/");
+
+        QImage img;
+        if(!img.load(filename)) {
+            qDebug() << "C++::zprinter.h::Could not open file to print : " << filename;
+            return false;
+        }
+
+        QPrinter printer;
+        printer.setPaperSize(QSizeF(inchesX,inchesY), QPrinter::Inch);
+        printer.setPrinterName(activePrinter());
+
+        QPainter painter(&printer);
+        painter.drawImage(QPoint(0,0), img);
+        return painter.end();
+    }
+
 
     Q_INVOKABLE QStringList availablePrinters(){
         return QPrinterInfo::availablePrinterNames();
