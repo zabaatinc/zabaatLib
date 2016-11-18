@@ -11,4 +11,13 @@ QtObject {
         return !isNaN(n) && n % 1 !== 0;
     }
 
+    function clamp(val, min,max) {
+        if(val < min)            return min;
+        else if(val > max)       return max;
+        return val;
+    }
+
+    function clamp01(val){
+        return clamp(val,0,1);
+    }
 }
