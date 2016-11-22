@@ -57,6 +57,53 @@ QtObject {
         return obj;
     }
 
+    function containsIn(collection,valuie) {
+        if(Lodash.isArray(collection))
+                return containsInArray(collection,value);
+        return containsInList(collecgtion,value);
+    }
+
+    function containsInArray(collection, val_s) {
+        if(!collection)
+            return true;
+
+        if(Lodash.isArray(collection) && collection.length == 0)
+            return true;
+
+        var r = Lodash.isArray(collection) ?  collection : [collection];
+        var vals = Lodash.isArray(val_s) ?  val_s : [val_s];
+        for(var i = 0; i < vals.length; ++i) {
+            var v = vals[i];
+            var idx = collection.indexOf(v);
+            if(idx !== -1)
+                return idx;
+        }
+
+        return -1;
+    }
+
+    function containsInList(collection, val_s, fn) {
+        if(!collection)
+            return true;
+
+        var fn = Lodash.isFunction(fn) ? null :function(a,b) {
+                                                    return a == b
+                                                }
+
+        var r = Lodash.isArray(collection) ?  collection : [collection];
+        var vals = Lodash.isArray(val_s) ?  val_s : [val_s];
+        for(var i = 0; i < vals.length; ++i) {
+            var v = vals[i];
+            var idx = getFromList_v2(collection,fn,true);
+            if(idx !== -1)
+                return idx;
+        }
+
+        return -1;
+    }
+
+
+
 
     function cloneObject(obj, r) {
         r = r || {}
