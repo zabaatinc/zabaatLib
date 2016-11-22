@@ -57,10 +57,10 @@ QtObject {
         return obj;
     }
 
-    function containsIn(collection,valuie) {
+    function containsIn(collection,value) {
         if(Lodash.isArray(collection))
                 return containsInArray(collection,value);
-        return containsInList(collecgtion,value);
+        return containsInList(collection,value);
     }
 
     function containsInArray(collection, val_s) {
