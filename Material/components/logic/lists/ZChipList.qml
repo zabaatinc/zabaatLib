@@ -62,10 +62,11 @@ ListView {
 //                rootObject.remove(index);
                 priv.rem(index)
             }
+            state : 'default'
+//            onEnabledChanged: console.log(index, enabled);
+
         }
-
     }
-
 
 
 }

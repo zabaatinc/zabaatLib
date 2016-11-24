@@ -109,18 +109,19 @@ Item
             }
         }
         function addObjectToModel(lm, obj) {
-//            console.log("data is", toString.call(obj))
-            if(obj && isDef(obj,"id")) {
-                var existingIdx = getById(lm, obj.id, true);
-                if(existingIdx === -1){  //data doesnt exist. append it. EASY. otherwise, we got our work cut out fr us!
-                    lm.append(obj);
-                    return null;
-                }
-                else {              //update existing
-                    var existingItem = lm.get(existingIdx);
-                    updateItem(existingItem, obj);
-//                    console.log('finish update')
-                }
+            if(!obj)
+                return console.error("Tried to add null or undefined to", lm.objectName, "root")
+            if(!isDef(obj,"id"))
+                return console.error("Tried to add object without an id to", lm.objectName, "root")
+
+            var existingIdx = getById(lm, obj.id, true);
+            if(existingIdx === -1){  //data doesnt exist. append it. EASY. otherwise, we got our work cut out fr us!
+                lm.append(obj);
+                return null;
+            }
+            else {              //update existing
+                var existingItem = lm.get(existingIdx);
+                updateItem(existingItem, obj);
             }
         }
 

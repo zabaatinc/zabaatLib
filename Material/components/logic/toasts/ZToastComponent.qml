@@ -20,6 +20,7 @@ Item {
 
     signal requestDestruction()
     signal attemptingDestruction()
+    signal loaded(var item);
 
     onCmpChanged: {
         if(!cmp){
@@ -95,6 +96,8 @@ Item {
                     })
                 }
             }
+
+            rootObject.loaded(item);
         }
     }
 

@@ -145,7 +145,8 @@ Item {
         if(cache.ready) {
             rootObject.enabled = enabled;
             if(!enabled && logic.disableShowsGraphically) {
-                ZStateHandler.setState(rootObject, state + "-disabled")
+                var dis = state === "" ? "disabled" : "-disabled";
+                ZStateHandler.setState(rootObject, state + dis)
             }
             else {
                 ZStateHandler.setState(rootObject, state)

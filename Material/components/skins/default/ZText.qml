@@ -5,6 +5,7 @@ ZSkin {
     id : rootObject
     property alias text : text
     property alias font : text.font
+
     color : graphical.fill_Default
     border.color: graphical.borderColor
     property bool paintedWidth : false
@@ -43,6 +44,7 @@ ZSkin {
         onPaintedWidthChanged: if(rootObject.paintedWidth) {
                                    rootObject.width = logic.width = paintedWidth + 10
                                }
+
     }
 
 
@@ -56,9 +58,12 @@ ZSkin {
                  "fit" : {text : { "@scale" : function() { return text.paintedWidth > text.width ? (text.width - 5) / text.paintedWidth : 1}  }
 
                   },
-                  "paintedwidth" : { rootObject : { paintedWidth : true } },
-                  "paintedheight" : { rootObject : { paintedHeight : true } },
-                  "wordwrap" : { text : { wrapMode : Text.WordWrap }}
+                  "paintedwidth"  : { rootObject : { paintedWidth : true    }},
+                  "paintedheight" : { rootObject : { paintedHeight : true   }},
+                  "wordwrap"      : { text : { wrapMode : Text.WordWrap     }},
+                  "elideright"    : { text : { elide : Text.ElideRight      }},
+                  "elideleft"     : { text : { elide : Text.ElideLeft       }},
+                  "elidemiddle"   : { text : { elide : Text.ElideMiddle     }}
               })
 
 
