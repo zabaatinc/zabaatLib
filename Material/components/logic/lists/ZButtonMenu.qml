@@ -36,7 +36,7 @@ Item {
             height : menuItemHeight
             state : Lodash.isObject(v) && Lodash.isString(v.state)? v.state : menuItemState
             property string icon : Lodash.isObject(v) && Lodash.isString(v.icon)? v.icon + " " : ""
-            property var v : rootObject.model[modelData];
+            property var v : rootObject && rootObject.model ? rootObject.model[modelData] : null;
             text : modelData
             onClicked : {
                 var fn = Lodash.isFunction(v) ? v : Lodash.isObject(v) && Lodash.isFunction(v.fn) ? v.fn : null;

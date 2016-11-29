@@ -3,6 +3,7 @@ ArrangableList			1.0 components/ArrangableList/v10/ArrangableList.qml
 ArrangableList			1.1 components/ArrangableList/v11/ArrangableList.qml
 ZGestureArea 			1.0 components/ZGestureArea/v10/ZGestureArea.qml
 GenericHeader			1.0 components/Loaders/GenericHeader/v10/GenericHeader.qml
+GenericList				1.0 components/GenericList/GenericList.qml
 FancyLoader				1.0 components/Loaders/FancyLoader/FancyLoader.qml
 EndlessScroller			1.0 components/Loaders/EndlessScroller/EndlessScroller.qml
 CachedLoader 			1.0 components/Loaders/CachedLoader/CachedLoader.qml
