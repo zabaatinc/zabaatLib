@@ -34,7 +34,10 @@ QtObject{
 //    signal loggedOut();
 //    signal skippedLogin();
     function login(userData, success, fail){
-        if(status != 0 || noNetwork)
+        if(noNetwork)
+            return console.error("Cannot Log In because you are not connected to the server");
+
+        if(status != 0)
             return console.error("Cannot Log In because you are", priv.statusString);
 
         var blankFn = function(){ console.log("CALLING BLANK FNC") }

@@ -116,6 +116,7 @@ Item
 
             var existingIdx = getById(lm, obj.id, true);
             if(existingIdx === -1){  //data doesnt exist. append it. EASY. otherwise, we got our work cut out fr us!
+//                console.log("obj id dont exist, adding it", obj.id);
                 lm.append(obj);
                 return null;
             }

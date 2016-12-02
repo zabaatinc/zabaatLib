@@ -299,9 +299,9 @@ ZController {
         function cbHandlerFunc(response, callback, type,url, modelToUpdate){
             var retTimes = { model : 0, callback : 0 }
             var time
-
-//            console.log("CbHandler func", JSON.stringify(response,null,2))
             var noerror = priv.errorCheck(response, type + 'req')
+//            if(!noerror)
+//                console.log("@@ ERROR ON", url, JSON.stringify(response,null,2))
             if(response){
                 if(modelToUpdate && noerror && response.data) {
                     time = priv.now()

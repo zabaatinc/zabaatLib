@@ -528,6 +528,7 @@ Item {
                         if(toastInstance.blocking) {
                             if(logic.mainWindowPtr && logic.mainWindowPtr.activeFocusItem)
                                 toastInstance.lastActiveThing = logic.mainWindowPtr.activeFocusItem
+//                            console.log("@@@  focus this:", uiBlocker);
                             uiBlocker.forceActiveFocus()
                         }
 
