@@ -10,6 +10,21 @@ ZSkin {
     border.color: graphical.borderColor
     property bool paintedWidth : false
     property bool paintedHeight : false
+
+
+    skinFunc : function(name, params) { //the logic may call this!!
+        var fn = guiLogic[name]
+        if(typeof fn === 'function')
+            return fn(params);
+        console.log(rootObject, 'has no skin function called', name)
+        return null;
+    }
+    QtObject {
+        id : guiLogic
+        function paintedWidth() {  return text.paintedWidth; }
+        function paintedHeight() {  return text.paintedHeight; }
+    }
+
     onPaintedWidthChanged: if(paintedWidth) {
                                var f = function() { return text.paintedWidth + 10 }
                                rootObject.width = Qt.binding(f);

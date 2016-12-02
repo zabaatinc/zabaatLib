@@ -44,6 +44,47 @@ ZSkin {
     }
 
 
+    skinFunc : function(name, params) { //the logic may call this!!
+        var fn = guiLogic[name]
+        if(typeof fn === 'function')
+            return fn(params);
+        console.log(rootObject, 'has no skin function called', name)
+        return null;
+    }
+    QtObject {
+        id : guiLogic
+        function paintedWidth()  {  return text.paintedWidth; }
+        function paintedHeight() {  return text.paintedHeight; }
+        function getTextStartPos() {
+            var pt = Qt.point(0,0);
+            var margins = text.anchors.margins;
+
+            if(text.horizontalAlignment === Text.AlignHCenter) {
+                pt.x = margins + (text.width - text.paintedWidth)/2
+            }
+            else if(text.horizontalAlignment === Text.AlignLeft) {
+                pt.x = margins;
+            }
+            else {
+                pt.x = text.width - text.paintedWidth - margins;
+            }
+
+            if(text.verticalAlignment === Text.AlignVCenter) {
+                pt.y = margins + (text.width - text.paintedHeight)/2;
+            }
+            else if(text.verticalAlignment === Text.AlignTop) {
+                pt.y = margins;
+            }
+            else {
+                pt.y = text.height - text.paintedHeight - margins;
+            }
+
+            return pt;
+        }
+    }
+
+
+
 
     ZInkArea {
         id : inkArea
