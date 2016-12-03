@@ -211,11 +211,11 @@ Item
                     }
                     else {
                         if(isDef(obj1,"count")) {
-                            return obj1.append(newVal)
+                            obj1.append(newVal)
                         }
                         else {  //if the model doesn't even exist!!
                             obj1 = [] //newModelFunc('ZListModel.qml',existingItem)
-                            return obj1.append(newVal)
+                            return obj1.append(obj2)
                         }
                     }
                 }
