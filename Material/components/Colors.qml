@@ -187,7 +187,7 @@ QtObject {
                 standard : darker.standard,
                 text1    : darker.text1   ,
                 text2    : darker.text2   ,
-                gray     : darker.gray
+                gray     : darker.gray    ,
             },
             lighter  : {
                 accent   : lighter.accent   ,

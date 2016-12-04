@@ -11,6 +11,7 @@ ZObject{
     property int acceptedButtons : -1
     property bool containsMouse      : false
     property string text             : ""
+    property string text2             : ""
     property bool   allowDoubleClicks: false
 //    focus : true;
     debug                  : false
