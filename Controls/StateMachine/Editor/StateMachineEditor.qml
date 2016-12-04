@@ -1,5 +1,6 @@
 import QtQuick 2.4
 import Zabaat.Material 1.0
+import Zabaat.Base 1.0
 import "StateBox"
 import "Functions"
 Rectangle {
@@ -9,7 +10,11 @@ Rectangle {
     clip        : true
 
     signal modelUpdatedInternally(var obj, string json); //use this to save , update the model. This shouldn't be aware of it I feel!!
-    property var   model    : null
+
+
+    property var   model
+
+
     property int   cellHeight: 60
     property alias logic   : modelLogic
     property alias gui     : gui
@@ -242,6 +247,11 @@ Rectangle {
                     id : sb
                     m : model
                     objectName : name
+                    x : m && m.x ?  m.x : 0
+                    y : m && m.y ?  m.y : 0
+                    width : m && m.w ? m.w : 0
+                    height : m && m.h ? m.h : 0
+
                     color                   : gui.normalStateColor
                     vFunc                   : rootObject.logic.nameValidation
                     mode                    : guilogic.mode
@@ -250,9 +260,12 @@ Rectangle {
                     onRightClicked          : guilogic.handleRightClick(self,Qt.point(x,y))
                     onTransitionRightClicked: guilogic.handleRightClick(transition,Qt.point(x,y))
                     onFunctionsClicked      : guilogic.handleRightClick(self,Qt.point(x,y),"function")
-                    onDelegateRectChanged   : if(model && !mutex && !mutexTimer.running && ready)
+
+                    onDelegateRectChanged   : if(m && !mutex && !mutexTimer.running && ready)
                                                   modelLogic.emitChange()
-                    onModelRectChanged      : if(ready) syncPosition()
+                    onModelRectChanged      : if(ready)
+                                                  syncPosition()
+
                     getStateItemFunc        : stateContainer.getStateItem
                     allTransitions          : logic.transitions
                     onMakeDefaultClicked    : modelLogic.makeDefault(id,name)
@@ -263,7 +276,7 @@ Rectangle {
                     property bool mutex : true;
                     property bool ready : modelRect.x !== -999 && modelRect.y !== -999 && modelRect.width !== -999 && modelRect.height !== -999
 
-                    property rect modelRect : model && model.x && model.y && model.w && model.h ? Qt.rect(model.x,model.y,model.w,model.h) :
+                    property rect modelRect : m && m.x && m.y && m.w && m.h ? Qt.rect(m.x,m.y,m.w,m.h) :
                                                                                                   Qt.rect(-999,-999,-999,-999)
                     property rect delegateRect : Qt.rect(x,y,width,height)
 

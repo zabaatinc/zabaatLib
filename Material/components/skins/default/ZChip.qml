@@ -154,7 +154,12 @@ ZSkin {
             }
             ZButton {
                 id : clsBtn
-                state  : logic ? logic.closeButtonState : ""
+                state  : {
+                    if(!logic)
+                        return "";
+                    return logic.enabled ? logic.closeButtonState : logic.closeButtonState + "-disabled"
+                }
+
                 height : parent.height * 0.5
                 width  : height
                 anchors.verticalCenter: parent.verticalCenter
@@ -189,6 +194,7 @@ ZSkin {
         "close" :    { "guiVars"  : { hasClose: true }} ,
         "dynamicScale" : { "guiVars" : { dynamicScale : true }}
     })
+
 
 
 

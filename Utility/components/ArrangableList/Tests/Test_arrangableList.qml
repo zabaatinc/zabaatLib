@@ -143,7 +143,7 @@ Item {
             anchors.bottom: parent.bottom
             text : "move to bottom"
             onClicked : {
-                arrangable.moveToBottom();
+                arrangable.moveToBottomAbsolute();
 //                al.moveSelectedTo(Constants.adminTickets.length -1, Constants.adminTickets.length -1);
             }
         }
@@ -153,7 +153,7 @@ Item {
             anchors.bottom: parent.bottom
             text : "move to top"
             onClicked : {
-                arrangable.moveToTop();
+                arrangable.moveToTopAbsolute();
 //                arrangable
 //                al.moveSelectedTo(Constants.adminTickets.length -1, Constants.adminTickets.length -1);
             }

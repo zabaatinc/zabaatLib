@@ -107,20 +107,28 @@ Item
             for(var i = 0; i < arr.length; i++) {
                 addObjectToModel(lm,arr[i])
             }
+
+
+
         }
         function addObjectToModel(lm, obj) {
-//            console.log("data is", toString.call(obj))
-            if(obj && isDef(obj,"id")) {
-                var existingIdx = getById(lm, obj.id, true);
-                if(existingIdx === -1){  //data doesnt exist. append it. EASY. otherwise, we got our work cut out fr us!
-                    lm.append(obj);
-                    return null;
-                }
-                else {              //update existing
-                    var existingItem = lm.get(existingIdx);
-                    updateItem(existingItem, obj);
-//                    console.log('finish update')
-                }
+            if(!obj)
+                return console.error("Tried to add null or undefined to", lm.objectName, "root")
+            if(!isDef(obj,"id"))
+                return console.error("Tried to add object without an id to", lm.objectName, "root")
+
+            var existingIdx = getById(lm, obj.id, true);
+            if(existingIdx === -1){  //data doesnt exist. append it. EASY. otherwise, we got our work cut out fr us!
+//                console.log("obj id dont exist, adding it", obj.id);
+                lm.append(obj);
+                return null;
+            }
+            else {              //update existing
+                var existingItem = lm.get(existingIdx);
+                updateItem(existingItem, obj);
+//                if(existingItem.notes) {
+//                    console.log("THIS IS WHAT HAPPEN : ", existingItem.notes.count, obj.notes.length);
+//                }
             }
         }
 
@@ -149,7 +157,11 @@ Item
                     }
                 }
                 else {
-//                    console.log("\tdo Deep copy")
+////                    console.log("\tdo Deep copy")
+//                    if(o === 'notes') {
+//                        console.log("we are gonna deep copy notes", existingItem[o], obj[o])
+//                    }
+
                     deepCopy(existingItem[o],obj[o], existingItem, o,o )
                 }
 //                console.log("\tend", o)
@@ -175,12 +187,17 @@ Item
                 return;
             }
 
+
+//            console.log("beginnging with count :", obj1.count);
             for(var o in obj2) {
                 var newVal = obj2[o]
 
                 if(isDef(newVal,"id")) {
                     var elem = getById(obj1, newVal.id)  //this is TE 0
                     if(elem) {
+//                        if(elem.message)
+//                            console.log("elem was found'", elem.message, "'no need to append it");
+
                         for(var p in newVal) {
                             if(typeof newVal[p] !== 'object') {
                                 if(elem[p] !== newVal[p])   //update property
@@ -194,7 +211,7 @@ Item
                     }
                     else {
                         if(isDef(obj1,"count")) {
-                            return obj1.append(obj2)
+                            obj1.append(newVal)
                         }
                         else {  //if the model doesn't even exist!!
                             obj1 = [] //newModelFunc('ZListModel.qml',existingItem)
@@ -258,6 +275,8 @@ Item
                 }
 
             }
+
+//            console.log("ending with count :", obj1.count);
 
         }
     }

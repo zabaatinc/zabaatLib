@@ -33,7 +33,9 @@ ZObject{
     }
 
 
-
+    function paintedWidth() { return skinFunc(arguments.callee.name) }
+    function paintedHeight() { return skinFunc(arguments.callee.name) }
+    function getTextStartPos() { return skinFunc(arguments.callee.name) }
     function getUnformattedText(rtfText){   //will remove all the stuff between < && >
         if(rtfText === null || typeof rtfText === 'undefined')
             rtfText = text;

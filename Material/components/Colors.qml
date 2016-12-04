@@ -114,6 +114,15 @@ QtObject {
             return isDarkColor(text1) ? text1 : text2
         }
     }
+    function contrastingTextState(color) {
+        if(isDarkColor(color)){
+            return isDarkColor(text1) ? "t2" : "t1"
+        }
+        else {
+            return isDarkColor(text1) ? 't1' : 't2'
+        }
+    }
+
     function rgbToHex255(r,g,b,a){
         //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
         function componentToHex(c) {

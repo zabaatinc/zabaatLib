@@ -5,10 +5,26 @@ ZSkin {
     id : rootObject
     property alias text : text
     property alias font : text.font
+
     color : graphical.fill_Default
     border.color: graphical.borderColor
     property bool paintedWidth : false
     property bool paintedHeight : false
+
+
+    skinFunc : function(name, params) { //the logic may call this!!
+        var fn = guiLogic[name]
+        if(typeof fn === 'function')
+            return fn(params);
+        console.log(rootObject, 'has no skin function called', name)
+        return null;
+    }
+    QtObject {
+        id : guiLogic
+        function paintedWidth() {  return text.paintedWidth; }
+        function paintedHeight() {  return text.paintedHeight; }
+    }
+
     onPaintedWidthChanged: if(paintedWidth) {
                                var f = function() { return text.paintedWidth + 10 }
                                rootObject.width = Qt.binding(f);
@@ -43,6 +59,7 @@ ZSkin {
         onPaintedWidthChanged: if(rootObject.paintedWidth) {
                                    rootObject.width = logic.width = paintedWidth + 10
                                }
+
     }
 
 
@@ -56,9 +73,12 @@ ZSkin {
                  "fit" : {text : { "@scale" : function() { return text.paintedWidth > text.width ? (text.width - 5) / text.paintedWidth : 1}  }
 
                   },
-                  "paintedwidth" : { rootObject : { paintedWidth : true } },
-                  "paintedheight" : { rootObject : { paintedHeight : true } },
-                  "wordwrap" : { text : { wrapMode : Text.WordWrap }}
+                  "paintedwidth"  : { rootObject : { paintedWidth : true    }},
+                  "paintedheight" : { rootObject : { paintedHeight : true   }},
+                  "wordwrap"      : { text : { wrapMode : Text.WordWrap     }},
+                  "elideright"    : { text : { elide : Text.ElideRight      }},
+                  "elideleft"     : { text : { elide : Text.ElideLeft       }},
+                  "elidemiddle"   : { text : { elide : Text.ElideMiddle     }}
               })
 
 

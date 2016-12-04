@@ -5,6 +5,7 @@ singleton _ 			1.0 ./Lodash/_.qml
 singleton Lodash 		1.0 ./Lodash/Lodash.qml
 singleton Underscore 	1.0 ./Underscore/Underscore.qml
 singleton JSONC		 	1.0 ./JSONC/JSONC.qml
+singleton Syllable 		1.0 ./Syllable/Syllable.qml
 singleton Promises		1.0 ./Promises/Promises.qml
 singleton Moment		1.0 ./Moment/Moment.qml
 singleton ZAnimator 	1.0 ./ZAnimator/ZAnimator.qml

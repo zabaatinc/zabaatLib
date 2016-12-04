@@ -258,7 +258,7 @@ Item {
                     var obj = Lodash.clone(transitionsView.model.get(index))
                     obj.origin = logic.name
                     obj.toString = function() { return "statetransitionmodelobject" }
-                    var coords = rootObject.mapToItem(null)
+                    var coords = rootObject.mapToItem(null,0,0)
                     rootObject.transitionRightClicked(obj,coords.x,coords.y)
                 }
 

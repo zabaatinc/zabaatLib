@@ -13,6 +13,8 @@ ZObject {
     signal clicked()
     signal close()
 
+    disableShowsGraphically: true;
+
     function setColor(color) {
         return skinFunc(arguments.callee.name, {color:color})
     }

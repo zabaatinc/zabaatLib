@@ -24,11 +24,11 @@ M.ZSkin {
 
     }
 
-    Row {
+    Item {
         id : opts
         width  : childrenRect.width
         height : parent.height - ztoastsimple.height
-        spacing : childrenRect.width/4
+
 
         anchors.bottom: parent.bottom
         anchors.margins: 5
@@ -37,17 +37,20 @@ M.ZSkin {
 
         M.ZButton {
             id : cancelBtn
-            width : height * 2.5
+            width  : parent.width / 3
             height : parent.height
             state  : !logic || !logic.cancelBtnState ? "default" : logic.cancelBtnState
             onClicked: if(logic)
                            logic.attemptDestruction();
             text : logic ? logic.textCancel : M.FA.close
+            anchors.left: parent.left
+            anchors.leftMargin: 5
+            clip : true
         }
 
         M.ZButton {
             id : okBtn
-            width : height * 2.5
+            width  : parent.width / 3
             height : parent.height
             state  : !logic || !logic.okBtnState ? "default" : logic.okBtnState
             onClicked : if(logic) {
@@ -58,6 +61,9 @@ M.ZSkin {
                         }
 
             text : logic ? logic.textAccept : M.FA.check
+            anchors.right: parent.right
+            anchors.rightMargin: 5
+            clip : true
         }
 
 

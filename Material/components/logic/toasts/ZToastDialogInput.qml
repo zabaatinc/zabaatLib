@@ -5,8 +5,8 @@ ZToastSimple {
     objectName : "ZToastDialogInput"
 
     property string answer     : ""
-    property string textAccept : "Ok"
-    property string textCancel : "Cancel"
+    property string textAccept : FAR.check
+    property string textCancel : FAR.close
     property string label      : ""
 
     property var acceptFunc : null
@@ -14,6 +14,7 @@ ZToastSimple {
     property var focusFunc  : null
     property string okBtnState     : rootObject.state
     property string cancelBtnState : rootObject.state
+    property string textboxState   : "standard-f3-b1"
 
     onAttemptingDestruction : if(cancelFunc)
                                   cancelFunc()

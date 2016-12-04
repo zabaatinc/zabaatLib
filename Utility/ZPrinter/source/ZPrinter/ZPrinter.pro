@@ -4,10 +4,6 @@
 TEMPLATE = lib
 QT += qml quick printsupport
 
-#TEMPLATE = app
-#QT += qml quick printsupport
-
-
 
 CONFIG += c++11
 SOURCES += main.cpp

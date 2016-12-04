@@ -18,8 +18,10 @@ Item {
     function select         (idx)         { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function selectAll      ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function deselectAll    ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
+    function moveToTopAbsolute()          { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function moveToTop      ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function moveToBottom   ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
+    function moveToBottomAbsolute()       { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function moveSelectedTo (idx,destIdx) { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function resetState     ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
     function undos          ()            { return (loader.item && loader.item.logic) ? loader.item.logic[arguments.callee.name].apply(this,arguments) : []}

@@ -115,6 +115,7 @@ Item {
                     animClose.closeWith(fn);
                 }
             }
+
             ZText {
                 anchors.fill: parent
                 anchors.margins: 5

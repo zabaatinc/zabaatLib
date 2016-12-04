@@ -2,7 +2,7 @@ import QtQuick 2.5
 import QtQuick.Window 2.2
 import Zabaat.Utility.ZPrinter 1.0
 import QtQuick.Controls 1.4
-
+import QtQuick.Dialogs 1.2
 Window {
     visible: true
     width  : 640
@@ -96,7 +96,33 @@ Window {
             }
         }
 
-
+        Button{
+            id: btnImageData
+            width : 300
+            text : "print Text as img (AUTO DETECT)"
+            anchors.bottom: parent.bottom
+            anchors.right: btnSvgImage.left;
+            onClicked : {
+                zprinter.printImageData(ti.text);
+            }
+        }
+        Button{
+            id: btnSvgImage
+            width : 250
+            text : "print Text as SVG"
+            anchors.bottom: parent.bottom
+            anchors.right: btnImg.left;
+            onClicked : {
+                zprinter.printImageData(ti.text, "svg");
+            }
+        }
+        Button{
+            id: btnImg
+            text : "print image"
+            anchors.bottom: parent.bottom
+            anchors.right: btn.left;
+            onClicked : fd.open();
+        }
         Button{
             id: btn
             text : "print"
@@ -113,6 +139,15 @@ Window {
 
     ZPrinter{
         id : zprinter
+    }
 
+    FileDialog {
+        id : fd
+        nameFilters: ["*.png","*.jpg","*.gif","*.svg","*.bmp"]
+        onAccepted: {
+            var f = fileUrl;
+            console.log(f);
+            zprinter.printImage(f, 2,2);
+        }
     }
 }

@@ -145,6 +145,7 @@ Item {
                 id : lv
                 width : menuItemWidth
                 model : 4
+                clip  : true
                 delegate: ZButton {
                     id : lvInstance
                     width : menuItemWidth

@@ -13,13 +13,17 @@ QtObject {
         return giveMeIndex ? -1 : null;
     }
 
-    function getFromList_v2(list,matchElemOrFunc,giveMeIndex){
+    function getFromList_v2(list,matchElemOrFunc,giveMeIndex,startingIndex,loopAround){
         var badVal = giveMeIndex ? -1 : null;
         if(!list)
             return;
 
+        startingIndex = startingIndex || 0;
+        if(startingIndex >= list.count)
+            startingIndex = 0;
+
         var isFunc = typeof matchElemOrFunc === 'function'
-        for(var i = 0; i < list.count; ++i){
+        var finderFunc = function(i) {
             var item = list.get(i);
             if(isFunc){
                 if(matchElemOrFunc(item))
@@ -29,7 +33,24 @@ QtObject {
                 if(item == matchElemOrFunc)
                     return giveMeIndex? i : item;
             }
+            return undefined;
         }
+
+        for(var i = startingIndex; i < list.count; ++i){
+            var r = finderFunc(i);
+            if(r !== undefined)
+                return r;
+        }
+
+        if(loopAround) {
+            for(i = 0; i < startingIndex; ++i) {
+                r = finderFunc(i);
+                if(r !== undefined)
+                    return r;
+            }
+        }
+
+
         return badVal
     }
 
@@ -56,6 +77,53 @@ QtObject {
 
         return obj;
     }
+
+    function containsIn(collection,value) {
+        if(Lodash.isArray(collection))
+                return containsInArray(collection,value);
+        return containsInList(collection,value);
+    }
+
+    function containsInArray(collection, val_s) {
+        if(!collection)
+            return true;
+
+        if(Lodash.isArray(collection) && collection.length == 0)
+            return true;
+
+        var r = Lodash.isArray(collection) ?  collection : [collection];
+        var vals = Lodash.isArray(val_s) ?  val_s : [val_s];
+        for(var i = 0; i < vals.length; ++i) {
+            var v = vals[i];
+            var idx = collection.indexOf(v);
+            if(idx !== -1)
+                return idx;
+        }
+
+        return -1;
+    }
+
+    function containsInList(collection, val_s, fn) {
+        if(!collection)
+            return true;
+
+        var fn = Lodash.isFunction(fn) ? null :function(a,b) {
+                                                    return a == b
+                                                }
+
+        var r = Lodash.isArray(collection) ?  collection : [collection];
+        var vals = Lodash.isArray(val_s) ?  val_s : [val_s];
+        for(var i = 0; i < vals.length; ++i) {
+            var v = vals[i];
+            var idx = getFromList_v2(collection,fn,true);
+            if(idx !== -1)
+                return idx;
+        }
+
+        return -1;
+    }
+
+
 
 
     function cloneObject(obj, r) {
@@ -438,13 +506,17 @@ QtObject {
     }
 
     //ARRAY RELATED
-    function getFromArray_v2(arr,matchElemOrFunc,giveMeIndex){
+    function getFromArray_v2(arr,matchElemOrFunc,giveMeIndex, startingIndex, loopAround){
         var badVal = giveMeIndex ? -1 : null;
         if(!arr || !isArray(arr))
             return;
 
+        startingIndex = startingIndex || 0;
+        if(startingIndex >= list.count)
+            startingIndex = 0;
+
         var isFunc = typeof matchElemOrFunc === 'function'
-        for(var i = 0; i < arr.length; ++i){
+        var finderFunc = function(i) {
             var item = arr[i]
             if(isFunc){
                 if(matchElemOrFunc(item))
@@ -454,7 +526,24 @@ QtObject {
                 if(item == matchElemOrFunc)
                     return giveMeIndex? i : item;
             }
+            return undefined;
         }
+
+        for(var i = startingIndex; i < arr.length; ++i){
+            var r = finderFunc(i);
+            if(r !== undefined)
+                return r;
+        }
+
+        if(loopAround) {
+            for(i = 0; i < startingIndex; ++i) {
+                r = finderFunc(i);
+                if(r !== undefined)
+                    return r;
+            }
+        }
+
+
         return badVal
     }
     function isArray(obj){

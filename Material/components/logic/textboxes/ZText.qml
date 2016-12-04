@@ -4,4 +4,8 @@ ZObject {
     objectName: "ZText"
 
     property string text : ""
+
+    function paintedWidth() { return skinFunc(arguments.callee.name) }
+    function paintedHeight() { return skinFunc(arguments.callee.name) }
 }
+

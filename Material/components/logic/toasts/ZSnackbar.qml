@@ -7,7 +7,7 @@ Rectangle {
     signal attemptingDestruction()
 
     property string state      : ""
-    property alias stateText   : ztext.state
+    property string stateText   : "t2-tleft-f3"
     property alias stateButton : zbtn.state
     property alias text        : ztext.text
     property alias textButton  : zbtn.text
@@ -35,11 +35,12 @@ Rectangle {
         id : txContainer
         width : parent.width * 0.85
         height : parent.height
+        clip   : true
         ZText {
             id : ztext
             anchors.fill: parent
             anchors.margins: 5
-            state : "t2-tleft-f3"
+            state : !stateText ?  "elideright" : stateText +  "-elideright"
         }
     }
 

@@ -38,10 +38,12 @@ Item {
 
     FlexibleComponent {
         id : btn
-        width : parent.width - parent.height
+        //width : parent.width - parent.height
         height : parent.height
         value : parent.textDisp
+        anchors.left: ri.right
         anchors.right: parent.right
+        clip: true
         src : UserSystem.componentsConfig.button_user
         onEvent: if(name === 'clicked')
                      rootObject.clicked(uid, username);

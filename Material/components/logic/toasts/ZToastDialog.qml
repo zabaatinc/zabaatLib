@@ -4,8 +4,8 @@ ZToastSimple {
     id : rootObject
     objectName : "ZToastDialog"
 
-    property string textAccept : "Ok"
-    property string textCancel : "Cancel"
+    property string textAccept : FAR.check
+    property string textCancel : FAR.close
 
     property var acceptFunc : null
     property var cancelFunc : null
