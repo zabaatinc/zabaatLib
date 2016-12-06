@@ -78,13 +78,21 @@ QtObject {
         return obj;
     }
 
-    function containsIn(collection,value) {
+    function containsIn(collection,val_s) {
         if(Lodash.isArray(collection))
-                return containsInArray(collection,value);
-        return containsInList(collection,value);
+            return findInArray(collection,val_s) !== -1;
+        return findInList(collection,val_s) !== -1;
     }
 
-    function containsInArray(collection, val_s) {
+    function findIn(collection,val_s) {
+        if(Lodash.isArray(collection))
+            return findInArray(collection,val_s)
+        return findInList(collection,val_s)
+    }
+
+
+
+    function findInArray(collection, val_s) {
         if(!collection)
             return true;
 
@@ -103,7 +111,7 @@ QtObject {
         return -1;
     }
 
-    function containsInList(collection, val_s, fn) {
+    function findInList(collection, val_s, fn) {
         if(!collection)
             return true;
 

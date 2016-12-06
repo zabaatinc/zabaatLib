@@ -160,8 +160,8 @@ QtObject {
                     }
                 }
                 else if(status === Image.Error){
-                    console.log("unable to load image!")
-                    destroy()   //kill self if unable to load image!
+                    console.log("unable to load image!", source)
+                    img.destroy();
                 }
             }
         }
