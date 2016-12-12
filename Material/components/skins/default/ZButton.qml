@@ -166,7 +166,12 @@ ZSkin {
                                             return Math.min(sx,sy);
                                           }
                               }
-                }
+                },
+        //cannot be used with richText apparently
+        "elideright"    : { textItem : { scale : 1, elide : Text.ElideRight      }},
+        "elideleft"     : { textItem : { scale : 1, elide : Text.ElideLeft       }},
+        "elidemiddle"   : { textItem : { scale : 1, elide : Text.ElideMiddle     }}
+
     })
 
 

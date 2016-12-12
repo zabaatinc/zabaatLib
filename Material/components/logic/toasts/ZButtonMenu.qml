@@ -27,6 +27,7 @@ Item {
     }
     onWidthChanged : if(instance.hasInit) instance.determinePosition();
     onHeightChanged: if(instance.hasInit) instance.determinePosition();
+    onMenuItemHeightChanged: instance.determinePosition();
     onPosChanged   : instance.determinePosition();
     Connections{
         target                  : instance && instance.parent ? instance.parent : null;
@@ -101,6 +102,7 @@ Item {
     ListView {
         id : lv
         width  : menuItemWidth
+        clip : true
         delegate: ZButton {
             id : lvInstance
             width : menuItemWidth
