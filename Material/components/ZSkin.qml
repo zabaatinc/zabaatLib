@@ -303,6 +303,7 @@ Item {
             cache.injectState("bstandard" , "graphical" , { "@borderColor" : [Colors,"standard"] });
             cache.injectState("bt1"       , "graphical" , { "@borderColor" : [Colors,"text1"] });
             cache.injectState("bt2"       , "graphical" , { "@borderColor" : [Colors,"text2"] });
+            cache.injectState("btcontrasting","graphical", { "@borderColor" : function() {return Colors.contrastingTextColor(graphical.fill_Default)}} );
 
             cache.injectState("br!g!b!"   , "graphical",  { "@borderColor" : function(r,g,b)   { return Qt.rgba(r/255,g/255,b/255)       } });
             cache.injectState("br!g!b!a!" , "graphical",  { "@borderColor" : function(r,g,b,a) { return Qt.rgba(r/255,g/255,b/255,a/255) } });
