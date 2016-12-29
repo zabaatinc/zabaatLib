@@ -3,28 +3,11 @@ import Zabaat.Base 1.0
 import Zabaat.Notification 1.0
 import QtQuick.Controls 1.4
 import "Components"
+import Zabaat.Utility.SubModel 1.1
+
 Item {
     id : rootObject
-    Component.onCompleted: logic.readGroups();
-    Connections {
-        target          : Notification
-        onNewGroupAdded : groups.append({ name : group })
-    }
-
     property alias style : styleSettings;
-    QtObject {
-        id : logic
-
-        function readGroups() {
-            var obj = Notification.getAllNotificationLists();
-            Lodash.each(obj,function(v,k) {
-                groups.append({ name: v.objectName })
-            })
-        }
-
-        property ListModel groups : ListModel {  id : groups ; }
-    }
-
     NotificationViewerStyle { id : styleSettings }
 
     SplitView {
@@ -41,7 +24,7 @@ Item {
                 id : groupList
                 anchors.fill: parent
                 clip : true
-                model : groups
+                model : Notification.groupNamesList;
                 property var selectedItem : currentItem && currentItem.name ? currentItem.name : ""
                 delegate: Rectangle {
                     id : groupDel
