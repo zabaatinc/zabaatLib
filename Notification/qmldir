@@ -1,0 +1,3 @@
+module Zabaat.Notification
+singleton Notification 1.0 ./Notification.qml
+NotificationViewer 	   1.0 ./NotificationViewer.qml
