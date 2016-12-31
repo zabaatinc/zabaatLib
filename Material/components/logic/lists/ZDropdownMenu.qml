@@ -86,7 +86,7 @@ Item {
                 lv.anchors.left = lv.anchors.top = lv.anchors.bottom = lv.anchors.right = undefined;
 
                 //set w,h
-                lv.height = Math.min(menuInstance.height * 0.75 , lv.model.length * menuItemHeight);
+                lv.height = Math.min(menuInstance.height * 0.5 , lv.model.length * menuItemHeight);
                 pos = mainBtn.mapToItem(menuInstance,0,mainBtn.height);
 
                 //X position
