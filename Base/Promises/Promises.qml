@@ -17,6 +17,13 @@ QtObject {
         return P.All(arr);
     }
 
+    function race(arr) {
+        if(!P.setTimeout)
+            P.setTimeout = priv.setTimeOut
+
+        return P.Race(arr);
+    }
+
     Component.onCompleted: {
         P.setTimeout = priv.setTimeOut
     }
