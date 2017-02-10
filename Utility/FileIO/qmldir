@@ -2,3 +2,4 @@ module Zabaat.Utility.FileIO
 plugin zfileio
 classname zfileio
 typeinfo plugins.qmltypes
+DownloadProgressBar 1.0 DownloadProgressBar.qml
