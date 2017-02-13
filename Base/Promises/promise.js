@@ -212,13 +212,11 @@ function Race(promiseArray) {
                         return resolve(val.value);
                     }
                     if(val.state === REJECTED) {
-                        for(var k in val.value)
-                            console.log(k,typeof val.value[k])
                         return reject(val.value);
                     }
 
                     //if promise succeeded, add its value to args , otherwise call the main reject
-                    val.then(resolve , reject)
+                    return val.then(resolve , reject)
                 }
                 else {
                     return resolve(val.value);
