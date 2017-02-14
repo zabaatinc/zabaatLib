@@ -44,6 +44,7 @@ QtObject {
         t.args     = args;
         t.interval = ms;
         t.repeat   = true;
+        t.dontDestroy = true;
         t.start();
 
         var timerId = _members.infiniteTimerNum++;
