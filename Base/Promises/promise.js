@@ -197,6 +197,38 @@ function Promise(fn) {
   doResolve(fn, self.resolve, self.reject);
 }
 
+function Race(promiseArray) {
+    return new Promise(function(resolve,reject) {
+        if(!promiseArray || toString.call(promiseArray) !== '[object Array]' || promiseArray.length === 0) {
+            return resolve();
+        }
+
+        function res(val) {
+            if(val && (typeof val === 'object' || typeof val === 'function') )  {
+                var then = getThen(val);
+                if(typeof then === 'function') {
+                    //hey already fulfilled, yowzers. no need to call then
+                    if(val.state === FULFILLED) {
+                        return resolve(val.value);
+                    }
+                    if(val.state === REJECTED) {
+                        return reject(val.value);
+                    }
+
+                    //if promise succeeded, add its value to args , otherwise call the main reject
+                    return val.then(resolve , reject)
+                }
+                else {
+                    return resolve(val.value);
+                }
+            }
+        }
+
+        for(var i = 0; i < promiseArray.length; ++i){
+            res(promiseArray[i])
+        }
+    })
+}
 
 
 
