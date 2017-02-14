@@ -76,9 +76,9 @@ ZSkin {
                   "paintedwidth"  : { rootObject : { paintedWidth : true    }},
                   "paintedheight" : { rootObject : { paintedHeight : true   }},
                   "wordwrap"      : { text : { wrapMode : Text.WordWrap     }},
-                  "elideright"    : { textItem : { scale : 1, elide : Text.ElideRight      }},
-                  "elideleft"     : { textItem : { scale : 1, elide : Text.ElideLeft       }},
-                  "elidemiddle"   : { textItem : { scale : 1, elide : Text.ElideMiddle     }}
+                  "elideright"    : { text: { scale : 1, elide : Text.ElideRight      }},
+                  "elideleft"     : { text: { scale : 1, elide : Text.ElideLeft       }},
+                  "elidemiddle"   : { text: { scale : 1, elide : Text.ElideMiddle     }}
               })
 
 
