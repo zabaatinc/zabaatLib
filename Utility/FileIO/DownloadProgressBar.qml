@@ -1,5 +1,4 @@
 import QtQuick 2.5
-import QtGraphicalEffects 1.0
 Item {
     id : rootObject
     property var zFileDownloaderInstance
@@ -14,6 +13,7 @@ Item {
     property alias colorBorder   : borderRect.color
     property alias colorText     : fileNameIndicator.color
     property alias font          : fileNameIndicator.font
+    property alias showText      : textArea.visible
 
     readonly property alias progress: logic.progress
 
@@ -78,52 +78,27 @@ Item {
         id : gui
         anchors.fill: parent
 
-        Item {
-            id : barArea
+        Rectangle {
+            id : background
             anchors.fill: parent
-
             Rectangle {
-                id : maskSource
-                radius : height / 8
-                anchors.fill: parent
-                visible: false
-            }
-            Item {
-                id : bgkAndFill
-                anchors.fill: parent
-                visible : false
-                Rectangle {
-                    id : background
-                    anchors.fill: parent
-                }
-
-                Rectangle {
-                    id : fill
-                    height : parent.height
-                    width  : parent.width * progress
-                    color  : {
-                        switch(logic.state) {
-                            case 1  : return colorFailed
-                            case 2  : return colorFinished
-                            default : return colorProgress
-                        }
+                id : fill
+                height : parent.height
+                width  : parent.width * progress
+                color  : {
+                    switch(logic.state) {
+                        case 1  : return colorFailed
+                        case 2  : return colorFinished
+                        default : return colorProgress
                     }
-//                    Behavior on width { NumberAnimation { duration : 50 } }
                 }
-            }
-            OpacityMask {
-                anchors.fill: parent
-                source : bgkAndFill
-                maskSource: maskSource
             }
             Rectangle {
                 id : borderRect
                 anchors.fill: parent
                 color : "transparent"
                 border.width: 1
-                radius : maskSource.radius
             }
-
         }
         Item {
             id : textArea
