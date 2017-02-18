@@ -106,7 +106,7 @@ Rectangle {
             var c = gv.getDelegateInstance(index);
             if(c) {
                 //get C in terms of this!
-                var pts = c.mapToItem(rootObject);
+                var pts = c.mapToItem(rootObject,0,0);
                 return Qt.rect(pts.x,pts.y,c.width,c.height)
             }
         }
