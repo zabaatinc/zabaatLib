@@ -53,6 +53,43 @@ QtObject {
         }
     }
 
+    function connectOnce(sig, fn) {
+        return connectUntil(sig,fn, function() { return false })
+    }
+
+    function connectUntilTruthy(sig, fn, msg) {
+        if(typeof sig !== 'function' || typeof fn !== 'function')
+            return;
+
+        var connector = function() {
+            var args = Array.prototype.slice.call(arguments);
+            if(fn.apply(this,args))
+                sig.disconnect(connector);
+        }
+
+        try { sig.connect(connector) } catch(e) { console.error(e) }
+    }
+
+    function connectUntil(sig, fn, untilFn) {
+        if(typeof sig !== 'function' || typeof fn !== 'function' || untilFn !== 'function')
+            return;
+
+        var connector = function() {
+            var args = Array.prototype.slice.call(arguments);
+
+            fn.apply(this,args);
+            if(!untilFn.apply(this,args))
+                sig.disconnect(connector);
+        }
+
+        try {
+            sig.connect(connector);
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+
     property TextEdit __private__ : TextEdit{
         id : textedit
     }
