@@ -22,6 +22,26 @@ QtObject {
         console.log.apply(this,arr);
     }
 
+    function logJs() {
+        var params    = Array.prototype.slice.call(arguments);
+        var outparams = [];
+        for(var p in params) {
+            var param = params[p]
+            if(typeof param === 'object') {
+                try {
+                    outparams.push(JSON.stringify(param,null,2))
+                }catch(e) {
+                    outparams.push(toString.call(param));
+                }
+            }
+            else
+                outparams.push(toString.call(param));
+        }
+
+        var arr = [string.currentFileAndLineNum(2)].concat(outparams);
+        console.log.apply(this,arr);
+    }
+
     //Generates & returns a new function that calls fn with arguments provided here.
     function generate(fn) {
         var args = Array.prototype.slice.call(arguments);
