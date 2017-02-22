@@ -9,6 +9,7 @@ Item {
     property real radius : iconSz/2
     property color color : "steelblue"
     property real minSize: iconSz * 2
+    property real msAreaSize : iconSz * 1.5
 
     width  : iconSz
     height : iconSz
@@ -26,7 +27,9 @@ Item {
         anchors.horizontalCenter: parent.left
         anchors.verticalCenter  : parent.verticalCenter
         MouseArea {
-            anchors.fill: parent
+            width : msAreaSize
+            height: msAreaSize
+            anchors.centerIn: parent
             drag.target: parent
             drag.axis: Drag.XAxis
             onMouseXChanged: {
@@ -74,7 +77,9 @@ Item {
         anchors.horizontalCenter: parent.right
         anchors.verticalCenter  : parent.verticalCenter
         MouseArea {
-            anchors.fill: parent
+            width : msAreaSize
+            height: msAreaSize
+            anchors.centerIn: parent
             drag.target: parent
             drag.axis: Drag.XAxis
             onMouseXChanged: {
@@ -107,7 +112,9 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter  : parent.top
         MouseArea {
-            anchors.fill: parent
+            width : msAreaSize
+            height: msAreaSize
+            anchors.centerIn: parent
             drag.target: parent
             drag.axis: Drag.YAxis
             onMouseYChanged: {
@@ -159,7 +166,9 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter  : parent.bottom
         MouseArea {
-            anchors.fill: parent
+            width : msAreaSize
+            height: msAreaSize
+            anchors.centerIn: parent
             drag.target: parent
             drag.axis: Drag.YAxis
             onMouseYChanged: {
