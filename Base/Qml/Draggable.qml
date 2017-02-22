@@ -7,12 +7,12 @@ Item {
     property var target : parent
     property var constraintItem : target && target.parent ? target.parent : null;
     property alias indicator: indi.visible
-    property alias color    : indi.color;
+    property color color    : 'steelblue';
     Rectangle {
         id : indi
         color : 'transparent'
         border.width: 1
-        border.color: 'steelblue'
+        border.color: rootObject.color
         visible: false
         anchors.fill: parent
     }
