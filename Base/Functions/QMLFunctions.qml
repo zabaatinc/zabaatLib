@@ -3,7 +3,7 @@ QtObject {
     id : rootObject
 
     //kinda experimental function , use carefully. It will move the sourceItem!!
-    function capture(sourceItem, subRect, cb, safetyDelay) {
+    function capture(sourceItem, subRect, cb, safetyDelay, dontRenderOffscreen) {
         if(!Qt.isQtObject(sourceItem))
             return cb({err:"sourceItem is not a Qt Object" });
 
@@ -23,9 +23,9 @@ QtObject {
 
 
         var r    = shaderFactory.createObject(sourceItem);
-        r.Component.completed.connect(function() {
-            console.log('whut')
-        })
+        if(!dontRenderOffscreen)
+            r.x = r.y = Number.MAX_VALUE;   //draw it off screen!!
+
         r.width  = subRect.width;
         r.height = subRect.height;
 
