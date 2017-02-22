@@ -9,6 +9,7 @@ QtObject {
     property FileFunctions   file   : FileFunctions   {}
     property ListFunctions   list   : ListFunctions   {}
     property XHRFunctions    xhr    : XHRFunctions    {}
+    property QMLFunctions    qml    : QMLFunctions    {}
 
     function copyToClipboard(text){
         textedit.text = text;

@@ -11,3 +11,5 @@ singleton Moment		1.0 ./Moment/Moment.qml
 singleton ZAnimator 	1.0 ./ZAnimator/ZAnimator.qml
 UIBlocker 			    1.0 ./Qml/UIBlocker.qml
 ZTracer					1.0 ./Qml/ZTracer.qml
+Resizable				1.0 ./Qml/Resizable.qml
+Draggable				1.0 ./Qml/Draggable.qml
