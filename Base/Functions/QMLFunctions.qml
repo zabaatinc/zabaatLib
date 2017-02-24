@@ -26,9 +26,22 @@ QtObject {
         if(!dontRenderOffscreen)
             r.x = r.y = Number.MAX_VALUE;   //draw it off screen!!
 
-        r.width  = subRect.width;
-        r.height = subRect.height;
 
+        r.width  = subRect.height;
+        r.height = subRect.width;
+        if(sourceItem.rotation !== 0) {
+            //figure out the width height
+            var a = sourceItem.rotation * (Math.PI/180); //rad convert
+            var s = Math.sin(a);    //store sin & cos values. we will need to use them a few times
+            var c = Math.cos(a);
+
+            //use 2d rotation math
+            r.width  = Math.abs(subRect.width * c  - subRect.height * s);
+            r.height = Math.abs(subRect.width * -s + subRect.height * c);
+        }
+
+        r.w = subRect.width;
+        r.h = subRect.height;
         r.sourceItem = sourceItem;
         r.startX     = subRect.x / sourceItem.width;
         r.startY     = subRect.y / sourceItem.height;
@@ -61,6 +74,8 @@ QtObject {
                 property alias startY     : sEffect.startY
                 property alias endX       : sEffect.endX
                 property alias endY       : sEffect.endY
+                property alias w          : sEffect.width
+                property alias h          : sEffect.height
                 function begin(interval) {
                     readyTimer.interval = interval;
                     readyTimer.start();
@@ -70,7 +85,7 @@ QtObject {
 
                 ShaderEffect {
                     id : sEffect
-                    anchors.fill: parent
+                    anchors.centerIn: parent
                     property variant source: ShaderEffectSource {
                        id : ses
                        smooth      : true
@@ -80,6 +95,7 @@ QtObject {
                     property real startY : 0
                     property real endX : 1
                     property real endY : 1
+                    rotation : shaderInstance.sourceItem && shaderInstance.sourceItem.rotation ? shaderInstance.sourceItem.rotation : 0
 
                     fragmentShader: "#ifdef GL_ES
                                          precision mediump float;

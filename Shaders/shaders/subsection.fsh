@@ -7,16 +7,12 @@ uniform lowp float endY;
 varying vec2 qt_TexCoord0;
 void main()
 {
-	vec2 start = vec2(startX,startY);
-	vec2 end   = vec2(endX, endY);
-	if(end.x < start.x)
-		end.x = start.x;
-	if(end.y < start.y)
-		end.y = start.y;
-	
-	vec2 uv   = qt_TexCoord0.xy;
-	float myX = (end.x - start.x) * uv.x + start.x;
-	float myY = (end.y - start.y) * uv.y + start.y;
+    vec2 start = vec2(startX,startY);
+    vec2 end   = vec2(endX, endY);
 
-	gl_FragColor = qt_Opacity * texture2D(source, vec2(myX,myY));
+    vec2 uv   = qt_TexCoord0.xy;
+    float myX = (end.x - start.x) * uv.x + start.x;
+    float myY = (end.y - start.y) * uv.y + start.y;
+
+    gl_FragColor = qt_Opacity * texture2D(source, vec2(myX,myY));
 }
