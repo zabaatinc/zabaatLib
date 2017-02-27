@@ -27,8 +27,8 @@ QtObject {
             r.x = r.y = Number.MAX_VALUE;   //draw it off screen!!
 
 
-        r.width  = subRect.height;
-        r.height = subRect.width;
+        r.width  = subRect.width;
+        r.height = subRect.height;
         if(sourceItem.rotation !== 0) {
             //figure out the width height
             var a = sourceItem.rotation * (Math.PI/180); //rad convert
