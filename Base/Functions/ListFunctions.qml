@@ -60,7 +60,7 @@ QtObject {
 
         var itemIsArray = isArray(item);
         var len = itemIsArray ? item.length : item.count;
-        var obj = itemIsArray ? {}          : listGenerator.createObject(listContainer);
+        var obj = itemIsArray ? []          : listGenerator.createObject(listContainer);
 
         for(var i = 0; i < len; i++) {
             var val = itemIsArray ? item[i] : item.get(i);
@@ -115,7 +115,7 @@ QtObject {
         if(!collection)
             return true;
 
-        var fn = Lodash.isFunction(fn) ? null :function(a,b) {
+        fn = Lodash.isFunction(fn) ? null :function(a,b) {
                                                     return a == b
                                                 }
 
