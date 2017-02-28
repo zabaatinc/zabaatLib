@@ -81,11 +81,9 @@ QtObject {
 
     //Generates & returns a new function that calls fn with arguments provided here.
     function generate(fn) {
-        var args = Array.prototype.slice.call(arguments);
-        if(args.length > 0) //so we dont call fn(fn,argA,argB...), we want fn(argA,argB,...);
-            args.splice(0,1);
-
+        var args = Array.prototype.slice.call(arguments,1);
         return function() {
+            console.log("OH GENERATED FUNC CALL");
             return fn.apply(this,args);
         }
     }
