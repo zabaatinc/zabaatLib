@@ -10,6 +10,11 @@ QtObject {
     property ListFunctions   list   : ListFunctions   {}
     property XHRFunctions    xhr    : XHRFunctions    {}
     property QMLFunctions    qml    : QMLFunctions    {}
+    property LogStorage      logs   : LogStorage      {}
+
+    property bool storeLogs     : false
+    property bool storeWarnings : false
+    property bool storeErrors   : false
 
     function copyToClipboard(text){
         textedit.text = text;
@@ -19,9 +24,37 @@ QtObject {
     }
 
     function log(){
-        var arr = [string.currentFileAndLineNum(2)].concat(Array.prototype.slice.call(arguments));
+        var args        = Array.prototype.slice.call(arguments);
+        var fileAndLine = string.currentFileAndLineNum(2)
+        var arr = [fileAndLine].concat(args);
         console.log.apply(this,arr);
+        if(storeLogs) {
+            logs.add("log", fileAndLine, args.join(" "));
+        }
     }
+
+    function warning() {
+        var args        = Array.prototype.slice.call(arguments);
+        var fileAndLine = string.currentFileAndLineNum(2)
+        var arr = [fileAndLine].concat(args);
+        console.warn.apply(this,arr);
+        if(storeWarnings) {
+            logs.add("warning", fileAndLine, args.join(" "));
+        }
+    }
+
+    function error() {
+        var args        = Array.prototype.slice.call(arguments);
+        var fileAndLine = string.currentFileAndLineNum(2)
+        var arr = [fileAndLine].concat(args);
+        console.error.apply(this,arr);
+        if(storeErrors) {
+            logs.add("error", fileAndLine, args.join(" "));
+        }
+    }
+
+
+
 
     function logJs() {
         var params    = Array.prototype.slice.call(arguments);
@@ -38,9 +71,12 @@ QtObject {
             else
                 outparams.push(toString.call(param));
         }
-
-        var arr = [string.currentFileAndLineNum(2)].concat(outparams);
+        var fileAndLine = string.currentFileAndLineNum(2)
+        var arr = [fileAndLine].concat(outparams);
         console.log.apply(this,arr);
+        if(storeLogs) {
+            logs.add("log", fileAndLine, outparams.join(" "));
+        }
     }
 
     //Generates & returns a new function that calls fn with arguments provided here.
@@ -91,8 +127,10 @@ QtObject {
     }
 
 
-    property TextEdit __private__ : TextEdit{
-        id : textedit
+    property Item __private__ : Item{
+        TextEdit { id : textedit }
     }
+
+
 
 }
