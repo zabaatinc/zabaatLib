@@ -36,8 +36,13 @@ Item {
     }
 
 
-
-
+    Rectangle {
+        id : borderRounder
+        anchors.fill: parent
+        radius      : height/4
+        color       : 'white'
+        visible: false
+    }
 
     ListView {
         id : lv
@@ -60,68 +65,60 @@ Item {
 
 
 
-    Rectangle {
-        id : borderRounder
-        anchors.fill: parent
-        radius : height/4
-        color  : 'purple'
-    }
 
-    ShaderEffectSource {
-        id : effectSource
-        sourceItem: lv
-        anchors.fill: parent
-        hideSource: true
-        visible : false
-    }
-    ShaderEffectSource {
-        id : maskSource
-        sourceItem: borderRounder
-        anchors.fill: parent
-        hideSource: true
-        visible : false
-    }
-    ShaderEffect {
-        id : se
-        anchors.fill: parent
-        property variant source : effectSource
-        property variant mask   : maskSource
-        fragmentShader:
-            "#ifdef GL_ES
-                precision mediump float;
-             #else
-             #   define lowp
-             #   define mediump
-             #   define highp
-             #endif // GL_ES
-             uniform sampler2D source;
-             uniform sampler2D mask;
+//    ShaderEffectSource {
+//        id : effectSource
+//        sourceItem: lv
+//        anchors.fill: parent
+//        hideSource: true
+//        smooth: true
+////        visible : false
+//    }
+//    ShaderEffectSource {
+//        id : maskSource
+//        sourceItem: borderRounder
+//        anchors.fill: parent
+//        hideSource: true
+//        smooth: true
+////        visible : false
+//    }
+//    ShaderEffect {
+//        id : se
+//        anchors.fill: parent
+//        property variant source : effectSource
+//        property variant mask   : borderRounder
+//        fragmentShader:
+//            "#ifdef GL_ES
+//                precision mediump float;
+//             #else
+//             #   define lowp
+//             #   define mediump
+//             #   define highp
+//             #endif // GL_ES
+//             uniform sampler2D source;
+//             uniform sampler2D mask;
+//             varying vec2       qt_TexCoord0;
+//             uniform lowp float qt_Opacity;
+//             void main(){
+//                 vec4 pixel     = texture2D(source, qt_TexCoord0.st).rgba;
+//                 vec4 maskPixel = texture2D(mask  , qt_TexCoord0.st).rgba;
 
-             varying vec2       qt_TexCoord0;
-             uniform lowp float qt_Opacity;
-             void main(){
-                 vec2 uv        = qt_TexCoord0.xy;
-                 vec4 pixel     = texture2D(source,qt_TexCoord0);
-                 vec4 maskPixel = texture2D(mask,qt_TexCoord0);
+//                 pixel *= (1 - maskPixel);
 
-                 pixel.a = maskPixel.a;
-                 if(maskPixel.a < 1)
-                    pixel = vec4(0.0,0.0,0.0,0.0);
-
-                 gl_FragColor = (pixel) * qt_Opacity;
-             }"
-    }
+//                 gl_FragColor = pixel * qt_Opacity;
+//             }"
+//    }
 
 
-    Rectangle {
-        id : border
-        anchors.fill: parent
-        radius : borderRounder.radius
-        border.width: borderRounder.border.width
-        border.color: borderRounder.border.color
-        color : 'transparent'
-        z : Number.MAX_VALUE
-    }
+//    Rectangle {
+//        id : border
+//        anchors.fill : parent
+//        radius       : borderRounder.radius
+//        border.width : borderRounder.border.width
+//        border.color : borderRounder.border.color
+//        color        : 'transparent'
+//        z            : Number.MAX_VALUE
+//    }
 
 
 }
