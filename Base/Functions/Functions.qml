@@ -82,9 +82,10 @@ QtObject {
     //Generates & returns a new function that calls fn with arguments provided here.
     function generate(fn) {
         var args = Array.prototype.slice.call(arguments,1);
+        //"this" from when generate() starts is likely to be long dead when this new function is called.
+        //so we create an empty object as the "this" parameter for the apply call.
         return function() {
-            console.log("OH GENERATED FUNC CALL");
-            return fn.apply(this,args);
+            return fn.apply({},args);
         }
     }
 
@@ -92,13 +93,13 @@ QtObject {
         return connectUntil(sig,fn, function() { return false })
     }
 
-    function connectUntilTruthy(sig, fn, msg) {
+    function connectUntilTruthy(sig, fn) {
         if(typeof sig !== 'function' || typeof fn !== 'function')
             return;
 
         var connector = function() {
             var args = Array.prototype.slice.call(arguments);
-            if(fn.apply(this,args))
+            if(fn.apply({},args))
                 sig.disconnect(connector);
         }
 
@@ -112,8 +113,8 @@ QtObject {
         var connector = function() {
             var args = Array.prototype.slice.call(arguments);
 
-            fn.apply(this,args);
-            if(!untilFn.apply(this,args))
+            fn.apply({},args);
+            if(!untilFn.apply({},args))
                 sig.disconnect(connector);
         }
 

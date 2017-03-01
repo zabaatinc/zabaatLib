@@ -26,7 +26,7 @@ pragma Singleton
 //  You can clone a runner by calling ani.clone(newQMLTargetItem, useSameEventsBool)
 
 
-
+//add support for dynamically creating parallel animations later as well. Perhaps. For combining the bleed and shake into one.
 
 QtObject{
     id : rootObject
@@ -132,7 +132,7 @@ QtObject{
                 index = index || 0;
                 if(index < m_anims.length){
                     var args = m_anims[index];
-                    getAnimationPromise.apply(this,args).then(function() { retObj.start(index+1) } );
+                    getAnimationPromise.apply({},args).then(function() { retObj.start(index+1) } );
                     if(index === 0){
                         m_startCb(m_target);
                     }
@@ -183,7 +183,7 @@ QtObject{
             //returns a new runner for targetItem
             var newRunner = getAnimationRunner(targetItem);
             Lodash.each(m_anims, function(v,k){
-                newRunner.add.apply(this, v);
+                newRunner.add.apply({}, v);
             })
 
             if(sameOnEvents){
@@ -295,7 +295,7 @@ QtObject{
                                 if(toString.call(args) !== '[object Array]')
                                     args = [args]
 
-                                fn.apply(this,args);
+                                fn.apply({},args);
                             }
                             else {
                                 fn();

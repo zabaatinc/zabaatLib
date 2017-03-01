@@ -26,6 +26,7 @@ QtObject{
     property alias userObj          : userInfo.obj
     property alias componentsConfig : componentsConfig
 
+
     property string facebookAppId : "";
     property bool   skipLoginAllowed : true;
     property bool   passwordRequired : true;
@@ -300,10 +301,13 @@ QtObject{
 
             property string role_default : 'user'
             property string role_guest   : 'guest'
+
+            property UserModules userModules : UserModules {}
         }
         ComponentsConfig {
             id : componentsConfig
         }
+
 
         property int    status       : 0;
         property string statusString : switch(status) {

@@ -48,10 +48,9 @@ QtObject {
                 onTriggered: {
                     if(typeof fn === 'function') {
                         if(args) {
-                            fn.apply(this,args);
+                            fn.apply({},args);
                         }
                         else {
-//                            console.log("calling fn")
                             fn();
                         }
                     }
@@ -62,4 +61,18 @@ QtObject {
 
     }
 
+
+    function timeoutPromise(ms, fn) {
+
+        function tGen(ms) {
+            return promise(function(resolve,reject) {
+                priv.setTimeOut(reject,ms,["timedout"]);
+            })
+        }
+
+        var tPromise = tGen(ms);
+        var fPromise = promise(fn);
+
+        return race([tPromise,fPromise])
+    }
 }

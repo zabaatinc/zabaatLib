@@ -63,7 +63,7 @@ Item {
                     var arr = []
                     for(var i = 1 ; i < arguments.length; i++)
                         arr.push(arguments[i])
-                    func.apply(this, arr)
+                    func.apply({}, arr)
                 }
                 else
                     func()
