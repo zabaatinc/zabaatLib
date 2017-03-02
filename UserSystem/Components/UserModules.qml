@@ -5,29 +5,29 @@ QtObject {
     id : rootObject
     function getUserModuleDir() { return _priv.dir;  }
     function setUserModuleDir(dir) {
-        dir = ":/src"
-        Functions.log("OH IS THIS THE DIR IM LOOKING FER?" , dir);
-        return Promises.timeoutPromise(1000, function(resolve,reject) {
+        return Promises.timeoutPromise(2000, function(resolve,reject) {
             if(!dir)
                 reject("no dir");
 
             if(typeof dir !== 'string')
                 reject("dir is not a string:" , dir);
 
+            var cleanDir = _priv.cleanPath(dir);
             var userTabs = {}
             Functions.connectUntilTruthy(flm.countChanged, function() {
                 for(var i = 0; i < flm.count; ++i) {
                     var fileURL      = flm.get(i, 'fileURL').toString();
                     var fileBaseName = flm.get(i, 'fileBaseName');
-                    if(fileURL.length <= dir || fileURL.indexOf(dir) !== 0)
+
+                    //for our comparisons, we need to clean the paths first
+                    if(_priv.cleanPath(fileURL).indexOf(cleanDir) !== 0)
                         return false;
 
-                    userTabs[fileBaseName] = fileURL;
+                    userTabs[fileBaseName] = _priv.goodUrl(fileURL,dir);
                 }
 
                 resolve(userTabs);
-                Functions.log("RESOLVE setUserDirectory" , JSON.stringify(userTabs,null,2))
-                _priv.dir     = dir; //so getUserDirectory() works
+                _priv.dir      = dir; //so getUserDirectory() works
                 _priv.userTabs = userTabs;
                 return true;
             })
@@ -36,22 +36,36 @@ QtObject {
         })
     }
 
-    readonly property alias modules : _priv.userTabs
-
+    readonly property alias moduleObj : _priv.userTabs
     property QtObject _priv : QtObject {
         id : _priv
         property string dir          : Qt.resolvedUrl(".")
-        Component.onCompleted: Functions.log("@@@@@@@@@@@@@@", dir);
-        onDirChanged: Functions.log("@@@@@@@@@@@@@@", dir);
-
         property var userTabs        : ({})
         property FolderListModel flm : FolderListModel{
             id : flm
-//            nameFilters: ["*.qml"]
+            nameFilters: ["*.qml"]
             showDirs: false
             showDotAndDotDot: false
             showHidden: false
         }
+
+        function cleanPath(str) {
+            var idx = str.indexOf(":/")
+            if(idx !== -1)
+                return str.substring(idx,str.length);
+            return str;
+        }
+
+        function goodUrl(str, original) {
+            var thinger = "file:///"
+            var idx = original.indexOf(":/")
+            if(idx !== -1)
+                thinger = original.substring(0,idx);
+
+            return thinger + cleanPath(str)
+        }
+
+
     }
 
 //    Component.onCompleted:  {
