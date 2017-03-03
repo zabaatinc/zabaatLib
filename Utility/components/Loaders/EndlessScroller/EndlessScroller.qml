@@ -13,8 +13,8 @@ Rectangle {
     //vars
     readonly property bool ready            : logic.ready && gui.ready
     property int  pageOffset                : 0      //use when we dont start on page 0!!
-    property int  rows                      : 4
-    property int  columns                   : 1
+    property real rows                      : 4
+    property real columns                   : 1
     property real requestWhenPagesRemaining : 1.5    //request when this much pages are left. YES, it is a REAL. It's smart.
     property real requestPageSize           : requestWhenPagesRemaining //request this amount of pages when a request is made!
     property int  requestDelay              : 100
@@ -134,10 +134,80 @@ Rectangle {
             cellHeight  : height / rows
             cellWidth   : width  / columns
             model       : rootObject.model
-//            highlightRangeMode: GridView.ApplyRange
             boundsBehavior: Flickable.OvershootBounds
             flickableDirection: Flickable.VerticalFlick
+            property alias hasInit            : logic.hasInit
+            property real adjustY             : 0
+            property bool disableRequests     : false
+            property int numElemsPerPage      : Math.floor(rows * columns)
+            property int requestWhenRemaining : numElemsPerPage * rootObject.requestWhenPagesRemaining
+            property int totalPages           : count / numElemsPerPage
+            property int currentPage          : (topIdx/numElemsPerPage) + pageOffset
+            property real preserveVelocity    : 0
+            property int topIdx               : {
+                var t = indexAt(0, contentY);
+                return t === -1 ? 0 : t
+            }
+            onHasInitChanged  : if(hasInit )   getMoreIfNeeded(true , 'INIT')
+            onWidthChanged    : if(hasInit )   getMoreIfNeeded(false, "WIDTH")
+            onHeightChanged   : if(hasInit )   getMoreIfNeeded(false, 'HEIGHT')
+            onContentYChanged : if(hasInit )   getMoreIfNeeded(false, 'CONTENTY')
+            onModelChanged    : if(hasInit )   getMoreIfNeeded(false, 'MODEL')
+            onVerticalVelocityChanged : if(flicking){
+                if(verticalVelocity < 0) {  //view is moving up as a result of flicking down
+                    rootObject.flickDown()
+                }
+                else if(verticalVelocity > 0 && contentY > 0) {
+                    rootObject.flickUp()
+                }
+            }
 
+            function getDelegateInstance(idx){
+                var contentChildren = gv.contentItem.children
+                for(var i = 0; i < contentChildren.length; ++i) {
+                    var c = contentChildren[i]
+                    if(c && c.imADelegate && c.idx === idx)
+                        return c;
+                }
+                return null;
+            }
+            function getMoreIfNeeded(forceRequest, debug){
+
+                function doReq(p, isBeginning, topIdx, debug){
+                    return p === -1 ? false : requestPage(p, null, function(){ var b = isBeginning; if(!b) gv.preserveVelocity = gv.verticalVelocity  })
+                }
+
+
+                if(!disableRequests && (!delayTimer.running || forceRequest) && gv.model) {
+
+                    //FREEZE RELEVANT INFO in these vars (cause async) ! this will make this atomic and give both up and down a chance
+                    //to succeed
+                    var topIdx      = gv.topIdx
+                    var currentPage = Math.floor(topIdx / gv.numElemsPerPage) + pageOffset
+                    var startDelayTimer = false
+                    var count = gv.model.count
+
+
+                    //scrolled down vs scrolled up (& and not at page 0)
+
+                    //determine whether to request next page or previous page (only ask for stuff before when upward is true?)
+//                    console.log(topIdx , "<",  requestWhenRemaining, topIdx < requestWhenRemaining, "\t\t", contentY)
+                    if(pageOffset > 0 && topIdx  < requestWhenRemaining ) { //requirement for previous
+//                        console.log("ASKING FOR PAGE", currentPage - 1, debug)
+                        startDelayTimer = doReq(currentPage - 1, true, topIdx, debug)
+                    }
+
+//                    console.log(count , topIdx, requestWhenRemaining)
+                    if(topIdx !== -1 && count - topIdx <= requestWhenRemaining) { //requirement for next
+//                        console.log("ASKING FOR PAGE", currentPage + 1, debug)
+                        startDelayTimer =  doReq(currentPage + 1, false, topIdx, debug) || startDelayTimer
+                    }
+
+                    if(startDelayTimer)
+                        delayTimer.start()
+                }
+
+            }
 
 
             Connections {
@@ -183,7 +253,6 @@ Rectangle {
 
                 }
             }
-
             Timer  {
                 id : contentYAdjustmentTimer
                 interval : 1
@@ -209,91 +278,6 @@ Rectangle {
             }
 
 
-            property alias hasInit            : logic.hasInit
-            property real adjustY             : 0
-            property bool disableRequests     : false
-            property int numElemsPerPage      : rows * columns
-            property int requestWhenRemaining : numElemsPerPage * rootObject.requestWhenPagesRemaining
-            property real preserveVelocity    : 0
-//            maximumFlickVelocity: 100000000000000000
-
-            property int t                    : indexAt(0,contentY)
-            property int topIdx               : t === -1 ? 0 : t
-//            property int preserveIdx          : -1
-
-//            onPreserveIdxChanged              : if(preserveIdx !== -1) console.log("PI", preserveIdx)
-            property int totalPages           : count / numElemsPerPage
-            property int currentPage          : (topIdx/numElemsPerPage) + pageOffset
-
-
-            function getDelegateInstance(idx){
-                var contentChildren = gv.contentItem.children
-                for(var i = 0; i < contentChildren.length; ++i) {
-                    var c = contentChildren[i]
-                    if(c && c.imADelegate && c.idx === idx)
-                        return c;
-                }
-                return null;
-            }
-            function getMoreIfNeeded(override, debug){
-
-                function doReq(p, isBeginning, topIdx, debug){
-                    return p === -1 ? false : requestPage(p, null, function(){ var b = isBeginning; if(!b) gv.preserveVelocity = gv.verticalVelocity  })
-                }
-
-
-                if(!disableRequests && (!delayTimer.running || override) && gv.model) {
-
-                    //FREEZE RELEVANT INFO in these vars (cause async) ! this will make this atomic and give both up and down a chance
-                    //to succeed
-                    var topIdx      = gv.topIdx
-                    var currentPage = Math.floor(topIdx / gv.numElemsPerPage) + pageOffset
-                    var startDelayTimer = false
-                    var count = gv.model.count
-
-
-                    //scrolled down vs scrolled up (& and not at page 0)
-
-                    //determine whether to request next page or previous page (only ask for stuff before when upward is true?)
-//                    console.log(topIdx , "<",  requestWhenRemaining, topIdx < requestWhenRemaining, "\t\t", contentY)
-                    if(pageOffset > 0 && topIdx  < requestWhenRemaining ) { //requirement for previous
-//                        console.log("ASKING FOR PAGE", currentPage - 1, debug)
-                        startDelayTimer = doReq(currentPage - 1, true, topIdx, debug)
-                    }
-
-//                    console.log(count , topIdx, requestWhenRemaining)
-                    if(topIdx !== -1 && count - topIdx <= requestWhenRemaining) { //requirement for next
-//                        console.log("ASKING FOR PAGE", currentPage + 1, debug)
-                        startDelayTimer =  doReq(currentPage + 1, false, topIdx, debug) || startDelayTimer
-                    }
-
-                    if(startDelayTimer)
-                        delayTimer.start()
-                }
-
-            }
-
-
-
-
-
-            onHasInitChanged  : if(hasInit )   getMoreIfNeeded(true , 'INIT')
-            onWidthChanged    : if(hasInit )   getMoreIfNeeded(false, "WIDTH")
-            onHeightChanged   : if(hasInit )   getMoreIfNeeded(false, 'HEIGHT')
-            onContentYChanged : if(hasInit )   getMoreIfNeeded(false, 'CONTENTY')
-            onModelChanged    : if(hasInit )   getMoreIfNeeded(false, 'MODEL')
-            onVerticalVelocityChanged : if(flicking){
-                if(verticalVelocity < 0) {  //view is moving up as a result of flicking down
-                    rootObject.flickDown()
-//                    console.log('down')
-                }
-                else if(verticalVelocity > 0 && contentY > 0) {
-                    rootObject.flickUp()
-//                    console.log('up')
-                }
-            }
-
-
             delegate : Loader {
                 id : gvDelLoader
                 width : gv.cellWidth
@@ -304,27 +288,28 @@ Rectangle {
                 property int  idx        : index
                 property bool imADelegate: true
 
-                onLoaded : if(item) {
-                               item.anchors.fill = gvDelLoader
-                               if(item.hasOwnProperty('index'))
-                                   item.index = Qt.binding(function() { return gvDelLoader ? gvDelLoader.idx : -1 })
-                               if(item.hasOwnProperty('model'))
-                                   item.model = Qt.binding(function() { return gvDelLoader ? gvDelLoader.m : null })
-                               if(typeof item.clicked === 'function') {
-                                   gvDelMa.enabled = false;
-                                   item.clicked.connect(function() { rootObject.emitSelection(idx) } )
-                               }
-                               else
-                                   gvDelMa.enabled = true;
-                           }
+                onLoaded : {
+                    item.anchors.fill = gvDelLoader
+                    if(item.hasOwnProperty('index'))
+                        item.index = Qt.binding(function() { return gvDelLoader ? gvDelLoader.idx : -1 })
+                    if(item.hasOwnProperty('model'))
+                        item.model = Qt.binding(function() { return gvDelLoader ? gvDelLoader.m : null })
+                    if(typeof item.clicked === 'function') {
+                        gvDelMa.enabled = false;
+                        item.clicked.connect(function() { rootObject.emitSelection(idx) } )
+                    }
+                    else
+                        gvDelMa.enabled = true;
+                }
+
                 MouseArea {
                     id : gvDelMa
                     anchors.fill: parent
                     onClicked   : rootObject.emitSelection(idx)
                     z : Number.MAX_VALUE
                 }
-
             }
+
         }
 
 
