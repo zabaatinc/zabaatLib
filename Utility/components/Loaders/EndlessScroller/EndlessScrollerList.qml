@@ -14,7 +14,7 @@ Rectangle {
     readonly property bool ready            : logic.ready && gui.ready
     property int  pageOffset                : 0      //use when we dont start on page 0!!
     property real rows                      : 4
-    property real columns                   : 1
+    readonly property real columns          : 1
     property real requestWhenPagesRemaining : 1.5    //request when this much pages are left. YES, it is a REAL. It's smart.
     property real requestPageSize           : requestWhenPagesRemaining //request this amount of pages when a request is made!
     property int  requestDelay              : 100
@@ -129,12 +129,12 @@ Rectangle {
         property bool ready: false
         Component.onCompleted: ready = true;
 
-        GridView {
+        ListView {
             id : gv
             anchors.fill: parent
             clip        : true
-            cellHeight  : height / rows
-            cellWidth   : width  / columns
+            property real cellHeight  : height / rows
+            property real cellWidth   : width  / columns
             model       : rootObject.model
             boundsBehavior: Flickable.OvershootBounds
             flickableDirection: Flickable.VerticalFlick

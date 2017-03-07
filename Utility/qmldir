@@ -1,11 +1,13 @@
 module Zabaat.Utility
 ArrangableList			1.0 components/ArrangableList/v10/ArrangableList.qml
 ArrangableList			1.1 components/ArrangableList/v11/ArrangableList.qml
-ZGestureArea 			1.0 components/ZGestureArea/v10/ZGestureArea.qml
+ZGestureArea 			1.0 components/Input/ZGestureArea/v10/ZGestureArea.qml
+ZTextInput				1.0 components/Input/ZTextInput/v10/ZTextInput.qml
 GenericHeader			1.0 components/Loaders/GenericHeader/v10/GenericHeader.qml
 GenericList				1.0 components/GenericList/GenericList.qml
 FancyLoader				1.0 components/Loaders/FancyLoader/FancyLoader.qml
 EndlessScroller			1.0 components/Loaders/EndlessScroller/EndlessScroller.qml
+EndlessScrollerList		1.0 components/Loaders/EndlessScroller/EndlessScrollerList.qml
 CachedLoader 			1.0 components/Loaders/CachedLoader/CachedLoader.qml
 ObjectEditor			1.0 components/ObjectEditor/v10/ObjectEditor.qml
 HorizontalGradient 		1.0 components/Graphical/HorizontalGradient.qml
