@@ -44,19 +44,19 @@ Rectangle {
                 anchors.fill: parent
                 wrapMode : Text.WordWrap
                 verticalAlignment : Text.AlignVCenter
-                cursorDelegate: Component { Rectangle {
-                        id : cursorDel
-                        width : 2
-                        color : cursorColor
-                        radius : 5
-                        Timer {
-                            interval : 500
-                            running : true
-                            repeat : true
-                            onTriggered: cursorDel.visible = !cursorDel.visible
-                        }
-                    }
-                }
+//                cursorDelegate: Component { Rectangle {
+//                        id : cursorDel
+//                        width : 2
+//                        color : cursorColor
+//                        radius : 5
+//                        Timer {
+//                            interval : 500
+//                            running : true
+//                            repeat : true
+//                            onTriggered: cursorDel.visible = !cursorDel.visible
+//                        }
+//                    }
+//                }
 
                 onCursorRectangleChanged:  {
                     if(maxHeight > te.contentHeight)

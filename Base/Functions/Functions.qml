@@ -107,8 +107,9 @@ QtObject {
     }
 
     function connectUntil(sig, fn, untilFn) {
-        if(typeof sig !== 'function' || typeof fn !== 'function' || untilFn !== 'function')
+        if(typeof sig !== 'function' || typeof fn !== 'function' || typeof untilFn !== 'function') {
             return;
+        }
 
         var connector = function() {
             var args = Array.prototype.slice.call(arguments);
