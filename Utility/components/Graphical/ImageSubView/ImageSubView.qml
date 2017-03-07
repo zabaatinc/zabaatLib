@@ -1,32 +1,31 @@
 import QtQuick 2.5
-
 //Displays the part of the image determined by the subRect property
+//subRect and imgSize are both needed.
+//imgSize is the size of the image in which the subRect exists
+//subRect is the location (x,y,width,height) within (imgSize);
+//the width & the height of rootObject is the canvas into which the subrect is painted.
 Item {
     id : rootObject
-
-    //is in percentage of the image!
-    property rect subRect : Qt.rect(0,0,1,1)    //full
-    property alias source : img.source
-    property alias cache  : img.cache
+    property point imgSize
+    property rect  subRect
+    property alias source    : img.source
+    property alias cache     : img.cache
+    property alias fillMode  : img.fillMode
     clip : true
-
     Image {
         id       : img
-        fillMode : Image.Stretch
-        property real w: rootObject.width
-        property real h: rootObject.height
-
-        width    : (2-subRect.width)      * w
-        height   : (2-subRect.height)     * h
-        x        : -subRect.x          * w
-        y        : -subRect.y          * h
+        fillMode : Image.PreserveAspectFit
+        x        : -r.x      * width
+        y        : -r.y      * height
+        width    : r.width   * rootObject.width
+        height   : r.height  * rootObject.height
+        property rect r : {
+            //uses imgSize && subRect to determine stuffs
+            var x      = subRect.x  / imgSize.x;
+            var y      = subRect.y  / imgSize.y;
+            var width  = imgSize.x / subRect.width;
+            var height = imgSize.y / subRect.height;
+            return Qt.rect(x,y,width,height);
+        }
     }
-
-
-//    Text {
-//         text : subRect.toString()
-//         color : 'red'
-//         anchors.centerIn: parent
-//    }
-
 }
