@@ -305,10 +305,13 @@ Item {
                 rootObject[k].component     = oe[k].component
                 rootObject[k].valueProperty = oe[k].valueProperty
                 if(k === 'button'){
+                    //do the button property do. its a little different
                     rootObject[k].textDeeper    = oe[k].textDeeper
                     rootObject[k].textShallower = oe[k].textShallower
                 }
             }
+
+
 
             rootObject.color        = oe.color
             rootObject.border.width = oe.border.width
@@ -356,7 +359,9 @@ Item {
                 visible : !hideTitle
 
                 Loader {
-                    anchors.fill    : parent
+                    height : parent.height
+                    anchors.right : parent.right
+                    width : parent.width - parent.height
                     sourceComponent : label.component
                     onLoaded        : item[label.valueProperty] = title
                     property var ss : title
@@ -367,7 +372,7 @@ Item {
                     height : parent.height
                     sourceComponent: button.component
                     onLoaded : {
-                        item[button.valueProperty] = button.textShallower
+                        item[button.valueProperty] = button.textShallower;
                         item.clicked.connect(rootObject.close)
                     }
                     property var ss: button.textShallower
@@ -530,7 +535,11 @@ Item {
                             }
 
                             Item {
-                                width  : del.type !== 'function' ? parent.height  : 0
+                                width  : {
+                                    if(!delButton.visible)
+                                        return 0;
+                                    return del.type !== 'function' ? parent.height  : 0
+                                }
                                 height : parent.height
                                 Loader {
                                     id : delButton
@@ -589,6 +598,7 @@ Item {
                 visible : nextLevelLoader.item
                 enabled : visible
                 solidBackGround: true
+                color : rootObject.color
             }
 
             onLoaded : {

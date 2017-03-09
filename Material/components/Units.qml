@@ -60,6 +60,16 @@ QtObject {
         return res;
     }
 
+    function wx(px, scale) {
+        scale = scale || 1
+        return _m.wR * px * scale;
+    }
+
+    function hx(px, scale) {
+        scale = scale || 1
+        return _m.hR * px * scale
+    }
+
     function pt(p) {
         //there are 72 pts      in 1 inch.
         //there are 81.6 pixels in 1 inch
@@ -96,5 +106,10 @@ QtObject {
         text : "I"
     }
 
+    property QtObject _m : QtObject {
+        id : _m
+        property real wR : mainWindowWidth / defaultWidth
+        property real hR : mainWindowHeight / defaultHeight
+    }
 
 }
