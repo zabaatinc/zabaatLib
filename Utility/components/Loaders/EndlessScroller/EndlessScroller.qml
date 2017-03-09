@@ -74,7 +74,8 @@ Rectangle {
             if(typeof preFunc === 'function')
                 preFunc(pg)
 
-            getPageFunc(pg, gv.numElemsPerPage * rootObject.requestPageSize, function (msg){
+            //console.log("REQUESTING PAGE", pg, "ELMENTS", Math.ceil(gv.numElemsPerPage * rootObject.requestPageSize))
+            getPageFunc(pg, Math.ceil(gv.numElemsPerPage * rootObject.requestPageSize), function (msg){
                 if(msg.data) {
                     logic.addUniqueToArr(logic.pagesReceived, pg)
                     pageReceived(pg, msg.data, false)
