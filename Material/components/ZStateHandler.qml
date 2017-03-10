@@ -488,7 +488,7 @@ Item {
                     //replace function with a function that calls the original!!!
 //                    console.log("!!!! TODO ZSTATEHANDLER")
                     obj[o] = function() {
-                        return item.apply(this,args);
+                        return item.apply({},args);
                     }
                 }
                 else if(type === 'string' && item.indexOf("!") !== -1){  //is a simple object !!

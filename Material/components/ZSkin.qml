@@ -123,7 +123,7 @@ Item {
     property var    states : []
     function log(){
         if(debug)
-            console.log.apply(this,arguments)
+            console.log.apply({},arguments)
     }
     function clr(name){
         return Colors.get(colorTheme , name)

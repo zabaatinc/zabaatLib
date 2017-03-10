@@ -25,28 +25,28 @@ Item {
          function me(cb){
              var item = webViewLoader.item
              if(item){
-                 return item.publicFuncs[arguments.callee.name].apply(this,arguments);
+                 return item.publicFuncs[arguments.callee.name].apply({},arguments);
              }
              console.error("webview isnt loaded")
          }
          function myFriends(cb){
              var item = webViewLoader.item
              if(item){
-                 return item.publicFuncs[arguments.callee.name].apply(this,arguments);
+                 return item.publicFuncs[arguments.callee.name].apply({},arguments);
              }
              console.error("webview isnt loaded")
          }
          function getUserPicture(id, cb, width, height){
              var item = webViewLoader.item
              if(item){
-                 return item.publicFuncs[arguments.callee.name].apply(this,arguments);
+                 return item.publicFuncs[arguments.callee.name].apply({},arguments);
              }
              console.error("webview isnt loaded")
          }
          function apiCall(method, fnName, params, cb, dontParse){
              var item = webViewLoader.item
              if(item){
-                 return item.publicFuncs[arguments.callee.name].apply(this,arguments);
+                 return item.publicFuncs[arguments.callee.name].apply({},arguments);
              }
              console.error("webview isnt loaded")
          }

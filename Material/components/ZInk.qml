@@ -36,7 +36,7 @@ Item {
             }
             else {
                 if(arr === null)    logic.endTapAndCall(func)
-                else                logic.endTapAndCall.apply(this,arr)
+                else                logic.endTapAndCall.apply({},arr)
             }
         }
         else {
@@ -152,7 +152,7 @@ Item {
             onStarted: inkBlob.doReset(grow)
             onStopped  : {
                 if(!inkBlob.reset)
-                    inkBlob.cb ? logic.endTap() : logic.endTapAndCall.apply(this, inkBlob.args)
+                    inkBlob.cb ? logic.endTap() : logic.endTapAndCall.apply({}, inkBlob.args)
             }
         }
         NumberAnimation {
@@ -165,7 +165,7 @@ Item {
             onStarted: inkBlob.doReset(shrink)
             onStopped  : {
                 if(!inkBlob.reset)
-                    inkBlob.cb ? logic.endTap() : logic.endTapAndCall.apply(this, inkBlob.args)
+                    inkBlob.cb ? logic.endTap() : logic.endTapAndCall.apply({}, inkBlob.args)
             }
         }
     }

@@ -82,7 +82,7 @@ FocusScope {
     /*! Same as console.log but prints only when this component is in debug mode \hr */
     function log(){
         if(debug)
-            console.log.apply(this,arguments)
+            console.log.apply({},arguments)
     }
 
     /* Used when skinfunc is called and the skin has no skinFunc. This can happen on creation of the object! */

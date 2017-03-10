@@ -62,7 +62,7 @@ Item
             return false;
         }
         function isDef(item) {
-            return !isUndef.apply(this,arguments);
+            return !isUndef.apply({},arguments);
         }
         function checkCallbacks(modelName) {
             var tabStr = arguments.length == 2 ? arguments[1] : ""

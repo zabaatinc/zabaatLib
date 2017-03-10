@@ -98,7 +98,7 @@ QtObject {
                             if(toString.call(args) !== '[object Array]')
                                 args = [args]
 
-                            fn.apply(this,args);
+                            fn.apply({},args);
                         }
                         else {
                             fn();

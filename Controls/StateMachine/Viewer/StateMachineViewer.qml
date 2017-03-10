@@ -123,7 +123,7 @@ Item {
             var s = validate(fnName,params)
             if(s === null){
                 if(arguments.length > 2)
-                    methodCallFunc.apply(this,arguments)
+                    methodCallFunc.apply({},arguments)
                 else
                     methodCallFunc(fnName,params)
             }

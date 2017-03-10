@@ -23,7 +23,7 @@ function sendMessage(msg, debug) {
 
     var debugMsg = function(){
         if(debug){
-            console.log.apply(this,arguments)
+            console.log.apply({},arguments)
         }
     }
 

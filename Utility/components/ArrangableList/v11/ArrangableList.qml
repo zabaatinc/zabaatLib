@@ -12,23 +12,23 @@ Item {
     readonly property var indexList : loader.item ? loader.item.indexList : null
     readonly property var indexListFiltered : loader.item ? loader.item.indexListFiltered : null
 
-    function undo           ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function redo           ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function deselect       (idx)         { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function select         (idx)         { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function selectAll      ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function deselectAll    ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function moveToTopAbsolute()          { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function moveToTop      ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function moveToBottom   ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function moveToBottomAbsolute()       { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function moveSelectedTo (idx,destIdx) { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function resetState     ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function undos          ()            { return (loader.item && loader.item.logic) ? loader.item.logic[arguments.callee.name].apply(this,arguments) : []}
-    function redos          ()            { return (loader.item && loader.item.logic) ? loader.item.logic[arguments.callee.name].apply(this,arguments) : []}
-    function runFilterFunc  ()            { if(loader.item) loader.item[arguments.callee.name].apply(this,arguments) }
-    function get(idx)                     { return (loader.item) ? loader.item[arguments.callee.name].apply(this,arguments) : undefined }
-    function refreshDelegate(opt_iteratee){ return (loader.item) ? loader.item[arguments.callee.name].apply(this,arguments) : undefined }
+    function undo           ()            { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function redo           ()            { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function deselect       (idx)         { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function select         (idx)         { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function selectAll      ()            { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function deselectAll    ()            { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function moveToTopAbsolute()          { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function moveToTop      ()            { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function moveToBottom   ()            { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function moveToBottomAbsolute()       { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function moveSelectedTo (idx,destIdx) { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function resetState     ()            { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function undos          ()            { return (loader.item && loader.item.logic) ? loader.item.logic[arguments.callee.name].apply({},arguments) : []}
+    function redos          ()            { return (loader.item && loader.item.logic) ? loader.item.logic[arguments.callee.name].apply({},arguments) : []}
+    function runFilterFunc  ()            { if(loader.item) loader.item[arguments.callee.name].apply({},arguments) }
+    function get(idx)                     { return (loader.item) ? loader.item[arguments.callee.name].apply({},arguments) : undefined }
+    function refreshDelegate(opt_iteratee){ return (loader.item) ? loader.item[arguments.callee.name].apply({},arguments) : undefined }
     function getSelected() {
         var arr = []
         if(selectedLen > 0 && selected) {

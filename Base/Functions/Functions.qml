@@ -27,7 +27,7 @@ QtObject {
         var args        = Array.prototype.slice.call(arguments);
         var fileAndLine = string.currentFileAndLineNum(2)
         var arr = [fileAndLine].concat(args);
-        console.log.apply(this,arr);
+        console.log.apply({},arr);
         if(storeLogs) {
             logs.add("log", fileAndLine, args.join(" "));
         }
@@ -37,7 +37,7 @@ QtObject {
         var args        = Array.prototype.slice.call(arguments);
         var fileAndLine = string.currentFileAndLineNum(2)
         var arr = [fileAndLine].concat(args);
-        console.warn.apply(this,arr);
+        console.warn.apply({},arr);
         if(storeWarnings) {
             logs.add("warning", fileAndLine, args.join(" "));
         }
@@ -47,7 +47,7 @@ QtObject {
         var args        = Array.prototype.slice.call(arguments);
         var fileAndLine = string.currentFileAndLineNum(2)
         var arr = [fileAndLine].concat(args);
-        console.error.apply(this,arr);
+        console.error.apply({},arr);
         if(storeErrors) {
             logs.add("error", fileAndLine, args.join(" "));
         }
@@ -73,7 +73,7 @@ QtObject {
         }
         var fileAndLine = string.currentFileAndLineNum(2)
         var arr = [fileAndLine].concat(outparams);
-        console.log.apply(this,arr);
+        console.log.apply({},arr);
         if(storeLogs) {
             logs.add("log", fileAndLine, outparams.join(" "));
         }

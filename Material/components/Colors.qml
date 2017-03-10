@@ -288,7 +288,7 @@ QtObject {
         property bool debug : false
         function log(){
             if(debug){
-                console.log.apply(this,arguments)
+                console.log.apply({},arguments)
             }
         }
 

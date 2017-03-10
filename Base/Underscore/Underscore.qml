@@ -41,9 +41,9 @@ QtObject
     function pluck(obj,key) { return UnderscoreLib._.pluck(obj,key) }
 
     function chain(obj)                  { return UnderscoreLib._.chain(obj) }
-    function indexBy()                   { return UnderscoreLib._.indexBy.apply(this,arguments) }
-    function groupBy()                   { return UnderscoreLib._.groupBy.apply(this,arguments) }
-    function countBy(obj, func)          { return UnderscoreLib._.countBy.apply(this,arguments) }
+    function indexBy()                   { return UnderscoreLib._.indexBy.apply({},arguments) }
+    function groupBy()                   { return UnderscoreLib._.groupBy.apply({},arguments) }
+    function countBy(obj, func)          { return UnderscoreLib._.countBy.apply({},arguments) }
 
     function where(obj,attrs) { return UnderscoreLib._.where(obj,attrs) }
     function findWhere(obj,attrs) { return UnderscoreLib._.findWhere(obj,attrs) }
@@ -76,9 +76,9 @@ QtObject
 
     function isArray(obj) { return UnderscoreLib._.isArray(obj) }
 
-    function union() { return UnderscoreLib._.union.apply(this,arguments) }
-    function intersection(array) { return UnderscoreLib._.intersection.apply(this,arguments) }
-    function difference(array) { return UnderscoreLib._.difference.apply(this,arguments) }
+    function union() { return UnderscoreLib._.union.apply({},arguments) }
+    function intersection(array) { return UnderscoreLib._.intersection.apply({},arguments) }
+    function difference(array) { return UnderscoreLib._.difference.apply({},arguments) }
     function zip(array) { return UnderscoreLib._.zip(array) }
     function unzip(array) { return UnderscoreLib._.unzip(array) }
     function object(list,values) { return UnderscoreLib._.object(list,values)  }

@@ -47,15 +47,15 @@ Item
         {
             if(debugMode)
             {
-                if(externalDebugFunc)   externalDebugFunc.apply(this,arguments)
-                else                    console.log.apply(this,arguments)
+                if(externalDebugFunc)   externalDebugFunc.apply({},arguments)
+                else                    console.log.apply({},arguments)
             }
         }
 
         function bypass()
         {
-            if(externalDebugFunc)       externalDebugFunc.apply(this,arguments)
-            else                        console.log.apply(this,arguments)
+            if(externalDebugFunc)       externalDebugFunc.apply({},arguments)
+            else                        console.log.apply({},arguments)
         }
     }
     QtObject {

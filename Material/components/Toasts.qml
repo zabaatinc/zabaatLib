@@ -371,7 +371,7 @@ Item {
 
         function handleSnackQueue(){
             if(snackQueue.length > 0){
-                createSnack.apply(this,snackQueue[0]);
+                createSnack.apply({},snackQueue[0]);
                 snackQueue.splice(0,1);
             }
         }
@@ -379,7 +379,7 @@ Item {
 
         function log(){
             if(debug){
-                console.log.apply(this,arguments)
+                console.log.apply({},arguments)
             }
         }
         function generateId() {
