@@ -35,15 +35,21 @@ QtObject{
 //    signal loggedOut();
 //    signal skippedLogin();
     function login(userData, success, fail){
-        if(noNetwork)
-            return console.error("Cannot Log In because you are not connected to the server");
-
-        if(status != 0)
-            return console.error("Cannot Log In because you are", priv.statusString);
-
         var blankFn = function(){ console.log("CALLING BLANK FNC") }
         success = typeof success === 'function' ? success : blankFn
         fail    = typeof fail    === 'function' ? fail    : blankFn
+
+        if(noNetwork) {
+            console.error("Cannot Log In because you are not connected to the server");
+            return fail();
+        }
+
+        if(status != 0) {
+            console.error("Cannot Log In because you are", priv.statusString);
+            return fail();
+        }
+
+
 
         var oldStatus = priv.status;
         priv.status = 3;
@@ -88,8 +94,10 @@ QtObject{
                 if(typeof v === 'function')
                     promises.push(priv.genFuncPromise(v));
                 else
-                    functions.onLogoutFuncs.splice(k,1);
+                    functions.onLoginFuncs.splice(k,1);
             })
+
+            Functions.log("generated promise arr of length", promises.length);
             return Promises.all(promises).finally(success);
 
         }).catch(function(err){
@@ -114,7 +122,7 @@ QtObject{
             if(typeof v === 'function')
                 promises.push(priv.genFuncPromise(v));
             else
-                functions.onLogoutFuncs.splice(k,1);
+                functions.onSkippedLoginFuncs.splice(k,1);
         })
 
         //make da userInfo based on our settings cause we remember it, then call the onSkippedLoginFuncs!!
@@ -342,7 +350,7 @@ QtObject{
 
                 //this makes it so the cb is always the last thing passed onto the fn. all the params
                 //from genFuncPromise are passed into fn (except fn of course).
-                fn.apply(this,args);
+                fn.apply({},args);
             })
         }
         function get(obj,propertyName,defaultVal){
