@@ -126,6 +126,34 @@ QtObject {
         }
     }
 
+    function chainableFunctionFactory() {
+        var args = Array.prototype.slice.call(arguments);
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1)
+        }
+
+        var obj = { _fnStore : {} }
+        args.forEach(function(v) {
+            v = v.toString();
+
+            var onName = "on" + capitalizeFirst(v);
+            obj[onName] = function(fn) {
+                if(typeof fn === 'function')
+                    obj._fnStore[v] = fn;
+                return obj;
+            }
+
+            obj[v] = function() {
+                var myName = v;
+                var fn = obj._fnStore[myName];
+                if(typeof fn === 'function')
+                    return fn.apply({},Array.prototype.slice.call(arguments));
+            }
+
+        })
+        return obj;
+    }
 
     property Item __private__ : Item{
         TextEdit { id : textedit }
