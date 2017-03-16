@@ -440,4 +440,15 @@ QtObject {
     }
 
 
+    function mergeObjects() {  //utility function that merges objects together. very useful.
+        var obj = {}
+        for(var i = 0; i < arguments.length; ++i){
+            var arg = arguments[i];
+            for(var k in arg) {
+                var v = arg[k]
+                obj[k] = v;
+            }
+        }
+        return obj;
+    }
 }

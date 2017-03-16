@@ -11,6 +11,7 @@ Item {
     property alias source    : img.source
     property alias cache     : img.cache
     property alias fillMode  : img.fillMode
+//    onSourceChanged: console.log("@@@@@@@@ IMAGE SUBVIEW SOURCE", source);
     clip : true
     Image {
         id       : img
@@ -27,5 +28,8 @@ Item {
             var height = imgSize.y / subRect.height;
             return Qt.rect(x,y,width,height);
         }
+//        property rect dispRect : Qt.rect(x,y,width,height);
+//        onDispRectChanged: console.log("@@@@@ IMAGESUBVIEW RECT @@@@@@@@@@@", dispRect, "cuz", r);
+//        onRChanged: console.log("@@@@@ IMAGESUBVIEW RECT @@@@@@@@@@@", r);
     }
 }
