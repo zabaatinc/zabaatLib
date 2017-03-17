@@ -58,7 +58,7 @@ Rectangle {
         }
     }
 
-    function refresh(){
+    function clearPageHistory(){
         logic.pagesReceived = []
         logic.pagesRequested = []
     }
@@ -74,7 +74,7 @@ Rectangle {
             if(typeof preFunc === 'function')
                 preFunc(pg)
 
-            console.log("REQUESTING PAGE", pg, "ELMENTS", Math.round(gv.numElemsPerPage))
+//            console.log("REQUESTING PAGE", pg, "ELMENTS", Math.round(gv.numElemsPerPage))
             getPageFunc(pg, Math.ceil(gv.numElemsPerPage), function (msg){
                 if(msg.data) {
                     logic.addUniqueToArr(logic.pagesReceived, pg)
@@ -142,7 +142,7 @@ Rectangle {
             property alias hasInit            : logic.hasInit
             property real adjustY             : 0
             property bool disableRequests     : false
-            property int numElemsPerPage      : Math.floor(rows * columns)
+            property int numElemsPerPage      : Math.ceil(rows * columns)
             property int requestWhenRemaining : numElemsPerPage * rootObject.requestWhenPagesRemaining
             property int totalPages           : count / numElemsPerPage
             property int currentPage          : (topIdx/numElemsPerPage) + pageOffset
@@ -155,7 +155,7 @@ Rectangle {
             onWidthChanged    : if(hasInit )   getMoreIfNeeded(false, "WIDTH")
             onHeightChanged   : if(hasInit )   getMoreIfNeeded(false, 'HEIGHT')
             onContentYChanged : {
-                console.log("have I init?", hasInit)
+//                console.log("have I init?", hasInit)
                 if(hasInit )   getMoreIfNeeded(false, 'CONTENTY')
             }
             onModelChanged    : if(hasInit )   getMoreIfNeeded(false, 'MODEL')
@@ -187,9 +187,10 @@ Rectangle {
 
                     //FREEZE RELEVANT INFO in these vars (cause async) ! this will make this atomic and give both up and down a chance
                     //to succeed
-                    var topIdx      = gv.topIdx
-                    var currentPage = Math.floor(topIdx / gv.numElemsPerPage) + pageOffset
-                    console.log("****** ACCORDING TO MY CALCULATIONS IM AT PG", currentPage , "\t\t", topIdx, "/", gv.numElemsPerPage , ". REQ WHEN", requestWhenPagesRemaining);
+                    var topIdx       = gv.topIdx
+                    var elemsPerPage = gv.numElemsPerPage
+                    var currentPage  = Math.floor(topIdx / elemsPerPage) + pageOffset
+//                    console.log("****** ACCORDING TO MY CALCULATIONS IM AT PG", currentPage , "\t\t", topIdx, "/", elemsPerPage , ". REQ WHEN", requestWhenPagesRemaining);
                     var startDelayTimer = false
                     var count = gv.model.count
 
@@ -203,10 +204,14 @@ Rectangle {
                         startDelayTimer = doReq(currentPage - 1, true, topIdx, debug)
                     }
 
-//                    console.log(count , topIdx, requestWhenRemaining)
-                    if(topIdx !== -1 && count - topIdx <= requestWhenRemaining) { //requirement for next
+                    if(topIdx !== -1 && (count - topIdx) <= requestWhenRemaining)  { //requirement for next
+                        //since the requirements have been met for us to ask for a new page.
+                        //and we are scrolling down. We should ask for the last page + 1.
+                        //So figure out the last page.
+                        var lastPageIdx = Math.floor(count / elemsPerPage) + pageOffset;
+
 //                        console.log("ASKING FOR PAGE", currentPage + 1, debug)
-                        startDelayTimer =  doReq(currentPage + 1, false, topIdx, debug) || startDelayTimer
+                        startDelayTimer =  doReq(lastPageIdx + 1, false, topIdx, debug) || startDelayTimer
                     }
 
                     if(startDelayTimer)
