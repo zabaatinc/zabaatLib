@@ -74,8 +74,8 @@ Rectangle {
             if(typeof preFunc === 'function')
                 preFunc(pg)
 
-            //console.log("REQUESTING PAGE", pg, "ELMENTS", Math.ceil(gv.numElemsPerPage * rootObject.requestPageSize))
-            getPageFunc(pg, Math.ceil(gv.numElemsPerPage * rootObject.requestPageSize), function (msg){
+            console.log("REQUESTING PAGE", pg, "ELMENTS", Math.round(gv.numElemsPerPage))
+            getPageFunc(pg, Math.ceil(gv.numElemsPerPage), function (msg){
                 if(msg.data) {
                     logic.addUniqueToArr(logic.pagesReceived, pg)
                     pageReceived(pg, msg.data, false)
@@ -154,7 +154,10 @@ Rectangle {
             onHasInitChanged  : if(hasInit )   getMoreIfNeeded(true , 'INIT')
             onWidthChanged    : if(hasInit )   getMoreIfNeeded(false, "WIDTH")
             onHeightChanged   : if(hasInit )   getMoreIfNeeded(false, 'HEIGHT')
-            onContentYChanged : if(hasInit )   getMoreIfNeeded(false, 'CONTENTY')
+            onContentYChanged : {
+                console.log("have I init?", hasInit)
+                if(hasInit )   getMoreIfNeeded(false, 'CONTENTY')
+            }
             onModelChanged    : if(hasInit )   getMoreIfNeeded(false, 'MODEL')
             onVerticalVelocityChanged : if(flicking){
                 if(verticalVelocity < 0) {  //view is moving up as a result of flicking down
@@ -175,11 +178,10 @@ Rectangle {
                 return null;
             }
             function getMoreIfNeeded(forceRequest, debug){
-
+//                console.log("****** GET MORE IF NEEDED!!!");
                 function doReq(p, isBeginning, topIdx, debug){
                     return p === -1 ? false : requestPage(p, null, function(){ var b = isBeginning; if(!b) gv.preserveVelocity = gv.verticalVelocity  })
                 }
-
 
                 if(!disableRequests && (!delayTimer.running || forceRequest) && gv.model) {
 
@@ -187,6 +189,7 @@ Rectangle {
                     //to succeed
                     var topIdx      = gv.topIdx
                     var currentPage = Math.floor(topIdx / gv.numElemsPerPage) + pageOffset
+                    console.log("****** ACCORDING TO MY CALCULATIONS IM AT PG", currentPage , "\t\t", topIdx, "/", gv.numElemsPerPage , ". REQ WHEN", requestWhenPagesRemaining);
                     var startDelayTimer = false
                     var count = gv.model.count
 
