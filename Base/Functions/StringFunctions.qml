@@ -209,5 +209,61 @@ QtObject {
     function spch(str)    {     return  "\"" + str + "\"";   }
 
 
+    function createUrl(url, params) {
+        if(toString.call(params) !== '[object Object]')
+            return url;
+
+        var first = true;
+        for(var p in params) {
+            if(first) {
+                url += "?";
+                first = false;
+            }
+            else {
+                url += "&"
+            }
+            url += p + "=" + params[p]
+        }
+        return url;
+    }
+
+    function getUrlInfo(url, dontDecode) {
+        var retObj = { url : url }
+
+        function getQueryParams(qs) {
+            qs = qs.split('+').join(' ');
+
+            var params = {},
+                tokens,
+                re = /[?&]?([^=]+)=([^&]*)/g;
+
+            while (tokens = re.exec(qs)) {
+                if(!dontDecode)
+                    params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+                else
+                    params[tokens[1]] = tokens[2];
+            }
+
+            return params;
+        }
+
+
+        if(typeof url !== 'string')
+            return retObj;
+
+        //find the query string first
+        var qIdx = url.indexOf('?')
+        if(qIdx === -1)
+            return retObj;
+
+        var qStr = url.slice(qIdx);
+        return {
+            url    : url.substring(0,qIdx),
+            params : getQueryParams(qStr)
+        }
+
+    }
+
+
 
 }

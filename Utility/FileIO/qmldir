@@ -3,3 +3,4 @@ plugin zfileio
 classname zfileio
 typeinfo plugins.qmltypes
 DownloadProgressBar 1.0 DownloadProgressBar.qml
+FileCache 1.0 FileCache.qml
