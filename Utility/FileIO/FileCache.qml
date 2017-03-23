@@ -3,9 +3,17 @@ import Zabaat.Utility.FileIO 1.0
 import Zabaat.Base 1.0
 Item {
     id : rootObject
-    property string cacheLocation : "C:/tmp/cache";
-    Component.onCompleted         : file.makeSureLocationExits(cacheLocation).then(logic.loadMap);
-    onCacheLocationChanged        : file.makeSureLocationExits(cacheLocation).then(logic.loadMap);
+    property string cacheLocation
+    Component.onCompleted               : {
+        if(cacheLocation)
+            file.makeSureLocationExits(cacheLocation).then(logic.loadMap);
+    }
+
+    onCacheLocationChanged              : {
+        if(cacheLocation)
+            file.makeSureLocationExits(cacheLocation).then(logic.loadMap);
+    }
+
     property int enforce_fileLimit      : 0 //0 means there's no limit
     property int enforce_removeNumFiles : 0 //0 means that we will just delete only the oldest files when we are over fileLimit.
     property bool logDownloads          : true
@@ -35,8 +43,7 @@ Item {
     function load(id) {
         return Promises.promise(function(resolve,reject){
 
-            if(logic.inProgressIds[id]) {
-//                Functions.log('waiting because', id, 'is in progress')
+            if(logic.inProgressIds[id] ) {
                 Functions.connectUntilTruthy(logic.finishedProcessingId, function(success, finishedId, fileLocation) {
                     if(id !== finishedId)
                         return false;
@@ -51,35 +58,16 @@ Item {
                 return;
             }
 
-            function doDownload() {
-                if(!logDownloads)
-                    return logic.downloadPromise(id).then(resolve).catch(reject)
-
-                return logic.downloadPromise(id).then(function(url) {
-                    logic.writeDownloadLog(id,true);
-                    resolve(url);
-                }).catch(function() {
-                    logic.writeDownloadLog(id,false);
-                    reject();
-                })
-            }
-
-
             logic.inProgressIds[id] = true;
-            logic.mapGet(id).then(function(entry) {
-                //fix this. It needs to do finally after do download. not parallel
-                if(!entry) {
-                    return doDownload();
-                }
-
-                fnIsOutdated(id,entry).then(function(needsUpdate) {
-                    return !needsUpdate ? resolve(logic.getLocation(entry)) : doDownload();
-                })
-
-            }).catch(reject).finally(function() {
+            logic.loadProcess(id).then(function(location){
+                logic.finishedProcessingId(true,id,location);
+                resolve(location);
+            }).catch(function(){
+                logic.finishedProcessingId(false,id,"");
+                reject();
+            }).finally(function(){
                 logic.inProgressIds[id] = false;
-            });
-
+            })
         })
     }
 
@@ -98,6 +86,33 @@ Item {
 
         property var map : ({ __fgen : 0, __count : 0 })    //the fGen is used to save files.
 
+        function loadProcess(id) {
+            return Promises.promise(function(resolve,reject){
+
+                function doDownload() {
+                    if(!logDownloads)
+                        return logic.downloadPromise(id).then(resolve).catch(reject)
+
+                    return logic.downloadPromise(id).then(function(url) {
+                        logic.writeDownloadLog(id,true);
+                        resolve(url);
+                    }).catch(function() {
+                        logic.writeDownloadLog(id,false);
+                        reject();
+                    })
+                }
+
+                var entry = logic.map[cacheId(id)];
+                if(!entry) {
+                    return doDownload();
+                }
+
+                fnIsOutdated(id,entry).then(function(needsUpdate) {
+                    return !needsUpdate ? resolve(logic.getLocation(entry)) : doDownload();
+                });
+
+            })
+        }
 
 
         function cacheId(id) { return cacheLocation + "/" + id; }   //convenience function!
@@ -164,9 +179,7 @@ Item {
 
                         //make sure , we haven't exceeded our fileLimit. Then save the map. Then resolve!
                         logic.enforceFileLimit().then(logic.saveMap).then(function() {
-                            var location = getLocation(id)
-                            logic.finishedProcessingId(true,id,location);
-                            resolve(location);
+                            resolve(getLocation(id));
                         }).catch(reject);
 
                     }
@@ -178,9 +191,6 @@ Item {
                         Functions.error("Download", id, "failed:", reason.slice(0,idx));
                         downloader.downloadFailed.disconnect(fnDownloadFailed);
                         downloader.downloadSaved.disconnect(fnDownloadFinished);
-
-                        logic.finishedProcessingId(false,id,"");
-                        logic.inProgressIds[id] = false;
 
                         return reject(reason);
                     }
