@@ -9,6 +9,7 @@ M.ZSkin {
     anchors.centerIn             : parent
     property alias font          : titleText.font
     property alias closeButton   : closeButton
+    property alias titleContainer: titleContainer
     property var mType           : logic && logic.modelType ? logic.modelType : undefined
     property alias guiLogic : guiLogic
 
@@ -49,7 +50,7 @@ M.ZSkin {
         Rectangle {
             id : titleContainer
             width : parent.width
-            height : parent.height * guiLogic.cellHeight
+            height : visible ?  parent.height * guiLogic.cellHeight : 0
             clip: true
             color : M.Colors.getContrastingColor(rootObject.color,1.2)
             border.width: 1
@@ -205,6 +206,7 @@ M.ZSkin {
           } ,
          "fill" : {"guiLogic" : { "fillGrid" : true } },
          "noclose" : {"closeButton" : {visible:false} },
+          "notitle" : { "titleContainer" : { visible : false }},
           "closeleft"   :  { "guiLogic" : { "closeBtnPos" : 1   }  } ,
           "closeright"  :  { "guiLogic" : { "closeBtnPos" : 0   }  } ,
 
