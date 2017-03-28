@@ -8,6 +8,8 @@ Item {
     id : rootObject
     property point imgSize
     property rect  subRect
+    property alias sourceSize : img.sourceSize
+    readonly property size paintedSize : Qt.size(img.paintedWidth, img.paintedHeight);
     property alias source    : img.source
     property alias cache     : img.cache
     property alias fillMode  : img.fillMode
