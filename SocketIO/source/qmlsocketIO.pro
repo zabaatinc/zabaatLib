@@ -42,7 +42,7 @@ INCLUDEPATH += $$PWD/socketio_module/lib/rapidjson/include \
                $$PWD/socketio_module/lib/websocketpp
 
 
-win32:{ #include include and link boost!
+win32:{ #include include and link boost! Fix this and android later!!! OH BOYO!!!
     INCLUDEPATH +=  C:/boost/include/boost-1_60
     LIBS        += "-LC:/boost/lib" -lboost_random
     LIBS        += "-LC:/boost/lib" -lboost_system
@@ -65,9 +65,9 @@ android:{
 }
 
 osx {
-  INCLUDEPATH += /Users/Wolfy/boost_1_50_0_build/include
-  LIBS += "-L/Users/Wolfy/boost_1_50_0_build/lib"
-  LIBS  += -lboost_date_time -lboost_system -lboost_random
+  INCLUDEPATH += $$PWD/boost/include/1_5_0
+  LIBS        += -L$$PWD/boost/osx/
+  LIBS        += -lboost_date_time -lboost_system -lboost_random
 
 
    plugin.files = $$OUT_PWD/TARGET
@@ -76,9 +76,9 @@ osx {
 }
 
 ios:{
-  INCLUDEPATH += /Users/Wolfy/boostios/include
-  LIBS += "-L/Users/Wolfy/boostios/lib"
-  LIBS  += -lboost_date_time -lboost_system -lboost_random
+  INCLUDEPATH += $$PWD/boost/include/1_6_0
+  LIBS        += -L$$PWD/boost/ios/ -lboost
+  PRE_TARGETDEPS += $$PWD/boost/ios/libboost.a
 
   CONFIG += static
   QMAKE_MOC_OPTIONS += -Muri=Zabaat.SocketIO
@@ -90,3 +90,7 @@ ios:{
 
 
 
+#macx: LIBS += -L$$PWD/boost/ios/ -lboost
+#INCLUDEPATH += $$PWD/boost/include/1_6_0
+#DEPENDPATH += $$PWD/boost/include/1_6_0
+#macx: PRE_TARGETDEPS += $$PWD/boost/ios/libboost.a

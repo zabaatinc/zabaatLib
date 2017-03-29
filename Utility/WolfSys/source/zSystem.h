@@ -4,10 +4,15 @@
 #include <cstdarg>
 
 #include <cstring>
-#include <io.h>
+#ifdef __APPLE__
+    #include <sys/uio.h>
+#else
+    #include <io.h>
+#endif
+
 #include <stdio.h>
 #include <unistd.h>
-#include <direct.h>
+
 
 #include<ios>
 #include<iostream>
@@ -23,7 +28,10 @@
 #if defined _WIN32 || defined _WIN64
     #include <windows.h>
     #include <tlhelp32.h>
+    #include <direct.h>
     #include <dirent.h>
+#elif defined __APPLE__
+    #include <sys/dirent.h>
 #endif
 
 
