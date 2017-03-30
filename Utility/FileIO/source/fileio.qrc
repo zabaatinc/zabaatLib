@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Zabaat/Utility/FileIO/DownloadProgressBar.qml</file>
+        <file>Zabaat/Utility/FileIO/FileCache.qml</file>
+        <file>Zabaat/Utility/FileIO/qmldir</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,3 @@
+module Zabaat.Utility.SubModel
+ZSubModel 1.0 ./v100/ZSubModel.qml
+ZSubModel 1.1 ./v101/ZSubModel.qml

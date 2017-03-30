@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Zabaat/Utility/SubModel/v100/ZSubModel.qml</file>
+        <file>Zabaat/Utility/SubModel/v100/ZSubModel.js</file>
+        <file>Zabaat/Utility/SubModel/v100/queryHandler.js</file>
+        <file>Zabaat/Utility/SubModel/v101/ZSubModel.qml</file>
+        <file>Zabaat/Utility/SubModel/qmldir</file>
+    </qresource>
+</RCC>

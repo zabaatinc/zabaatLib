@@ -2,13 +2,13 @@
 #define ZFILEIO_PLUGIN_H
 
 #include <QQmlExtensionPlugin>
+#include <QQmlApplicationEngine>
+#include <QtQml>
+#include <QFileInfo>
+#include <QList>
 #include "zfilerw.h"
 #include "zpaths.h"
 #include "zfiledownloader.h"
-#include <qqml.h>
-#include <QFileInfo>
-#include <QList>
-#include <QQmlApplicationEngine>
 
 class zfileio : public QQmlExtensionPlugin
 {
@@ -23,11 +23,13 @@ public:
     }
 
     static void registerAllQmlTypes(QQmlApplicationEngine &engine, QString path = "Zabaat.Utility.FileIO") {
-        qmlRegisterType<ZFileRW>       (path , 1, 0, "ZFileOperations");
-        qmlRegisterType<ZPaths>        (path , 1, 0, "ZPaths" );
-        qmlRegisterType<fileDownloader>(path , 1, 0, "ZFileDownloader");
+        qmlRegisterType<ZFileRW>       (path.toStdString().c_str() , 1, 0, "ZFileOperations");
+        qmlRegisterType<ZPaths>        (path.toStdString().c_str() , 1, 0, "ZPaths" );
+        qmlRegisterType<fileDownloader>(path.toStdString().c_str() , 1, 0, "ZFileDownloader");
         engine.addImportPath("qrc:/");
     }
+
+
 };
 
 

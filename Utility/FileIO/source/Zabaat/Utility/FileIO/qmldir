@@ -1,0 +1,3 @@
+module Zabaat.Utility.FileIO
+DownloadProgressBar 1.0 DownloadProgressBar.qml
+FileCache 1.0 FileCache.qml

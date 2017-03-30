@@ -4,6 +4,7 @@
 #include <QQmlExtensionPlugin>
 #include "qmlSocketIOClient.h"
 #include <qqml.h>
+#include <QQmlApplicationEngine>
 
 class qmlsocketIO : public QQmlExtensionPlugin
 {
@@ -13,6 +14,10 @@ class qmlsocketIO : public QQmlExtensionPlugin
 public:
     void registerTypes(const char *uri) {
          qmlRegisterType<qmlSocketIOClient>(uri , 1, 0, "ZSocketIO");
+    }
+
+    static void registerAllQmlTypes(QQmlApplicationEngine &engine, QString path = "Zabaat.SocketIO") {
+        qmlRegisterType<qmlSocketIOClient>(path.toStdString().c_str() , 1, 0, "ZSocketIO");
     }
 };
 
