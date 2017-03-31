@@ -27,11 +27,13 @@ public:
     ~ZFileRW(){}
 
     Q_INVOKABLE QString readFile(QString fileName) {
-        if(fileName.contains("qrc:///"))
-            fileName = fileName.replace("qrc:///", ":");
+        QFile file;
+        if(!fileExists(file,fileName)){
+            qDebug() << "file does not exist!!!";
+            return "";
+        }
 
         QString content = "";
-        QFile file(fileName);
         if (file.open(QIODevice::ReadOnly)) {
             QTextStream stream(&file);
             content = stream.readAll();
@@ -42,14 +44,19 @@ public:
         return content;
     }
     Q_INVOKABLE QString readFileAsB64(QString fileName) {
-        if(fileName.contains("qrc:///"))
-            fileName = fileName.replace("qrc:///", ":");
+        QFile file;
+        qDebug() << "@@@@@@@@@@@ zfilerw::readFileAsB64" << fileName;
+        if(!fileExists(file,fileName)) {
+            qDebug() << "file doesn't exist";
+            return "";
+        }
 
-        QFile file(fileName);
-        file.open(QIODevice::ReadOnly);
-        QByteArray image = file.readAll();
-
-        return QString(image.toBase64());
+        if(file.open(QIODevice::ReadOnly)) {
+            QByteArray image = file.readAll();
+            return QString(image.toBase64());
+        }
+        qWarning() << "Unable to open file!";
+        return "";
     }
     Q_INVOKABLE bool createDirIfDoesNotExist(QString dir){
         if(!QDir(dir).exists()){
@@ -280,6 +287,43 @@ public:
             jsObject.insert(key,v.toString());
         }
     }
+
+private :
+    bool fileExists(QFile &file, QString &fileName) {
+        if(file.exists())
+            return true;
+
+        file.setFileName(fileName);
+        if(file.exists())
+            return true;
+
+        if(check(file,fileName,QString("qrc:///")))
+            return true;
+        if(check(file,fileName,QString("file:///")))
+            return true;
+        return false;
+    }
+
+    bool check(QFile &file, QString &fileName, QString prefix) {
+
+        QString f = fileName.replace(prefix,"");
+        QStringList list ;
+        list << "" << "/" << ":" << ":/" << "/:";
+
+        for(int i = 0 ; i < list.length(); i++){
+            QString p = list[i];
+            file.setFileName(p + f);
+            if(file.exists()) {
+                fileName = p + f;
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+
 };
 
 #endif // ZFILEIO_H
