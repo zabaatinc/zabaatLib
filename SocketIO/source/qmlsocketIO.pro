@@ -1,6 +1,6 @@
 TEMPLATE    = lib
 QT          += qml quick
-CONFIG      += qt c++11 no_keywords plugin
+CONFIG      += qt c++11 plugin
 #RESOURCES   += qml.qrc
 TARGET      = qmlsocketIO
 TARGET      = $$qtLibraryTarget($$TARGET)

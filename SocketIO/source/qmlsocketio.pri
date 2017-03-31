@@ -1,10 +1,11 @@
 QT          += qml quick
-CONFIG      += no_keywords  #remove this after build?? so other pri systems can function???
+#CONFIG      += no_keywords  #remove this after build?? so other pri systems can function???
+
 
 #Input
-HEADERS += $$PWD/src/qmlSocketIOClient.h \
+HEADERS += $$PWD/src/qmlsocketIO.h \
+           $$PWD/src/qmlSocketIOClient.h \
            $$PWD/src/mstimer.h  \
-           $$PWD/src/qmlsocketIO.h \
            $$PWD/socketio_module/src/sio_client.h  \
            $$PWD/socketio_module/src/sio_message.h \
            $$PWD/socketio_module/src/sio_socket.h  \
@@ -19,21 +20,19 @@ SOURCES += $$PWD/socketio_module/src/sio_client.cpp \
            $$PWD/socketio_module/src/internal/sio_client_impl.cpp #main.cpp
 
 INCLUDEPATH += $$PWD/socketio_module/lib/rapidjson/include \
-               $$PWD/socketio_module/lib/websocketpp
-
+               $$PWD/socketio_module/lib/websocketpp \
+               $$PWD/src
 
 win32:{ #include include and link boost! Fix this and android later!!! OH BOYO!!!
-    INCLUDEPATH +=  C:/boost/include/boost-1_60
-    LIBS        += "-LC:/boost/lib" -lboost_random
-    LIBS        += "-LC:/boost/lib" -lboost_system
-    LIBS        += "-LC:/boost/lib" -lboost_date_time
-    LIBS        += -lws2_32     #include WINSOCKETS to stop the stupid ass WSA startup errors!
+    INCLUDEPATH += $$PWD/boost/include/1_6_3
+    LIBS += -L$$PWD/boost/windows/ -lboost_random -lboost_system -lboost_date_time
+    LIBS += -lws2_32     #include WINSOCKETS to stop the stupid ass WSA startup errors!
 #libboost_random-mgw49-mt-1_60
 }
 
 android:{
     ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
-    INCLUDEPATH +=  C:/boost_android/include/
+    INCLUDEPATH +=  C:/boost_android/include/       #fix this later
 
     contains(ANDROID_TARGET_ARCH, armeabi-v7a) {
         LIBS  += "-LC:/boost_android/armeabi-v7a/lib/"

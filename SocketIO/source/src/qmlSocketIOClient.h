@@ -323,7 +323,7 @@ private:
                     };
 
             //send it out and pass in the func cb
-            client.socket()->emit(method.toStdString(), om, func);
+            client.socket()->Emit(method.toStdString(), om, func);
             return cbId;
         }
         else {
@@ -415,6 +415,7 @@ private:
             return m;
         }
         else if(js.isObject()){
+            qDebug() << "js is Object";
             sio::message::ptr m = sio::object_message::create();
             auto &map           = m->get_map();
 
