@@ -29,7 +29,7 @@ public:
     Q_INVOKABLE QString readFile(QString fileName) {
         QFile file;
         if(!fileExists(file,fileName)){
-            qDebug() << "file does not exist!!!";
+            qDebug() << "file does not exist:" << fileName;
             return "";
         }
 
@@ -47,7 +47,7 @@ public:
         QFile file;
         qDebug() << "@@@@@@@@@@@ zfilerw::readFileAsB64" << fileName;
         if(!fileExists(file,fileName)) {
-            qDebug() << "file doesn't exist";
+            qDebug() << "file does not exist:" << fileName;
             return "";
         }
 
