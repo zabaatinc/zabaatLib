@@ -25,8 +25,9 @@ QtObject {
         idProperty = idProperty || "id";
 
 
-        return Lodash.isObject(js) ? priv.createObject(js, path, signals, idProperty) :
-                                     priv.createArray(js,path, signals, idProperty);
+        return Lodash.isArray(js) ? priv.createArray(js,path, signals, idProperty) :
+                                    priv.createObject(js, path, signals, idProperty) ;
+
     }
 
     function addListeners(arr,obj) {

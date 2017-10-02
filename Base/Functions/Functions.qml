@@ -129,18 +129,59 @@ QtObject {
     function chainableFunctionFactory() {
         var args = Array.prototype.slice.call(arguments);
 
+        function cleanup(arr) {
+            var seenBefore = {}
+            for(var i = arr.length-1; i >= 0; i--){
+                var v = arr[i];
+                if(!v)
+                    continue;
+
+                if(typeof v !== 'object') {
+
+                    var key = v.toString();
+                    if(seenBefore[key]) {
+                        arr.splice(i,1);
+                        continue;
+                    }
+
+                    arr[i] = key;
+                    seenBefore[key] = true;
+                    continue;
+                }
+
+                //otherwise, it is an object. we must remove it before proceeding!
+                if(toString.call(v) === '[object Array]') {
+                    v.forEach(function(vin) {
+                        var type = typeof vin
+                        if(type === 'string' || type === 'number') {
+                            var key = vin.toString();
+                            if(!seenBefore[key]) {
+                                arr.push(key);
+                                seenBefore[key] = true;
+                            }
+                        }
+                    })
+                }
+                arr.splice(i,1);
+            }
+        }
+
+
         function capitalizeFirst(str) {
             return str.charAt(0).toUpperCase() + str.slice(1)
         }
 
         var obj = { _fnStore : {} }
+
+        cleanup(args);
         args.forEach(function(v) {
             v = v.toString();
 
             var onName = "on" + capitalizeFirst(v);
             obj[onName] = function(fn) {
+                var myName = v;
                 if(typeof fn === 'function')
-                    obj._fnStore[v] = fn;
+                    obj._fnStore[myName] = fn;
                 return obj;
             }
 
@@ -151,6 +192,82 @@ QtObject {
                     return fn.apply({},Array.prototype.slice.call(arguments));
             }
 
+        })
+        return obj;
+    }
+
+    function chainableFunctionFactory_nonenumerable() {
+        var args = Array.prototype.slice.call(arguments);
+
+        function cleanup(arr) {
+            var seenBefore = {}
+            for(var i = arr.length-1; i >= 0; i--){
+                var v = arr[i];
+                if(!v)
+                    continue;
+
+                if(typeof v !== 'object') {
+
+                    var key = v.toString();
+                    if(seenBefore[key]) {
+                        arr.splice(i,1);
+                        continue;
+                    }
+
+                    arr[i] = key;
+                    seenBefore[key] = true;
+                    continue;
+                }
+
+                //otherwise, it is an object. we must remove it before proceeding!
+                if(toString.call(v) === '[object Array]') {
+                    v.forEach(function(vin) {
+                        var type = typeof vin
+                        if(type === 'string' || type === 'number') {
+                            var key = vin.toString();
+                            if(!seenBefore[key]) {
+                                arr.push(key);
+                                seenBefore[key] = true;
+                            }
+                        }
+                    })
+                }
+                arr.splice(i,1);
+            }
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1)
+        }
+
+        function nonenumerableDescriptor(val) {
+            return { configurable : false, enumerable : false, value : val }
+        }
+
+
+        var obj = {}
+        Object.defineProperty(obj,"_fnStore", nonenumerableDescriptor({}))
+
+        cleanup(args);
+        args.forEach(function(v) {
+            v = v.toString();
+
+            var onName = "on" + capitalizeFirst(v);
+            var onFn   = function(fn) {
+                var myName = v;
+                if(typeof fn === 'function')
+                    obj._fnStore[myName] = fn;
+                return obj;
+            }
+            var fn     = function() {
+                var myName = v;
+                var fn = obj._fnStore[myName];
+                if(typeof fn === 'function')
+                    return fn.apply({},Array.prototype.slice.call(arguments));
+            }
+
+            Object.defineProperty(obj,onName,nonenumerableDescriptor(onFn));
+            Object.defineProperty(obj,v,nonenumerableDescriptor(fn))
         })
         return obj;
     }
