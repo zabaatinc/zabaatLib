@@ -1,4 +1,5 @@
 import QtQuick 2.0
+
 Item {
     id : rootObject
     width : winPtr? winPtr.width  : minWidth
@@ -71,6 +72,7 @@ Item {
         property real   resizeAreaPx : 15
         property real   barSize : 30
         property alias  border  : borderRect.border
+        property alias  animation: focusAnimationContainer;
 
         //mouse Areas
         Item {
@@ -196,7 +198,7 @@ Item {
         //background
         Rectangle {
             id : bar
-            border.width: 2
+            border.width: 1
             color : winPtr && winPtr.activeFocusItem ?  gui.focusColor : gui.unfocusColor
             width : parent.width
             height : gui.barSize
