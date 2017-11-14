@@ -9,6 +9,9 @@ import Zabaat.Controller.ZController 1.0
 */
 ZController {
     id : controller
+    Component.onCompleted: {
+        console.log("SocketIOController Wakeup. Update date 11/13/2017");
+    }
 
     /*! apparently never gets called \hr*/
     signal statusUpdate  (string status, int reconnectTimer)
@@ -124,9 +127,9 @@ ZController {
         override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
         passToken : this is automatically token from rootObject
     */
-    function postReq(url, params, callback,modelToUpdate){
+    function postReq(url, params, callback,modelToUpdate, errHandler){
         //decipher the mdoelname!!
-        priv.req('Post', url, params, callback, modelToUpdate)
+        priv.req('Post', url, params, callback, modelToUpdate, errHandler)
     }
 
     /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
@@ -135,8 +138,8 @@ ZController {
         override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
         passToken : this is automatically token from rootObject
     */
-    function putReq(url, params, callback,modelToUpdate) {
-        priv.req('Put', url, params, callback, modelToUpdate)
+    function putReq(url, params, callback,modelToUpdate, errHandler) {
+        priv.req('Put', url, params, callback, modelToUpdate, errHandler)
     }
 
     /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
@@ -145,8 +148,8 @@ ZController {
         override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
         passToken : this is automatically token from rootObject
     */
-    function getReq(url, params, callback, modelToUpdate){
-        priv.req('Get', url, params, callback, modelToUpdate)
+    function getReq(url, params, callback, modelToUpdate, errHandler){
+        priv.req('Get', url, params, callback, modelToUpdate, errHandler)
     }
 
     /*! url      : is actually the function name. Do not need to specify full path here. Only /update or something like that.  \hr
@@ -155,8 +158,8 @@ ZController {
         override :  don't run this if already ran this. Kinda useless. should be removed perhaps.
         passToken : this is automatically token from rootObject
     */
-    function deleteReq(url, params, callback, modelToUpdate){
-        priv.req('Delete', url, params, callback, modelToUpdate)
+    function deleteReq(url, params, callback, modelToUpdate, errHandler){
+        priv.req('Delete', url, params, callback, modelToUpdate, errHandler)
     }
 
     QtObject {
@@ -180,7 +183,7 @@ ZController {
             }
             return false
         }
-        function handleError(origin, response){
+        function handleError(origin, response, errHandler){
             if(!response)
                 return console.warn("O__O SOCKETIO O_O @",origin, "Null response")
 
@@ -189,8 +192,8 @@ ZController {
             else                      e = response.err    ? response.err    : response.error
 
             if(e){
-
-                if(controller.errHandler){
+                errHandler = errHandler || controller.errHandler;
+                if(typeof errHandler === 'function'){
                     var errObj = { origin : origin }
 
                     if(typeof e === 'object') {
@@ -202,7 +205,7 @@ ZController {
                         errObj["error"] = e;
                     }
 
-                    controller.errHandler(errObj)
+                    errHandler(errObj)
                 }
                 else {
                     console.error("X__X SocketIO X__X @", origin,JSON.stringify(e,null,2))
@@ -246,15 +249,15 @@ ZController {
             }
             return response
         }
-        function errorCheck(response, errDisplay){
+        function errorCheck(response, errDisplay, errHandler){
 //            console.log("ERROR CHECK", JSON.stringify(response,null,2))
             if(response && (response.err || response.error) ) {
-                priv.handleError('ZClient.' + errDisplay + ' (server validation error)' , response)
+                priv.handleError('ZClient.' + errDisplay + ' (server validation error)' , response, errHandler)
                 return false
             }
             return true
         }
-        function req(type, url, params, callback, modelToUpdate){
+        function req(type, url, params, callback, modelToUpdate, errCallback){
             if(autoAddEventListeners){
 //                console.log("ADDING EVENT LISTENER FOR", url)
                 priv.addEvent(url)
@@ -280,8 +283,10 @@ ZController {
                 callback : callback,
                 type: type ,
                 url: url,
-                modelToUpdate :modelToUpdate
+                modelToUpdate :modelToUpdate,
+                errHandler: errCallback || errHandler
             }
+
         }
         function getJsObject(item){
             if(typeof item === "string"){
@@ -296,10 +301,13 @@ ZController {
                 socketHandler.addEvent(uarr[0])
         }
 
-        function cbHandlerFunc(response, callback, type,url, modelToUpdate){
+        function cbHandlerFunc(response, callback, type,url, modelToUpdate, errHandler){
             var retTimes = { model : 0, callback : 0 }
             var time
-            var noerror = priv.errorCheck(response, type + 'req')
+            errHandler = errHandler || controller.errHandler;
+//            console.log("errHandler is same as root errHandler?", errHandler === controller.errHandler)
+            var noerror = priv.errorCheck(response, type + 'req', errHandler)
+
 //            if(!noerror)
 //                console.log("@@ ERROR ON", url, JSON.stringify(response,null,2))
             if(response){
@@ -318,6 +326,15 @@ ZController {
             return retTimes
         }
 
+        function getErrorHandler(cbId) {
+            var cbObj = priv.cbObjects[cbId];
+            if(cbObj && typeof cbObj.errHandler === 'function'){
+                return cbObj.errHandler;
+            }
+            if(typeof errHandler === 'function')
+                return errHandler;
+            return null;
+        }
 
 
 
@@ -338,35 +355,40 @@ ZController {
 
         property int autoServerMsgId : -1   //messages sent from server without us asking are marked with negative cbId from us!
         onServerResponse: {
+//            console.log("serverResponse for cbId", cbId);
             var jsRes = priv.parseAndCheck(value,"",cbId)
 
-            if(logic.isArray(jsRes))        jsRes = jsRes[0]
-            if(jsRes.statusCode && !jsRes.statusCode === "200" && !jsRes.statusCode === "201")  {
-                //is error!
-                if(errHandler){
-                    errHandler( { msg   : "Server Error",
-                                  event : eventName,
-                                  code  : jsRes.statusCode
-                                }
-                               )
-                }
+            if(logic.isArray(jsRes))
+                jsRes = jsRes[0]
 
-                return;
+
+            function error(jsRes) {
+                if(jsRes.statusCode && !jsRes.statusCode === "200" && !jsRes.statusCode === "201")  {
+                    //is error!
+                    var errHandler = priv.getErrorHandler(cbId);
+//                    console.log('GET THE ERROR HANDLER. Root error Handler?', errHandler === controller.errHandler)
+                    if(typeof errHandler === 'function'){
+                        errHandler({
+                            msg   : "Server Error",
+                            event : eventName,
+                            code  : jsRes.statusCode
+                        })
+                    }
+
+                    return true;
+                }
+                return false;
             }
+
+            if(error(jsRes))
+                return;
+
+
             if(jsRes.headers && typeof jsRes.body !== 'undefined')  //use part of the message we actually need!
                 jsRes = jsRes.body
-            if(jsRes.statusCode && !jsRes.statusCode === "200" && !jsRes.statusCode === "201")  {
-                //is error!
-                if(errHandler){
-                    errHandler( { msg   : "Server Error",
-                                  event : eventName,
-                                  code  : jsRes.statusCode
-                                }
-                               )
-                }
 
+            if(error(jsRes))
                 return;
-            }
 
             var arr = eventName.split("/")
             var mName = arr[0] !== "" ? arr[0] : arr.length > 1 ? arr[1] : ""
@@ -385,7 +407,7 @@ ZController {
                     var time = priv.now()
 
                     //cbHandler func does err checking inside!
-                    var times = priv.cbHandlerFunc(jsRes,  cbObj.callback, cbObj.type, cbObj.url, cbObj.modelToUpdate)
+                    var times = priv.cbHandlerFunc(jsRes,  cbObj.callback, cbObj.type, cbObj.url, cbObj.modelToUpdate, priv.getErrorHandler(cbId))
                     time = priv.now() - time
 
                     if(time > longTime) {
