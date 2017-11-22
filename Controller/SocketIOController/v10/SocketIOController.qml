@@ -1,6 +1,7 @@
 import QtQuick 2.5
 import Zabaat.SocketIO 1.0
 import Zabaat.Controller.ZController 1.0
+import Zabaat.Base 1.0
 
 /*!
    \brief an extension of the ZController that uses SocketIO to communicate
@@ -45,14 +46,28 @@ ZController {
     /*! Connect to server at <uri> using <jsQuery> . jsQuery can be blank but can be used to specify sails version ,etc.
         In fact, it defaults to {__sails_io_sdk_version : "1.2.0" }  \hr */
     function connect(uri, jsQuery){
-        if(uri === null || typeof uri === 'undefined')
-            uri = controller.uri
+        return Promises.promise(function(resolve, reject) {
+            if(uri === null || typeof uri === 'undefined')
+                uri = controller.uri;
 
-        if(jsQuery === null || typeof jsQuery === 'undefined')
-            jsQuery = {__sails_io_sdk_version : "1.2.0" }
+            if(jsQuery === null || typeof jsQuery === 'undefined')
+                jsQuery = {__sails_io_sdk_version : "1.2.0" };
 
-//         console.log(controller.uri)
-        socketHandler.connect(uri, JSON.stringify(jsQuery))
+            var noNetwork = !controller.isConnected || controller.reconnecting;
+            if(!noNetwork)
+                return resolve();
+
+    //         console.log(controller.uri)
+            var timerId = Functions.time.setInterval(100, function() {
+                var noNetwork = !controller.isConnected || controller.reconnecting;
+                if(noNetwork)
+                    return;
+
+                Functions.time.stopTimer(timerId);
+                return resolve();
+            })
+            socketHandler.connect(uri, JSON.stringify(jsQuery));
+        })
     }
 
     /*! fn : disconnects any active connections and any attempts to reconnect  \hr */

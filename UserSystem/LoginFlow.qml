@@ -10,7 +10,7 @@ ZPage {
     readonly property alias state : logic.state
 
     function resetState() {
-        logic.state = "";
+        logic.state = logic.defaultState;
     }
 
     signal done();
@@ -24,7 +24,18 @@ ZPage {
 
     QtObject {
         id : logic
-        property string state : ''
+        property string state : defaultState
+        property string defaultState: {
+            var hasLogin = typeof UserSystem.functions.loginFunc === 'function'
+            var hasSignUp = typeof UserSystem.functions.createUserFunc === 'function'
+            var canSkipLogin = UserSystem.skipLoginAllowed
+
+            if(hasLogin && !hasSignUp && !canSkipLogin)
+                return 'login'
+            return '';
+        }
+
+
         function toFileName(state){
             switch(state) {
                 case 'login'    : return Qt.resolvedUrl("./Components/Login.qml");
@@ -44,7 +55,7 @@ ZPage {
                 }
                 else if(UserSystem.status === UserState.notloggedIn && logic.watchLogout) {
                     logic.watchLogout = false;
-                    logic.state = "";
+                    logic.state = logic.defaultState;
                 }
             }
         }

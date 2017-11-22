@@ -58,7 +58,7 @@ QtObject {
             return false;
 
         var timer = _members.infiniteTimers[timerId];
-        if(v && Qt.isQtObject(v) && v.hasOwnProperty && v.hasOwnProperty("dontDestroy")) {
+        if(timer && Qt.isQtObject(timer) && timer.hasOwnProperty && timer.hasOwnProperty("dontDestroy")) {
             timer.stop();
             timer.destroy();
             delete _members.infiniteTimers[timerId];

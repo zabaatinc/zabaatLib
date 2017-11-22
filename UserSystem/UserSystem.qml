@@ -153,10 +153,15 @@ QtObject{
                     fail();
                 });
     }
-    function logout(success, fail){
+    function logout(success, fail, force){
         //can only log out if you aren't loggedIn and if state isn't busy!
-        if(status == 0 || status >= 3 || noNetwork)
-            return console.error("Cannot log out because you are", priv.statusString);
+        if(!force) {
+            if(status == 0 || status >= 3)
+                return console.error("Cannot log out because you are", priv.statusString);
+
+            if(noNetwork)
+                return console.error("Cannot log out because there is no network!")
+        }
 
         var blankFn = function(){}
         success = typeof success === 'function' ? success : blankFn
