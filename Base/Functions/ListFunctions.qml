@@ -520,7 +520,7 @@ QtObject {
             return;
 
         startingIndex = startingIndex || 0;
-        if(startingIndex >= list.count)
+        if(startingIndex >= arr.length)
             startingIndex = 0;
 
         var isFunc = typeof matchElemOrFunc === 'function'
